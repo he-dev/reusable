@@ -234,7 +234,7 @@ namespace System.Linq.Custom
         public static T SingleOrThrow<T>([NotNull] this IEnumerable<T> source, Func<Exception> onEmpty = null, Func<Exception> onMany = null)
         {
             //return source.SingleOrThrow(_ => true, onEmpty, onMultiple);
-            
+
             if (source == null) throw new ArgumentNullException(nameof(source));
 
             var items = source.Take(2).ToList();
@@ -360,12 +360,19 @@ namespace System.Linq.Custom
             yield return copy[0];
         }
 
-        public static bool IsSubsetOf<T>(this IEnumerable<T> first, IEnumerable<T> second, IEqualityComparer<T> comparer = default)
+        public static bool IsSubsetOf<T>(this IEnumerable<T> first, IEnumerable<T> second, IEqualityComparer<T>? comparer = default)
         {
+            comparer ??= EqualityComparer<T>.Default;
+
             return
-                !second
-                    .Except(first, comparer ?? EqualityComparer<T>.Default)
-                    .Any();
+                first
+                    .Intersect(second, comparer)
+                    .SequenceEqual(first, comparer);
+        }
+        
+        public static bool IsSupersetOf<T>(this IEnumerable<T> first, IEnumerable<T> second, IEqualityComparer<T> comparer = default)
+        {
+            return second.IsSubsetOf(first, comparer);
         }
 
         public static ImmutableDictionary<TKey, TValue> AddWhen<TKey, TValue>(this ImmutableDictionary<TKey, TValue> dictionary, bool condition, TKey key, TValue value)

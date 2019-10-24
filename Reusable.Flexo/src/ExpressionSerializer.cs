@@ -81,10 +81,8 @@ namespace Reusable.Flexo
 
         private static async Task<string> ReadJsonAsync(Stream jsonStream)
         {
-            using (var streamReader = new StreamReader(jsonStream))
-            {
-                return await streamReader.ReadToEndAsync();
-            }
+            using var streamReader = new StreamReader(jsonStream);
+            return await streamReader.ReadToEndAsync();
         }
     }
 }

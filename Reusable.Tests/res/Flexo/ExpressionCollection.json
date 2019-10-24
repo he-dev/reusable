@@ -393,5 +393,71 @@
       "tag-1",
       "tag-2"
     ]
+  },
+  {
+    "$t": "Flexo.Collection",
+    "Name": "Collection.IsSuperset.True",
+    "Values": [
+      "a",
+      "b",
+      "c"
+    ],
+    "This": {
+      "$f": "IsSuperset",
+      "Of": [
+        "b",
+        "c"
+      ]
+    }
+  },
+  {
+    "$t": "Flexo.Collection",
+    "Name": "Collection.IsSuperset.False",
+    "Values": [
+      "a",
+      "b",
+      "c"
+    ],
+    "This": {
+      "$f": "IsSuperset",
+      "Of": [
+        "b",
+        "c",
+        "d"
+      ]
+    }
+  },
+
+  {
+    "$t": "Flexo.Collection",
+    "Name": "Collection.IsSubset.True",
+    "Values": [
+      "a",
+      "c"
+    ],
+    "This": {
+      "$f": "IsSubset",
+      "Of": [
+        "a",
+        "b",
+        "c"
+      ]
+    }
+  },
+  {
+    "$t": "Flexo.Collection",
+    "Name": "Collection.IsSubset.False",
+    "Values": [
+      "a",
+      "d"
+    ],
+    "This": {
+      "$f": "IsSubset",
+      "Of": [
+        "a",
+        "b",
+        "c"
+      ]
+    }
   }
 ]

@@ -117,6 +117,10 @@ namespace Reusable.Flexo
             //("SetSingle", null, false, default),
             //("SetMany", null, false, default),
             ("DoubleWithTags", 3.0, false, new HashSet<SoftString> { "tag-1,", "tag-2" }),
+            ("Collection.IsSuperset.True", true, false, default),
+            ("Collection.IsSuperset.False", false, false, default),
+            ("Collection.IsSubset.True", true, false, default),
+            ("Collection.IsSubset.False", false, false, default),
         }.Select(uc => new { uc.UseCaseName, uc.Expected, uc.Throws, uc.Tags });
 
         [UseMember]

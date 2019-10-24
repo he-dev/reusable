@@ -80,6 +80,8 @@ namespace Reusable.Flexo
             typeof(Reusable.Flexo.Contains),
             typeof(Reusable.Flexo.In),
             typeof(Reusable.Flexo.Overlaps),
+            typeof(Reusable.Flexo.IsSuperset),
+            typeof(Reusable.Flexo.IsSubset),
             typeof(Reusable.Flexo.Matches),
             typeof(Reusable.Flexo.Min),
             typeof(Reusable.Flexo.Max),

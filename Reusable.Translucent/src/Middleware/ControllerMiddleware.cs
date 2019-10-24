@@ -46,7 +46,7 @@ namespace Reusable.Translucent.Middleware
             else
             {
                 var filtered = Filters.Aggregate(_controllers.AsEnumerable(), (providers, filter) => filter(providers, context.Request));
-
+                
                 // GET can search multiple providers.
                 if (context.Request.Method == RequestMethod.Get)
                 {
