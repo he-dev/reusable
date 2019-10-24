@@ -22,10 +22,10 @@ namespace Reusable.Flexo
 
         protected override Constant<bool> InvokeCore()
         {
-            var with = Of.Invoke().Values<object>();
+            var first = Values.Invoke().Values<object>();
+            var second = Of.Invoke().Values<object>();
             var comparer = Scope.GetComparerOrDefault(Comparer);
-            var values = Values.Invoke().Values<object>();
-            return (Name, values.IsSupersetOf(with, comparer));
+            return (Name, first.IsSupersetOf(second, comparer));
         }
     }
 }
