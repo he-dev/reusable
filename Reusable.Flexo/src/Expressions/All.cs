@@ -12,14 +12,14 @@ namespace Reusable.Flexo
     {
         public All(ILogger<All> logger) : base(logger, nameof(All)) { }
 
-        public IEnumerable<IExpression> Values { get => ThisInner ?? ThisOuter; set => ThisInner = value; }
+        public IEnumerable<IExpression> Values { get => This; set => This = value; }
 
         public IExpression Predicate { get; set; }
 
         protected override Constant<bool> InvokeCore()
         {
             var predicate = (Predicate ?? Constant.FromValue(nameof(Predicate), true)).Invoke();
-            foreach (var item in Values)
+            foreach (var item in Values.Enabled())
             {
                 var current = item.Invoke();
                 using (BeginScope(ctx => ctx.SetItem(ExpressionContext.ThisOuter, current)))

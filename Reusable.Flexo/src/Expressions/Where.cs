@@ -12,13 +12,13 @@ namespace Reusable.Flexo
     {
         public Where([NotNull] ILogger<Where> logger) : base(logger, nameof(Where)) { }
 
-        public IEnumerable<IExpression> Values { get => ThisInner ?? ThisOuter; set => ThisInner = value; }
+        public IEnumerable<IExpression> Values { get => This; set => This = value; }
 
         public IExpression Predicate { get; set; }
 
         protected override Constant<IEnumerable<IExpression>> InvokeCore()
         {
-            var result = Values.Where(item =>
+            var result = Values.Enabled().Where(item =>
             {
                 using (BeginScope(ctx => ctx.SetItem(ExpressionContext.ThisOuter, item)))
                 {

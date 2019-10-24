@@ -10,9 +10,21 @@ namespace Reusable.Flexo
     {
         protected ExpressionExtension([NotNull] ILogger logger, SoftString name) : base(logger, name) { }
 
+        /// <summary>
+        /// Gets or sets expression's own value that overrides 'ThisOuter'.
+        /// </summary>
         protected TExtension ThisInner { get; set; }
 
+        /// <summary>
+        /// Gets or sets 'This' passed to this expression when used as an extension.
+        /// </summary>
         protected TExtension ThisOuter => ExpressionScope.Current is null ? default : ThisOuterCore();
+        
+        protected TExtension This
+        {
+            get => ThisInner ?? ThisOuter;
+            set => ThisInner = value;
+        }
 
         #region IExtension
 

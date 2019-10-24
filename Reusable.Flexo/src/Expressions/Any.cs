@@ -12,7 +12,7 @@ namespace Reusable.Flexo
     {
         public Any(ILogger<Any> logger) : base(logger, nameof(Any)) { }
 
-        public IEnumerable<IExpression> Values { get => ThisInner ?? ThisOuter; set => ThisInner = value; }
+        public IEnumerable<IExpression> Values { get => This; set => This = value; }
 
         public IExpression Predicate { get; set; }
 
@@ -20,7 +20,7 @@ namespace Reusable.Flexo
         {
             var predicate = (Predicate ?? Constant.FromValue(nameof(Predicate), true));//.Invoke();
             
-            foreach (var item in Values)
+            foreach (var item in Values.Enabled())
             {
                 var current = item.Invoke();
                 using (BeginScope(ctx => ctx.SetItem(ExpressionContext.ThisOuter, current)))

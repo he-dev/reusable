@@ -10,7 +10,7 @@ namespace Reusable.Flexo
     {
         public Overlaps(ILogger<Overlaps> logger) : base(logger, nameof(Overlaps)) { }
         
-        public IEnumerable<IExpression> Values { get => ThisInner ?? ThisOuter; set => ThisInner = value; }
+        public IEnumerable<IExpression> Values { get => This; set => This = value; }
 
         [JsonRequired]
         public List<IExpression> With { get; set; }
@@ -19,9 +19,9 @@ namespace Reusable.Flexo
 
         protected override Constant<bool> InvokeCore()
         {
-            var with = With.Invoke().Values<object>();
+            var with = With.Enabled().Invoke().Values<object>();
             var comparer = Scope.GetComparerOrDefault(Comparer);
-            var values = Values.Invoke().Values<object>();
+            var values = Values.Enabled().Invoke().Values<object>();
             return (Name, values.Intersect(with, comparer).Any());
         }
     }

@@ -21,13 +21,13 @@ namespace Reusable.Flexo
         public Select(ILogger<Select> logger) : base(logger, nameof(Select)) { }
 
         
-        public  IEnumerable<IExpression> Values { get => ThisInner ?? ThisOuter; set => ThisInner = value; }
+        public  IEnumerable<IExpression> Values { get => This; set => This = value; }
 
         public IExpression Selector { get; set; }
 
         protected override Constant<IEnumerable<IExpression>> InvokeCore()
         {
-            var result = Values.Select(item =>
+            var result = Values.Enabled().Select(item =>
             {
                 using (BeginScope(ctx => ctx.SetItem(ExpressionContext.Item, item)))
                 {

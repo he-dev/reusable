@@ -11,17 +11,17 @@ namespace Reusable.Flexo
     {
         public ForEach([NotNull] ILogger<ForEach> logger) : base(logger, nameof(ForEach)) { }
 
-        public IEnumerable<IExpression> Values { get => ThisInner ?? ThisOuter; set => ThisInner = value; }
+        public IEnumerable<IExpression> Values { get => This; set => This = value; }
 
         public IEnumerable<IExpression> Body { get; set; }
 
         protected override Constant<object> InvokeCore()
         {
-            foreach (var item in Values)
+            foreach (var item in Values.Enabled())
             {
                 using (BeginScope(ctx => ctx.SetItem(ExpressionContext.Item, item)))
                 {
-                    foreach (var expression in Body)
+                    foreach (var expression in Body.Enabled())
                     {
                         expression.Invoke();
                     }
