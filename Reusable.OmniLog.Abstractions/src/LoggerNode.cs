@@ -42,7 +42,7 @@ namespace Reusable.OmniLog.Abstractions
 
             if (!(Next is null))
             {
-                result = result ?? Next;
+                result ??= Next;
                 (Next.Previous, Next) = (Previous, null);
             }
 

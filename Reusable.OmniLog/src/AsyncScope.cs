@@ -3,20 +3,20 @@ using System.Threading;
 
 namespace Reusable.OmniLog
 {
-    public class LoggerScope<T>
+    public class AsyncScope<T>
     {
-        private static readonly AsyncLocal<LoggerScope<T>> State = new AsyncLocal<LoggerScope<T>>();
+        private static readonly AsyncLocal<AsyncScope<T>> State = new AsyncLocal<AsyncScope<T>>();
 
-        private LoggerScope(T value)
+        private AsyncScope(T value)
         {
             Value = value;
         }
 
         public T Value { get; }
 
-        public LoggerScope<T> Parent { get; private set; }
+        public AsyncScope<T> Parent { get; private set; }
 
-        public static LoggerScope<T> Current
+        public static AsyncScope<T> Current
         {
             get => State.Value;
             private set => State.Value = value;
@@ -27,9 +27,9 @@ namespace Reusable.OmniLog
         /// </summary>
         public static bool Any => !(Current is null);
 
-        public static LoggerScope<T> Push(T value)
+        public static AsyncScope<T> Push(T value)
         {
-            return Current = new LoggerScope<T>(value) { Parent = Current };
+            return Current = new AsyncScope<T>(value) { Parent = Current };
         }
 
         public void Dispose()
@@ -37,12 +37,12 @@ namespace Reusable.OmniLog
             Current = Current?.Parent;
         }
 
-        public static implicit operator T(LoggerScope<T> scope) => scope.Value;
+        public static implicit operator T(AsyncScope<T> scope) => scope.Value;
     }
 
-    public static class LoggerScopeExtensions
+    public static class AsyncScopeExtensions
     {
-        public static IEnumerable<LoggerScope<T>> Enumerate<T>(this LoggerScope<T> scope)
+        public static IEnumerable<AsyncScope<T>> Enumerate<T>(this AsyncScope<T> scope)
         {
             var current = scope;
             while (current != null)

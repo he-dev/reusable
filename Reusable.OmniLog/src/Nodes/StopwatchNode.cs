@@ -8,19 +8,19 @@ namespace Reusable.OmniLog.Nodes
     /// <summary>
     /// Adds 'Elapsed' milliseconds to the log.
     /// </summary>
-    public class StopwatchNode : LoggerNode, ILoggerScope<StopwatchNode.Scope, object>
+    public class StopwatchNode : LoggerNode, ILoggerNodeScope<StopwatchNode.Scope, object>
     {
         public StopwatchNode() : base(false) { }
 
-        public override bool Enabled => !(LoggerScope<Scope>.Current is null);
+        public override bool Enabled => !(AsyncScope<Scope>.Current is null);
 
         #region IScope
 
-        public Scope Current => LoggerScope<Scope>.Current?.Value;
+        public Scope Current => AsyncScope<Scope>.Current?.Value;
 
         public Scope Push(object parameter)
         {
-            return LoggerScope<Scope>.Push(new Scope()).Value;
+            return AsyncScope<Scope>.Push(new Scope()).Value;
         }
 
         #endregion
@@ -29,7 +29,7 @@ namespace Reusable.OmniLog.Nodes
 
         protected override void InvokeCore(LogEntry request)
         {
-            request.SetItem(LogEntry.Names.Elapsed, default, (long)GetValue(LoggerScope<Scope>.Current.Value.Elapsed));
+            request.SetItem(LogEntry.Names.Elapsed, default, (long)GetValue(AsyncScope<Scope>.Current.Value.Elapsed));
             Next?.Invoke(request);
         }
 
@@ -46,21 +46,26 @@ namespace Reusable.OmniLog.Nodes
 
             public void Reset() => _stopwatch.Reset();
 
-            public void Dispose() => LoggerScope<Scope>.Current.Dispose();
+            public void Dispose() => AsyncScope<Scope>.Current.Dispose();
         }
     }
 
     public static class LoggerStopwatchHelper
     {
+        // public static StopwatchNode.Scope UseStopwatch(this ILogger logger)
+        // {
+        //     return
+        //         logger
+        //             .Node<StopwatchNode>()
+        //             .Push(default);
+        // }
+        
         /// <summary>
         /// Activates a new stopwatch and returns it.
         /// </summary>
-        public static StopwatchNode.Scope UseStopwatch(this ILogger logger)
+        public static ILoggerScope UseStopwatch(this ILogger logger)
         {
-            return
-                logger
-                    .Node<StopwatchNode>()
-                    .Push(default);
+            return new LoggerScope<StopwatchNode>(logger, node => node.Push(default));
         }
         
         /// <summary>

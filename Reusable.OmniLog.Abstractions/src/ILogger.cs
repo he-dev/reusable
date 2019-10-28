@@ -1,3 +1,4 @@
+using System;
 using Reusable.OmniLog.Abstractions.Data;
 
 namespace Reusable.OmniLog.Abstractions
@@ -16,4 +17,6 @@ namespace Reusable.OmniLog.Abstractions
 
     // ReSharper disable once UnusedTypeParameter - This is required for dependency-injection.
     public interface ILogger<T> : ILogger { }
+
+    public interface ILoggerScope : ILogger, IDisposable { }
 }

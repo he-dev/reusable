@@ -37,7 +37,7 @@ namespace Reusable.OmniLog
         {
             _logger = loggerFactory.CreateLogger(typeof(T).ToPrettyString());
         }
-        
+
         public static ILogger<T> Empty { get; } = new EmptyLogger();
 
         public LoggerNode Node => _logger.Node;
@@ -57,6 +57,35 @@ namespace Reusable.OmniLog
             public LoggerNode Node { get; }
 
             public void Log(LogEntry logEntry) { }
+        }
+    }
+
+    public readonly struct LoggerScope<T> : ILoggerScope where T : LoggerNode
+    {
+        private readonly ILogger _logger;
+        private readonly IDisposable _scope;
+
+        public LoggerScope(ILogger logger, Func<T, IDisposable> push)
+        {
+            _logger = logger;
+            _scope = push(logger.Node<T>());
+        }
+
+        #region ILogger
+
+        public LoggerNode Node => _logger.Node;
+
+        public void Log(LogEntry logEntry) => _logger.Log(logEntry);
+
+        #endregion
+
+        public void Dispose()
+        {
+            _scope.Dispose();
+            if (_logger is IDisposable disposable)
+            {
+                disposable.Dispose();
+            }
         }
     }
 }

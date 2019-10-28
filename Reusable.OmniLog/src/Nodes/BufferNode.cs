@@ -9,23 +9,23 @@ namespace Reusable.OmniLog.Nodes
     /// <summary>
     /// Temporarily holding log-entries while it's waiting to be transferred to another location. 
     /// </summary>
-    public class BufferNode : LoggerNode, ILoggerScope<BufferNode.Scope, object>
+    public class BufferNode : LoggerNode, ILoggerNodeScope<BufferNode.Scope, object>
     {
         public BufferNode() : base(false) { }
 
-        public override bool Enabled => LoggerScope<Scope>.Any;
+        public override bool Enabled => AsyncScope<Scope>.Any;
 
         protected override void InvokeCore(LogEntry request)
         {
-            LoggerScope<Scope>.Current.Value.Buffer.Enqueue(request);
+            AsyncScope<Scope>.Current.Value.Buffer.Enqueue(request);
             // Don't call Next until Commit.
         }
         
-        public Scope Current => LoggerScope<Scope>.Current?.Value;
+        public Scope Current => AsyncScope<Scope>.Current?.Value;
 
         public Scope Push(object parameter)
         {
-            return LoggerScope<Scope>.Push(new Scope { Next = Next }).Value;
+            return AsyncScope<Scope>.Push(new Scope { Next = Next }).Value;
         }
 
         public Scope Push() => Push(default);
@@ -52,19 +52,32 @@ namespace Reusable.OmniLog.Nodes
             public void Dispose()
             {
                 Buffer.Clear();
-                LoggerScope<Scope>.Current.Dispose();
+                AsyncScope<Scope>.Current.Dispose();
             }
         }
     }
 
     public static class BufferNodeHelper
     {
-        public static BufferNode.Scope UseBuffer(this ILogger logger)
+        // public static BufferNode.Scope UseBuffer(this ILogger logger)
+        // {
+        //     return
+        //         logger
+        //             .Node<BufferNode>()
+        //             .Push(default);
+        // }
+        
+        public static ILoggerScope UseBuffer(this ILogger logger)
+        {
+            return new LoggerScope<BufferNode>(logger, node => node.Push(default));
+        }
+        
+        public static BufferNode.Scope Buffer(this ILogger logger)
         {
             return
                 logger
                     .Node<BufferNode>()
-                    .Push(default);
+                    .Current;
         }
     }
 }

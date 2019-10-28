@@ -70,15 +70,17 @@ namespace Reusable.OmniLog
             {
                 var logger = lf.CreateLogger("test");
                 var outerCorrelationId = "test-id-1";
-                using (var scope1 = logger.UseScope(outerCorrelationId))
+                using (logger.UseScope(outerCorrelationId))
                 {
+                    var scope1 = logger.Scope();
                     logger.Log(l => l.Message("Hallo!"));
                     Assert.Same(outerCorrelationId, scope1.CorrelationId);
                     Assert.NotNull(rx[0][LogEntry.Names.Scope]);
 
                     var innerCorrelationId = "test-id-2";
-                    using (var scope2 = logger.UseScope(innerCorrelationId))
+                    using (logger.UseScope(innerCorrelationId))
                     {
+                        var scope2 = logger.Scope();
                         logger.Log(l => l.Message("Hi!"));
                         Assert.Same(innerCorrelationId, scope2.CorrelationId);
                         Assert.NotNull(rx[1][LogEntry.Names.Scope]);

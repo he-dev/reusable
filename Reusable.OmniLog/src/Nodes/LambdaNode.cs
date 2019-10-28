@@ -8,15 +8,15 @@ namespace Reusable.OmniLog.Nodes
     {
         public LambdaNode() : base(false) { }
 
-        public override bool Enabled => LoggerScope<Item>.Any;
+        public override bool Enabled => AsyncScope<Item>.Any;
 
-        public static void Push(Item item) => LoggerScope<Item>.Push(item);
+        public static void Push(Item item) => AsyncScope<Item>.Push(item);
 
         protected override void InvokeCore(LogEntry request)
         {
             while (Enabled)
             {
-                using (var item = LoggerScope<Item>.Current.Value)
+                using (var item = AsyncScope<Item>.Current.Value)
                 {
                     item.AlterLogEntry(request);
                 }
@@ -29,7 +29,7 @@ namespace Reusable.OmniLog.Nodes
         {
             public AlterLogEntryCallback AlterLogEntry { get; set; }
 
-            public void Dispose() => LoggerScope<Item>.Current.Dispose();
+            public void Dispose() => AsyncScope<Item>.Current.Dispose();
         }
     }
 

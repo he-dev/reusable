@@ -5,7 +5,7 @@ using Reusable.OmniLog.Abstractions.Data;
 
 namespace Reusable.OmniLog.Nodes
 {
-    public class CorrelationNode : LoggerNode, ILoggerScope<CorrelationNode.Scope, (object CorrelationId, object CorrelationHandle)>
+    public class CorrelationNode : LoggerNode, ILoggerNodeScope<CorrelationNode.Scope, (object CorrelationId, object CorrelationHandle)>
     {
         public CorrelationNode() : base(false) { }
 
@@ -14,13 +14,13 @@ namespace Reusable.OmniLog.Nodes
         /// </summary>
         public Func<object> NextCorrelationId { get; set; } = () => Guid.NewGuid().ToString("N");
 
-        public override bool Enabled => LoggerScope<Scope>.Any;
+        public override bool Enabled => AsyncScope<Scope>.Any;
 
-        public Scope Current => LoggerScope<Scope>.Current?.Value;
+        public Scope Current => AsyncScope<Scope>.Current?.Value;
         
         public Scope Push((object CorrelationId, object CorrelationHandle) parameter)
         {
-            return LoggerScope<Scope>.Push(new Scope
+            return AsyncScope<Scope>.Push(new Scope
             {
                 CorrelationId = parameter.CorrelationId ?? NextCorrelationId(),
                 CorrelationHandle = parameter.CorrelationHandle
@@ -29,7 +29,7 @@ namespace Reusable.OmniLog.Nodes
 
         protected override void InvokeCore(LogEntry request)
         {
-            request.SetItem(LogEntry.Names.Scope, LogEntry.Tags.Serializable, LoggerScope<Scope>.Current.Enumerate().Select(x => x.Value).ToList());
+            request.SetItem(LogEntry.Names.Scope, LogEntry.Tags.Serializable, AsyncScope<Scope>.Current.Enumerate().Select(x => x.Value).ToList());
             Next?.Invoke(request);
         }
 
@@ -39,20 +39,25 @@ namespace Reusable.OmniLog.Nodes
 
             public object CorrelationHandle { get; set; }
 
-            public void Dispose() => LoggerScope<Scope>.Current.Dispose();
+            public void Dispose() => AsyncScope<Scope>.Current.Dispose();
         }
     }
 
     public static class LoggerCorrelationHelper
     {
-        public static CorrelationNode.Scope UseScope(this ILogger logger, object correlationId = default, object correlationHandle = default)
-        {
-            return
-                logger
-                    .Node<CorrelationNode>()
-                    .Push((correlationId, correlationHandle));
-        }
+        // public static CorrelationNode.Scope UseScope(this ILogger logger, object correlationId = default, object correlationHandle = default)
+        // {
+        //     return
+        //         logger
+        //             .Node<CorrelationNode>()
+        //             .Push((correlationId, correlationHandle));
+        // }
         
+        public static ILoggerScope UseScope(this ILogger logger, object correlationId = default, object correlationHandle = default)
+        {
+            return new LoggerScope<CorrelationNode>(logger, node => node.Push((correlationId, correlationHandle)));
+        }
+
         /// <summary>
         /// Gets the current correlation scope.
         /// </summary>

@@ -18,7 +18,7 @@ namespace Reusable
         public static void Log()
         {
             SmartPropertiesLayoutRenderer.Register();
-            
+
             var loggerFactory = new LoggerFactory
             {
                 Nodes =
@@ -172,12 +172,12 @@ namespace Reusable
                     //logger.Information("This message overrides the transaction.", LoggerTransaction.Override);
                 }
 
-                using (var buffer = logger.UseBuffer())
+                using (logger.UseBuffer())
                 {
                     logger.Information("This message is delayed.");
                     logger.Information("This message is delayed too.");
                     //logger.Information("This message overrides the transaction as first.", LoggerTransaction.Override);
-                    buffer.Flush();
+                    logger.Buffer().Flush();
                 }
             }
         }
