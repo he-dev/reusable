@@ -29,7 +29,7 @@ namespace Reusable.Flexo
                 {
                     try
                     {
-                        return (e.Invoke(), Expression.Scope.Context);
+                        return (e.Invoke(TODO), Expression.Scope.Context);
                     }
                     catch (Exception inner)
                     {

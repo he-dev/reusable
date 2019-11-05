@@ -15,7 +15,7 @@ namespace Reusable.Flexo
 
         public IEnumerable<IExpression> Body { get; set; }
 
-        protected override Constant<object> InvokeCore()
+        protected override Constant<object> InvokeCore(IImmutableContainer context)
         {
             foreach (var item in Values.Enabled())
             {
@@ -23,7 +23,7 @@ namespace Reusable.Flexo
                 {
                     foreach (var expression in Body.Enabled())
                     {
-                        expression.Invoke();
+                        expression.Invoke(TODO);
                     }
                 }
             }

@@ -16,13 +16,13 @@ namespace Reusable.Flexo
 
         public IExpression Predicate { get; set; }
 
-        protected override Constant<IEnumerable<IExpression>> InvokeCore()
+        protected override Constant<IEnumerable<IExpression>> InvokeCore(IImmutableContainer context)
         {
             var result = Values.Enabled().Where(item =>
             {
                 using (BeginScope(ctx => ctx.SetItem(ExpressionContext.ThisOuter, item)))
                 {
-                    return Predicate.Invoke().Value<bool>();
+                    return Predicate.Invoke(TODO).Value<bool>();
                 }
             }).ToList();
 

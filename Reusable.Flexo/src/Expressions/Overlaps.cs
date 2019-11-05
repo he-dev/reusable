@@ -10,14 +10,14 @@ namespace Reusable.Flexo
     {
         public Overlaps(ILogger<Overlaps> logger) : base(logger, nameof(Overlaps)) { }
         
-        public IEnumerable<IExpression> Values { get => This; set => This = value; }
+        public IEnumerable<IExpression> Values { get => ThisInner; set => ThisInner = value; }
 
         [JsonRequired]
         public List<IExpression> With { get; set; }
 
         public string Comparer { get; set; }
 
-        protected override Constant<bool> InvokeCore()
+        protected override Constant<bool> InvokeCore(IImmutableContainer context)
         {
             var with = With.Enabled().Invoke().Values<object>();
             var comparer = Scope.GetComparerOrDefault(Comparer);

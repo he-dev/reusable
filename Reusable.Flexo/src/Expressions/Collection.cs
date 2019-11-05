@@ -13,9 +13,9 @@ namespace Reusable.Flexo
         [JsonRequired]
         public IEnumerable<IExpression> Values { get; set; }
 
-        protected override Constant<IEnumerable<IExpression>> InvokeCore()
+        protected override Constant<IEnumerable<IExpression>> InvokeCore(IImmutableContainer context)
         {
-            return (Name, Values.Enabled().Select((e, i) => Constant.FromValue($"{Name.ToString()}.Items[{i}]", e.Invoke().Value)).ToList());
+            return (Name, Values.Enabled().Select((e, i) => Constant.FromValue($"{Name.ToString()}.Items[{i}]", e.Invoke(TODO).Value)).ToList());
         }
     }
 }

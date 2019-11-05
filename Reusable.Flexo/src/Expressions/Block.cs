@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using JetBrains.Annotations;
 using Reusable.Data;
@@ -12,7 +13,7 @@ namespace Reusable.Flexo
 
         public IEnumerable<IExpression> Body { get; set; }
 
-        protected override Constant<object> InvokeCore()
+        protected override Constant<object> InvokeCore(IImmutableContainer context)
         {
             using (var e = Body.GetEnumerator())
             {
@@ -21,10 +22,10 @@ namespace Reusable.Flexo
                     throw DynamicException.Create("EmptyBlockBody", "Block's Body has to contain at least one element.");
                 }
 
-                var last = e.Current.Invoke();
+                var last = e.Current.Invoke(context);
                 while (e.MoveNext())
                 {
-                    last = e.Current.Invoke();
+                    last = e.Current.Invoke(context);
                 }
 
                 return (last.Name, last.Value);
@@ -32,15 +33,33 @@ namespace Reusable.Flexo
         }
     }
     
-    public class Module : Expression
+    public class Package : Expression
     {
-        public Module([NotNull] ILogger<Module> logger) : base(logger, nameof(Block)) { }
+        public Package([NotNull] ILogger<Package> logger) : base(logger, nameof(Block)) { }
 
         public IExpression Body { get; set; }
 
         public override IConstant Invoke(IImmutableContainer context)
         {
             return Body.Invoke(context);
+        }
+    }
+    
+    public class Import : GetItem<IExpression>
+    {
+        public Import([NotNull] ILogger<Ref> logger) : base(logger, nameof(Ref)) { }
+
+        public List<string> Tags { get; set; }
+
+        protected override Constant<IExpression> InvokeCore(IImmutableContainer context)
+        {
+            var expressions = context.GetItemOrDefault(ExpressionContext.References);
+            var path = Path.StartsWith("R.", StringComparison.OrdinalIgnoreCase) ? Path : $"R.{Path}";
+
+            return
+                expressions.TryGetValue(path, out var expression)
+                    ? (Path, expression)
+                    : throw DynamicException.Create("RefNotFound", $"Could not find a reference to '{path}'.");
         }
     }
 }

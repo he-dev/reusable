@@ -6,7 +6,7 @@ using Reusable.OmniLog.Abstractions;
 
 namespace Reusable.Flexo
 {
-    public class Matches : ValueExtension<bool>
+    public class Matches : ScalarExtension<bool>
     {
         public Matches(ILogger<Matches> logger) : base(logger, nameof(Matches)) { }
 
@@ -16,11 +16,11 @@ namespace Reusable.Flexo
 
         public IExpression Pattern { get; set; }
 
-        protected override Constant<bool> InvokeCore()
+        protected override Constant<bool> InvokeCore(IImmutableContainer context)
         {
-            var pattern = Pattern.Invoke().Value<string>();
+            var pattern = Pattern.Invoke(TODO).Value<string>();
             var options = IgnoreCase ? RegexOptions.IgnoreCase : RegexOptions.None;
-            return (Name, Regex.IsMatch(Value.Invoke().Value<string>(), pattern, options));
+            return (Name, Regex.IsMatch(Value.Invoke(TODO).Value<string>(), pattern, options));
         }
     }
 }

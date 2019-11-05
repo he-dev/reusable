@@ -8,7 +8,7 @@ using Reusable.OmniLog.Abstractions;
 namespace Reusable.Flexo
 {
     [PublicAPI]
-    public abstract class Comparer : ValueExtension<bool>
+    public abstract class Comparer : ScalarExtension<bool>
     {
         private readonly Func<int, bool> _predicate;
 
@@ -21,9 +21,9 @@ namespace Reusable.Flexo
         [JsonProperty("Value")]
         public IExpression Right { get; set; }
 
-        protected override Constant<bool> InvokeCore()
+        protected override Constant<bool> InvokeCore(IImmutableContainer context)
         {
-            var result = Comparer<object>.Default.Compare(Left.Invoke().Value, Right.Invoke().Value);
+            var result = Comparer<object>.Default.Compare(Left.Invoke(TODO).Value, Right.Invoke(TODO).Value);
             return (Name, _predicate(result));
         }
     }

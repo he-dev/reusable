@@ -25,13 +25,13 @@ namespace Reusable.Flexo
 
         public IExpression Selector { get; set; }
 
-        protected override Constant<IEnumerable<IExpression>> InvokeCore()
+        protected override Constant<IEnumerable<IExpression>> InvokeCore(IImmutableContainer context)
         {
             var result = Values.Enabled().Select(item =>
             {
                 using (BeginScope(ctx => ctx.SetItem(ExpressionContext.Item, item)))
                 {
-                    return (Selector ?? item).Invoke();
+                    return (Selector ?? item).Invoke(TODO);
                 }
             }).ToList();
 

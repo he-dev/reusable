@@ -35,7 +35,7 @@ namespace Reusable.Flexo
             var names = Path.Split('.');
             var key = names.First();
             return
-                Scope.Context.TryGetItem(key, out var item)
+                context.TryGetItem(key, out var item)
                     ? names.Skip(1).Aggregate(item, GetValue)
                     : throw DynamicException.Create("ContextItemNotFound", $"Could not find an item with the key '{key}' from '{Path}'.");
         }
@@ -74,7 +74,7 @@ namespace Reusable.Flexo
             Path = ExpressionContext.Item.ToString();
         }
 
-        protected override Constant<object> InvokeCore()
+        protected override Constant<object> InvokeCore(IImmutableContainer context)
         {
             return (Path, (FindItem() is var item && item is IConstant c ? c.Value : item));
         }
@@ -84,11 +84,9 @@ namespace Reusable.Flexo
     {
         public Ref([NotNull] ILogger<Ref> logger) : base(logger, nameof(Ref)) { }
 
-        public List<string> Tags { get; set; }
-
-        protected override Constant<IExpression> InvokeCore()
+        protected override Constant<IExpression> InvokeCore(IImmutableContainer context)
         {
-            var expressions = Scope.Context.GetItemOrDefault(ExpressionContext.References);
+            var expressions = context.GetItemOrDefault(ExpressionContext.References);
             var path = Path.StartsWith("R.", StringComparison.OrdinalIgnoreCase) ? Path : $"R.{Path}";
 
             return

@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Linq.Custom;
 using Newtonsoft.Json;
+using Reusable.Data;
 using Reusable.OmniLog.Abstractions;
 
 namespace Reusable.Flexo
@@ -20,7 +21,7 @@ namespace Reusable.Flexo
 
         public string Comparer { get; set; }
 
-        protected override Constant<bool> InvokeCore()
+        protected override Constant<bool> InvokeCore(IImmutableContainer context)
         {
             var first = Values.Invoke().Values<object>();
             var second = Of.Invoke().Values<object>();

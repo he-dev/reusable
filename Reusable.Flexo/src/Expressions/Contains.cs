@@ -18,16 +18,16 @@ namespace Reusable.Flexo
 
         public string Comparer { get; set; }
 
-        protected override Constant<bool> InvokeCore()
+        protected override Constant<bool> InvokeCore(IImmutableContainer context)
         {
-            var value = Value.Invoke().Value;
+            var value = Value.Invoke(TODO).Value;
             var comparer = Scope.GetComparerOrDefault(Comparer);
-            return (Name, Values.Any(x => comparer.Equals(value, x.Invoke().Value<object>())));
+            return (Name, Values.Any(x => comparer.Equals(value, x.Invoke(TODO).Value<object>())));
         }
     }
 
     [PublicAPI]
-    public class In : ValueExtension<bool>
+    public class In : ScalarExtension<bool>
     {
         public In(ILogger<In> logger) : base(logger, nameof(In)) { }
 
@@ -37,12 +37,12 @@ namespace Reusable.Flexo
 
         public string Comparer { get; set; }
 
-        protected override Constant<bool> InvokeCore()
+        protected override Constant<bool> InvokeCore(IImmutableContainer context)
         {
-            var value = Value.Invoke().Value;
+            var value = Value.Invoke(TODO).Value;
             var comparer = Scope.GetComparerOrDefault(Comparer);
 
-            return (Name, Values.Enabled().Any(x => comparer.Equals(value, x.Invoke().Value)));
+            return (Name, Values.Enabled().Any(x => comparer.Equals(value, x.Invoke(TODO).Value)));
         }
     }
 }

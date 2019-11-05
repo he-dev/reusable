@@ -18,9 +18,9 @@ namespace Reusable.Flexo
         
         public IEnumerable<IExpression> Values { get => This; set => This = value; }
 
-        protected override Constant<double> InvokeCore()
+        protected override Constant<double> InvokeCore(IImmutableContainer context)
         {
-            var values = Values.Enabled().Select(e => e.Invoke()).Values<object>().Cast<double>();
+            var values = Values.Enabled().Select(e => e.Invoke(TODO)).Values<object>().Cast<double>();
             var result = _aggregate(values);
             return (Name, result);
         }

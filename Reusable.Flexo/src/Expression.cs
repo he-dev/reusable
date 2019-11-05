@@ -189,6 +189,19 @@ namespace Reusable.Flexo
         {
             return scope.SetItem(ExpressionContext.Parent, context);
         }
+        
+        /// <summary>
+        /// Enumerates expression scopes from last to first. 
+        /// </summary>
+        public static IEnumerable<IImmutableContainer> Enumerate(this IImmutableContainer context)
+        {
+            var current = context.GetItemOrDefault(ExpressionContext.Parent);
+            while (current != null)
+            {
+                yield return current;
+                current = context.GetItemOrDefault(ExpressionContext.Parent);
+            }
+        }
     }
 
     public static class ExpressionExtensions

@@ -6,7 +6,7 @@ using Reusable.OmniLog.Abstractions;
 namespace Reusable.Flexo
 {
     // ReSharper disable once InconsistentNaming - we want this name!
-    public class IIf : ValueExtension<object>
+    public class IIf : ScalarExtension<object>
     {
         public IIf(ILogger<IIf> logger) : base(logger, nameof(IIf)) { }
         
@@ -16,20 +16,20 @@ namespace Reusable.Flexo
 
         public IExpression False { get; set; }
 
-        protected override Constant<object> InvokeCore()
+        protected override Constant<object> InvokeCore(IImmutableContainer context)
         {
             if (True is null && False is null) throw new InvalidOperationException($"You need to specify at least one result ({nameof(True)}/{nameof(False)}).");
 
-            var value = Predicate.Invoke();
+            var value = Predicate.Invoke(TODO);
 
             if (value.Value<bool>())
             {
-                var trueResult = True?.Invoke();
+                var trueResult = True?.Invoke(TODO);
                 return (Name, trueResult?.Value ?? Constant.Null);
             }
             else
             {
-                var falseResult = False?.Invoke();
+                var falseResult = False?.Invoke(TODO);
                 return (Name, falseResult?.Value ?? Constant.Null);
             }
         }

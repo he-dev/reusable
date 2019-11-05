@@ -26,7 +26,7 @@ namespace Reusable.Flexo
         {
             return
                 from expression in expressions.Enabled()
-                select expression.Invoke();
+                select expression.Invoke(TODO);
         }
 
         public static IEnumerable<T> Values<T>(this IEnumerable<IConstant> constants)
@@ -128,7 +128,7 @@ namespace Reusable.Flexo
                 {
                     return new ExpressionInvokeResult
                     {
-                        Constant = expression.Invoke(), 
+                        Constant = expression.Invoke(TODO), 
                         Contexts = DumpContexts()
                     };
                 }

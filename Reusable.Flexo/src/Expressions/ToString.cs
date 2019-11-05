@@ -9,7 +9,7 @@ namespace Reusable.Flexo
     /// <summary>
     /// Converts Input to string. Uses InvariantCulture by default.
     /// </summary>
-    public class ToString : ValueExtension<string>
+    public class ToString : ScalarExtension<string>
     {
         public ToString(ILogger<ToString> logger) : base(logger, nameof(ToString)) { }
 
@@ -17,12 +17,12 @@ namespace Reusable.Flexo
 
         public IExpression Format { get; set; }
 
-        protected override Constant<string> InvokeCore()
+        protected override Constant<string> InvokeCore(IImmutableContainer context)
         {
             // Scope.This
             // Scope.Find("in") --> global object
-            var format = Format?.Invoke().ValueOrDefault<string>() ?? "{0}";
-            return (Name, string.Format(CultureInfo.InvariantCulture, format, Value.Invoke().Value));
+            var format = Format?.Invoke(TODO).ValueOrDefault<string>() ?? "{0}";
+            return (Name, string.Format(CultureInfo.InvariantCulture, format, Value.Invoke(TODO).Value));
         }
     }
 }

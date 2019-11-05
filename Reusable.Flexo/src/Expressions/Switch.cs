@@ -13,7 +13,7 @@ namespace Reusable.Flexo
 {
     [UsedImplicitly]
     [PublicAPI]
-    public class Switch : ValueExtension<object>
+    public class Switch : ScalarExtension<object>
     {
         public Switch(ILogger<Switch> logger) : this(logger, nameof(Switch)) { }
 
@@ -25,9 +25,9 @@ namespace Reusable.Flexo
 
         public IExpression Default { get; set; }
 
-        protected override Constant<object> InvokeCore()
+        protected override Constant<object> InvokeCore(IImmutableContainer context)
         {
-            var value = Value.Invoke();
+            var value = Value.Invoke(TODO);
 
             foreach (var switchCase in (Cases ?? Enumerable.Empty<SwitchCase>()).Where(c => c.Enabled))
             {
@@ -38,15 +38,15 @@ namespace Reusable.Flexo
                         case IConstant constant:
                             if (EqualityComparer<object>.Default.Equals(value.Value, constant.Value))
                             {
-                                var bodyResult = switchCase.Body.Invoke();
+                                var bodyResult = switchCase.Body.Invoke(TODO);
                                 return (Name, bodyResult.Value);
                             }
 
                             break;
                         case IExpression expression:
-                            if (expression.Invoke() is var whenResult && whenResult.Value<bool>())
+                            if (expression.Invoke(TODO) is var whenResult && whenResult.Value<bool>())
                             {
-                                var bodyResult = switchCase.Body.Invoke();
+                                var bodyResult = switchCase.Body.Invoke(TODO);
                                 return (Name, bodyResult.Value);
                             }
 
@@ -68,7 +68,7 @@ namespace Reusable.Flexo
                         Name = "SwitchValueOutOfRange",
                         Message = Constant.FromValue("Message", "Default value not specified.")
                     }
-                ).Invoke()
+                ).Invoke(TODO)
             );
         }
     }

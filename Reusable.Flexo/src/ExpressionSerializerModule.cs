@@ -10,12 +10,12 @@ using Reusable.Utilities.JsonNet;
 
 namespace Reusable.Flexo
 {
-    public class ExpressionSerializerModule : Module
+    public class ExpressionSerializerPackage : Package
     {
         private readonly IEnumerable<Type> _expressionTypes;
         private readonly Action<JsonSerializer> _configureSerializer;
 
-        public ExpressionSerializerModule(IEnumerable<Type> expressionTypes, Action<JsonSerializer> configureSerializer = default)
+        public ExpressionSerializerPackage(IEnumerable<Type> expressionTypes, Action<JsonSerializer> configureSerializer = default)
         {
             _expressionTypes = Expression.BuiltInTypes.Concat(expressionTypes);
             _configureSerializer = configureSerializer;

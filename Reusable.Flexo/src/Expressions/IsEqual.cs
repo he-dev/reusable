@@ -5,7 +5,7 @@ using Reusable.OmniLog.Abstractions;
 
 namespace Reusable.Flexo
 {
-    public class IsEqual : ValueExtension<bool>
+    public class IsEqual : ScalarExtension<bool>
     {
         public IsEqual(ILogger<IsEqual> logger) : base(logger, nameof(IsEqual)) { }
 
@@ -14,10 +14,10 @@ namespace Reusable.Flexo
         [JsonRequired]
         public IExpression Value { get; set; }
 
-        protected override Constant<bool> InvokeCore()
+        protected override Constant<bool> InvokeCore(IImmutableContainer context)
         {
-            var value = Value.Invoke().Value;
-            return (Name, Left.Invoke().Value<object>().Equals(value));
+            var value = Value.Invoke(TODO).Value;
+            return (Name, Left.Invoke(TODO).Value<object>().Equals(value));
         }
     }
 }

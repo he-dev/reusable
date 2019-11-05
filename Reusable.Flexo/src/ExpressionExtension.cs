@@ -39,9 +39,9 @@ namespace Reusable.Flexo
         protected abstract TExtension ThisOuterCore();
     }
 
-    public abstract class ValueExtension<TResult> : ExpressionExtension<IExpression, TResult>
+    public abstract class ScalarExtension<TResult> : ExpressionExtension<IExpression, TResult>
     {
-        protected ValueExtension([NotNull] ILogger logger, SoftString name) : base(logger, name) { }
+        protected ScalarExtension([NotNull] ILogger logger, SoftString name) : base(logger, name) { }
 
         protected override IExpression ThisOuterCore()
         {
@@ -49,6 +49,15 @@ namespace Reusable.Flexo
                 Scope.Context.GetItemOrDefault(ExpressionContext.ThisOuter) is IExpression @this
                     ? @this
                     : default;
+        }
+
+        protected IExpression ThisOrDefault(IImmutableContainer context)
+        {
+            return context.GetItemOrDefault(ExpressionContext.ThisOuter) switch
+            {
+                IExpression e => e,
+                _ => default
+            };
         }
     }
 

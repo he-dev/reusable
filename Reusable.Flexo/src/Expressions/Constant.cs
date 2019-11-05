@@ -34,7 +34,7 @@ namespace Reusable.Flexo
         [AutoEqualityProperty]
         public TValue Value { get; set; }
 
-        protected override Constant<TValue> InvokeCore()
+        protected override Constant<TValue> InvokeCore(IImmutableContainer context)
         {
             return (Name, Value);
         }

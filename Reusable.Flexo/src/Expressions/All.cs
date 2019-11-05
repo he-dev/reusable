@@ -16,12 +16,12 @@ namespace Reusable.Flexo
 
         public IExpression Predicate { get; set; }
 
-        protected override Constant<bool> InvokeCore()
+        protected override Constant<bool> InvokeCore(IImmutableContainer context)
         {
-            var predicate = (Predicate ?? Constant.FromValue(nameof(Predicate), true)).Invoke();
+            var predicate = (Predicate ?? Constant.FromValue(nameof(Predicate), true)).Invoke(context);
             foreach (var item in Values.Enabled())
             {
-                var current = item.Invoke();
+                var current = item.Invoke(context);
                 using (BeginScope(ctx => ctx.SetItem(ExpressionContext.ThisOuter, current)))
                 {
                     if (!EqualityComparer<bool>.Default.Equals(current.Value<bool>(), predicate.Value<bool>()))

@@ -12,7 +12,7 @@ namespace Reusable.Flexo
             _invoke = invoke;
         }
 
-        protected override Constant<TResult> InvokeCore()
+        protected override Constant<TResult> InvokeCore(IImmutableContainer context)
         {
             var result = _invoke();
             return (Name, result);

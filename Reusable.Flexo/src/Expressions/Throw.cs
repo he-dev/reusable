@@ -14,9 +14,9 @@ namespace Reusable.Flexo
 
         public IExpression Message { get; set; }
 
-        protected override Constant<IExpression> InvokeCore()
+        protected override Constant<IExpression> InvokeCore(IImmutableContainer context)
         {
-            throw DynamicException.Create(Name.ToString(), Message.Invoke().Value<string>());
+            throw DynamicException.Create(Name.ToString(), Message.Invoke(TODO).Value<string>());
         }
     }
 }

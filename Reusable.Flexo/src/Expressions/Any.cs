@@ -16,26 +16,26 @@ namespace Reusable.Flexo
 
         public IExpression Predicate { get; set; }
 
-        protected override Constant<bool> InvokeCore()
+        protected override Constant<bool> InvokeCore(IImmutableContainer context)
         {
             var predicate = (Predicate ?? Constant.FromValue(nameof(Predicate), true));//.Invoke();
             
             foreach (var item in Values.Enabled())
             {
-                var current = item.Invoke();
+                var current = item.Invoke(context);
                 using (BeginScope(ctx => ctx.SetItem(ExpressionContext.ThisOuter, current)))
                 {
                     //var predicate = (Predicate ?? Constant.True);
                     if (predicate is IConstant)
                     {
-                        if (EqualityComparer<bool>.Default.Equals(current.Value<bool>(), predicate.Invoke().Value<bool>()))
+                        if (EqualityComparer<bool>.Default.Equals(current.Value<bool>(), predicate.Invoke(context).Value<bool>()))
                         {
                             return (Name, true);
                         }
                     }
                     else
                     {
-                        if (EqualityComparer<bool>.Default.Equals(predicate.Invoke().Value<bool>(), true))
+                        if (EqualityComparer<bool>.Default.Equals(predicate.Invoke(context).Value<bool>(), true))
                         {
                             return (Name, true);
                         }
