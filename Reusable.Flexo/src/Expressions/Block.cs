@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using JetBrains.Annotations;
+using Reusable.Data;
 using Reusable.Exceptionize;
 using Reusable.OmniLog.Abstractions;
 
@@ -28,6 +29,18 @@ namespace Reusable.Flexo
 
                 return (last.Name, last.Value);
             }
+        }
+    }
+    
+    public class Module : Expression
+    {
+        public Module([NotNull] ILogger<Module> logger) : base(logger, nameof(Block)) { }
+
+        public IExpression Body { get; set; }
+
+        public override IConstant Invoke(IImmutableContainer context)
+        {
+            return Body.Invoke(context);
         }
     }
 }

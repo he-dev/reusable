@@ -32,7 +32,9 @@ namespace Reusable.Flexo
         IExpression Extension { get; }
 
         [NotNull]
-        IConstant Invoke();
+        //IConstant Invoke();
+
+        IConstant Invoke(IImmutableContainer context);
     }
 
     public interface IExtension
@@ -121,8 +123,8 @@ namespace Reusable.Flexo
         [NotNull]
         protected ILogger Logger { get; }
 
-        [NotNull]
-        public static ExpressionScope Scope => ExpressionScope.Current ?? throw new InvalidOperationException("Expressions must be invoked within a valid scope. Use 'BeginScope' to introduce one.");
+        //[NotNull]
+        //public static ExpressionScope Scope => ExpressionScope.Current ?? throw new InvalidOperationException("Expressions must be invoked within a valid scope. Use 'BeginScope' to introduce one.");
 
         public virtual SoftString Name
         {
@@ -137,7 +139,7 @@ namespace Reusable.Flexo
         public bool Enabled { get; set; } = true;
 
         [JsonIgnore]
-        public IExpression Extension { get; set; }
+        public IExpression? Extension { get; set; }
 
         #region Extension aliases
 
@@ -158,13 +160,13 @@ namespace Reusable.Flexo
 
         #endregion
 
-        public abstract IConstant Invoke();
+        public abstract IConstant Invoke(IImmutableContainer context);
 
-        public static ExpressionScope BeginScope(Func<IImmutableContainer, IImmutableContainer> configureContext)
-        {
-            // Use either current context or the default one.
-            return ExpressionScope.Push(configureContext(ExpressionScope.Current?.Context ?? ExpressionContext.Default));
-        }
+        // public static ExpressionScope BeginScope(Func<IImmutableContainer, IImmutableContainer> configureContext)
+        // {
+        //     // Use either current context or the default one.
+        //     return ExpressionScope.Push(configureContext(ExpressionScope.Current?.Context ?? ExpressionContext.Default));
+        // }
 
         protected class LoggerDummy : ILogger
         {
@@ -178,6 +180,22 @@ namespace Reusable.Flexo
             }
 
             public void Log(LogEntry logEntry) { }
+        }
+    }
+
+    public static class ImmutableContainerExtensions
+    {
+        public static IImmutableContainer BeginScope(this IImmutableContainer context, IImmutableContainer scope)
+        {
+            return scope.SetItem(ExpressionContext.Parent, context);
+        }
+    }
+
+    public static class ExpressionExtensions
+    {
+        public static IConstant Invoke(this IExpression expression, IImmutableContainer context, IImmutableContainer scope)
+        {
+            return expression.Invoke(context.BeginScope(scope));
         }
     }
 }

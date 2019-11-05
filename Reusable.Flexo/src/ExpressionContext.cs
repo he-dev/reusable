@@ -30,6 +30,8 @@ namespace Reusable.Flexo
         /// </summary>
         public static readonly Selector<object> Item = Select(() => Item);
 
+        public static readonly Selector<IImmutableContainer> Parent = Select(() => Parent);
+        
         public static readonly Selector<IImmutableDictionary<SoftString, IEqualityComparer<object>>> Comparers = Select(() => Comparers);
 
         public static readonly Selector<IImmutableDictionary<SoftString, IExpression>> References = Select(() => References);

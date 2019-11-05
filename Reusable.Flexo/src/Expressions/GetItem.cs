@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using System.Linq.Custom;
@@ -82,6 +83,8 @@ namespace Reusable.Flexo
     public class Ref : GetItem<IExpression>
     {
         public Ref([NotNull] ILogger<Ref> logger) : base(logger, nameof(Ref)) { }
+
+        public List<string> Tags { get; set; }
 
         protected override Constant<IExpression> InvokeCore()
         {

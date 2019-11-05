@@ -24,9 +24,9 @@ namespace Reusable.Flexo
     {
         protected Expression([NotNull] ILogger logger, SoftString name) : base(logger, name) { }
 
-        public override IConstant Invoke()
+        public override IConstant Invoke(IImmutableContainer context)
         {
-            var parentView = Scope.Context.GetItemOrDefault(ExpressionContext.DebugView);
+            var parentView = context.GetItemOrDefault(ExpressionContext.DebugView);
             var thisView = parentView.Add(this.CreateDebugView());
 
             // Take a shortcut when this is a constant without an extension. This helps to avoid another debug-view.
@@ -36,50 +36,54 @@ namespace Reusable.Flexo
                 return constant;
             }
 
-            using (BeginScope(ctx => ctx
-                .SetItem(ExpressionContext.DebugView, thisView)
-                .SetItem(ExpressionContext.ThisOuter, this.ThisOuterOrDefault(), (_, value) => value.IsNotNull()))
-            )
+            var thisContext = context.BeginScope
+            (
+                ImmutableContainer
+                    .Empty
+                    .SetItem(ExpressionContext.DebugView, thisView)
+                    .SetItem(ExpressionContext.ThisOuter, this.ThisOuterOrDefault(), (_, value) => value.IsNotNull())
+            );
+
+            var thisResult = InvokeCore(thisContext);
+            thisView.Value.Result = thisResult.Value;
+
+            if (Extension is null)
             {
-                var thisResult = InvokeCore();
-                thisView.Value.Result = thisResult.Value;
+                return thisResult;
+            }
+            else
+            {
+                var extension = Extension.Resolve();
 
-                if (Extension is null)
+                // Check whether result and extension match; do it only for extension expressions.
+                if (extension is IExtension ext && ext.IsInExtensionMode)
                 {
-                    return thisResult;
-                }
-                else
-                {
-                    var extension = Extension.Resolve();
+                    var thisType =
+                        thisResult.Value is IEnumerable<IExpression> collection
+                            ? collection.GetType()
+                            : thisResult.GetType();
 
-                    // Check whether result and extension match; do it only for extension expressions.
-                    if (extension is IExtension ext && ext.IsInExtensionMode)
+                    if (!ext.ExtensionType.IsAssignableFrom(thisType))
                     {
-                        var thisType =
-                            thisResult.Value is IEnumerable<IExpression> collection
-                                ? collection.GetType()
-                                : thisResult.GetType();
-
-                        if (!ext.ExtensionType.IsAssignableFrom(thisType))
-                        {
-                            throw DynamicException.Create
-                            (
-                                $"PipeTypeMismatch",
-                                $"Extension '{ext.GetType().ToPrettyString()}<{ext.ExtensionType.ToPrettyString()}>' does not match the expression it is extending: '{thisResult.Value.GetType().ToPrettyString()}'."
-                            );
-                        }
+                        throw DynamicException.Create
+                        (
+                            $"PipeTypeMismatch",
+                            $"Extension '{ext.GetType().ToPrettyString()}<{ext.ExtensionType.ToPrettyString()}>' does not match the expression it is extending: '{thisResult.Value.GetType().ToPrettyString()}'."
+                        );
                     }
+                }
 
-                    using (BeginScope(ctx => ctx
+                return extension.Invoke
+                (
+                    thisContext,
+                    ImmutableContainer
+                        .Empty
                         .SetItem(ExpressionContext.DebugView, thisView)
-                        .SetItem(ExpressionContext.ThisOuter, thisResult)))
-                    {
-                        return extension.Invoke();
-                    }
-                }
+                        .SetItem(ExpressionContext.ThisOuter, thisResult)
+                );
             }
         }
 
-        protected abstract Constant<TResult> InvokeCore();
+        protected abstract Constant<TResult> InvokeCore(IImmutableContainer context);
     }
 }
