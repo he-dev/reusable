@@ -8,12 +8,11 @@ namespace Reusable.Flexo
     {
         public IsNull(ILogger<IsNull> logger) : base(logger, nameof(IsNull)) { }
         
-        public IExpression Left { get => ThisInner ?? ThisOuter; set => ThisInner = value; }
+        public IExpression Left { get => ThisInner; set => ThisInner = value; }
 
-        protected override Constant<bool> InvokeCore(IImmutableContainer context)
+        protected override bool InvokeAsValue(IImmutableContainer context)
         {
-            var value = Left.Invoke(TODO).Value;
-            return (Name, value is null);
+            return This(context).Invoke(context).Value is null;
         }
     }
 }

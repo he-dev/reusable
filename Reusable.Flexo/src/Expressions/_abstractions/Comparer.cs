@@ -12,18 +12,22 @@ namespace Reusable.Flexo
     {
         private readonly Func<int, bool> _predicate;
 
-        protected Comparer(ILogger logger, string name, [NotNull] Func<int, bool> predicate)
+        protected Comparer(ILogger? logger, string name, Func<int, bool> predicate)
             : base(logger, name) => _predicate = predicate;
         
-        public IExpression Left { get => ThisInner ?? ThisOuter; set => ThisInner = value; }
+        public IExpression Left { get => ThisInner; set => ThisInner = value; }
 
         [JsonRequired]
         [JsonProperty("Value")]
         public IExpression Right { get; set; }
+        
+        [JsonProperty("Comparer")]
+        public string ComparerName { get; set; }
 
-        protected override Constant<bool> InvokeCore(IImmutableContainer context)
+        protected override Constant<bool> InvokeAsConstant(IImmutableContainer context)
         {
-            var result = Comparer<object>.Default.Compare(Left.Invoke(TODO).Value, Right.Invoke(TODO).Value);
+            var comparer = context.GetComparerOrDefault(ComparerName);
+            var result = comparer.Compare(Left.Invoke(context).Value, Right.Invoke(context).Value);
             return (Name, _predicate(result));
         }
     }

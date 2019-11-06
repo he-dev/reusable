@@ -9,15 +9,15 @@ namespace Reusable.Flexo
     {
         public IsEqual(ILogger<IsEqual> logger) : base(logger, nameof(IsEqual)) { }
 
-        public IExpression Left { get => ThisInner ?? ThisOuter; set => ThisInner = value; }
+        public IExpression Left { get => ThisInner; set => ThisInner = value; }
 
         [JsonRequired]
         public IExpression Value { get; set; }
 
-        protected override Constant<bool> InvokeCore(IImmutableContainer context)
+        protected override bool InvokeAsValue(IImmutableContainer context)
         {
-            var value = Value.Invoke(TODO).Value;
-            return (Name, Left.Invoke(TODO).Value<object>().Equals(value));
+            var value =  Value.Invoke(context).Value;
+            return This(context).Invoke(context).Value<object>().Equals(value);
         }
     }
 }

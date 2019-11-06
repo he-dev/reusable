@@ -8,7 +8,7 @@ namespace Reusable.Flexo
     {
         public GetSingle([NotNull] ILogger<GetSingle> logger) : base(logger, nameof(GetSingle)) { }
 
-        protected override Constant<object> InvokeCore(IImmutableContainer context)
+        protected override Constant<object> InvokeAsConstant(IImmutableContainer context)
         {
             return (Path, FindItem());
         }

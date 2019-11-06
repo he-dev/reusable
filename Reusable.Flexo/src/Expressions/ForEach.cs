@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using JetBrains.Annotations;
 using Newtonsoft.Json;
 using Reusable.Data;
@@ -9,26 +10,25 @@ namespace Reusable.Flexo
 {
     public class ForEach : CollectionExtension<object>
     {
-        public ForEach([NotNull] ILogger<ForEach> logger) : base(logger, nameof(ForEach)) { }
+        public ForEach() : base(default, nameof(ForEach)) { }
 
-        public IEnumerable<IExpression> Values { get => This; set => This = value; }
+        public IEnumerable<IExpression> Values { get => ThisInner; set => ThisInner = value; }
 
         public IEnumerable<IExpression> Body { get; set; }
 
-        protected override Constant<object> InvokeCore(IImmutableContainer context)
+        protected override object InvokeAsValue(IImmutableContainer context)
         {
-            foreach (var item in Values.Enabled())
+            var query =
+                from item in This(context).Enabled()
+                from expr in Body.Enabled()
+                select (item, expr);
+
+            foreach (var (item, expr) in query)
             {
-                using (BeginScope(ctx => ctx.SetItem(ExpressionContext.Item, item)))
-                {
-                    foreach (var expression in Body.Enabled())
-                    {
-                        expression.Invoke(TODO);
-                    }
-                }
+                expr.Invoke(context, ImmutableContainer.Empty.SetItem(ExpressionContext.Item, item));
             }
 
-            return (Name, default(object));
+            return default;
         }
     }
 }

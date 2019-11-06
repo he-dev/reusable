@@ -22,7 +22,7 @@ namespace Reusable.Flexo
     [Namespace("Flexo", Alias = "F")]
     public abstract class Expression<TResult> : Expression
     {
-        protected Expression([NotNull] ILogger logger, SoftString name) : base(logger, name) { }
+        protected Expression(ILogger logger, SoftString name) : base(logger, name) { }
 
         public override IConstant Invoke(IImmutableContainer context)
         {
@@ -44,7 +44,7 @@ namespace Reusable.Flexo
                     .SetItem(ExpressionContext.ThisOuter, this.ThisOuterOrDefault(), (_, value) => value.IsNotNull())
             );
 
-            var thisResult = InvokeCore(thisContext);
+            var thisResult = InvokeAsConstant(thisContext);
             thisView.Value.Result = thisResult.Value;
 
             if (Extension is null)
@@ -84,6 +84,14 @@ namespace Reusable.Flexo
             }
         }
 
-        protected abstract Constant<TResult> InvokeCore(IImmutableContainer context);
+        protected virtual Constant<TResult> InvokeAsConstant(IImmutableContainer context)
+        {
+            return (Name, default);
+        }
+
+        protected virtual TResult InvokeAsValue(IImmutableContainer context)
+        {
+            return default;
+        }
     }
 }

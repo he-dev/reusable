@@ -11,18 +11,16 @@ namespace Reusable.Flexo
     /// </summary>
     public class ToString : ScalarExtension<string>
     {
-        public ToString(ILogger<ToString> logger) : base(logger, nameof(ToString)) { }
+        public ToString() : base(default, nameof(ToString)) { }
 
-        public IExpression Value { get => ThisInner ?? ThisOuter; set => ThisInner = value; }
+        public IExpression Value { get => ThisInner; set => ThisInner = value; }
 
-        public IExpression Format { get; set; }
+        public IExpression? Format { get; set; }
 
-        protected override Constant<string> InvokeCore(IImmutableContainer context)
+        protected override string InvokeAsValue(IImmutableContainer context)
         {
-            // Scope.This
-            // Scope.Find("in") --> global object
-            var format = Format?.Invoke(TODO).ValueOrDefault<string>() ?? "{0}";
-            return (Name, string.Format(CultureInfo.InvariantCulture, format, Value.Invoke(TODO).Value));
+            var format = Format?.Invoke(context).ValueOrDefault<string>() ?? "{0}";
+            return string.Format(CultureInfo.InvariantCulture, format, This(context).Invoke(context).Value);
         }
     }
 }

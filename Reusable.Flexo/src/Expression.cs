@@ -40,11 +40,6 @@ namespace Reusable.Flexo
     public interface IExtension
     {
         /// <summary>
-        /// Gets the value passed to this extension from outer context.
-        /// </summary>
-        object ThisOuter { get; }
-
-        /// <summary>
         /// Indicates whether the extension is used as such or overrides it with its native value.
         /// </summary>
         bool IsInExtensionMode { get; }
@@ -114,9 +109,9 @@ namespace Reusable.Flexo
 
         private SoftString _name;
 
-        protected Expression([NotNull] ILogger logger, SoftString name)
+        protected Expression(ILogger? logger, SoftString name)
         {
-            Logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            Logger = logger ?? EmptyLogger.Instance;
             _name = name ?? throw new ArgumentNullException(nameof(name));
         }
 
@@ -168,9 +163,9 @@ namespace Reusable.Flexo
         //     return ExpressionScope.Push(configureContext(ExpressionScope.Current?.Context ?? ExpressionContext.Default));
         // }
 
-        protected class LoggerDummy : ILogger
+        protected class EmptyLogger : ILogger
         {
-            public static LoggerDummy Instance { get; } = new LoggerDummy();
+            public static EmptyLogger Instance { get; } = new EmptyLogger();
             
             public LoggerNode Node { get; }
 
@@ -188,6 +183,11 @@ namespace Reusable.Flexo
         public static IImmutableContainer BeginScope(this IImmutableContainer context, IImmutableContainer scope)
         {
             return scope.SetItem(ExpressionContext.Parent, context);
+        }
+
+        public static IImmutableContainer BeginScopeWithThisOuter(this IImmutableContainer context, object thisOuter)
+        {
+            return context.BeginScope(ImmutableContainer.Empty.SetItem(ExpressionContext.ThisOuter, thisOuter));
         }
         
         /// <summary>

@@ -22,11 +22,11 @@ namespace Reusable.Flexo
                 select expression;
         }
 
-        public static IEnumerable<IConstant> Invoke(this IEnumerable<IExpression> expressions)
+        public static IEnumerable<IConstant> Invoke(this IEnumerable<IExpression> expressions, IImmutableContainer context)
         {
             return
                 from expression in expressions.Enabled()
-                select expression.Invoke(TODO);
+                select expression.Invoke(context);
         }
 
         public static IEnumerable<T> Values<T>(this IEnumerable<IConstant> constants)

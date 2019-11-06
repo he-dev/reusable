@@ -20,24 +20,31 @@ namespace Reusable.Flexo
     [PublicAPI]
     public static class ExpressionContextExtensions
     {
-        public static IImmutableContainer WithComparer(this IImmutableContainer context, string name, IEqualityComparer<object> comparer)
+        public static IImmutableContainer WithEqualityComparer(this IImmutableContainer context, string name, IEqualityComparer<object> comparer)
         {
+            return context.UpdateItem(ExpressionContext.EqualityComparers, x => x.SetItem(name, comparer));
+
             var comparers =
                 context
-                    .GetItemOrDefault(ExpressionContext.Comparers, ImmutableDictionary<SoftString, IEqualityComparer<object>>.Empty)
+                    .GetItemOrDefault(ExpressionContext.EqualityComparers, ImmutableDictionary<SoftString, IEqualityComparer<object>>.Empty)
                     .SetItem(name, comparer);
 
-            return context.SetItem(ExpressionContext.Comparers, comparers);
+            return context.SetItem(ExpressionContext.EqualityComparers, comparers);
+        }
+
+        public static IImmutableContainer WithDefaultEqualityComparer(this IImmutableContainer context)
+        {
+            return context.WithEqualityComparer(nameof(ExpressionContext.Default), EqualityComparer<object>.Default);
         }
 
         public static IImmutableContainer WithDefaultComparer(this IImmutableContainer context)
         {
-            return context.WithComparer(GetComparerNameFromCaller(), EqualityComparer<object>.Default);
+            return context.UpdateItem(ExpressionContext.Comparers, x => x.SetItem(nameof(ExpressionContext.Default), Comparer<object>.Default));
         }
 
         public static IImmutableContainer WithSoftStringComparer(this IImmutableContainer context)
         {
-            return context.WithComparer(GetComparerNameFromCaller(), EqualityComparerFactory<object>.Create
+            return context.WithEqualityComparer(GetComparerNameFromCaller(), EqualityComparerFactory<object>.Create
             (
                 equals: (left, right) => SoftString.Comparer.Equals((string)left, (string)right),
                 getHashCode: (obj) => SoftString.Comparer.GetHashCode((string)obj)
@@ -46,7 +53,7 @@ namespace Reusable.Flexo
 
         public static IImmutableContainer WithRegexComparer(this IImmutableContainer context)
         {
-            return context.WithComparer(GetComparerNameFromCaller(), EqualityComparerFactory<object>.Create
+            return context.WithEqualityComparer(GetComparerNameFromCaller(), EqualityComparerFactory<object>.Create
             (
                 equals: (left, right) => Regex.IsMatch((string)right, (string)left, RegexOptions.None),
                 getHashCode: (obj) => 0
@@ -68,11 +75,12 @@ namespace Reusable.Flexo
             return context.SetItem(ExpressionContext.References, registrations);
         }
 
-        public static TResult Find<TResult>(this ExpressionScope scope, Selector<TResult> key)
+        public static TResult Find<TResult>(this IImmutableContainer scope, Selector<TResult> key)
         {
+            var keyToFind = key.ToString();
             foreach (var current in scope.Enumerate())
             {
-                if (current.Context.TryGetItem(key.ToString(), out var obj) && obj is TResult value)
+                if (current.TryGetItem(keyToFind, out var obj) && obj is TResult value)
                 {
                     return value;
                 }
@@ -81,12 +89,22 @@ namespace Reusable.Flexo
             return default;
         }
 
-        public static IEqualityComparer<object> GetComparerOrDefault(this ExpressionScope scope, [CanBeNull] string name)
+        public static IEqualityComparer<object> GetEqualityComparerOrDefault(this IImmutableContainer scope, string? name)
         {
-            return
-                scope.Find(ExpressionContext.Comparers).TryGetValue(name ?? "Default", out var comparer)
-                    ? comparer
-                    : throw DynamicException.Create("ComparerNotFound", $"There is no comparer with the name '{name}'.");
+            return scope.Find(ExpressionContext.EqualityComparers).TryGetValue(name ?? "Default", out var comparer) switch
+            {
+                true => comparer,
+                false => throw DynamicException.Create("EqualityComparerNotFound", $"There is no equality-comparer with the name '{name}'.")
+            };
+        }
+
+        public static IComparer<object> GetComparerOrDefault(this IImmutableContainer scope, string? name)
+        {
+            return scope.Find(ExpressionContext.Comparers).TryGetValue(name ?? "Default", out var comparer) switch
+            {
+                true => comparer,
+                false => throw DynamicException.Create("ComparerNotFound", $"There is no comparer with the name '{name}'.")
+            };
         }
 
         public static Node<ExpressionDebugView> DebugView(this IImmutableContainer context)

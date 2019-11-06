@@ -8,12 +8,15 @@ namespace Reusable.Flexo
     {
         public IsNullOrEmpty(ILogger<IsNullOrEmpty> logger) : base(logger, nameof(IsNullOrEmpty)) { }
         
-        public IExpression Left { get => ThisInner ?? ThisOuter; set => ThisInner = value; }
+        public IExpression Left { get => ThisInner; set => ThisInner = value; }
 
-        protected override Constant<bool> InvokeCore(IImmutableContainer context)
+        protected override bool InvokeAsValue(IImmutableContainer context)
         {
-            var value = (string)Left.Invoke(TODO).Value;
-            return (Name, string.IsNullOrEmpty(value));
+            return This(context).Invoke(context).Value switch
+            {
+                string s => string.IsNullOrEmpty(s),
+                _ => false
+            };
         }
     }
 }

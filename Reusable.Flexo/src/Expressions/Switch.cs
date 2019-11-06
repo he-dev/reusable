@@ -15,43 +15,42 @@ namespace Reusable.Flexo
     [PublicAPI]
     public class Switch : ScalarExtension<object>
     {
-        public Switch(ILogger<Switch> logger) : this(logger, nameof(Switch)) { }
+        public Switch() : this(default, nameof(Switch)) { }
 
         protected Switch(ILogger logger, SoftString name) : base(logger, name) { }
 
-        public IExpression Value { get => ThisInner ?? ThisOuter; set => ThisInner = value; }
+        public IExpression Value { get => ThisInner; set => ThisInner = value; }
 
         public IEnumerable<SwitchCase> Cases { get; set; }
 
         public IExpression Default { get; set; }
 
-        protected override Constant<object> InvokeCore(IImmutableContainer context)
+        protected override object InvokeAsValue(IImmutableContainer context)
         {
-            var value = Value.Invoke(TODO);
+            var value = This(context).Invoke(context);
 
             foreach (var switchCase in (Cases ?? Enumerable.Empty<SwitchCase>()).Where(c => c.Enabled))
             {
-                using (BeginScope(ctx => ctx.SetItem(ExpressionContext.ThisOuter, value)))
+                var scope = context.BeginScopeWithThisOuter(value);
+
+                switch (switchCase.When)
                 {
-                    switch (switchCase.When)
-                    {
-                        case IConstant constant:
-                            if (EqualityComparer<object>.Default.Equals(value.Value, constant.Value))
-                            {
-                                var bodyResult = switchCase.Body.Invoke(TODO);
-                                return (Name, bodyResult.Value);
-                            }
+                    case IConstant constant:
+                        if (EqualityComparer<object>.Default.Equals(value.Value, constant.Value))
+                        {
+                            var bodyResult = switchCase.Body.Invoke(scope);
+                            return bodyResult.Value;
+                        }
 
-                            break;
-                        case IExpression expression:
-                            if (expression.Invoke(TODO) is var whenResult && whenResult.Value<bool>())
-                            {
-                                var bodyResult = switchCase.Body.Invoke(TODO);
-                                return (Name, bodyResult.Value);
-                            }
+                        break;
+                    case { } expression:
+                        if (expression.Invoke(context) is var whenResult && whenResult.Value<bool>())
+                        {
+                            var bodyResult = switchCase.Body.Invoke(scope);
+                            return bodyResult.Value;
+                        }
 
-                            break;
-                    }
+                        break;
                 }
             }
 
@@ -61,15 +60,12 @@ namespace Reusable.Flexo
             }
 
             return
-            (
-                Name,
                 (Default ?? new Throw
                     {
                         Name = "SwitchValueOutOfRange",
                         Message = Constant.FromValue("Message", "Default value not specified.")
                     }
-                ).Invoke(TODO)
-            );
+                ).Invoke(context);
         }
     }
 

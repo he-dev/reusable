@@ -16,11 +16,17 @@ namespace Reusable.Flexo
         protected Aggregate(ILogger logger, string name, [NotNull] Func<IEnumerable<double>, double> aggregate)
             : base(logger, name) => _aggregate = aggregate;
         
-        public IEnumerable<IExpression> Values { get => This; set => This = value; }
+        public IEnumerable<IExpression> Values { get => ThisInner; set => ThisInner = value; }
 
-        protected override Constant<double> InvokeCore(IImmutableContainer context)
+        protected override Constant<double> InvokeAsConstant(IImmutableContainer context)
         {
-            var values = Values.Enabled().Select(e => e.Invoke(TODO)).Values<object>().Cast<double>();
+            var values =
+                Values
+                    .Enabled()
+                    .Select(e => e.Invoke(context))
+                    .Values<double>();
+                    //.Cast<double>();
+            
             var result = _aggregate(values);
             return (Name, result);
         }

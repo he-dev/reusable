@@ -10,23 +10,20 @@ namespace Reusable.Flexo
     {
         public IsSubset(ILogger<IsSubset> logger) : base(logger, nameof(IsSubset)) { }
 
-        public IEnumerable<IExpression> Values
-        {
-            get => ThisInner ?? ThisOuter;
-            set => ThisInner = value;
-        }
+        public IEnumerable<IExpression> Values { get => ThisInner; set => ThisInner = value; }
 
         [JsonRequired]
         public List<IExpression> Of { get; set; }
 
-        public string Comparer { get; set; }
+        [JsonProperty("Comparer")]
+        public string? ComparerName { get; set; }
 
-        protected override Constant<bool> InvokeCore(IImmutableContainer context)
+        protected override bool InvokeAsValue(IImmutableContainer context)
         {
-            var first = Values.Invoke().Values<object>();
-            var second = Of.Invoke().Values<object>();
-            var comparer = Scope.GetComparerOrDefault(Comparer);
-            return (Name, first.IsSubsetOf(second, comparer));
+            var first = This(context).Enabled().Invoke(context).Values<object>();
+            var second = Of.Enabled().Invoke(context).Values<object>();
+            var comparer = context.GetEqualityComparerOrDefault(ComparerName);
+            return first.IsSubsetOf(second, comparer);
         }
     }
 }

@@ -74,7 +74,7 @@ namespace Reusable.Flexo
             Path = ExpressionContext.Item.ToString();
         }
 
-        protected override Constant<object> InvokeCore(IImmutableContainer context)
+        protected override Constant<object> InvokeAsConstant(IImmutableContainer context)
         {
             return (Path, (FindItem() is var item && item is IConstant c ? c.Value : item));
         }
@@ -84,7 +84,7 @@ namespace Reusable.Flexo
     {
         public Ref([NotNull] ILogger<Ref> logger) : base(logger, nameof(Ref)) { }
 
-        protected override Constant<IExpression> InvokeCore(IImmutableContainer context)
+        protected override Constant<IExpression> InvokeAsConstant(IImmutableContainer context)
         {
             var expressions = context.GetItemOrDefault(ExpressionContext.References);
             var path = Path.StartsWith("R.", StringComparison.OrdinalIgnoreCase) ? Path : $"R.{Path}";

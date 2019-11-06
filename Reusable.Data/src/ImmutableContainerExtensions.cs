@@ -102,6 +102,17 @@ namespace Reusable.Data
             return container.SetItem(key, update(container.GetItemOrDefault(key, ImmutableHashSet.Create(comparer ?? EqualityComparer<T>.Default))));
         }
 
+        public static IImmutableContainer UpdateItem<TKey, TValue>
+        (
+            this IImmutableContainer container,
+            Selector<IImmutableDictionary<TKey, TValue>> key,
+            Func<IImmutableDictionary<TKey, TValue>, IImmutableDictionary<TKey, TValue>> update,
+            IEqualityComparer<TKey> comparer = default
+        )
+        {
+            return container.SetItem(key, update(container.GetItemOrDefault(key, ImmutableDictionary.Create<TKey, TValue>(comparer ?? EqualityComparer<TKey>.Default))));
+        }
+
         public static IImmutableContainer SetWhen(this IImmutableContainer container, Func<IImmutableContainer, bool> canSet, Func<IImmutableContainer, IImmutableContainer> set)
         {
             return

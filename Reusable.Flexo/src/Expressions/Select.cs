@@ -18,24 +18,20 @@ namespace Reusable.Flexo
     [PublicAPI]
     public class Select : CollectionExtension<IEnumerable<IExpression>>
     {
-        public Select(ILogger<Select> logger) : base(logger, nameof(Select)) { }
+        public Select() : base(default, nameof(Select)) { }
 
-        
-        public  IEnumerable<IExpression> Values { get => This; set => This = value; }
+        public IEnumerable<IExpression> Values { get => ThisInner; set => ThisInner = value; }
 
-        public IExpression Selector { get; set; }
+        public IExpression? Selector { get; set; }
 
-        protected override Constant<IEnumerable<IExpression>> InvokeCore(IImmutableContainer context)
+        protected override IEnumerable<IExpression> InvokeAsValue(IImmutableContainer context)
         {
-            var result = Values.Enabled().Select(item =>
-            {
-                using (BeginScope(ctx => ctx.SetItem(ExpressionContext.Item, item)))
-                {
-                    return (Selector ?? item).Invoke(TODO);
-                }
-            }).ToList();
+            var query =
+                from item in This(context).Enabled()
+                let selector = Selector ?? item
+                select selector.Invoke(context, ImmutableContainer.Empty.SetItem(ExpressionContext.Item, item));
 
-            return (Name, result);
+            return query.ToList();
         }
     }
 }

@@ -9,13 +9,13 @@ namespace Reusable.Flexo
     //[Alias("!")]
     public class Not : ScalarExtension<bool>
     {
-        public Not(ILogger<Not> logger) : base(logger, nameof(Not)) { }
-        
-        public IExpression Value { get => ThisInner ?? ThisOuter; set => ThisInner = value; }
+        public Not() : base(default, nameof(Not)) { }
 
-        protected override Constant<bool> InvokeCore(IImmutableContainer context)
+        public IExpression Value { get => ThisInner; set => ThisInner = value; }
+
+        protected override bool InvokeAsValue(IImmutableContainer context)
         {
-            return (Name, !Value.Invoke(TODO).Value<bool>());            
+            return !This(context).Invoke(context).Value<bool>();
         }
     }
 }

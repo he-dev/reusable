@@ -8,27 +8,14 @@ namespace Reusable.Flexo
 {
     public abstract class ExpressionExtension<TExtension, TResult> : Expression<TResult>, IExtension where TExtension : class
     {
-        protected ExpressionExtension([NotNull] ILogger logger, SoftString name) : base(logger, name) { }
+        protected ExpressionExtension(ILogger logger, SoftString name) : base(logger, name) { }
 
         /// <summary>
         /// Gets or sets expression's own value that overrides 'ThisOuter'.
         /// </summary>
         protected TExtension ThisInner { get; set; }
 
-        /// <summary>
-        /// Gets or sets 'This' passed to this expression when used as an extension.
-        /// </summary>
-        protected TExtension ThisOuter => ExpressionScope.Current is null ? default : ThisOuterCore();
-        
-        protected TExtension This
-        {
-            get => ThisInner ?? ThisOuter;
-            set => ThisInner = value;
-        }
-
         #region IExtension
-
-        object IExtension.ThisOuter => ThisOuter;
 
         bool IExtension.IsInExtensionMode => ThisInner is null;
 
@@ -36,24 +23,18 @@ namespace Reusable.Flexo
 
         #endregion
 
-        protected abstract TExtension ThisOuterCore();
+        protected TExtension This(IImmutableContainer context) => ThisInner ?? ThisOuter(context.GetItemOrDefault(ExpressionContext.ThisOuter));
+
+        protected abstract TExtension ThisOuter(object thisOuter);
     }
 
     public abstract class ScalarExtension<TResult> : ExpressionExtension<IExpression, TResult>
     {
-        protected ScalarExtension([NotNull] ILogger logger, SoftString name) : base(logger, name) { }
+        protected ScalarExtension(ILogger? logger, SoftString name) : base(logger, name) { }
 
-        protected override IExpression ThisOuterCore()
+        protected override IExpression ThisOuter(object thisOuter)
         {
-            return
-                Scope.Context.GetItemOrDefault(ExpressionContext.ThisOuter) is IExpression @this
-                    ? @this
-                    : default;
-        }
-
-        protected IExpression ThisOrDefault(IImmutableContainer context)
-        {
-            return context.GetItemOrDefault(ExpressionContext.ThisOuter) switch
+            return thisOuter switch
             {
                 IExpression e => e,
                 _ => default
@@ -63,16 +44,12 @@ namespace Reusable.Flexo
 
     public abstract class CollectionExtension<TResult> : ExpressionExtension<IEnumerable<IExpression>, TResult>
     {
-        protected CollectionExtension([NotNull] ILogger logger, SoftString name) : base(logger, name) { }
+        protected CollectionExtension(ILogger? logger, SoftString name) : base(logger, name) { }
 
-        protected override IEnumerable<IExpression> ThisOuterCore()
+        protected override IEnumerable<IExpression> ThisOuter(object thisOuter)
         {
-            var @this = Scope.Context.GetItemOrDefault(ExpressionContext.ThisOuter) is var obj && obj is IConstant constant ? constant.Value : obj;
-
-            return
-                @this is IEnumerable<IExpression> collection
-                    ? collection
-                    : default;
+            thisOuter = thisOuter switch { IConstant c => c.Value, _ => thisOuter };
+            return thisOuter switch { IEnumerable<IExpression> collection => collection, _ => default };
         }
     }
 }

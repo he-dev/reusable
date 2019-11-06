@@ -13,7 +13,7 @@ namespace Reusable.Flexo
 
         public IEnumerable<IExpression> Body { get; set; }
 
-        protected override Constant<object> InvokeCore(IImmutableContainer context)
+        protected override Constant<object> InvokeAsConstant(IImmutableContainer context)
         {
             using (var e = Body.GetEnumerator())
             {
@@ -51,7 +51,7 @@ namespace Reusable.Flexo
 
         public List<string> Tags { get; set; }
 
-        protected override Constant<IExpression> InvokeCore(IImmutableContainer context)
+        protected override Constant<IExpression> InvokeAsConstant(IImmutableContainer context)
         {
             var expressions = context.GetItemOrDefault(ExpressionContext.References);
             var path = Path.StartsWith("R.", StringComparison.OrdinalIgnoreCase) ? Path : $"R.{Path}";

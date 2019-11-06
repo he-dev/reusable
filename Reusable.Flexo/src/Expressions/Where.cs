@@ -12,21 +12,18 @@ namespace Reusable.Flexo
     {
         public Where([NotNull] ILogger<Where> logger) : base(logger, nameof(Where)) { }
 
-        public IEnumerable<IExpression> Values { get => This; set => This = value; }
+        public IEnumerable<IExpression> Values { get => ThisInner; set => ThisInner = value; }
 
         public IExpression Predicate { get; set; }
 
-        protected override Constant<IEnumerable<IExpression>> InvokeCore(IImmutableContainer context)
+        protected override IEnumerable<IExpression> InvokeAsValue(IImmutableContainer context)
         {
-            var result = Values.Enabled().Where(item =>
-            {
-                using (BeginScope(ctx => ctx.SetItem(ExpressionContext.ThisOuter, item)))
-                {
-                    return Predicate.Invoke(TODO).Value<bool>();
-                }
-            }).ToList();
+            var query =
+                from item in This(context).Enabled()
+                where Predicate.Invoke(context.BeginScopeWithThisOuter(item)).Value<bool>()
+                select item;
 
-            return (Name, result);
+            return query.ToList();
         }
     }
 }

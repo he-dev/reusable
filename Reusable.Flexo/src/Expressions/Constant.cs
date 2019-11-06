@@ -24,7 +24,7 @@ namespace Reusable.Flexo
     public class Constant<TValue> : Expression<TValue>, IConstant, IConstant<TValue>, IEquatable<Constant<TValue>>
     {
         public Constant(SoftString name, TValue value)
-            : base(LoggerDummy.Instance, name ?? value.GetType().ToPrettyString())
+            : base(EmptyLogger.Instance, name ?? value.GetType().ToPrettyString())
         {
             Value = value;
         }
@@ -34,7 +34,7 @@ namespace Reusable.Flexo
         [AutoEqualityProperty]
         public TValue Value { get; set; }
 
-        protected override Constant<TValue> InvokeCore(IImmutableContainer context)
+        protected override Constant<TValue> InvokeAsConstant(IImmutableContainer context)
         {
             return (Name, Value);
         }

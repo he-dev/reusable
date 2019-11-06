@@ -10,40 +10,32 @@ namespace Reusable.Flexo
 {
     public class Any : CollectionExtension<bool>
     {
-        public Any(ILogger<Any> logger) : base(logger, nameof(Any)) { }
+        public Any() : base(default, nameof(Any)) { }
 
-        public IEnumerable<IExpression> Values { get => This; set => This = value; }
+        public IEnumerable<IExpression> Values { get => ThisInner; set => ThisInner = value; }
 
         public IExpression Predicate { get; set; }
 
-        protected override Constant<bool> InvokeCore(IImmutableContainer context)
+        protected override bool InvokeAsValue(IImmutableContainer context)
         {
-            var predicate = (Predicate ?? Constant.FromValue(nameof(Predicate), true));//.Invoke();
-            
+            var predicate = (Predicate ?? Constant.FromValue(nameof(Predicate), true)); //.Invoke();
+
             foreach (var item in Values.Enabled())
             {
-                var current = item.Invoke(context);
-                using (BeginScope(ctx => ctx.SetItem(ExpressionContext.ThisOuter, current)))
+                var x = item.Invoke(context);
+                var y = predicate switch
                 {
-                    //var predicate = (Predicate ?? Constant.True);
-                    if (predicate is IConstant)
-                    {
-                        if (EqualityComparer<bool>.Default.Equals(current.Value<bool>(), predicate.Invoke(context).Value<bool>()))
-                        {
-                            return (Name, true);
-                        }
-                    }
-                    else
-                    {
-                        if (EqualityComparer<bool>.Default.Equals(predicate.Invoke(context).Value<bool>(), true))
-                        {
-                            return (Name, true);
-                        }
-                    }
+                    IConstant constant => constant.Invoke(context),
+                    _ => predicate.Invoke(context, context.BeginScopeWithThisOuter(x))
+                };
+
+                if (EqualityComparer<bool>.Default.Equals(x.Value<bool>(), y.Value<bool>()))
+                {
+                    return true;
                 }
             }
 
-            return (Name, false);
+            return false;
         }
     }
 }

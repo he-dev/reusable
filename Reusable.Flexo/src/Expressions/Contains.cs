@@ -10,39 +10,42 @@ namespace Reusable.Flexo
     [PublicAPI]
     public class Contains : CollectionExtension<bool>
     {
-        public Contains(ILogger<Contains> logger) : base(logger, nameof(Contains)) { }
+        public Contains() : base(default, nameof(Contains)) { }
 
-        public IEnumerable<IExpression> Values { get => ThisInner ?? ThisOuter; set => ThisInner = value; }
+        public IEnumerable<IExpression> Values { get => ThisInner; set => ThisInner = value; }
 
         public IExpression Value { get; set; }
 
-        public string Comparer { get; set; }
+        [JsonProperty("Comparer")]
+        public string? ComparerName { get; set; }
 
-        protected override Constant<bool> InvokeCore(IImmutableContainer context)
+        protected override bool InvokeAsValue(IImmutableContainer context)
         {
-            var value = Value.Invoke(TODO).Value;
-            var comparer = Scope.GetComparerOrDefault(Comparer);
-            return (Name, Values.Any(x => comparer.Equals(value, x.Invoke(TODO).Value<object>())));
+            var value = Value.Invoke(context).Value;
+            var comparer = context.GetEqualityComparerOrDefault(ComparerName);
+            return 
+                This(context)
+                    .Enabled()
+                    .Any(x => comparer.Equals(value, x.Invoke(context).Value<object>()));
         }
     }
 
     [PublicAPI]
     public class In : ScalarExtension<bool>
     {
-        public In(ILogger<In> logger) : base(logger, nameof(In)) { }
+        public In() : base(default, nameof(In)) { }
 
-        public IExpression Value { get => ThisInner ?? ThisOuter; set => ThisInner = value; }
+        public IExpression Value { get => ThisInner; set => ThisInner = value; }
 
         public IEnumerable<IExpression> Values { get; set; }
 
         public string Comparer { get; set; }
 
-        protected override Constant<bool> InvokeCore(IImmutableContainer context)
+        protected override bool InvokeAsValue(IImmutableContainer context)
         {
-            var value = Value.Invoke(TODO).Value;
-            var comparer = Scope.GetComparerOrDefault(Comparer);
-
-            return (Name, Values.Enabled().Any(x => comparer.Equals(value, x.Invoke(TODO).Value)));
+            var value = This(context).Invoke(context).Value;
+            var comparer = context.GetEqualityComparerOrDefault(Comparer);
+            return Values.Enabled().Any(x => comparer.Equals(value, x.Invoke(context).Value));
         }
     }
 }

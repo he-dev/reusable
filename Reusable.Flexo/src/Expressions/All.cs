@@ -12,26 +12,29 @@ namespace Reusable.Flexo
     {
         public All(ILogger<All> logger) : base(logger, nameof(All)) { }
 
-        public IEnumerable<IExpression> Values { get => This; set => This = value; }
+        public IEnumerable<IExpression> Values { get => ThisInner; set => ThisInner = value; }
 
         public IExpression Predicate { get; set; }
 
-        protected override Constant<bool> InvokeCore(IImmutableContainer context)
+        protected override bool InvokeAsValue(IImmutableContainer context)
         {
-            var predicate = (Predicate ?? Constant.FromValue(nameof(Predicate), true)).Invoke(context);
+            var predicate = (Predicate ?? Constant.FromValue(nameof(Predicate), true));//.Invoke(context);
             foreach (var item in Values.Enabled())
             {
-                var current = item.Invoke(context);
-                using (BeginScope(ctx => ctx.SetItem(ExpressionContext.ThisOuter, current)))
+                var x = item.Invoke(context);
+                var y = predicate switch
                 {
-                    if (!EqualityComparer<bool>.Default.Equals(current.Value<bool>(), predicate.Value<bool>()))
-                    {
-                        return (Name, false);
-                    }
+                    IConstant constant => constant.Invoke(context),
+                    _ => predicate.Invoke(context, context.BeginScopeWithThisOuter(x))
+                };
+
+                if (EqualityComparer<bool>.Default.Equals(x.Value<bool>(), !y.Value<bool>()))
+                {
+                    return false;
                 }
             }
 
-            return (Name, true);
+            return true;
         }
     }
 }

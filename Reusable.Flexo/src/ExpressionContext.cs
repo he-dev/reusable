@@ -13,9 +13,10 @@ namespace Reusable.Flexo
         public static IImmutableContainer Default =>
             ImmutableContainer
                 .Empty
-                .SetItem(Comparers, ImmutableDictionary<SoftString, IEqualityComparer<object>>.Empty)
+                .SetItem(EqualityComparers, ImmutableDictionary<SoftString, IEqualityComparer<object>>.Empty)
                 .SetItem(References, ImmutableDictionary<SoftString, IExpression>.Empty)
                 .SetItem(DebugView, Node.Create(ExpressionDebugView.Root))
+                .WithDefaultEqualityComparer()
                 .WithDefaultComparer()
                 .WithSoftStringComparer()
                 .WithRegexComparer();
@@ -32,7 +33,9 @@ namespace Reusable.Flexo
 
         public static readonly Selector<IImmutableContainer> Parent = Select(() => Parent);
         
-        public static readonly Selector<IImmutableDictionary<SoftString, IEqualityComparer<object>>> Comparers = Select(() => Comparers);
+        public static readonly Selector<IImmutableDictionary<SoftString, IEqualityComparer<object>>> EqualityComparers = Select(() => EqualityComparers);
+        
+        public static readonly Selector<IImmutableDictionary<SoftString, IComparer<object>>> Comparers = Select(() => Comparers);
 
         public static readonly Selector<IImmutableDictionary<SoftString, IExpression>> References = Select(() => References);
 

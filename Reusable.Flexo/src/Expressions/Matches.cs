@@ -8,19 +8,19 @@ namespace Reusable.Flexo
 {
     public class Matches : ScalarExtension<bool>
     {
-        public Matches(ILogger<Matches> logger) : base(logger, nameof(Matches)) { }
+        public Matches() : base(default, nameof(Matches)) { }
 
         public bool IgnoreCase { get; set; } = true;
         
-        public IExpression Value { get => ThisInner ?? ThisOuter; set => ThisInner = value; }
+        public IExpression Value { get => ThisInner; set => ThisInner = value; }
 
         public IExpression Pattern { get; set; }
 
-        protected override Constant<bool> InvokeCore(IImmutableContainer context)
+        protected override bool InvokeAsValue(IImmutableContainer context)
         {
-            var pattern = Pattern.Invoke(TODO).Value<string>();
+            var pattern = Pattern.Invoke(context).Value<string>();
             var options = IgnoreCase ? RegexOptions.IgnoreCase : RegexOptions.None;
-            return (Name, Regex.IsMatch(Value.Invoke(TODO).Value<string>(), pattern, options));
+            return Regex.IsMatch(This(context).Invoke(context).Value<string>(), pattern, options);
         }
     }
 }

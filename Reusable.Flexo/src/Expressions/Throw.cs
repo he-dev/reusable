@@ -8,15 +8,15 @@ namespace Reusable.Flexo
     [PublicAPI]
     public class Throw : Expression<IExpression>
     {
-        public Throw() : base(LoggerDummy.Instance, nameof(Throw)) { }
+        public Throw() : base(EmptyLogger.Instance, nameof(Throw)) { }
 
         //public string Exception { get; set; }
 
         public IExpression Message { get; set; }
 
-        protected override Constant<IExpression> InvokeCore(IImmutableContainer context)
+        protected override IExpression InvokeAsValue(IImmutableContainer context)
         {
-            throw DynamicException.Create(Name.ToString(), Message.Invoke(TODO).Value<string>());
+            throw DynamicException.Create(Name.ToString(), Message.Invoke(context).Value<string>());
         }
     }
 }
