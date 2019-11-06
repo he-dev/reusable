@@ -12,7 +12,7 @@ namespace Reusable.Flexo
 
         protected override Constant<IEnumerable<IExpression>> InvokeAsConstant(IImmutableContainer context)
         {
-            var items = (IEnumerable<object>)FindItem();
+            var items = (IEnumerable<object>)FindItem(context);
             return Constant.FromEnumerable(Path, items); // items.Select((x, i) => Constant.FromValue<object>($"Item[{i}]", x)).ToList());
         }
     }

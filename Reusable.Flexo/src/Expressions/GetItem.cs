@@ -23,21 +23,21 @@ namespace Reusable.Flexo
     [PublicAPI]
     public abstract class GetItem<T> : Expression<T>
     {
-        protected GetItem(ILogger logger, string name) : base(logger, name) { }
+        protected GetItem(ILogger? logger, string name) : base(logger, name) { }
 
         public string Path { get; set; }
 
         // key.Property.Property --> session[key].Property.Property
         // this.Property.Property --> @this.Property.Property
 
-        protected object FindItem(Func<string, string> configurePath = default)
+        protected object FindItem(IImmutableContainer context, Func<string, string> configurePath = default)
         {
             var names = Path.Split('.');
-            var key = names.First();
+            var itemKey = names.First();
             return
-                context.TryGetItem(key, out var item)
+                context.TryFindItem<object>(itemKey, out var item)
                     ? names.Skip(1).Aggregate(item, GetValue)
-                    : throw DynamicException.Create("ContextItemNotFound", $"Could not find an item with the key '{key}' from '{Path}'.");
+                    : throw DynamicException.Create("ContextItemNotFound", $"Could not find an item with the key '{itemKey}' from '{Path}'.");
         }
 
         [NotNull]
@@ -58,25 +58,25 @@ namespace Reusable.Flexo
                         onMany: () => DynamicException.Create("MultipleMembersFound", $"Type '{type.ToPrettyString()}' has more than one member with the name '{memberName}'.")
                     );
 
-            switch (member)
+            return member switch
             {
-                case PropertyInfo property: return property.GetValue(obj);
-                case FieldInfo field: return field.GetValue(obj);
-                default: return default; // this will never occur
-            }
+                PropertyInfo property => property.GetValue(obj),
+                FieldInfo field => field.GetValue(obj),
+                _ => throw DynamicException.Create("MemberNotFound", $"Could not find member '{obj.GetType().ToPrettyString()}.{memberName}'.")
+            };
         }
     }
 
     public class Item : GetItem<object>
     {
-        public Item([NotNull] ILogger<Item> logger) : base(logger, nameof(Item))
+        public Item() : base(default, nameof(Item))
         {
             Path = ExpressionContext.Item.ToString();
         }
 
         protected override Constant<object> InvokeAsConstant(IImmutableContainer context)
         {
-            return (Path, (FindItem() is var item && item is IConstant c ? c.Value : item));
+            return (Path, (FindItem(context) is var item && item is IConstant c ? c.Value : item));
         }
     }
 

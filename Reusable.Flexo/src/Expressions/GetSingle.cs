@@ -10,7 +10,7 @@ namespace Reusable.Flexo
 
         protected override Constant<object> InvokeAsConstant(IImmutableContainer context)
         {
-            return (Path, FindItem());
+            return (Path, FindItem(context));
         }
     }
 }

@@ -10,7 +10,7 @@ namespace Reusable.Flexo
 {
     public class Where : CollectionExtension<IEnumerable<IExpression>>
     {
-        public Where([NotNull] ILogger<Where> logger) : base(logger, nameof(Where)) { }
+        public Where() : base(default, nameof(Where)) { }
 
         public IEnumerable<IExpression> Values { get => ThisInner; set => ThisInner = value; }
 

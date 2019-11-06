@@ -89,6 +89,21 @@ namespace Reusable.Flexo
             return default;
         }
 
+        public static bool TryFindItem<TResult>(this IImmutableContainer scope, string keyToFind, out TResult item)
+        {
+            foreach (var current in scope.Enumerate())
+            {
+                if (current.TryGetItem(keyToFind, out var obj) && obj is TResult value)
+                {
+                    item = value;
+                    return true;
+                }
+            }
+
+            item = default;
+            return false;
+        }
+
         public static IEqualityComparer<object> GetEqualityComparerOrDefault(this IImmutableContainer scope, string? name)
         {
             return scope.Find(ExpressionContext.EqualityComparers).TryGetValue(name ?? "Default", out var comparer) switch
