@@ -6,7 +6,7 @@ namespace Reusable.Flexo
 {
     public class IsNullOrEmpty : ScalarExtension<bool>
     {
-        public IsNullOrEmpty(ILogger<IsNullOrEmpty> logger) : base(logger, nameof(IsNullOrEmpty)) { }
+        public IsNullOrEmpty() : base(default, nameof(IsNullOrEmpty)) { }
         
         public IExpression Left { get => ThisInner; set => ThisInner = value; }
 
@@ -15,7 +15,7 @@ namespace Reusable.Flexo
             return This(context).Invoke(context).Value switch
             {
                 string s => string.IsNullOrEmpty(s),
-                _ => false
+                _ => true
             };
         }
     }

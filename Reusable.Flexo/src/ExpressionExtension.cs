@@ -23,7 +23,7 @@ namespace Reusable.Flexo
 
         #endregion
 
-        protected TExtension This(IImmutableContainer context) => ThisInner ?? ThisOuter(context.GetItemOrDefault(ExpressionContext.ThisOuter));
+        protected TExtension This(IImmutableContainer context) => ThisInner ?? ThisOuter(context.Find(ExpressionContext.ThisOuter));
 
         protected abstract TExtension ThisOuter(object thisOuter);
     }

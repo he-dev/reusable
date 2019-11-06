@@ -40,7 +40,7 @@
       true,
       false
     ],
-    "Pipe": {
+    "This": {
       "$f": "ToDouble"
     }
   },

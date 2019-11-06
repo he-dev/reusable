@@ -44,7 +44,8 @@ namespace Reusable.Flexo
             (
                 expected,
                 useCase,
-                ctx => ctx
+                ImmutableContainer
+                    .Empty
                     .WithReferences(_helper.References)
                     .SetItem(From<ITestMeta>.Select(x => x.Sth), sth),
                 _output,

@@ -8,45 +8,47 @@ namespace Reusable.Flexo
     [Obsolete("Use Invoke(context) extension.")]
     public interface IExpressionInvoker
     {
-        IList<(IConstant Result, IImmutableContainer Context)> Invoke(IEnumerable<IExpression> expressions, IImmutableContainer scope = default);
+        IList<(IConstant Result, IImmutableContainer Context)> Invoke(IEnumerable<IExpression> expressions, IImmutableContainer? scope = default);
 
-        (IConstant Result, IImmutableContainer Context) Invoke(IExpression expression, IImmutableContainer scope = default);
+        ExpressionResult Invoke(IExpression expression, IImmutableContainer? scope = default);
     }
 
     public class ExpressionInvoker : IExpressionInvoker
     {
         public static IExpressionInvoker Default { get; } = new ExpressionInvoker();
 
-        public IList<(IConstant Result, IImmutableContainer Context)> Invoke
-        (
-            IEnumerable<IExpression> expressions,
-            IImmutableContainer scope = default
-        )
+        public IList<(IConstant Result, IImmutableContainer Context)> Invoke(IEnumerable<IExpression> expressions, IImmutableContainer? scope = default)
         {
             return expressions.Enabled().Select(e =>
             {
-                using (Expression.BeginScope(customizeContext ?? (_ => _)))
+                scope = ExpressionContext.Default.BeginScope(scope ?? ImmutableContainer.Empty);
+                try
                 {
-                    try
-                    {
-                        scope = ExpressionContext.Default.BeginScope(scope ?? ImmutableContainer.Empty);
-                        return (e.Invoke(ExpressionContext.Default, scope), scope);
-                    }
-                    catch (Exception inner)
-                    {
-                        return (Constant.FromValue(inner.GetType().Name, inner), Expression.Scope.Context);
-                    }
+                    return (e.Invoke(ExpressionContext.Default, scope), scope);
+                }
+                catch (Exception inner)
+                {
+                    return (Constant.FromValue(inner.GetType().Name, inner), scope);
                 }
             }).ToList();
         }
 
-        public (IConstant Result, IImmutableContainer Context) Invoke
-        (
-            IExpression expression,
-            Func<IImmutableContainer, IImmutableContainer> customizeContext = default
-        )
+        public ExpressionResult Invoke(IExpression expression, IImmutableContainer? scope = default)
         {
-            return Invoke(new[] { expression }, customizeContext).Single();
+            return  Invoke(new[] { expression }, scope).Single();
         }
+    }
+    
+    public readonly struct ExpressionResult
+    {
+        public ExpressionResult(IConstant constant, IImmutableContainer context)
+        {
+            Constant = constant;
+            Context = context;
+        }
+
+        public IConstant Constant { get; }
+
+        public IImmutableContainer Context { get; }
     }
 }

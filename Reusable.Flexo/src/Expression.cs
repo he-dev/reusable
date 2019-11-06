@@ -29,11 +29,10 @@ namespace Reusable.Flexo
         ISet<SoftString> Tags { get; }
 
         [CanBeNull]
-        IExpression Extension { get; }
+        IExpression Next { get; }
 
         [NotNull]
         //IConstant Invoke();
-
         IConstant Invoke(IImmutableContainer context);
     }
 
@@ -133,27 +132,8 @@ namespace Reusable.Flexo
 
         public bool Enabled { get; set; } = true;
 
-        [JsonIgnore]
-        public IExpression? Extension { get; set; }
-
-        #region Extension aliases
-
-        [Obsolete("Use Pipe")]
         [JsonProperty("This")]
-        public IExpression ExtensionThis
-        {
-            get => Extension;
-            set => Extension = value;
-        }
-
-        [JsonProperty("Pipe")]
-        public IExpression ExtensionPipe
-        {
-            get => Extension;
-            set => Extension = value;
-        }
-
-        #endregion
+        public IExpression? Next { get; set; }
 
         public abstract IConstant Invoke(IImmutableContainer context);
 
@@ -166,7 +146,7 @@ namespace Reusable.Flexo
         protected class EmptyLogger : ILogger
         {
             public static EmptyLogger Instance { get; } = new EmptyLogger();
-            
+
             public LoggerNode Node { get; }
 
             public T Use<T>(T next) where T : LoggerNode
@@ -189,18 +169,17 @@ namespace Reusable.Flexo
         {
             return context.BeginScope(ImmutableContainer.Empty.SetItem(ExpressionContext.ThisOuter, thisOuter));
         }
-        
+
         /// <summary>
         /// Enumerates expression scopes from last to first. 
         /// </summary>
         public static IEnumerable<IImmutableContainer> Enumerate(this IImmutableContainer context)
         {
-            var current = context.GetItemOrDefault(ExpressionContext.Parent);
-            while (current != null)
+            do
             {
-                yield return current;
-                current = context.GetItemOrDefault(ExpressionContext.Parent);
-            }
+                yield return context;
+                context = context.GetItemOrDefault(ExpressionContext.Parent);
+            } while (context != null);
         }
     }
 

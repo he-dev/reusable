@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.ComponentModel;
@@ -26,11 +27,11 @@ namespace Reusable.Flexo
 
         public override IConstant Invoke(IImmutableContainer context)
         {
-            var parentView = context.GetItemOrDefault(ExpressionContext.DebugView);
+            var parentView = context.Find(ExpressionContext.DebugView);
             var thisView = parentView.Add(this.CreateDebugView());
 
             // Take a shortcut when this is a constant without an extension. This helps to avoid another debug-view.
-            if (this is IConstant constant && Extension is null)
+            if (this is IConstant constant && Next is null)
             {
                 thisView.Value.Result = constant.Value;
                 return constant;
@@ -41,57 +42,48 @@ namespace Reusable.Flexo
                 ImmutableContainer
                     .Empty
                     .SetItem(ExpressionContext.DebugView, thisView)
-                    .SetItem(ExpressionContext.ThisOuter, this.ThisOuterOrDefault(), (_, value) => value.IsNotNull())
+                //.SetItem(ExpressionContext.ThisOuter, this.ThisOuterOrDefault(), (_, value) => value.IsNotNull())
             );
 
             var thisResult = InvokeAsConstant(thisContext);
             thisView.Value.Result = thisResult.Value;
 
-            if (Extension is null)
+            if (Next is IExtension extension && extension.IsInExtensionMode)
             {
-                return thisResult;
-            }
-            else
-            {
-                var extension = Extension.Resolve();
-
                 // Check whether result and extension match; do it only for extension expressions.
-                if (extension is IExtension ext && ext.IsInExtensionMode)
+                var thisType =
+                    thisResult.Value is IEnumerable<IExpression> collection
+                        ? collection.GetType()
+                        : thisResult.GetType();
+
+                if (!extension.ExtensionType.IsAssignableFrom(thisType))
                 {
-                    var thisType =
-                        thisResult.Value is IEnumerable<IExpression> collection
-                            ? collection.GetType()
-                            : thisResult.GetType();
-
-                    if (!ext.ExtensionType.IsAssignableFrom(thisType))
-                    {
-                        throw DynamicException.Create
-                        (
-                            $"PipeTypeMismatch",
-                            $"Extension '{ext.GetType().ToPrettyString()}<{ext.ExtensionType.ToPrettyString()}>' does not match the expression it is extending: '{thisResult.Value.GetType().ToPrettyString()}'."
-                        );
-                    }
+                    throw DynamicException.Create
+                    (
+                        $"PipeTypeMismatch",
+                        $"Extension '{extension.GetType().ToPrettyString()}<{extension.ExtensionType.ToPrettyString()}>' does not match the expression it is extending: '{thisResult.Value.GetType().ToPrettyString()}'."
+                    );
                 }
-
-                return extension.Invoke
-                (
-                    thisContext,
-                    ImmutableContainer
-                        .Empty
-                        .SetItem(ExpressionContext.DebugView, thisView)
-                        .SetItem(ExpressionContext.ThisOuter, thisResult)
-                );
             }
+
+            return Next?.Invoke
+                   (
+                       thisContext,
+                       ImmutableContainer
+                           .Empty
+                           .SetItem(ExpressionContext.DebugView, thisView)
+                           .SetItem(ExpressionContext.ThisOuter, thisResult)
+                   ) ?? thisResult;
         }
 
         protected virtual Constant<TResult> InvokeAsConstant(IImmutableContainer context)
         {
-            return (Name, default);
+            return (Name, InvokeAsValue(context), context);
         }
 
         protected virtual TResult InvokeAsValue(IImmutableContainer context)
         {
-            return default;
+            throw new NotImplementedException($"You must override either {nameof(InvokeAsConstant)} or {nameof(InvokeAsValue)} method.");
         }
     }
 }

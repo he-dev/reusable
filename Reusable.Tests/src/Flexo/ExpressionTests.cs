@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Reusable.Data;
 using Reusable.Flexo.Helpers;
 using Xunit;
 
@@ -102,7 +103,7 @@ namespace Reusable.Flexo
         [Fact]
         public void IIf_throws_when_no_result_specified()
         {
-            Assert.Throws<InvalidOperationException>(() => _helper.Resolve<IIf>(e => e.Predicate = Constant.FromValue(false)).Invoke());
+            Assert.Throws<InvalidOperationException>(() => _helper.Resolve<IIf>(e => e.Predicate = Constant.FromValue(false)).Invoke(ImmutableContainer.Empty));
         }
 
         [Fact]
@@ -454,7 +455,7 @@ namespace Reusable.Flexo
             {
                 e.Values = Constant.CreateMany("foo", "BAR").ToList();
                 e.Value = Constant.FromValue("Value", "bar");
-                e.Comparer = "SoftString";
+                e.ComparerName = "SoftString";
             }));
         }
 

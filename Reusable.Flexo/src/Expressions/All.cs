@@ -19,7 +19,7 @@ namespace Reusable.Flexo
         protected override bool InvokeAsValue(IImmutableContainer context)
         {
             var predicate = (Predicate ?? Constant.FromValue(nameof(Predicate), true));//.Invoke(context);
-            foreach (var item in Values.Enabled())
+            foreach (var item in This(context).Enabled())
             {
                 var x = item.Invoke(context);
                 var y = predicate switch

@@ -20,7 +20,7 @@ namespace Reusable.Flexo
         {
             var predicate = (Predicate ?? Constant.FromValue(nameof(Predicate), true)); //.Invoke();
 
-            foreach (var item in Values.Enabled())
+            foreach (var item in This(context).Enabled())
             {
                 var x = item.Invoke(context);
                 var y = predicate switch

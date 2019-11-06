@@ -20,7 +20,7 @@ namespace Reusable.Flexo
 
         protected override bool InvokeAsValue(IImmutableContainer context)
         {
-            var first = First.Enabled().Invoke(context).Values<object>();
+            var first = This(context).Enabled().Invoke(context).Values<object>();
             var second = Second.Enabled().Invoke(context).Values<object>();
             var comparer = context.GetEqualityComparerOrDefault(ComparerName);
             return first.Intersect(second, comparer).Any();

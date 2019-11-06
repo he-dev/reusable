@@ -15,20 +15,23 @@ namespace Reusable.Flexo
 
         protected Aggregate(ILogger logger, string name, [NotNull] Func<IEnumerable<double>, double> aggregate)
             : base(logger, name) => _aggregate = aggregate;
-        
-        public IEnumerable<IExpression> Values { get => ThisInner; set => ThisInner = value; }
 
-        protected override Constant<double> InvokeAsConstant(IImmutableContainer context)
+        public IEnumerable<IExpression> Values
+        {
+            get => ThisInner;
+            set => ThisInner = value;
+        }
+
+        protected override double InvokeAsValue(IImmutableContainer context)
         {
             var values =
-                Values
+                This(context)
                     .Enabled()
                     .Select(e => e.Invoke(context))
                     .Values<double>();
-                    //.Cast<double>();
-            
-            var result = _aggregate(values);
-            return (Name, result);
+            //.Cast<double>();
+
+            return _aggregate(values);
         }
     }
 }

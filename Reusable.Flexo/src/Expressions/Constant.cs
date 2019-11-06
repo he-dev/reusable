@@ -13,6 +13,8 @@ namespace Reusable.Flexo
         [AutoEqualityProperty]
         [CanBeNull]
         object Value { get; }
+        
+        IImmutableContainer Context { get; }
     }
 
     public interface IConstant<out TValue> : IExpression
@@ -23,35 +25,37 @@ namespace Reusable.Flexo
 
     public class Constant<TValue> : Expression<TValue>, IConstant, IConstant<TValue>, IEquatable<Constant<TValue>>
     {
-        public Constant(SoftString name, TValue value)
+        public Constant(SoftString name, TValue value, IImmutableContainer? context = default)
             : base(EmptyLogger.Instance, name ?? value.GetType().ToPrettyString())
         {
             Value = value;
+            Context = context ?? ImmutableContainer.Empty;
         }
 
         object IConstant.Value => Value;
 
         [AutoEqualityProperty]
         public TValue Value { get; set; }
+        
+        public IImmutableContainer Context { get; }
 
         protected override Constant<TValue> InvokeAsConstant(IImmutableContainer context)
         {
-            return (Name, Value);
+            return (Name, Value, context);
         }
 
-        public void Deconstruct(out SoftString name, out TValue value)
+        public void Deconstruct(out SoftString name, out TValue value, out IImmutableContainer context)
         {
             name = Name;
             value = Value;
+            context = Context;
         }
 
         public override string ToString() => $"{Name.ToString()}: '{Value}'";
 
         public static implicit operator Constant<TValue>((SoftString Name, TValue Value) t) => new Constant<TValue>(t.Name, t.Value);
 
-        public static implicit operator Constant<TValue>((SoftString Name, TValue Value, IImmutableContainer Context) t) => new Constant<TValue>(t.Name, t.Value);
-
-        //public static implicit operator Constant<ExpressionResult<TValue>>((string Name, ExpressionResult<TValue> Result) t) => new Constant<ExpressionResult<TValue>>(t.Name, t.Result);
+        public static implicit operator Constant<TValue>((SoftString Name, TValue Value, IImmutableContainer Context) t) => new Constant<TValue>(t.Name, t.Value, t.Context);
 
         public static implicit operator TValue(Constant<TValue> constant) => constant.Value;
 
@@ -100,15 +104,15 @@ namespace Reusable.Flexo
         private static volatile int _counter;
 
         [NotNull]
-        public static Constant<TValue> FromValue<TValue>(SoftString name, TValue value)
+        public static Constant<TValue> FromValue<TValue>(SoftString name, TValue value, IImmutableContainer? context = default)
         {
-            return new Constant<TValue>(name, value);
+            return new Constant<TValue>(name, value, context);
         }
 
         [NotNull]
-        internal static Constant<TValue> FromValue<TValue>(TValue value)
+        internal static Constant<TValue> FromValue<TValue>(TValue value, IImmutableContainer? context = default)
         {
-            return FromValue($"{typeof(Constant<TValue>).ToPrettyString()}-{_counter++}", value);
+            return FromValue($"{typeof(Constant<TValue>).ToPrettyString()}-{_counter++}", value, context);
         }
 
         [NotNull, ItemNotNull]
@@ -120,7 +124,7 @@ namespace Reusable.Flexo
         [NotNull, ItemNotNull]
         internal static IEnumerable<IExpression> CreateMany<TValue>(params TValue[] values)
         {
-            return values.Select(FromValue);
+            return values.Select(value => FromValue(value));
         }
 
         public static Constant<IEnumerable<IExpression>> FromEnumerable(SoftString name, IEnumerable<object> values, IImmutableContainer context = default)

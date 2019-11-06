@@ -24,11 +24,11 @@ namespace Reusable.Flexo
         [JsonProperty("Comparer")]
         public string ComparerName { get; set; }
 
-        protected override Constant<bool> InvokeAsConstant(IImmutableContainer context)
+        protected override bool InvokeAsValue(IImmutableContainer context)
         {
             var comparer = context.GetComparerOrDefault(ComparerName);
             var result = comparer.Compare(Left.Invoke(context).Value, Right.Invoke(context).Value);
-            return (Name, _predicate(result));
+            return _predicate(result);
         }
     }
 }
