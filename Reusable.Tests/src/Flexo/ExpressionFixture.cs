@@ -24,7 +24,7 @@ namespace Reusable.Flexo
 
             builder.RegisterModule<JsonContractResolverModule>();
             builder.RegisterModule(new LoggerModule(new LoggerFactory()));
-            builder.RegisterModule(new ExpressionSerializerPackage(Enumerable.Empty<Type>()));
+            builder.RegisterModule(new ExpressionSerializerModule(Enumerable.Empty<Type>()));
 
             var container = builder.Build();
             _scope = container.BeginLifetimeScope();

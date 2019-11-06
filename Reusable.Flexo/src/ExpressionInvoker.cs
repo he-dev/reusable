@@ -8,9 +8,9 @@ namespace Reusable.Flexo
     [Obsolete("Use Invoke(context) extension.")]
     public interface IExpressionInvoker
     {
-        IList<(IConstant Result, IImmutableContainer Context)> Invoke(IEnumerable<IExpression> expressions, Func<IImmutableContainer, IImmutableContainer> customizeContext);
+        IList<(IConstant Result, IImmutableContainer Context)> Invoke(IEnumerable<IExpression> expressions, IImmutableContainer scope = default);
 
-        (IConstant Result, IImmutableContainer Context) Invoke(IExpression expression, Func<IImmutableContainer, IImmutableContainer> customizeContext = default);
+        (IConstant Result, IImmutableContainer Context) Invoke(IExpression expression, IImmutableContainer scope = default);
     }
 
     public class ExpressionInvoker : IExpressionInvoker
@@ -20,7 +20,7 @@ namespace Reusable.Flexo
         public IList<(IConstant Result, IImmutableContainer Context)> Invoke
         (
             IEnumerable<IExpression> expressions,
-            Func<IImmutableContainer, IImmutableContainer> customizeContext = default
+            IImmutableContainer scope = default
         )
         {
             return expressions.Enabled().Select(e =>
@@ -29,7 +29,8 @@ namespace Reusable.Flexo
                 {
                     try
                     {
-                        return (e.Invoke(TODO), Expression.Scope.Context);
+                        scope = ExpressionContext.Default.BeginScope(scope ?? ImmutableContainer.Empty);
+                        return (e.Invoke(ExpressionContext.Default, scope), scope);
                     }
                     catch (Exception inner)
                     {
