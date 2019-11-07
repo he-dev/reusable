@@ -74,25 +74,25 @@ namespace Reusable.Flexo
             Path = ExpressionContext.Item.ToString();
         }
 
-        protected override Constant<object> InvokeAsConstant(IImmutableContainer context)
+        protected override Constant<object> ComputeConstantGeneric(IImmutableContainer context)
         {
-            return (Path, (FindItem(context) is var item && item is IConstant c ? c.Value : item));
+            return (Path, FindItem(context) switch { IConstant c => c.Value, {} x => x, _ => null }, context);
         }
     }
 
-    public class Ref : GetItem<IExpression>
-    {
-        public Ref([NotNull] ILogger<Ref> logger) : base(logger, nameof(Ref)) { }
-
-        protected override Constant<IExpression> InvokeAsConstant(IImmutableContainer context)
-        {
-            var expressions = context.GetItemOrDefault(ExpressionContext.References);
-            var path = Path.StartsWith("R.", StringComparison.OrdinalIgnoreCase) ? Path : $"R.{Path}";
-
-            return
-                expressions.TryGetValue(path, out var expression)
-                    ? (Path, expression)
-                    : throw DynamicException.Create("RefNotFound", $"Could not find a reference to '{path}'.");
-        }
-    }
+//    public class Ref : GetItem<IExpression>
+//    {
+//        public Ref([NotNull] ILogger<Ref> logger) : base(logger, nameof(Ref)) { }
+//
+//        protected override Constant<IExpression> InvokeAsConstant(IImmutableContainer context)
+//        {
+//            var expressions = context.GetItemOrDefault(ExpressionContext.Packages);
+//            var path = Path.StartsWith("R.", StringComparison.OrdinalIgnoreCase) ? Path : $"R.{Path}";
+//
+//            return
+//                expressions.TryGetValue(path, out var expression)
+//                    ? (Path, expression)
+//                    : throw DynamicException.Create("RefNotFound", $"Could not find a reference to '{path}'.");
+//        }
+//    }
 }

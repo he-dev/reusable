@@ -16,7 +16,7 @@ namespace Reusable.Flexo
 
         public IEnumerable<IExpression> Body { get; set; }
 
-        protected override object InvokeAsValue(IImmutableContainer context)
+        protected override object ComputeValue(IImmutableContainer context)
         {
             var query =
                 from item in This(context).Enabled()

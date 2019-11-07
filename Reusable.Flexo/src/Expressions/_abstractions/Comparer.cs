@@ -7,8 +7,15 @@ using Reusable.OmniLog.Abstractions;
 
 namespace Reusable.Flexo
 {
+    // Makes sure that all types that support a comparer are consistent.
+    public interface ICustomizableComparer
+    {
+        [JsonProperty("Comparer")]
+        string ComparerName { get; set; }
+    }
+    
     [PublicAPI]
-    public abstract class Comparer : ScalarExtension<bool>
+    public abstract class Comparer : ScalarExtension<bool>, ICustomizableComparer
     {
         private readonly Func<int, bool> _predicate;
 
@@ -21,13 +28,12 @@ namespace Reusable.Flexo
         [JsonProperty("Value")]
         public IExpression Right { get; set; }
         
-        [JsonProperty("Comparer")]
         public string ComparerName { get; set; }
 
-        protected override bool InvokeAsValue(IImmutableContainer context)
+        protected override bool ComputeValue(IImmutableContainer context)
         {
             var comparer = context.GetComparerOrDefault(ComparerName);
-            var result = comparer.Compare(Left.Invoke(context).Value, Right.Invoke(context).Value);
+            var result = comparer.Compare(This(context).Invoke(context).Value, Right.Invoke(context).Value);
             return _predicate(result);
         }
     }

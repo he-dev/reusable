@@ -8,7 +8,7 @@ namespace Reusable.Flexo
     /// </summary>
     public class ToDouble : Switch
     {
-        public ToDouble(ILogger<ToDouble> logger) : base(logger, nameof(ToDouble))
+        public ToDouble() : base(default, nameof(ToDouble))
         {
             Cases = new List<SwitchCase>
             {
@@ -24,16 +24,21 @@ namespace Reusable.Flexo
                 },
                 new SwitchCase
                 {
-                    When = Constant.Null,
+                    When = Expression<bool>.Create("CheckIfDouble", ctx => This(ctx).Invoke(ctx).Value is double),
+                    Body = Expression<double>.Create("PassDouble", ctx => This(ctx).Invoke(ctx).Value<double>()),
+                },
+                new SwitchCase
+                {
+                    When = null,
                     Body = Double.Zero
                 }
             };
 
-            Default = new Throw
-            {
-                Name = "SwitchValueOutOfRange",
-                Message = Constant.FromValue("Message", $"{nameof(ToDouble)} value must be either 'true', 'false' or 'null'.")
-            };
+//            Default = new Throw
+//            {
+//                Name = "SwitchValueOutOfRange",
+//                Message = Constant.FromValue("Message", $"{nameof(ToDouble)} value must be either 'true', 'false' or 'null'.")
+//            };
         }
     }
 }

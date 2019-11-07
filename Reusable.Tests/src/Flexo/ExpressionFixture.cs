@@ -8,6 +8,7 @@ using Reusable.Extensions;
 using Reusable.OmniLog;
 using Reusable.Translucent;
 using Reusable.Utilities.JsonNet.DependencyInjection;
+using Xunit.Abstractions;
 
 namespace Reusable.Flexo
 {
@@ -22,6 +23,7 @@ namespace Reusable.Flexo
         {
             var builder = new ContainerBuilder();
 
+            builder.RegisterType<ExpressionUseCase>().AsSelf();
             builder.RegisterModule<JsonContractResolverModule>();
             builder.RegisterModule(new LoggerModule(new LoggerFactory()));
             builder.RegisterModule(new ExpressionSerializerModule(Enumerable.Empty<Type>()));
@@ -36,7 +38,7 @@ namespace Reusable.Flexo
 
             Serializer = _scope.Resolve<ExpressionSerializer>();
         }
-
+        
         public IExpressionSerializer Serializer { get; }
 
         public T Resolve<T>(Action<T> configure = default)
@@ -46,17 +48,14 @@ namespace Reusable.Flexo
             return t;
         }
 
-        public IList<IExpression> References => _expressions.GetOrAdd("ExpressionReferences.json", ReadExpressionFile());
+        public IList<IExpression> Expressions => _expressions.GetOrAdd("ExpressionCollection.json", ReadExpressionFile<IList<IExpression>>);
+        
+        public IList<IExpression> Packages => _expressions.GetOrAdd("Packages.IsPositive.json", fileName => new List<IExpression> { ReadExpressionFile<IExpression>(fileName) });
 
-        public IList<IExpression> Expressions => _expressions.GetOrAdd("ExpressionCollection.json", ReadExpressionFile());
-
-        private Func<string, IList<IExpression>> ReadExpressionFile()
+        public T ReadExpressionFile<T>(string fileName)
         {
-            return n =>
-            {
-                var json = TestHelper.Resources.ReadTextFile(n);
-                return Serializer.Deserialize<IList<IExpression>>(json);
-            };
+            var json = TestHelper.Resources.ReadTextFile(fileName);
+            return Serializer.Deserialize<T>(json);
         }
 
         public void Dispose()

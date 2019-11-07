@@ -16,7 +16,7 @@ namespace Reusable.Flexo
 
         public IExpression Predicate { get; set; }
 
-        protected override IEnumerable<IExpression> InvokeAsValue(IImmutableContainer context)
+        protected override IEnumerable<IExpression> ComputeValue(IImmutableContainer context)
         {
             var query =
                 from item in This(context).Enabled()

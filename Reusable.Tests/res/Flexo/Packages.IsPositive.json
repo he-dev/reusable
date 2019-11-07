@@ -1,0 +1,8 @@
+{
+  "$t": "Flexo.Package",
+  "Name": "IsPositive",
+  "Body": {
+    "$t": "Flexo.IsGreaterThanOrEqual",
+    "Value": 0.0
+  }
+}

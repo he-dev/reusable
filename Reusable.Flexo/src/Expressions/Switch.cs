@@ -6,6 +6,7 @@ using System.Reflection;
 using JetBrains.Annotations;
 using Newtonsoft.Json;
 using Reusable.Data;
+using Reusable.Exceptionize;
 using Reusable.OmniLog.Abstractions;
 using Reusable.Quickey;
 
@@ -17,55 +18,30 @@ namespace Reusable.Flexo
     {
         public Switch() : this(default, nameof(Switch)) { }
 
-        protected Switch(ILogger logger, SoftString name) : base(logger, name) { }
+        protected Switch(ILogger? logger, SoftString name) : base(logger, name) { }
 
-        public IExpression Value { get => ThisInner; set => ThisInner = value; }
+        public IExpression Value
+        {
+            get => ThisInner;
+            set => ThisInner = value;
+        }
 
         public IEnumerable<SwitchCase> Cases { get; set; }
 
-        public IExpression Default { get; set; }
-
-        protected override object InvokeAsValue(IImmutableContainer context)
+        protected override IConstant ComputeConstant(IImmutableContainer context)
         {
             var value = This(context).Invoke(context);
+            var scope = context.BeginScopeWithThisOuter(value);
 
             foreach (var switchCase in (Cases ?? Enumerable.Empty<SwitchCase>()).Where(c => c.Enabled))
             {
-                var scope = context.BeginScopeWithThisOuter(value);
-
-                switch (switchCase.When)
+                if (switchCase.Matches(value, scope))
                 {
-                    case IConstant constant:
-                        if (EqualityComparer<object>.Default.Equals(value.Value, constant.Value))
-                        {
-                            var bodyResult = switchCase.Body.Invoke(scope);
-                            return bodyResult.Value;
-                        }
-
-                        break;
-                    case { } expression:
-                        if (expression.Invoke(context) is var whenResult && whenResult.Value<bool>())
-                        {
-                            var bodyResult = switchCase.Body.Invoke(scope);
-                            return bodyResult.Value;
-                        }
-
-                        break;
+                    return switchCase.Body.Invoke(scope);
                 }
             }
 
-            if (Default is IConstant @default)
-            {
-                return ("Switch.Default", @default.Value);
-            }
-
-            return
-                (Default ?? new Throw
-                    {
-                        Name = "SwitchValueOutOfRange",
-                        Message = Constant.FromValue("Message", "Default value not specified.")
-                    }
-                ).Invoke(context);
+            throw DynamicException.Create("SwitchValueOutOfRange", $"'{value}' didn't match any case.");
         }
     }
 
@@ -79,14 +55,18 @@ namespace Reusable.Flexo
 
         [JsonRequired]
         public IExpression Body { get; set; }
-    }
 
-    //    [UseType]
-    //    [UseMember]
-    //    [TrimEnd("I")]
-    //    [TrimStart("Meta")]
-    //    public interface ISwitchMeta : INamespace
-    //    {
-    //        object Value { get; }
-    //    }
+        [JsonProperty("Comparer")]
+        public string? ComparerName { get; set; }
+
+        public bool Matches(IConstant value, IImmutableContainer context)
+        {
+            return When switch
+            {
+                IConstant constant => context.GetEqualityComparerOrDefault(ComparerName).Equals(value.Value, constant.Value),
+                {} expression => expression.Invoke(context).Value<bool>(),
+                _ => true // If not specified then use it as a default case.
+            };
+        }
+    }
 }

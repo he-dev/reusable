@@ -34,11 +34,7 @@ namespace Reusable.Flexo
 
         protected override IExpression ThisOuter(object thisOuter)
         {
-            return thisOuter switch
-            {
-                IExpression e => e,
-                _ => default
-            };
+            return thisOuter switch { IExpression e => e, _ => default };
         }
     }
 

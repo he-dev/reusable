@@ -3,6 +3,7 @@ using System.Linq;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 using Reusable.Data;
+using Reusable.Exceptionize;
 using Reusable.OmniLog.Abstractions;
 using Reusable.Quickey;
 
@@ -14,22 +15,27 @@ namespace Reusable.Flexo
 
         public IEnumerable<IExpression> Values { get => ThisInner; set => ThisInner = value; }
 
-        public IExpression Predicate { get; set; }
+        public IExpression? Predicate { get; set; }
+        
+        [JsonProperty("Comparer")]
+        public string? ComparerName { get; set; }
 
-        protected override bool InvokeAsValue(IImmutableContainer context)
+        protected override bool ComputeValue(IImmutableContainer context)
         {
             var predicate = (Predicate ?? Constant.FromValue(nameof(Predicate), true)); //.Invoke();
 
             foreach (var item in This(context).Enabled())
             {
                 var x = item.Invoke(context);
-                var y = predicate switch
+
+                var equal = predicate switch
                 {
-                    IConstant constant => constant.Invoke(context),
-                    _ => predicate.Invoke(context, context.BeginScopeWithThisOuter(x))
+                    IConstant constant => context.GetEqualityComparerOrDefault(ComparerName).Equals(x.Value, constant.Value),
+                    {} => predicate.Invoke(context, context.BeginScopeWithThisOuter(x)).Value<bool>(),
+                    _ => EqualityComparer<bool>.Default.Equals(x.Value<bool>(), true)
                 };
 
-                if (EqualityComparer<bool>.Default.Equals(x.Value<bool>(), y.Value<bool>()))
+                if (equal)
                 {
                     return true;
                 }

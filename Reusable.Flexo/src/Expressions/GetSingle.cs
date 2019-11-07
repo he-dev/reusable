@@ -6,11 +6,11 @@ namespace Reusable.Flexo
 {
     public class GetSingle : GetItem<object>
     {
-        public GetSingle([NotNull] ILogger<GetSingle> logger) : base(logger, nameof(GetSingle)) { }
+        public GetSingle() : base(default, nameof(GetSingle)) { }
 
-        protected override Constant<object> InvokeAsConstant(IImmutableContainer context)
+        protected override Constant<object> ComputeConstantGeneric(IImmutableContainer context)
         {
-            return (Path, FindItem(context));
+            return (Path, FindItem(context), context);
         }
     }
 }

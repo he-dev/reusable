@@ -53,7 +53,7 @@ namespace Reusable.Flexo
                         : throw DynamicException.Create
                         (
                             "ValueType",
-                            $"Expected {typeof(Constant<T>).ToPrettyString()} but found {constant.GetType().ToPrettyString()}."
+                            $"Constant '{constant.Name.ToString()}' should be of type '{typeof(T).ToPrettyString()}' but is '{constant.Value?.GetType().ToPrettyString()}'."
                         );
             }
         }

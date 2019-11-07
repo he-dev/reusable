@@ -22,7 +22,7 @@ namespace Reusable.Flexo
             set => ThisInner = value;
         }
 
-        protected override double InvokeAsValue(IImmutableContainer context)
+        protected override double ComputeValue(IImmutableContainer context)
         {
             var values =
                 This(context)

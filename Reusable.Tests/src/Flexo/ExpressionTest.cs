@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using Reusable.Data;
 using Reusable.Flexo.Helpers;
+using Reusable.Utilities.XUnit.Annotations;
 using Xunit;
+using Xunit.Abstractions;
 
 // ReSharper disable once CheckNamespace
 namespace Reusable.Flexo
@@ -11,8 +13,13 @@ namespace Reusable.Flexo
     public class ExpressionTest : IClassFixture<ExpressionFixture> //, IDisposable
     {
         private readonly ExpressionFixture _helper;
+        private readonly ITestOutputHelper _output;
 
-        public ExpressionTest(ExpressionFixture helper) => _helper = helper;
+        public ExpressionTest(ExpressionFixture helper, ITestOutputHelper output)
+        {
+            _helper = helper;
+            _output = output;
+        }
 
         [Fact]
         public void All_returns_True_when_all_True()
@@ -430,9 +437,13 @@ namespace Reusable.Flexo
                     {
                         When = Double.Zero,
                         Body = Constant.False
+                    },
+                    new SwitchCase
+                    {
+                        When = null,
+                        Body = new Constant<double>("Actual", 2.0)
                     }
                 };
-                e.Default = new Constant<double>("Actual", 2.0);
             });
 
             ExpressionAssert.ExpressionEqual(2.0, s);
@@ -489,4 +500,5 @@ namespace Reusable.Flexo
 
         //public void Dispose() => _helper.Dispose();
     }
+    
 }

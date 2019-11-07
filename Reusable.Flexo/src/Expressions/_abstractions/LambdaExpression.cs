@@ -7,12 +7,12 @@ namespace Reusable.Flexo
     {
         private readonly Func<TResult> _invoke;
 
-        public LambdaExpression(string name, Func<TResult> invoke) : base(EmptyLogger.Instance, name)
+        public LambdaExpression(string name, Func<TResult> invoke) : base(default, name)
         {
             _invoke = invoke;
         }
 
-        protected override Constant<TResult> InvokeAsConstant(IImmutableContainer context)
+        protected override Constant<TResult> ComputeConstantGeneric(IImmutableContainer context)
         {
             var result = _invoke();
             return (Name, result);

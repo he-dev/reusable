@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using Reusable.Data;
+using Reusable.Exceptionize;
 using Reusable.Extensions;
 using Xunit;
 using Xunit.Abstractions;
@@ -50,6 +51,48 @@ namespace Reusable.Flexo.Helpers
                             break;
                         default:
                             Assert.Equal(expected, result.Value);
+                            break;
+                    }
+                }
+                catch (Exception)
+                {
+                    output?.WriteLine(debugViewString);
+                    throw;
+                }
+
+                return result;
+            }
+        }
+        
+        public static IConstant ExpressionEqual
+        (
+            ExpressionUseCase useCase,
+            ITestOutputHelper? output = default
+        )
+        {
+            var context = ExpressionContext.Default.BeginScope(useCase.Scope ?? ImmutableContainer.Empty);
+
+            if (useCase.Throws)
+            {
+                var ex = Assert.Throws<ExpressionException>(() => useCase.Body.Invoke(context));
+                return Constant.FromValue(nameof(Exception), ex, context);
+            }
+            else
+            {
+                var result = useCase.Body.Invoke(context);
+                var debugViewString = result.DebugViewToString(ExpressionDebugView.Templates.Compact);
+
+                try
+                {
+                    switch (useCase.Expected)
+                    {
+                        case null: throw new InvalidOperationException($"The expected value for '{useCase}' is not specified.");
+                        case IEnumerable collection when !(useCase.Expected is string):
+                            Assert.IsAssignableFrom<IEnumerable>(result.Value);
+                            Assert.Equal(collection.Cast<object>(), result.Value<IEnumerable<IConstant>>().Values<object>());
+                            break;
+                        default:
+                            Assert.Equal(useCase.Expected, result.Value);
                             break;
                     }
                 }

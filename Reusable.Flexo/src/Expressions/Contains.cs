@@ -19,7 +19,7 @@ namespace Reusable.Flexo
         [JsonProperty("Comparer")]
         public string? ComparerName { get; set; }
 
-        protected override bool InvokeAsValue(IImmutableContainer context)
+        protected override bool ComputeValue(IImmutableContainer context)
         {
             var value = Value.Invoke(context).Value;
             var comparer = context.GetEqualityComparerOrDefault(ComparerName);
@@ -41,7 +41,7 @@ namespace Reusable.Flexo
 
         public string Comparer { get; set; }
 
-        protected override bool InvokeAsValue(IImmutableContainer context)
+        protected override bool ComputeValue(IImmutableContainer context)
         {
             var value = This(context).Invoke(context).Value;
             var comparer = context.GetEqualityComparerOrDefault(Comparer);

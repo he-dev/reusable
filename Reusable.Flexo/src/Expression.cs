@@ -5,8 +5,10 @@ using JetBrains.Annotations;
 using Newtonsoft.Json;
 using Reusable.Data;
 using Reusable.Exceptionize;
+using Reusable.Extensions;
 using Reusable.OmniLog.Abstractions;
 using Reusable.OmniLog.Abstractions.Data;
+using Reusable.Utilities.JsonNet.Annotations;
 
 namespace Reusable.Flexo
 {
@@ -49,6 +51,7 @@ namespace Reusable.Flexo
         Type ExtensionType { get; }
     }
 
+    [Namespace("Flexo", Alias = "F")]
     public abstract class Expression : IExpression
     {
         // ReSharper disable RedundantNameQualifier - Use full namespace to avoid conflicts with other types.
@@ -72,7 +75,8 @@ namespace Reusable.Flexo
             typeof(Reusable.Flexo.GetMany),
             //typeof(Reusable.Flexo.SetSingle),
             //typeof(Reusable.Flexo.SetMany),
-            typeof(Reusable.Flexo.Ref),
+            typeof(Reusable.Flexo.Package),
+            typeof(Reusable.Flexo.Import),
             typeof(Reusable.Flexo.Contains),
             typeof(Reusable.Flexo.In),
             typeof(Reusable.Flexo.Overlaps),
@@ -135,7 +139,60 @@ namespace Reusable.Flexo
         [JsonProperty("This")]
         public IExpression? Next { get; set; }
 
-        public abstract IConstant Invoke(IImmutableContainer context);
+        //public abstract IConstant Invoke(IImmutableContainer context);
+        
+        public IConstant Invoke(IImmutableContainer context)
+        {
+            var parentView = context.Find(ExpressionContext.DebugView);
+            var thisView = parentView.Add(this.CreateDebugView());
+
+            // Take a shortcut when this is a constant without an extension. This helps to avoid another debug-view.
+            if (this is IConstant constant && Next is null)
+            {
+                thisView.Value.Result = constant.Value;
+                return ComputeConstant(context); // Constant.FromValue(constant.Name, constant.Value, context);// constant.Invoke(context);
+            }
+
+            var thisContext = context.BeginScope
+            (
+                ImmutableContainer
+                    .Empty
+                    .SetItem(ExpressionContext.DebugView, thisView)
+                //.SetItem(ExpressionContext.ThisOuter, this.ThisOuterOrDefault(), (_, value) => value.IsNotNull())
+            );
+
+            var thisResult = ComputeConstant(thisContext);
+            thisView.Value.Result = thisResult.Value;
+
+            if (Next is IExtension extension && extension.IsInExtensionMode)
+            {
+                // Check whether result and extension match; do it only for extension expressions.
+                var thisType =
+                    thisResult.Value is IEnumerable<IExpression> collection
+                        ? collection.GetType()
+                        : thisResult.GetType();
+
+                if (!extension.ExtensionType.IsAssignableFrom(thisType))
+                {
+                    throw DynamicException.Create
+                    (
+                        $"PipeTypeMismatch",
+                        $"Extension '{extension.GetType().ToPrettyString()}<{extension.ExtensionType.ToPrettyString()}>' does not match the expression it is extending: '{thisResult.Value.GetType().ToPrettyString()}'."
+                    );
+                }
+            }
+
+            return Next?.Invoke
+                   (
+                       thisContext,
+                       ImmutableContainer
+                           .Empty
+                           .SetItem(ExpressionContext.DebugView, thisView)
+                           .SetItem(ExpressionContext.ThisOuter, thisResult)
+                   ) ?? thisResult;
+        }
+
+        protected abstract IConstant ComputeConstant(IImmutableContainer context);
 
         // public static ExpressionScope BeginScope(Func<IImmutableContainer, IImmutableContainer> configureContext)
         // {

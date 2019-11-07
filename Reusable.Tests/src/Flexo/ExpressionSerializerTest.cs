@@ -46,7 +46,7 @@ namespace Reusable.Flexo
                 useCase,
                 ImmutableContainer
                     .Empty
-                    .WithReferences(_helper.References)
+                    .WithPackages(_helper.Packages)
                     .SetItem(From<ITestMeta>.Select(x => x.Sth), sth),
                 _output,
                 throws,
@@ -91,9 +91,11 @@ namespace Reusable.Flexo
             ("True.Not", false, false, default),
             ("True.ToDouble", 1.0, false, default),
             ("True.All-overrides-this", false, false, default),
-            ("Double.ToDouble", 1.0, true, default),
+            ("Double.ToDouble", 1.0, false, default),
             ("Double.IsEqual", true, false, default),
-            ("Double.ref_IsLessThan3", true, false, default),
+            //("Double.ref_IsLessThan3", true, false, default),
+            ("Double.Import.IsPositive=True", true, false, default),
+            ("Double.Import.IsPositive=False", false, false, default),
             ("CollectionOfDouble", new double[] { 1, 2, 3 }, false, default),
             ("CollectionOfDouble-2", new double[] { 1, 2, 3 }, false, default),
             ("Collection.Sum", 3.0, false, default),

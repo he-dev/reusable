@@ -20,70 +20,38 @@ using Reusable.Utilities.JsonNet.Annotations;
 
 namespace Reusable.Flexo
 {
-    [Namespace("Flexo", Alias = "F")]
+    
     public abstract class Expression<TResult> : Expression
     {
-        protected Expression(ILogger logger, SoftString name) : base(logger, name) { }
+        protected Expression(ILogger? logger, SoftString name) : base(logger, name) { }
 
-        public override IConstant Invoke(IImmutableContainer context)
+        public static IExpression Create(string name, Func<IImmutableContainer, TResult> invokeAsValue) => new Lambda(name, invokeAsValue);
+
+        protected override IConstant ComputeConstant(IImmutableContainer context) => ComputeConstantGeneric(context);
+
+        protected virtual Constant<TResult> ComputeConstantGeneric(IImmutableContainer context)
         {
-            var parentView = context.Find(ExpressionContext.DebugView);
-            var thisView = parentView.Add(this.CreateDebugView());
-
-            // Take a shortcut when this is a constant without an extension. This helps to avoid another debug-view.
-            if (this is IConstant constant && Next is null)
-            {
-                thisView.Value.Result = constant.Value;
-                return constant;
-            }
-
-            var thisContext = context.BeginScope
-            (
-                ImmutableContainer
-                    .Empty
-                    .SetItem(ExpressionContext.DebugView, thisView)
-                //.SetItem(ExpressionContext.ThisOuter, this.ThisOuterOrDefault(), (_, value) => value.IsNotNull())
-            );
-
-            var thisResult = InvokeAsConstant(thisContext);
-            thisView.Value.Result = thisResult.Value;
-
-            if (Next is IExtension extension && extension.IsInExtensionMode)
-            {
-                // Check whether result and extension match; do it only for extension expressions.
-                var thisType =
-                    thisResult.Value is IEnumerable<IExpression> collection
-                        ? collection.GetType()
-                        : thisResult.GetType();
-
-                if (!extension.ExtensionType.IsAssignableFrom(thisType))
-                {
-                    throw DynamicException.Create
-                    (
-                        $"PipeTypeMismatch",
-                        $"Extension '{extension.GetType().ToPrettyString()}<{extension.ExtensionType.ToPrettyString()}>' does not match the expression it is extending: '{thisResult.Value.GetType().ToPrettyString()}'."
-                    );
-                }
-            }
-
-            return Next?.Invoke
-                   (
-                       thisContext,
-                       ImmutableContainer
-                           .Empty
-                           .SetItem(ExpressionContext.DebugView, thisView)
-                           .SetItem(ExpressionContext.ThisOuter, thisResult)
-                   ) ?? thisResult;
+            return Constant.FromValue(Name, ComputeValue(context), context);
         }
 
-        protected virtual Constant<TResult> InvokeAsConstant(IImmutableContainer context)
+        protected virtual TResult ComputeValue(IImmutableContainer context)
         {
-            return (Name, InvokeAsValue(context), context);
+            throw new NotImplementedException($"You must override either {nameof(ComputeConstantGeneric)} or {nameof(ComputeValue)} method.");
         }
 
-        protected virtual TResult InvokeAsValue(IImmutableContainer context)
+        private class Lambda : Expression<TResult>
         {
-            throw new NotImplementedException($"You must override either {nameof(InvokeAsConstant)} or {nameof(InvokeAsValue)} method.");
+            private readonly Func<IImmutableContainer, TResult> _invokeAsValue;
+
+            public Lambda(SoftString name, Func<IImmutableContainer, TResult> invokeAsValue) : base(default, name)
+            {
+                _invokeAsValue = invokeAsValue;
+            }
+
+            protected override TResult ComputeValue(IImmutableContainer context)
+            {
+                return _invokeAsValue(context);
+            }
         }
     }
 }

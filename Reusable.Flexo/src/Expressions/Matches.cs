@@ -16,7 +16,7 @@ namespace Reusable.Flexo
 
         public IExpression Pattern { get; set; }
 
-        protected override bool InvokeAsValue(IImmutableContainer context)
+        protected override bool ComputeValue(IImmutableContainer context)
         {
             var pattern = Pattern.Invoke(context).Value<string>();
             var options = IgnoreCase ? RegexOptions.IgnoreCase : RegexOptions.None;

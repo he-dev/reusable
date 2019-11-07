@@ -14,7 +14,7 @@ namespace Reusable.Flexo
         [JsonRequired]
         public IEnumerable<IExpression> Values { get; set; }
 
-        protected override IEnumerable<IExpression> InvokeAsValue(IImmutableContainer context)
+        protected override IEnumerable<IExpression> ComputeValue(IImmutableContainer context)
         {
             return 
                 Values

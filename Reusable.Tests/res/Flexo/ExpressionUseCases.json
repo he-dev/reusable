@@ -1,0 +1,22 @@
+[
+  {
+    "Description": "Can create a collection of double from mixed values.",
+    "Body": {
+      "$t": "Flexo.Collection",
+      "Values": [
+        1.0,
+        {
+          "$t": "Flexo.Double",
+          "Value": 2.0
+        },
+        3.0
+      ]
+    },
+    "Expected": [
+      1,
+      2,
+      3
+    ],
+    "Throws": false
+  }
+]

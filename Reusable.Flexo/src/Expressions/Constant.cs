@@ -39,7 +39,13 @@ namespace Reusable.Flexo
         
         public IImmutableContainer Context { get; }
 
-        protected override Constant<TValue> InvokeAsConstant(IImmutableContainer context)
+//        public override IConstant Invoke(IImmutableContainer context)
+//        {
+//            // Must return a new constant because predefined ones don't have context.
+//            return Constant.FromValue(Name, Value, context);
+//        }
+
+        protected override Constant<TValue> ComputeConstantGeneric(IImmutableContainer context)
         {
             return (Name, Value, context);
         }
@@ -127,9 +133,9 @@ namespace Reusable.Flexo
             return values.Select(value => FromValue(value));
         }
 
-        public static Constant<IEnumerable<IExpression>> FromEnumerable(SoftString name, IEnumerable<object> values, IImmutableContainer context = default)
+        public static Constant<IEnumerable<IExpression>> FromEnumerable(SoftString name, IEnumerable<object> values, IImmutableContainer? context = default)
         {
-            return FromValue(name, values.Select((x, i) => x is IConstant constant ? constant : FromValue($"{name.ToString()}.Items[{i}]", x)).ToList().Cast<IExpression>());
+            return FromValue(name, values.Select((x, i) => x is IConstant constant ? constant : FromValue($"{name.ToString()}.Items[{i}]", x)).ToList().Cast<IExpression>(), context);
         }
 
         #region Predefined
@@ -149,6 +155,9 @@ namespace Reusable.Flexo
 
         [NotNull]
         public static readonly IExpression Null = FromValue(nameof(Null), default(object));
+        
+        [NotNull]
+        public static readonly IExpression Unit = FromValue(nameof(Unit), default(object));
 
         #endregion
     }

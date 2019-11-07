@@ -10,7 +10,7 @@ namespace Reusable.Flexo
         
         public IExpression Left { get => ThisInner; set => ThisInner = value; }
 
-        protected override bool InvokeAsValue(IImmutableContainer context)
+        protected override bool ComputeValue(IImmutableContainer context)
         {
             return This(context).Invoke(context).Value is null;
         }

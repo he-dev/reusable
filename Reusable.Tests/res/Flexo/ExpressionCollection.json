@@ -266,10 +266,19 @@
   {
     "$t": "Flexo.Double",
     "Value": 2.0,
-    "Name": "Double.ref_IsLessThan3",
+    "Name": "Double.Import.IsPositive=True",
     "This": {
-      "$t": "Flexo.Ref",
-      "Path": "IsLessThan3"
+      "$t": "Flexo.Import",
+      "Package": "IsPositive"
+    }
+  },
+  {
+    "$t": "Flexo.Double",
+    "Value": -1.0,
+    "Name": "Double.Import.IsPositive=False",
+    "This": {
+      "$t": "Flexo.Import",
+      "Package": "IsPositive"
     }
   },
   {

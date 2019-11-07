@@ -13,7 +13,8 @@
         <LangVersion>latest</LangVersion>
     </PropertyGroup>
     <ItemGroup>
-        <EmbeddedResource Include="res\Flexo\ExpressionReferences.json" />
+        <EmbeddedResource Include="res\Flexo\ExpressionUseCases.json" />
+        <EmbeddedResource Include="res\Flexo\Packages.IsPositive.json" />
         <EmbeddedResource Include="res\Utilities\JsonNet\PrettyType0.json" />
         <EmbeddedResource Include="res\Utilities\JsonNet\PrettyType1.json" />
         <EmbeddedResource Include="res\Utilities\JsonNet\PrettyType2.json" />

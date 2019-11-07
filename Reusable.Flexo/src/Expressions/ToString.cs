@@ -17,7 +17,7 @@ namespace Reusable.Flexo
 
         public IExpression? Format { get; set; }
 
-        protected override string InvokeAsValue(IImmutableContainer context)
+        protected override string ComputeValue(IImmutableContainer context)
         {
             var format = Format?.Invoke(context).ValueOrDefault<string>() ?? "{0}";
             return string.Format(CultureInfo.InvariantCulture, format, This(context).Invoke(context).Value);

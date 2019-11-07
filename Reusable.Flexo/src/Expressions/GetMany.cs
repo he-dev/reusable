@@ -6,14 +6,20 @@ using Reusable.OmniLog.Abstractions;
 
 namespace Reusable.Flexo
 {
-    public class GetMany : GetItem<IEnumerable<IExpression>>
+    public class GetMany : GetItem<IEnumerable<IConstant>>
     {
-        public GetMany([NotNull] ILogger<GetMany> logger) : base(logger, nameof(GetMany)) { }
+        public GetMany() : base(default, nameof(GetMany)) { }
 
-        protected override Constant<IEnumerable<IExpression>> InvokeAsConstant(IImmutableContainer context)
+        protected override Constant<IEnumerable<IConstant>> ComputeConstantGeneric(IImmutableContainer context)
         {
-            var items = (IEnumerable<object>)FindItem(context);
-            return Constant.FromEnumerable(Path, items); // items.Select((x, i) => Constant.FromValue<object>($"Item[{i}]", x)).ToList());
+            var items =
+                ((IEnumerable<object>)FindItem(context))
+                .Select((x, i) => Constant.FromValue($"{Path}[{i}]", x))
+                .Cast<IConstant>()
+                .ToList()
+                .AsEnumerable();
+            
+            return Constant.FromValue(Path, items, context);
         }
     }
 }

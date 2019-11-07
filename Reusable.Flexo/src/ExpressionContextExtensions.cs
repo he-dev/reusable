@@ -66,13 +66,20 @@ namespace Reusable.Flexo
             return Regex.Match(comparerName, "^With(?<comparerName>[a-z0-9_]+)Comparer", RegexOptions.IgnoreCase).Groups["comparerName"].Value;
         }
 
-        public static IImmutableContainer WithReferences(this IImmutableContainer context, IEnumerable<IExpression> expressions)
+        public static IImmutableContainer WithPackages(this IImmutableContainer context, IEnumerable<IExpression> expressions)
         {
-            var registrations =
-                context
-                    .GetItemOrDefault(ExpressionContext.References, ImmutableDictionary<SoftString, IExpression>.Empty)
-                    .SetItems(expressions.Select(e => new KeyValuePair<SoftString, IExpression>($"R.{e.Name.ToString()}", e)));
-            return context.SetItem(ExpressionContext.References, registrations);
+            var packages =
+                expressions
+                    .Aggregate(
+                        context.GetItemOrDefault(ExpressionContext.Packages, ImmutableDictionary<SoftString, IExpression>.Empty),
+                        (current, next) => next switch
+                        {
+                            Package p => current.SetItem(p.Name, p),
+                            {} x => throw DynamicException.Create("InvalidExpression", $"{x.Name.ToString()} is not a package."),
+                            _ => throw DynamicException.Create("PackageNull", "Package must not be null.")
+                        });
+
+            return context.SetItem(ExpressionContext.Packages, packages);
         }
 
         public static TResult Find<TResult>(this IImmutableContainer scope, Selector<TResult> key)
@@ -87,6 +94,18 @@ namespace Reusable.Flexo
             }
 
             return default;
+        }
+
+        public static IEnumerable<TResult> FindItems<TResult>(this IImmutableContainer scope, Selector<TResult> key)
+        {
+            var keyToFind = key.ToString();
+            foreach (var current in scope.Enumerate())
+            {
+                if (current.TryGetItem(keyToFind, out var obj) && obj is TResult value)
+                {
+                    yield return value;
+                }
+            }
         }
 
         public static bool TryFindItem<TResult>(this IImmutableContainer scope, string keyToFind, out TResult item)
