@@ -18,5 +18,200 @@
       3
     ],
     "Throws": false
+  },
+  {
+    "Description": "Any can find true by default.",
+    "Body": {
+      "$t": "Flexo.Any",
+      "Name": "Any",
+      "Values": [
+        false,
+        true,
+        false
+      ]
+    },
+    "Expected": true,
+    "Throws": false
+  },
+  {
+    "Description": "Any doesn't find true when all false.",
+    "Body": {
+      "$t": "Flexo.Any",
+      "Name": "Any",
+      "Values": [
+        false,
+        false,
+        false
+      ]
+    },
+    "Expected": false,
+    "Throws": false
+  },
+  {
+    "Description": "Any can find false with a custom predicate.",
+    "Body": {
+      "$t": "Flexo.Any",
+      "Name": "Any",
+      "Values": [
+        true,
+        true,
+        false
+      ],
+      "Predicate": false
+    },
+    "Expected": true,
+    "Throws": false
+  },
+  {
+    "Description": "All returns true when all true.",
+    "Body": {
+      "$t": "Flexo.All",
+      "Values": [
+        true,
+        true
+      ]
+    },
+    "Expected": true,
+    "Throws": false
+  },
+  {
+    "Description": "All returns false when not all true.",
+    "Body": {
+      "$t": "Flexo.All",
+      "Values": [
+        true,
+        false,
+        true
+      ]
+    },
+    "Expected": false,
+    "Throws": false
+  },
+  {
+    "Description": "All returns true when all false with a custom predicate.",
+    "Body": {
+      "$t": "Flexo.All",
+      "Values": [
+        false,
+        false,
+        false
+      ],
+      "Predicate": false
+    },
+    "Expected": true,
+    "Throws": false
+  },
+  {
+    "Description": "Can calculate sum",
+    "Body": {
+      "$t": "Flexo.Collection",
+      "Values": [
+        1.0,
+        3.0,
+        2.0
+      ],
+      "This": {
+        "$t": "Flexo.Sum",
+        "Name": "Sum"
+      }
+    },
+    "Expected": 6.0,
+    "Throws": false
+  },
+  {
+    "Description": "Can convert true to 1.",
+    "Body": {
+      "$t": "Flexo.True",
+      "This": {
+        "$t": "Flexo.ToDouble"
+      }
+    },
+    "Expected": 1.0,
+    "Throws": false
+  },
+  {
+    "Description": "Can negate false.",
+    "Body": {
+      "$t": "Flexo.False",
+      "This": {
+        "$t": "Flexo.Not"
+      }
+    },
+    "Expected": true,
+    "Throws": false
+  },
+  {
+    "Description": "Doesn't do anything when value already a double.",
+    "Body": {
+      "$t": "Flexo.Double",
+      "Value": 2.0,
+      "This": {
+        "$t": "Flexo.ToDouble"
+      }
+    },
+    "Expected": 2.0,
+    "Throws": false
+  },
+  {
+    "Description": "Can find max.",
+    "Body": {
+      "$t": "Flexo.Collection",
+      "Values": [
+        1.0,
+        3.0,
+        2.0
+      ],
+      "This": {
+        "$t": "Flexo.Max"
+      }
+    },
+    "Expected": 3.0,
+    "Throws": false
+  },
+  {
+    "Description": "Can find min.",
+    "Body": {
+      "$t": "Flexo.Collection",
+      "Values": [
+        1.0,
+        3.0,
+        2.0
+      ],
+      "This": {
+        "$t": "Flexo.Min"
+      }
+    },
+    "Expected": 1.0,
+    "Throws": false
+  },
+  {
+    "Description": "Can check if collection contains elements by regex.",
+    "Body": {
+      "$t": "Flexo.Collection",
+      "Values": [
+        "foo",
+        "bar",
+        "baz"
+      ],
+      "This": {
+        "$t": "Flexo.Contains",
+        "Value": "^ba",
+        "Comparer": "Regex"
+      }
+    },
+    "Expected": true,
+    "Throws": false
   }
+  //  {
+  //    "Description": "",
+  //    "Body": {},
+  //    "Expected": null,
+  //    "Throws": false
+  //  },
+  //  {
+  //    "Description": "",
+  //    "Body": {},
+  //    "Expected": null,
+  //    "Throws": false
+  //  }
 ]
