@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using Newtonsoft.Json;
@@ -19,7 +18,7 @@ namespace Reusable.Flexo
             return 
                 Values
                     .Enabled()
-                    .Select((e, i) => Constant.FromValue($"{Name.ToString()}.Items[{i}]", e.Invoke(context).Value))
+                    .Select((e, i) => Constant.FromValue($"{Name.ToString()}[{i}]", e.Invoke(context).Value, context))
                     .ToList();
         }
     }

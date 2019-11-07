@@ -1,14 +1,10 @@
 using System.Collections.Generic;
 using System.Linq;
-using JetBrains.Annotations;
-using Newtonsoft.Json;
 using Reusable.Data;
-using Reusable.OmniLog.Abstractions;
-using Reusable.Quickey;
 
 namespace Reusable.Flexo
 {
-    public class Where : CollectionExtension<IEnumerable<IExpression>>
+    public class Where : CollectionExtension<IEnumerable<IConstant>>
     {
         public Where() : base(default, nameof(Where)) { }
 
@@ -16,14 +12,14 @@ namespace Reusable.Flexo
 
         public IExpression Predicate { get; set; }
 
-        protected override IEnumerable<IExpression> ComputeValue(IImmutableContainer context)
+        protected override IEnumerable<IConstant> ComputeValue(IImmutableContainer context)
         {
             var query =
                 from item in This(context).Enabled()
                 where Predicate.Invoke(context.BeginScopeWithThisOuter(item)).Value<bool>()
                 select item;
 
-            return query.ToList();
+            return query.Cast<IConstant>().ToList();
         }
     }
 }

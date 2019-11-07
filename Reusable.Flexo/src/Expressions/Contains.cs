@@ -3,30 +3,28 @@ using System.Linq;
 using JetBrains.Annotations;
 using Newtonsoft.Json;
 using Reusable.Data;
-using Reusable.OmniLog.Abstractions;
 
 namespace Reusable.Flexo
 {
     [PublicAPI]
-    public class Contains : CollectionExtension<bool>
+    public class Contains : CollectionExtension<bool>, IFilter
     {
         public Contains() : base(default, nameof(Contains)) { }
 
         public IEnumerable<IExpression> Values { get => ThisInner; set => ThisInner = value; }
 
-        public IExpression Value { get; set; }
+        [JsonProperty("Value")]
+        public IExpression? Predicate { get; set; }
 
-        [JsonProperty("Comparer")]
         public string? ComparerName { get; set; }
 
         protected override bool ComputeValue(IImmutableContainer context)
         {
-            var value = Value.Invoke(context).Value;
-            var comparer = context.GetEqualityComparerOrDefault(ComparerName);
             return 
                 This(context)
                     .Enabled()
-                    .Any(x => comparer.Equals(value, x.Invoke(context).Value<object>()));
+                    .Select(x => x.Invoke(context))
+                    .Any(x => this.Equal(context, x, default));
         }
     }
 

@@ -1,9 +1,6 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
-using System.Linq.Custom;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
@@ -51,14 +48,14 @@ namespace Reusable.Flexo
             ));
         }
 
-        public static IImmutableContainer WithRegexComparer(this IImmutableContainer context)
-        {
-            return context.WithEqualityComparer(GetComparerNameFromCaller(), EqualityComparerFactory<object>.Create
-            (
-                equals: (left, right) => Regex.IsMatch((string)right, (string)left, RegexOptions.None),
-                getHashCode: (obj) => 0
-            ));
-        }
+//        public static IImmutableContainer WithRegexComparer(this IImmutableContainer context)
+//        {
+//            return context.WithEqualityComparer(GetComparerNameFromCaller(), EqualityComparerFactory<object>.Create
+//            (
+//                equals: (left, right) => Regex.IsMatch((string)right, (string)left, RegexOptions.None),
+//                getHashCode: (obj) => 0
+//            ));
+//        }
 
         public static string GetComparerNameFromCaller([CallerMemberName] string comparerName = null)
         {

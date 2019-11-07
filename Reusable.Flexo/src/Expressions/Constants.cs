@@ -1,8 +1,3 @@
-using System.Globalization;
-using JetBrains.Annotations;
-using Reusable.Data;
-using Reusable.OmniLog.Abstractions;
-
 namespace Reusable.Flexo
 {
     public class Double : Constant<double>

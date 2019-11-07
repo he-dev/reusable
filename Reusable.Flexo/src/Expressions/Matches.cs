@@ -1,8 +1,5 @@
 using System.Text.RegularExpressions;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Serialization;
 using Reusable.Data;
-using Reusable.OmniLog.Abstractions;
 
 namespace Reusable.Flexo
 {
@@ -18,9 +15,10 @@ namespace Reusable.Flexo
 
         protected override bool ComputeValue(IImmutableContainer context)
         {
+            var input = This(context).Invoke(context).Value<string>();
             var pattern = Pattern.Invoke(context).Value<string>();
             var options = IgnoreCase ? RegexOptions.IgnoreCase : RegexOptions.None;
-            return Regex.IsMatch(This(context).Invoke(context).Value<string>(), pattern, options);
+            return Regex.IsMatch(input, pattern, options);
         }
     }
 }

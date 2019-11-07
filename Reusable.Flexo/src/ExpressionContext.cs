@@ -8,7 +8,7 @@ namespace Reusable.Flexo
 {
     [UseMember]
     [PlainSelectorFormatter]
-    public class ExpressionContext : SelectorBuilder<ExpressionContext>
+    public abstract class ExpressionContext : SelectorBuilder<ExpressionContext>
     {
         public static IImmutableContainer Default =>
             ImmutableContainer
@@ -18,8 +18,8 @@ namespace Reusable.Flexo
                 .SetItem(DebugView, Node.Create(ExpressionDebugView.Root))
                 .WithDefaultEqualityComparer()
                 .WithDefaultComparer()
-                .WithSoftStringComparer()
-                .WithRegexComparer();
+                .WithSoftStringComparer();
+                //.WithRegexComparer();
 
         /// <summary>
         /// Gets or sets extension value.

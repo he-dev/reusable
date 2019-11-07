@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using Reusable.OmniLog.Abstractions;
 
 namespace Reusable.Flexo
 {

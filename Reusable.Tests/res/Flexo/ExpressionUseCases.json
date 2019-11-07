@@ -185,7 +185,7 @@
     "Throws": false
   },
   {
-    "Description": "Can check if collection contains elements by regex.",
+    "Description": "Can check if collection contains an element.",
     "Body": {
       "$t": "Flexo.Collection",
       "Values": [
@@ -195,13 +195,195 @@
       ],
       "This": {
         "$t": "Flexo.Contains",
-        "Value": "^ba",
-        "Comparer": "Regex"
+        "Value": "BAR",
+        "Comparer": "SoftString"
       }
     },
     "Expected": true,
     "Throws": false
+  },
+  {
+    "Description": "Can check if collection contains elements by regex.",
+    "Body": {
+      "$t": "Flexo.Collection",
+      "Values": [
+        "Foo",
+        "Bar",
+        "Baz"
+      ],
+      "This": {
+        "$t": "Flexo.Any",
+        "Predicate": {
+          "$t": "Flexo.Matches",
+          "Pattern": "^ba",
+          "IgnoreCase": true
+        }
+      }
+    },
+    "Expected": true,
+    "Throws": false
+  },
+  //  {
+  //    "Description": "Can use Any as an extension with a custom predicate.",
+  //    "Body": {
+  //      "$t": "Flexo.Collection",
+  //      "Values": [
+  //        "foo",
+  //        "bar",
+  //        "baz"
+  //      ],
+  //      "This": {
+  //        "$t": "Flexo.Contains",
+  //        "Value": "^ba",
+  //        "Comparer": "Regex"
+  //      }
+  //    },
+  //    "Expected": true,
+  //    "Throws": false
+  //  },
+  {
+    "Description": "Can use All as an extension.",
+    "Body": {
+      "$t": "Flexo.Collection",
+      "Values": [
+        true,
+        true,
+        true
+      ],
+      "This": {
+        "$t": "Flexo.All"
+      }
+    },
+    "Expected": true,
+    "Throws": false
+  },
+  {
+    "Description": "Can check whether two collections overlap with a custom comparer.",
+    "Body": {
+      "$t": "Flexo.Collection",
+      "Values": [
+        "foo",
+        "bar",
+        "baz"
+      ],
+      "This": {
+        "$t": "Flexo.Overlaps",
+        "With": [
+          "qux",
+          "BAR"
+        ],
+        "Comparer": "SoftString"
+      }
+    },
+    "Expected": true,
+    "Throws": false
+  },
+  {
+    "Description": "Can check whether two numbers are equal.",
+    "Body": {
+      "$t": "Flexo.Double",
+      "Name": "Double.IsEqual",
+      "Value": 2.0,
+      "This": {
+        "$t": "Flexo.IsEqual",
+        "Value": 2.0
+      }
+    },
+    "Expected": true,
+    "Throws": false
+  },
+  {
+    "Description": "Can convert collection items to string.",
+    "Body": {
+      "$t": "Flexo.Collection",
+      "Values": [
+        1.0,
+        true
+      ],
+      "This": {
+        "$t": "Flexo.Select",
+        "Selector": {
+          "$t": "Flexo.ToString",
+          "Value": {
+            "$f": "Item"
+          }
+        }
+      }
+    },
+    "Expected": [
+      "1",
+      "True"
+    ],
+    "Throws": false
+  },
+  {
+    "Description": "Can check whether a string is in a collection.",
+    "Body": {
+      "$t": "Flexo.String",
+      "Value": "foo",
+      "This": {
+        "$t": "Flexo.In",
+        "Values": [
+          "bar",
+          "baz",
+          "foo"
+        ]
+      }
+    },
+    "Expected": true,
+    "Throws": false
+  },
+  {
+    "Description": "Can import package and check whether a number is positive.",
+    "Body": {
+      "$t": "Flexo.Double",
+      "Value": 2.0,
+      "This": {
+        "$t": "Flexo.Import",
+        "Package": "IsPositive"
+      }
+    },
+    "Expected": true,
+    "Throws": false
+  },
+  {
+    "Description": "Can import package and check whether a number is negative.",
+    "Body": {
+      "$t": "Flexo.Double",
+      "Value": -1.0,
+      "This": {
+        "$t": "Flexo.Import",
+        "Package": "IsPositive"
+      }
+    },
+    "Expected": false,
+    "Throws": false
+  },
+  {
+    "Description": "Can filter a collection.",
+    "Body": {
+      "$t": "Flexo.Collection",
+      "Values": [
+        1.0,
+        2.0,
+        3.0,
+        4.0
+      ],
+      "This": {
+        "$t": "Flexo.Where",
+        "Predicate": {
+          "$t": "Flexo.IsGreaterThan",
+          "Value": 2.0
+        }
+      }
+    },
+    "Expected": [
+      3.0,
+      4.0
+    ],
+    "Throws": false
   }
+  // goto 304
   //  {
   //    "Description": "",
   //    "Body": {},

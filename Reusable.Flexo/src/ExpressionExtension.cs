@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using JetBrains.Annotations;
 using Reusable.Data;
 using Reusable.OmniLog.Abstractions;
 
@@ -44,8 +43,10 @@ namespace Reusable.Flexo
 
         protected override IEnumerable<IExpression> ThisOuter(object thisOuter)
         {
-            thisOuter = thisOuter switch { IConstant c => c.Value, _ => thisOuter };
-            return thisOuter switch { IEnumerable<IExpression> collection => collection, _ => default };
+            return thisOuter switch { IConstant c => c.Value, _ => thisOuter } switch
+            {
+                IEnumerable<IExpression> collection => collection, _ => default
+            };
         }
     }
 }

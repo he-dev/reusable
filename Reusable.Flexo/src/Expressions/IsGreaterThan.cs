@@ -1,5 +1,4 @@
-using Reusable.OmniLog.Abstractions;
-using Reusable.Utilities.JsonNet.Annotations;
+using Reusable.Flexo.Abstractions;
 
 namespace Reusable.Flexo
 {

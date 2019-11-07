@@ -158,7 +158,6 @@ namespace Reusable.Flexo
                 ImmutableContainer
                     .Empty
                     .SetItem(ExpressionContext.DebugView, thisView)
-                //.SetItem(ExpressionContext.ThisOuter, this.ThisOuterOrDefault(), (_, value) => value.IsNotNull())
             );
 
             var thisResult = ComputeConstant(thisContext);
@@ -193,12 +192,6 @@ namespace Reusable.Flexo
         }
 
         protected abstract IConstant ComputeConstant(IImmutableContainer context);
-
-        // public static ExpressionScope BeginScope(Func<IImmutableContainer, IImmutableContainer> configureContext)
-        // {
-        //     // Use either current context or the default one.
-        //     return ExpressionScope.Push(configureContext(ExpressionScope.Current?.Context ?? ExpressionContext.Default));
-        // }
 
         protected class EmptyLogger : ILogger
         {
