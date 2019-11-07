@@ -1,14 +1,18 @@
 ﻿using System;
+using Newtonsoft.Json;
 using Reusable.Data;
 
 namespace Reusable.Flexo
 {
     // ReSharper disable once InconsistentNaming - we want this name!
-    public class IIf : ScalarExtension<object>
+    public class IIf : ScalarExtension<object>, IFilter
     {
         public IIf() : base(default, nameof(IIf)) { }
 
         public IExpression Predicate { get => ThisInner; set => ThisInner = value; }
+        
+        [JsonProperty("Comparer")]
+        public string ComparerName { get; set; }
 
         public IExpression True { get; set; }
 
@@ -17,11 +21,12 @@ namespace Reusable.Flexo
         protected override object ComputeValue(IImmutableContainer context)
         {
             if (True is null && False is null) throw new InvalidOperationException($"You need to specify at least one result ({nameof(True)}/{nameof(False)}).");
-
-            return Predicate.Invoke(context).Value<bool>() switch
+            
+            var value = This(context).Invoke(context);
+            return this.Equal(context, value, true) switch
             {
-                true => True?.Invoke(context)?.Value ?? Constant.Null,
-                false => False?.Invoke(context)?.Value ?? Constant.Null
+                true => True?.Invoke(context).Value ?? Constant.Unit,
+                false => False?.Invoke(context).Value ?? Constant.Unit
             };
         }
     }

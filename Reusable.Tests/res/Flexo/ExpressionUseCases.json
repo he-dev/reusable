@@ -382,6 +382,32 @@
       4.0
     ],
     "Throws": false
+  },
+  {
+    "Description": "IIf selects True when value True.",
+    "Body": {
+      "$t": "Flexo.True",
+      "This": {
+        "$t": "Flexo.IIf",
+        "True": "foo",
+        "False": "bar"
+      }
+    },
+    "Expected": "foo",
+    "Throws": false
+  },
+  {
+    "Description": "IIf selects False when value False.",
+    "Body": {
+      "$t": "Flexo.False",
+      "This": {
+        "$t": "Flexo.IIf",
+        "True": "foo",
+        "False": "bar"
+      }
+    },
+    "Expected": "bar",
+    "Throws": false
   }
   // goto 304
   //  {
