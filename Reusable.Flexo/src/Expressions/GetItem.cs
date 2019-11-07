@@ -38,10 +38,11 @@ namespace Reusable.Flexo
         private object GetValue(object obj, string memberName)
         {
             var type = default(Type);
-            (type, obj) =
-                obj is IConstant constant
-                    ? (constant.Value?.GetType() ?? throw DynamicException.Create("ValueNull", $"Constant '{constant.Name.ToString()}' value is null."), constant.Value)
-                    : (obj.GetType(), obj);
+            (type, obj) = obj switch
+            {
+                IConstant c when c.Value != null => (c.Value?.GetType(), c.Value),
+                _ => (obj.GetType(), obj),
+            };
 
             var member =
                 type
