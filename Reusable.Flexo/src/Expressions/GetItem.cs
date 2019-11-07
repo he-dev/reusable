@@ -30,28 +30,20 @@ namespace Reusable.Flexo
             var itemKey = names.First();
             return
                 context.TryFindItem<object>(itemKey, out var item)
-                    ? names.Skip(1).Aggregate(item, GetValue)
+                    ? names.Skip(1).Aggregate(item, GetMemberValue)
                     : throw DynamicException.Create("ContextItemNotFound", $"Could not find an item with the key '{itemKey}' from '{Path}'.");
         }
 
         [NotNull]
-        private object GetValue(object obj, string memberName)
+        private object GetMemberValue(object obj, string memberName)
         {
-            var type = default(Type);
-            (type, obj) = obj switch
-            {
-                IConstant c when c.Value != null => (c.Value?.GetType(), c.Value),
-                _ => (obj.GetType(), obj),
-            };
+            obj = obj switch { IConstant c => c.Value ?? throw new ArgumentException($"{c.Name.ToString()}'s value is null."), _ => obj };
 
-            var member =
-                type
-                    .GetMember(memberName)
-                    .SingleOrThrow
-                    (
-                        onEmpty: () => DynamicException.Create("MemberNotFound", $"Type '{type.ToPrettyString()}' does not have any members with the name '{memberName}'."),
-                        onMany: () => DynamicException.Create("MultipleMembersFound", $"Type '{type.ToPrettyString()}' has more than one member with the name '{memberName}'.")
-                    );
+            var member = obj.GetType().GetMember(memberName).SingleOrThrow
+            (
+                onEmpty: () => DynamicException.Create("MemberNotFound", $"Type '{obj.GetType().ToPrettyString()}' does not have any members with the name '{memberName}'."),
+                onMany: () => DynamicException.Create("MultipleMembersFound", $"Type '{obj.GetType().ToPrettyString()}' has more than one member with the name '{memberName}'.")
+            );
 
             return member switch
             {
