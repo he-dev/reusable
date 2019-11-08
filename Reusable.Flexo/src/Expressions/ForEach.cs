@@ -10,7 +10,7 @@ namespace Reusable.Flexo
     {
         public ForEach() : base(default) { }
 
-        public IEnumerable<IExpression> Source { get => Arg; set => Arg = value; }
+        public IEnumerable<IExpression> Values { get => Arg; set => Arg = value; }
 
         public IExpression Body { get; set; }
 

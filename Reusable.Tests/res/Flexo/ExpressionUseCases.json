@@ -316,7 +316,7 @@
     "Throws": false
   },
   {
-    "Description": "Can check whether a string is in a collection.",
+    "Description": "Uses default comparer to check whether a value is in a collection.",
     "Body": {
       "$t": "Flexo.String",
       "Value": "foo",
