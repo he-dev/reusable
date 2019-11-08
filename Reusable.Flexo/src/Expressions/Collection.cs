@@ -8,7 +8,7 @@ namespace Reusable.Flexo
     public class Collection : Expression<IEnumerable<IExpression>>
     {
         [JsonConstructor]
-        public Collection(SoftString name) : base(EmptyLogger.Instance, name ?? nameof(Collection)) { }
+        public Collection(SoftString name) : base(EmptyLogger.Instance) { }
 
         [JsonRequired]
         public IEnumerable<IExpression> Values { get; set; }
@@ -18,7 +18,7 @@ namespace Reusable.Flexo
             return 
                 Values
                     .Enabled()
-                    .Select((e, i) => Constant.FromValue($"{Name.ToString()}[{i}]", e.Invoke(context).Value, context))
+                    .Select((e, i) => Constant.FromValue($"{Id.ToString()}[{i}]", e.Invoke(context).Value, context))
                     .ToList();
         }
     }

@@ -4,7 +4,7 @@ namespace Reusable.Flexo
 {
     public class Package : Expression<object>
     {
-        public Package() : base(default, nameof(Package)) { }
+        public Package() : base(default) { }
 
         public IExpression Body { get; set; }
 

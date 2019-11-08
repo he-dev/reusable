@@ -7,7 +7,7 @@ namespace Reusable.Flexo
 {
     public class Any : CollectionExtension<bool>, IFilter
     {
-        public Any() : base(default, nameof(Any)) { }
+        public Any() : base(default) { }
 
         public IEnumerable<IExpression> Values
         {
@@ -15,10 +15,10 @@ namespace Reusable.Flexo
             set => ThisInner = value;
         }
 
-        public IExpression? Predicate { get; set; }
+        public IExpression? Matcher { get; set; }
 
         [JsonProperty("Comparer")]
-        public string? ComparerName { get; set; }
+        public string? ComparerId { get; set; }
 
         protected override bool ComputeValue(IImmutableContainer context)
         {

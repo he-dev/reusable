@@ -12,7 +12,7 @@ namespace Reusable.Flexo
     [PublicAPI]
     public class Select : CollectionExtension<IEnumerable<IExpression>>
     {
-        public Select() : base(default, nameof(Select)) { }
+        public Select() : base(default) { }
 
         public IEnumerable<IExpression> Values { get => ThisInner; set => ThisInner = value; }
 

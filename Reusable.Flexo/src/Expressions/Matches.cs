@@ -5,7 +5,7 @@ namespace Reusable.Flexo
 {
     public class Matches : ScalarExtension<bool>
     {
-        public Matches() : base(default, nameof(Matches)) { }
+        public Matches() : base(default) { }
 
         public bool IgnoreCase { get; set; } = true;
         

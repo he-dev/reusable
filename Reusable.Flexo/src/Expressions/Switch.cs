@@ -15,7 +15,7 @@ namespace Reusable.Flexo
     {
         public Switch() : this(default, nameof(Switch)) { }
 
-        protected Switch(ILogger? logger, SoftString name) : base(logger, name) { }
+        protected Switch(ILogger? logger, SoftString name) : base(logger) { }
 
         public IExpression Value
         {

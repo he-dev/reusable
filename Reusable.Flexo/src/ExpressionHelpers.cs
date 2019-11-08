@@ -20,11 +20,14 @@ namespace Reusable.Flexo
                 select expression;
         }
 
-        public static IEnumerable<IConstant> Invoke(this IEnumerable<IExpression> expressions, IImmutableContainer context)
+        /// <summary>
+        /// Invokes enabled expressions.
+        /// </summary>
+        public static IEnumerable<IConstant> Invoke(this IEnumerable<IExpression> expressions, IImmutableContainer context, IImmutableContainer? scope = default)
         {
             return
                 from expression in expressions.Enabled()
-                select expression.Invoke(context);
+                select expression.Invoke(context, scope);
         }
 
         public static IEnumerable<T> Values<T>(this IEnumerable<IConstant> constants)
@@ -51,7 +54,7 @@ namespace Reusable.Flexo
                         : throw DynamicException.Create
                         (
                             "ValueType",
-                            $"Constant '{constant.Name.ToString()}' should be of type '{typeof(T).ToPrettyString()}' but is '{constant.Value?.GetType().ToPrettyString()}'."
+                            $"Constant '{constant.Id.ToString()}' should be of type '{typeof(T).ToPrettyString()}' but is '{constant.Value?.GetType().ToPrettyString()}'."
                         );
             }
         }
@@ -89,7 +92,7 @@ namespace Reusable.Flexo
             return Node.Create(new ExpressionDebugView
             {
                 ExpressionType = expression.GetType().ToPrettyString(),
-                Name = expression.Name.ToString(),
+                Name = expression.Id.ToString(),
                 Description = expression.Description ?? new ExpressionDebugView().Description,
             });
         }

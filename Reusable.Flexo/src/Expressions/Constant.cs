@@ -26,7 +26,7 @@ namespace Reusable.Flexo
     public class Constant<TValue> : Expression<TValue>, IConstant, IConstant<TValue>, IEquatable<Constant<TValue>>
     {
         public Constant(SoftString name, TValue value, IImmutableContainer? context = default)
-            : base(EmptyLogger.Instance, name ?? value.GetType().ToPrettyString())
+            : base(EmptyLogger.Instance)
         {
             Value = value;
             Context = context ?? ImmutableContainer.Empty;
@@ -47,17 +47,17 @@ namespace Reusable.Flexo
 
         protected override Constant<TValue> ComputeConstantGeneric(IImmutableContainer context)
         {
-            return (Name, Value, context);
+            return (Id, Value, context);
         }
 
         public void Deconstruct(out SoftString name, out TValue value, out IImmutableContainer context)
         {
-            name = Name;
+            name = Id;
             value = Value;
             context = Context;
         }
 
-        public override string ToString() => $"{Name.ToString()}: '{Value}'";
+        public override string ToString() => $"{Id.ToString()}: '{Value}'";
 
         public static implicit operator Constant<TValue>((SoftString Name, TValue Value) t) => new Constant<TValue>(t.Name, t.Value);
 

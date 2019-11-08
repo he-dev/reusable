@@ -5,7 +5,7 @@ namespace Reusable.Flexo
 {
     public class IsNull : ScalarExtension<bool>
     {
-        public IsNull(ILogger<IsNull> logger) : base(logger, nameof(IsNull)) { }
+        public IsNull(ILogger<IsNull> logger) : base(logger) { }
         
         public IExpression Left { get => ThisInner; set => ThisInner = value; }
 

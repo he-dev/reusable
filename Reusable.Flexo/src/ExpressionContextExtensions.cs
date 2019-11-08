@@ -71,15 +71,15 @@ namespace Reusable.Flexo
                         context.GetItemOrDefault(ExpressionContext.Packages, ImmutableDictionary<SoftString, IExpression>.Empty),
                         (current, next) => next switch
                         {
-                            Package p => current.SetItem(p.Name, p),
-                            {} x => throw DynamicException.Create("InvalidExpression", $"{x.Name.ToString()} is not a package."),
+                            Package p => current.SetItem(p.Id, p),
+                            {} x => throw DynamicException.Create("InvalidExpression", $"{x.Id.ToString()} is not a package."),
                             _ => throw DynamicException.Create("PackageNull", "Package must not be null.")
                         });
 
             return context.SetItem(ExpressionContext.Packages, packages);
         }
 
-        public static TResult Find<TResult>(this IImmutableContainer scope, Selector<TResult> key)
+        public static TResult FindItem<TResult>(this IImmutableContainer scope, Selector<TResult> key)
         {
             var keyToFind = key.ToString();
             foreach (var current in scope.Enumerate())
@@ -120,9 +120,9 @@ namespace Reusable.Flexo
             return false;
         }
 
-        public static IEqualityComparer<object> GetEqualityComparerOrDefault(this IImmutableContainer scope, string? name)
+        public static IEqualityComparer<object> GetEqualityComparerOrDefault(this IImmutableContainer scope, string? name = default)
         {
-            return scope.Find(ExpressionContext.EqualityComparers).TryGetValue(name ?? "Default", out var comparer) switch
+            return scope.FindItem(ExpressionContext.EqualityComparers).TryGetValue(name ?? "Default", out var comparer) switch
             {
                 true => comparer,
                 false => throw DynamicException.Create("EqualityComparerNotFound", $"There is no equality-comparer with the name '{name}'.")
@@ -131,7 +131,7 @@ namespace Reusable.Flexo
 
         public static IComparer<object> GetComparerOrDefault(this IImmutableContainer scope, string? name)
         {
-            return scope.Find(ExpressionContext.Comparers).TryGetValue(name ?? "Default", out var comparer) switch
+            return scope.FindItem(ExpressionContext.Comparers).TryGetValue(name ?? "Default", out var comparer) switch
             {
                 true => comparer,
                 false => throw DynamicException.Create("ComparerNotFound", $"There is no comparer with the name '{name}'.")

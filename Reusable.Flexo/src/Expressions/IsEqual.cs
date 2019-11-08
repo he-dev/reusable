@@ -1,41 +1,46 @@
+using System;
 using System.Collections.Generic;
+using System.Text.RegularExpressions;
 using Newtonsoft.Json;
 using Reusable.Data;
 
 namespace Reusable.Flexo
 {
     // Makes sure that all types that support a comparer are consistent.
-    public interface IFilter
+    public interface IFilter : IIdentifiable
     {
-        IExpression? Predicate { get; set; }
-
-        [JsonProperty("Comparer")]
-        string? ComparerName { get; set; }
+        IExpression? Matcher { get; set; }
     }
 
     public static class FilterExtensions
     {
         public static IEqualityComparer<object> GetEqualityComparer(this IFilter filter, IImmutableContainer context)
         {
-            return context.GetEqualityComparerOrDefault(filter.ComparerName);
+            return filter.Matcher switch
+            {
+                IConstant c => c.Value switch
+                {
+                    string s => context.GetEqualityComparerOrDefault(s),
+                    _ => throw new ArgumentException(paramName: nameof(filter), message: $"'{filter.Id.ToString()}' filter's '{nameof(IFilter.Matcher)}' must be a comparer-id.")
+                },
+                _ => throw new ArgumentException(paramName: nameof(filter), message: $"'{filter.Id.ToString()}' filter must specify a '{nameof(IFilter.Matcher)}' as a comparer-id.")
+            };
         }
 
-        public static bool Equal(this IFilter filter, IImmutableContainer context, IConstant x, object y)
+        public static bool Equal(this IFilter filter, IImmutableContainer context, IConstant x)
         {
-            var comparer = filter.GetEqualityComparer(context);
-            
-            return filter.Predicate switch
+            return filter.Matcher switch
             {
-                IConstant constant => comparer.Equals(x.Value, constant.Value),
-                { } predicate => predicate.Invoke(context.BeginScopeWithThisOuter(x)).Value<bool>(),
-                _ => comparer.Equals(x.Value, y)
+                IConstant _ => throw new ArgumentException(paramName: nameof(filter), message: $"'{filter.Id.ToString()}' filter's '{nameof(IFilter.Matcher)}' must be a predicate."),
+                {} p => p.Invoke(context.BeginScopeWithThisOuter(x)).Value<bool>(),
+                _ => throw new ArgumentException(paramName: nameof(filter), message: $"'{filter.Id.ToString()}' filter must specify a '{nameof(IFilter.Matcher)}' as a predicate.")
             };
         }
     }
 
     public class IsEqual : ScalarExtension<bool>, IFilter
     {
-        public IsEqual() : base(default, nameof(IsEqual)) { }
+        public IsEqual() : base(default) { }
 
         public IExpression Left
         {
@@ -43,15 +48,17 @@ namespace Reusable.Flexo
             set => ThisInner = value;
         }
 
-        [JsonProperty("Value")]
-        public IExpression? Predicate { get; set; }
+        public IExpression Value { get; set; }
 
-        public string? ComparerName { get; set; }
+        [JsonProperty("Comparer")]
+        public IExpression Matcher { get; set; }
 
         protected override bool ComputeValue(IImmutableContainer context)
         {
-            var x = This(context).Invoke(context);
-            return this.Equal(context, x, default);
+            var x = This(context).Invoke(context).Value;
+            var y = Value.Invoke(context).Value;
+            var c = this.GetEqualityComparer(context);
+            return c.Equals(x, y);
         }
     }
 }

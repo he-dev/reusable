@@ -38,7 +38,7 @@ namespace Reusable.Flexo
         [SmartMemberData(nameof(GetData))]
         public void Can_evaluate_supported_expressions(string useCaseName, object expected, bool throws, ISet<SoftString> tags)
         {
-            var useCase = _helper.Expressions.Where(e => e.Name == useCaseName).SingleOrThrow();
+            var useCase = _helper.Expressions.Where(e => e.Id == useCaseName).SingleOrThrow();
             var sth = new Something();
             ExpressionAssert.ExpressionEqual
             (

@@ -6,7 +6,7 @@ namespace Reusable.Flexo
 {
     public class ForEach : CollectionExtension<object>
     {
-        public ForEach() : base(default, nameof(ForEach)) { }
+        public ForEach() : base(default) { }
 
         public IEnumerable<IExpression> Values { get => ThisInner; set => ThisInner = value; }
 

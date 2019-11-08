@@ -8,7 +8,7 @@ namespace Reusable.Flexo
     [PublicAPI]
     public class Throw : Expression<IExpression>
     {
-        public Throw() : base(EmptyLogger.Instance, nameof(Throw)) { }
+        public Throw() : base(EmptyLogger.Instance) { }
 
         //public string Exception { get; set; }
 
@@ -16,7 +16,7 @@ namespace Reusable.Flexo
 
         protected override IExpression ComputeValue(IImmutableContainer context)
         {
-            throw DynamicException.Create(Name.ToString(), Message.Invoke(context).Value<string>());
+            throw DynamicException.Create(Id.ToString(), Message.Invoke(context).Value<string>());
         }
     }
 }

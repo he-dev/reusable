@@ -9,14 +9,14 @@ namespace Reusable.Flexo
     [PublicAPI]
     public class Contains : CollectionExtension<bool>, IFilter
     {
-        public Contains() : base(default, nameof(Contains)) { }
+        public Contains() : base(default) { }
 
         public IEnumerable<IExpression> Values { get => ThisInner; set => ThisInner = value; }
 
         [JsonProperty("Value")]
-        public IExpression? Predicate { get; set; }
+        public IExpression? Matcher { get; set; }
 
-        public string? ComparerName { get; set; }
+        public string? ComparerId { get; set; }
 
         protected override bool ComputeValue(IImmutableContainer context)
         {
@@ -31,7 +31,7 @@ namespace Reusable.Flexo
     [PublicAPI]
     public class In : ScalarExtension<bool>
     {
-        public In() : base(default, nameof(In)) { }
+        public In() : base(default) { }
 
         public IExpression Value { get => ThisInner; set => ThisInner = value; }
 

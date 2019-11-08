@@ -8,7 +8,7 @@ namespace Reusable.Flexo
     /// </summary>
     public class ToString : ScalarExtension<string>
     {
-        public ToString() : base(default, nameof(ToString)) { }
+        public ToString() : base(default) { }
 
         public IExpression Value { get => ThisInner; set => ThisInner = value; }
 

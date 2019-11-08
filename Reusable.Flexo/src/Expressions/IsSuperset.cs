@@ -8,7 +8,7 @@ namespace Reusable.Flexo
 {
     public class IsSuperset : CollectionExtension<bool>
     {
-        public IsSuperset(ILogger<IsSuperset> logger) : base(logger, nameof(IsSuperset)) { }
+        public IsSuperset(ILogger<IsSuperset> logger) : base(logger) { }
 
         public IEnumerable<IExpression> Values { get => ThisInner; set => ThisInner = value; }
 

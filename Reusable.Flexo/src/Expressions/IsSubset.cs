@@ -8,7 +8,7 @@ namespace Reusable.Flexo
 {
     public class IsSubset : CollectionExtension<bool>
     {
-        public IsSubset(ILogger<IsSubset> logger) : base(logger, nameof(IsSubset)) { }
+        public IsSubset(ILogger<IsSubset> logger) : base(logger) { }
 
         public IEnumerable<IExpression> Values { get => ThisInner; set => ThisInner = value; }
 

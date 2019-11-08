@@ -17,7 +17,7 @@ namespace Reusable.Flexo
     [PublicAPI]
     public abstract class GetItem<T> : Expression<T>
     {
-        protected GetItem(ILogger? logger, string name) : base(logger, name) { }
+        protected GetItem(ILogger? logger, string name) : base(logger) { }
 
         public string Path { get; set; }
 
@@ -37,7 +37,7 @@ namespace Reusable.Flexo
         [NotNull]
         private object GetMemberValue(object obj, string memberName)
         {
-            obj = obj switch { IConstant c => c.Value ?? throw new ArgumentException($"{c.Name.ToString()}'s value is null."), _ => obj };
+            obj = obj switch { IConstant c => c.Value ?? throw new ArgumentException($"{c.Id.ToString()}'s value is null."), _ => obj };
 
             var member = obj.GetType().GetMember(memberName).SingleOrThrow
             (

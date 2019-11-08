@@ -7,12 +7,12 @@ namespace Reusable.Flexo
     // ReSharper disable once InconsistentNaming - we want this name!
     public class IIf : ScalarExtension<object>, IFilter
     {
-        public IIf() : base(default, nameof(IIf)) { }
+        public IIf() : base(default) { }
 
-        public IExpression Predicate { get => ThisInner; set => ThisInner = value; }
+        public IExpression Matcher { get => ThisInner; set => ThisInner = value; }
         
         [JsonProperty("Comparer")]
-        public string ComparerName { get; set; }
+        public string ComparerId { get; set; }
 
         public IExpression True { get; set; }
 

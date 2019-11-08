@@ -6,7 +6,7 @@ namespace Reusable.Flexo
 {
     public class Import : Expression
     {
-        public Import() : base(default, nameof(Import)) { }
+        public Import() : base(default) { }
 
         public string Package { get; set; }
 
@@ -14,15 +14,7 @@ namespace Reusable.Flexo
         {
             if (string.IsNullOrEmpty(Package)) throw new InvalidOperationException($"{nameof(Package)} must be not null or empty.");
 
-            foreach (var packages in context.FindItems(ExpressionContext.Packages))
-            {
-                if (packages.TryGetValue(Package, out var package))
-                {
-                    return package.Invoke(context);
-                }
-            }
-
-            throw DynamicException.Create("PackageNotFound", $"Could not import package '{Package}'.");
+            return context.Invoke(Package);
         }
     }
 }

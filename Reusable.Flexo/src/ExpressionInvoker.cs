@@ -2,53 +2,26 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Reusable.Data;
+using Reusable.Exceptionize;
 
 namespace Reusable.Flexo
 {
     [Obsolete("Use Invoke(context) extension.")]
     public interface IExpressionInvoker
     {
-        IList<(IConstant Result, IImmutableContainer Context)> Invoke(IEnumerable<IExpression> expressions, IImmutableContainer? scope = default);
-
-        ExpressionResult Invoke(IExpression expression, IImmutableContainer? scope = default);
+        IConstant Invoke(string packageId, IImmutableContainer context);
     }
 
     public class ExpressionInvoker : IExpressionInvoker
     {
         public static IExpressionInvoker Default { get; } = new ExpressionInvoker();
 
-        public IList<(IConstant Result, IImmutableContainer Context)> Invoke(IEnumerable<IExpression> expressions, IImmutableContainer? scope = default)
+        public IConstant Invoke(string packageId, IImmutableContainer context)
         {
-            return expressions.Enabled().Select(e =>
-            {
-                scope = ExpressionContext.Default.BeginScope(scope ?? ImmutableContainer.Empty);
-                try
-                {
-                    return (e.Invoke(ExpressionContext.Default, scope), scope);
-                }
-                catch (Exception inner)
-                {
-                    return (Constant.FromValue(inner.GetType().Name, inner), scope);
-                }
-            }).ToList();
+            return
+                context.Find(ExpressionContext.Packages).TryGetValue(packageId, out var package)
+                    ? package.Invoke(context)
+                    : throw DynamicException.Create("PackageNotFound", $"Could not find package '{packageId}'.");
         }
-
-        public ExpressionResult Invoke(IExpression expression, IImmutableContainer? scope = default)
-        {
-            return  Invoke(new[] { expression }, scope).Single();
-        }
-    }
-    
-    public readonly struct ExpressionResult
-    {
-        public ExpressionResult(IConstant constant, IImmutableContainer context)
-        {
-            Constant = constant;
-            Context = context;
-        }
-
-        public IConstant Constant { get; }
-
-        public IImmutableContainer Context { get; }
     }
 }

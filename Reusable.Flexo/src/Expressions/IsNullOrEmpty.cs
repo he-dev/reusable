@@ -4,7 +4,7 @@ namespace Reusable.Flexo
 {
     public class IsNullOrEmpty : ScalarExtension<bool>
     {
-        public IsNullOrEmpty() : base(default, nameof(IsNullOrEmpty)) { }
+        public IsNullOrEmpty() : base(default) { }
 
         public IExpression Left
         {

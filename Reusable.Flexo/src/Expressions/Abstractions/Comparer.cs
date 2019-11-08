@@ -28,7 +28,7 @@ namespace Reusable.Flexo.Abstractions
         private readonly Func<int, bool> _predicate;
 
         protected Comparer(ILogger? logger, string name, Func<int, bool> predicate)
-            : base(logger, name) => _predicate = predicate;
+            : base(logger) => _predicate = predicate;
         
         public IExpression Left { get => ThisInner; set => ThisInner = value; }
 

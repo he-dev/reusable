@@ -6,7 +6,7 @@ namespace Reusable.Flexo
 {
     public class Where : CollectionExtension<IEnumerable<IConstant>>
     {
-        public Where() : base(default, nameof(Where)) { }
+        public Where() : base(default) { }
 
         public IEnumerable<IExpression> Values { get => ThisInner; set => ThisInner = value; }
 

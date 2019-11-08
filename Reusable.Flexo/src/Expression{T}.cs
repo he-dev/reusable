@@ -7,7 +7,7 @@ namespace Reusable.Flexo
     
     public abstract class Expression<TResult> : Expression
     {
-        protected Expression(ILogger? logger, SoftString name) : base(logger, name) { }
+        protected Expression(ILogger logger) : base(logger) { }
 
         public static IExpression Create(string name, Func<IImmutableContainer, TResult> invokeAsValue) => new Lambda(name, invokeAsValue);
 
@@ -15,7 +15,7 @@ namespace Reusable.Flexo
 
         protected virtual Constant<TResult> ComputeConstantGeneric(IImmutableContainer context)
         {
-            return Constant.FromValue(Name, ComputeValue(context), context);
+            return Constant.FromValue(Id, ComputeValue(context), context);
         }
 
         protected virtual TResult ComputeValue(IImmutableContainer context)
@@ -27,7 +27,7 @@ namespace Reusable.Flexo
         {
             private readonly Func<IImmutableContainer, TResult> _invokeAsValue;
 
-            public Lambda(SoftString name, Func<IImmutableContainer, TResult> invokeAsValue) : base(default, name)
+            public Lambda(SoftString name, Func<IImmutableContainer, TResult> invokeAsValue) : base(default)
             {
                 _invokeAsValue = invokeAsValue;
             }

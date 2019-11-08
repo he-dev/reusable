@@ -4,9 +4,9 @@ namespace Reusable.Flexo
     {
         public Double() : base(nameof(Double), default) { }
 
-        public static readonly Constant<double> Zero = new Double { Name = nameof(Zero), Value = 0.0 };
+        public static readonly Constant<double> Zero = new Double { Id = nameof(Zero), Value = 0.0 };
 
-        public static readonly Constant<double> One = new Double { Name = nameof(One), Value = 1.0 };
+        public static readonly Constant<double> One = new Double { Id = nameof(One), Value = 1.0 };
     }
 
     public class Integer : Constant<int>

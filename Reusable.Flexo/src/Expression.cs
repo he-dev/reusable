@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Linq;
 using JetBrains.Annotations;
 using Newtonsoft.Json;
 using Reusable.Data;
@@ -18,12 +19,18 @@ namespace Reusable.Flexo
         bool Enabled { get; }
     }
 
-    [UsedImplicitly]
-    [PublicAPI]
-    public interface IExpression : ISwitchable
+    public interface IIdentifiable
     {
         [NotNull]
-        SoftString Name { get; }
+        SoftString Id { get; }
+    }
+
+    [UsedImplicitly]
+    [PublicAPI]
+    public interface IExpression : IIdentifiable, ISwitchable
+    {
+        [NotNull]
+        SoftString Id { get; }
 
         [CanBeNull]
         string Description { get; }
@@ -51,6 +58,7 @@ namespace Reusable.Flexo
         Type ExtensionType { get; }
     }
 
+    [PublicAPI]
     [Namespace("Flexo", Alias = "F")]
     public abstract class Expression : IExpression
     {
@@ -108,14 +116,14 @@ namespace Reusable.Flexo
         };
         // ReSharper restore RedundantNameQualifier
 
-        //public static readonly Func<IImmutableContainer, IImmutableContainer> 
+        private static volatile int _counter = 0;
 
         private SoftString _name;
 
-        protected Expression(ILogger? logger, SoftString name)
+        protected Expression(ILogger logger)
         {
             Logger = logger ?? EmptyLogger.Instance;
-            _name = name ?? throw new ArgumentNullException(nameof(name));
+            _name = $"{GetType().ToPrettyString()}-{++_counter}";
         }
 
         [NotNull]
@@ -124,10 +132,10 @@ namespace Reusable.Flexo
         //[NotNull]
         //public static ExpressionScope Scope => ExpressionScope.Current ?? throw new InvalidOperationException("Expressions must be invoked within a valid scope. Use 'BeginScope' to introduce one.");
 
-        public virtual SoftString Name
+        public virtual SoftString Id
         {
             get => _name;
-            set => _name = value ?? throw new ArgumentNullException(nameof(Name));
+            set => _name = value ?? throw new ArgumentNullException(nameof(Id));
         }
 
         public string Description { get; set; }
@@ -140,10 +148,10 @@ namespace Reusable.Flexo
         public IExpression? Next { get; set; }
 
         //public abstract IConstant Invoke(IImmutableContainer context);
-        
+
         public IConstant Invoke(IImmutableContainer context)
         {
-            var parentView = context.Find(ExpressionContext.DebugView);
+            var parentView = context.FindItem(ExpressionContext.DebugView);
             var thisView = parentView.Add(this.CreateDebugView());
 
             // Take a shortcut when this is a constant without an extension. This helps to avoid another debug-view.
@@ -182,13 +190,13 @@ namespace Reusable.Flexo
             }
 
             return Next?.Invoke
-                   (
-                       thisContext,
-                       ImmutableContainer
-                           .Empty
-                           .SetItem(ExpressionContext.DebugView, thisView)
-                           .SetItem(ExpressionContext.ThisOuter, thisResult)
-                   ) ?? thisResult;
+            (
+                thisContext,
+                ImmutableContainer
+                    .Empty
+                    .SetItem(ExpressionContext.DebugView, thisView)
+                    .SetItem(ExpressionContext.ThisOuter, thisResult)
+            ) ?? thisResult;
         }
 
         protected abstract IConstant ComputeConstant(IImmutableContainer context);
@@ -210,9 +218,9 @@ namespace Reusable.Flexo
 
     public static class ImmutableContainerExtensions
     {
-        public static IImmutableContainer BeginScope(this IImmutableContainer context, IImmutableContainer scope)
+        public static IImmutableContainer BeginScope(this IImmutableContainer context, IImmutableContainer? scope = default)
         {
-            return scope.SetItem(ExpressionContext.Parent, context);
+            return (scope ?? ImmutableContainer.Empty).SetItem(ExpressionContext.Parent, context);
         }
 
         public static IImmutableContainer BeginScopeWithThisOuter(this IImmutableContainer context, object thisOuter)
@@ -229,15 +237,28 @@ namespace Reusable.Flexo
             {
                 yield return context;
                 context = context.GetItemOrDefault(ExpressionContext.Parent);
-            } while (context != null);
+            }
+            while (context.IsNotNull());
         }
     }
 
     public static class ExpressionExtensions
     {
-        public static IConstant Invoke(this IExpression expression, IImmutableContainer context, IImmutableContainer scope)
+        public static IConstant Invoke(this IExpression expression, IImmutableContainer context, IImmutableContainer? scope = default)
         {
             return expression.Invoke(context.BeginScope(scope));
+        }
+
+        public static IConstant Invoke(this IImmutableContainer context, string packageId, IImmutableContainer? scope = default)
+        {
+            foreach (var packages in context.FindItems(ExpressionContext.Packages))
+            {
+                if (packages.TryGetValue(packageId, out var package))
+                {
+                    return package.Invoke(context, scope);
+                }
+            }
+            throw DynamicException.Create("PackageNotFound", $"Could not find package '{packageId}'.");
         }
     }
 }

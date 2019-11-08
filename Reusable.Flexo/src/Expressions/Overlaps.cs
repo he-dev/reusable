@@ -6,23 +6,24 @@ using Reusable.OmniLog.Abstractions;
 
 namespace Reusable.Flexo
 {
-    public class Overlaps : CollectionExtension<bool>
+    public class Overlaps : CollectionExtension<bool>, IFilter
     {
-        public Overlaps(ILogger<Overlaps> logger) : base(logger, nameof(Overlaps)) { }
+        public Overlaps() : base(default) { }
         
         public IEnumerable<IExpression> First { get => ThisInner; set => ThisInner = value; }
         
         [JsonProperty("With", Required = Required.Always)]
         public List<IExpression> Second { get; set; }
 
-        [JsonProperty("Comparer")]
-        public string? ComparerName { get; set; }
+        public IExpression? Matcher { get; set; }
+        
+        public string? ComparerId { get; set; }
 
         protected override bool ComputeValue(IImmutableContainer context)
         {
-            var first = This(context).Enabled().Invoke(context).Values<object>();
-            var second = Second.Enabled().Invoke(context).Values<object>();
-            var comparer = context.GetEqualityComparerOrDefault(ComparerName);
+            var first = InvokeThis(context).Values<object>();
+            var second = Second.Invoke(context).Values<object>();
+            var comparer = context.GetEqualityComparerOrDefault(ComparerId);
             return first.Intersect(second, comparer).Any();
         }
     }

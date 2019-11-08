@@ -9,22 +9,26 @@ namespace Reusable.Flexo
     [PublicAPI]
     public class All : CollectionExtension<bool>, IFilter
     {
-        public All() : base(default, nameof(All)) { }
+        public All() : base(default)
+        {
+            Matcher = new IsEqual
+            {
+                Value = Constant.True
+            };
+        }
 
         public IEnumerable<IExpression> Values { get => ThisInner; set => ThisInner = value; }
 
-        public IExpression? Predicate { get; set; }
+        [JsonProperty("Predicate")]
+        public IExpression Matcher { get; set; }
 
-        [JsonProperty("Comparer")]
-        public string? ComparerName { get; set; }
-        
         protected override bool ComputeValue(IImmutableContainer context)
         {
             return 
                 This(context)
                     .Enabled()
                     .Select(item => item.Invoke(context))
-                    .All(x => this.Equal(context, x, true));
+                    .All(x => this.Equal(context, x));
         }
     }
 }
