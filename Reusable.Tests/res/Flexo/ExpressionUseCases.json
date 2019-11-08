@@ -195,8 +195,11 @@
       ],
       "This": {
         "$t": "Flexo.Contains",
-        "Value": "BAR",
-        "Comparer": "SoftString"
+        "Predicate": {
+          "$t": "Flexo.IsEqual",
+          "Value": "BAR",
+          "Comparer": "SoftString"
+        }
       }
     },
     "Expected": true,
@@ -282,7 +285,6 @@
     "Description": "Can check whether two numbers are equal.",
     "Body": {
       "$t": "Flexo.Double",
-      "Name": "Double.IsEqual",
       "Value": 2.0,
       "This": {
         "$t": "Flexo.IsEqual",

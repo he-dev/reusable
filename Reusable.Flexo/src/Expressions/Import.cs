@@ -14,7 +14,7 @@ namespace Reusable.Flexo
         {
             if (string.IsNullOrEmpty(Package)) throw new InvalidOperationException($"{nameof(Package)} must be not null or empty.");
 
-            return context.Invoke(Package);
+            return context.InvokePackage(Package);
         }
     }
 }

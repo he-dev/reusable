@@ -7,7 +7,14 @@ namespace Reusable.Flexo
 {
     public class Any : CollectionExtension<bool>, IFilter
     {
-        public Any() : base(default) { }
+        public Any() : base(default)
+        {
+            Matcher = new IsEqual
+            {
+                Value = Constant.True,
+                Matcher = Constant.FromValue("Comparer", "Default")
+            };
+        }
 
         public IEnumerable<IExpression> Values
         {
@@ -15,18 +22,16 @@ namespace Reusable.Flexo
             set => ThisInner = value;
         }
 
-        public IExpression? Matcher { get; set; }
-
-        [JsonProperty("Comparer")]
-        public string? ComparerId { get; set; }
+        [JsonProperty("Predicate")]
+        public IExpression Matcher { get; set; }
 
         protected override bool ComputeValue(IImmutableContainer context)
         {
             return 
                 This(context)
                     .Enabled()
-                    .Select(item => item.Invoke(context))
-                    .Any(x => this.Equal(context, x, true));
+                    .Select(e => e.Invoke(context))
+                    .Any(c => this.Equal(context.BeginScopeWithThisOuter(c)));
         }
     }
 }

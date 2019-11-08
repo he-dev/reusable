@@ -13,37 +13,16 @@ namespace Reusable.Flexo
 
         public IEnumerable<IExpression> Values { get => ThisInner; set => ThisInner = value; }
 
-        [JsonProperty("Value")]
+        [JsonProperty("Predicate")]
         public IExpression? Matcher { get; set; }
-
-        public string? ComparerId { get; set; }
 
         protected override bool ComputeValue(IImmutableContainer context)
         {
             return 
                 This(context)
                     .Enabled()
-                    .Select(x => x.Invoke(context))
-                    .Any(x => this.Equal(context, x, default));
-        }
-    }
-
-    [PublicAPI]
-    public class In : ScalarExtension<bool>
-    {
-        public In() : base(default) { }
-
-        public IExpression Value { get => ThisInner; set => ThisInner = value; }
-
-        public IEnumerable<IExpression> Values { get; set; }
-
-        public string Comparer { get; set; }
-
-        protected override bool ComputeValue(IImmutableContainer context)
-        {
-            var value = This(context).Invoke(context).Value;
-            var comparer = context.GetEqualityComparerOrDefault(Comparer);
-            return Values.Enabled().Any(x => comparer.Equals(value, x.Invoke(context).Value));
+                    .Select(e => e.Invoke(context))
+                    .Any(c => this.Equal(context.BeginScopeWithThisOuter(c)));
         }
     }
 }

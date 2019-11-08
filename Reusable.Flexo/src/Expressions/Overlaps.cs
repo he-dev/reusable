@@ -15,15 +15,14 @@ namespace Reusable.Flexo
         [JsonProperty("With", Required = Required.Always)]
         public List<IExpression> Second { get; set; }
 
+        [JsonProperty("Comparer")]
         public IExpression? Matcher { get; set; }
-        
-        public string? ComparerId { get; set; }
 
         protected override bool ComputeValue(IImmutableContainer context)
         {
             var first = InvokeThis(context).Values<object>();
             var second = Second.Invoke(context).Values<object>();
-            var comparer = context.GetEqualityComparerOrDefault(ComparerId);
+            var comparer = this.GetEqualityComparer(context);
             return first.Intersect(second, comparer).Any();
         }
     }

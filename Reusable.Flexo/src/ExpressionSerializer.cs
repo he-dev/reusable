@@ -49,6 +49,7 @@ namespace Reusable.Flexo
             {
                 NullValueHandling = NullValueHandling.Ignore,
                 TypeNameHandling = TypeNameHandling.Auto,
+                ObjectCreationHandling = ObjectCreationHandling.Replace,
                 ContractResolver = contractResolver,
                 Converters =
                 {

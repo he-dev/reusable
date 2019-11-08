@@ -249,7 +249,7 @@ namespace Reusable.Flexo
             return expression.Invoke(context.BeginScope(scope));
         }
 
-        public static IConstant Invoke(this IImmutableContainer context, string packageId, IImmutableContainer? scope = default)
+        public static IConstant InvokePackage(this IImmutableContainer context, string packageId, IImmutableContainer? scope = default)
         {
             foreach (var packages in context.FindItems(ExpressionContext.Packages))
             {

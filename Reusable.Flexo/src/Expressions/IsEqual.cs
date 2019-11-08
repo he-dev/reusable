@@ -27,12 +27,13 @@ namespace Reusable.Flexo
             };
         }
 
-        public static bool Equal(this IFilter filter, IImmutableContainer context, IConstant x)
+        public static bool Equal(this IFilter filter, IImmutableContainer context)
         {
             return filter.Matcher switch
             {
-                IConstant _ => throw new ArgumentException(paramName: nameof(filter), message: $"'{filter.Id.ToString()}' filter's '{nameof(IFilter.Matcher)}' must be a predicate."),
-                {} p => p.Invoke(context.BeginScopeWithThisOuter(x)).Value<bool>(),
+                //IConstant _ => throw new ArgumentException(paramName: nameof(filter), message: $"'{filter.Id.ToString()}' filter's '{nameof(IFilter.Matcher)}' must be a predicate."),
+                IConstant c => context.GetEqualityComparerOrDefault().Equals(((IConstant)context.GetItem(ExpressionContext.ThisOuter)).Value, c.Value),
+                {} p => p.Invoke(context).Value<bool>(),
                 _ => throw new ArgumentException(paramName: nameof(filter), message: $"'{filter.Id.ToString()}' filter must specify a '{nameof(IFilter.Matcher)}' as a predicate.")
             };
         }
@@ -40,7 +41,10 @@ namespace Reusable.Flexo
 
     public class IsEqual : ScalarExtension<bool>, IFilter
     {
-        public IsEqual() : base(default) { }
+        public IsEqual() : base(default)
+        {
+            Matcher = Constant.FromValue("Comparer", "Default");
+        }
 
         public IExpression Left
         {
