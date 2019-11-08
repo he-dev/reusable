@@ -12,20 +12,19 @@ namespace Reusable.Flexo.Abstractions
     {
         private readonly Func<IEnumerable<double>, double> _aggregate;
 
-        protected Aggregate(ILogger? logger, string name, Func<IEnumerable<double>, double> aggregate)
+        protected Aggregate(ILogger logger, Func<IEnumerable<double>, double> aggregate)
             : base(logger) => _aggregate = aggregate;
 
         public IEnumerable<IExpression> Values
         {
-            get => ThisInner;
-            set => ThisInner = value;
+            get => Arg;
+            set => Arg = value;
         }
 
         protected override double ComputeValue(IImmutableContainer context)
         {
             var values =
-                This(context)
-                    .Enabled()
+                GetArg(context)
                     .Select(e => e.Invoke(context))
                     .Values<double>();
 

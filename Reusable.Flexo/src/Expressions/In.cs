@@ -12,8 +12,8 @@ namespace Reusable.Flexo
 
         public IExpression Value
         {
-            get => ThisInner;
-            set => ThisInner = value;
+            get => Arg;
+            set => Arg = value;
         }
 
         public IEnumerable<IExpression> Values { get; set; }
@@ -22,7 +22,7 @@ namespace Reusable.Flexo
 
         protected override bool ComputeValue(IImmutableContainer context)
         {
-            var value = This(context).Invoke(context).Value;
+            var value = GetArg(context).Invoke(context).Value;
             var comparer = context.GetEqualityComparerOrDefault(Comparer);
             return Values.Enabled().Any(x => comparer.Equals(value, x.Invoke(context).Value));
         }

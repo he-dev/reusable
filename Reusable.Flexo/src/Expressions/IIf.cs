@@ -9,12 +9,12 @@ namespace Reusable.Flexo
     {
         public IIf() : base(default)
         {
-            Matcher = Constant.FromValue("Comparer", "Default");
+            Matcher = Constant.DefaultComparer;
         }
 
-        public IExpression Value { get => ThisInner; set => ThisInner = value; }
+        public IExpression Value { get => Arg; set => Arg = value; }
         
-        [JsonProperty("Comparer")]
+        [JsonProperty(Filter.Properties.Comparer)]
         public IExpression Matcher { get; set; }
         
         public IExpression True { get; set; }
@@ -25,7 +25,7 @@ namespace Reusable.Flexo
         {
             if (True is null && False is null) throw new InvalidOperationException($"You need to specify at least one result ({nameof(True)}/{nameof(False)}).");
             
-            var value = This(context).Invoke(context);
+            var value = GetArg(context).Invoke(context);
             var comparer = this.GetEqualityComparer(context);
             return comparer.Equals(value.Value, true) switch
             {

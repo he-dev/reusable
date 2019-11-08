@@ -14,14 +14,14 @@ namespace Reusable.Flexo
     {
         public Select() : base(default) { }
 
-        public IEnumerable<IExpression> Values { get => ThisInner; set => ThisInner = value; }
+        public IEnumerable<IExpression> Values { get => Arg; set => Arg = value; }
 
         public IExpression? Selector { get; set; }
 
         protected override IEnumerable<IExpression> ComputeValue(IImmutableContainer context)
         {
             var query =
-                from item in This(context).Enabled()
+                from item in GetArg(context)
                 let selector = Selector ?? item
                 select selector.Invoke(context, ImmutableContainer.Empty.SetItem(ExpressionContext.Item, item));
 

@@ -29,9 +29,6 @@ namespace Reusable.Flexo
     [PublicAPI]
     public interface IExpression : IIdentifiable, ISwitchable
     {
-        [NotNull]
-        SoftString Id { get; }
-
         [CanBeNull]
         string Description { get; }
 
@@ -45,7 +42,7 @@ namespace Reusable.Flexo
         IConstant Invoke(IImmutableContainer context);
     }
 
-    public interface IExtension
+    public interface IExtension : IExpression
     {
         /// <summary>
         /// Indicates whether the extension is used as such or overrides it with its native value.
@@ -55,7 +52,7 @@ namespace Reusable.Flexo
         /// <summary>
         /// Gets the type the extension extends.
         /// </summary>
-        Type ExtensionType { get; }
+        Type ExtendsType { get; }
     }
 
     [PublicAPI]
@@ -81,8 +78,6 @@ namespace Reusable.Flexo
             typeof(Reusable.Flexo.ToString),
             typeof(Reusable.Flexo.GetSingle),
             typeof(Reusable.Flexo.GetMany),
-            //typeof(Reusable.Flexo.SetSingle),
-            //typeof(Reusable.Flexo.SetMany),
             typeof(Reusable.Flexo.Package),
             typeof(Reusable.Flexo.Import),
             typeof(Reusable.Flexo.Contains),
@@ -99,8 +94,6 @@ namespace Reusable.Flexo
             typeof(Reusable.Flexo.Double),
             typeof(Reusable.Flexo.Integer),
             typeof(Reusable.Flexo.Decimal),
-            //typeof(Reusable.Flexo.DateTime),
-            //typeof(Reusable.Flexo.TimeSpan),
             typeof(Reusable.Flexo.String),
             typeof(Reusable.Flexo.True),
             typeof(Reusable.Flexo.False),
@@ -108,8 +101,6 @@ namespace Reusable.Flexo
             typeof(Reusable.Flexo.Select),
             typeof(Reusable.Flexo.Throw),
             typeof(Reusable.Flexo.Where),
-            //typeof(Reusable.Flexo.Concat),
-            //typeof(Reusable.Flexo.Union),
             typeof(Reusable.Flexo.Block),
             typeof(Reusable.Flexo.ForEach),
             typeof(Reusable.Flexo.Item),
@@ -120,7 +111,7 @@ namespace Reusable.Flexo
 
         private SoftString _name;
 
-        protected Expression(ILogger logger)
+        protected Expression(ILogger? logger)
         {
             Logger = logger ?? EmptyLogger.Instance;
             _name = $"{GetType().ToPrettyString()}-{++_counter}";
@@ -128,9 +119,6 @@ namespace Reusable.Flexo
 
         [NotNull]
         protected ILogger Logger { get; }
-
-        //[NotNull]
-        //public static ExpressionScope Scope => ExpressionScope.Current ?? throw new InvalidOperationException("Expressions must be invoked within a valid scope. Use 'BeginScope' to introduce one.");
 
         public virtual SoftString Id
         {
@@ -179,12 +167,12 @@ namespace Reusable.Flexo
                         ? collection.GetType()
                         : thisResult.GetType();
 
-                if (!extension.ExtensionType.IsAssignableFrom(thisType))
+                if (!extension.ExtendsType.IsAssignableFrom(thisType))
                 {
                     throw DynamicException.Create
                     (
                         $"PipeTypeMismatch",
-                        $"Extension '{extension.GetType().ToPrettyString()}<{extension.ExtensionType.ToPrettyString()}>' does not match the expression it is extending: '{thisResult.Value.GetType().ToPrettyString()}'."
+                        $"Extension '{extension.GetType().ToPrettyString()}<{extension.ExtendsType.ToPrettyString()}>' does not match the expression it is extending: '{thisResult.Value.GetType().ToPrettyString()}'."
                     );
                 }
             }
@@ -195,7 +183,7 @@ namespace Reusable.Flexo
                 ImmutableContainer
                     .Empty
                     .SetItem(ExpressionContext.DebugView, thisView)
-                    .SetItem(ExpressionContext.ThisOuter, thisResult)
+                    .SetItem(ExpressionContext.Arg, thisResult)
             ) ?? thisResult;
         }
 
@@ -223,9 +211,9 @@ namespace Reusable.Flexo
             return (scope ?? ImmutableContainer.Empty).SetItem(ExpressionContext.Parent, context);
         }
 
-        public static IImmutableContainer BeginScopeWithThisOuter(this IImmutableContainer context, object thisOuter)
+        public static IImmutableContainer BeginScopeWithArg(this IImmutableContainer context, object arg)
         {
-            return context.BeginScope(ImmutableContainer.Empty.SetItem(ExpressionContext.ThisOuter, thisOuter));
+            return context.BeginScope(ImmutableContainer.Empty.SetItem(ExpressionContext.Arg, arg));
         }
 
         /// <summary>

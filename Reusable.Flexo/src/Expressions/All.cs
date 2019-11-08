@@ -14,26 +14,25 @@ namespace Reusable.Flexo
             Matcher = new IsEqual
             {
                 Value = Constant.True,
-                Matcher = Constant.FromValue("Comparer", "Default")
+                Matcher = Constant.DefaultComparer
             };
         }
 
         public IEnumerable<IExpression> Values
         {
-            get => ThisInner;
-            set => ThisInner = value;
+            get => Arg;
+            set => Arg = value;
         }
 
-        [JsonProperty("Predicate")]
+        [JsonProperty(Filter.Properties.Predicate)]
         public IExpression Matcher { get; set; }
 
         protected override bool ComputeValue(IImmutableContainer context)
         {
             return
-                This(context)
-                    .Enabled()
+                GetArg(context)
                     .Select(e => e.Invoke(context))
-                    .All(c => this.Equal(context.BeginScopeWithThisOuter(c)));
+                    .All(c => this.Equal(context, c));
         }
     }
 }

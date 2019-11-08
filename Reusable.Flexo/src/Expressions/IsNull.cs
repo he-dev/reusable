@@ -7,11 +7,11 @@ namespace Reusable.Flexo
     {
         public IsNull(ILogger<IsNull> logger) : base(logger) { }
         
-        public IExpression Left { get => ThisInner; set => ThisInner = value; }
+        public IExpression Left { get => Arg; set => Arg = value; }
 
         protected override bool ComputeValue(IImmutableContainer context)
         {
-            return This(context).Invoke(context).Value is null;
+            return GetArg(context).Invoke(context).Value is null;
         }
     }
 }

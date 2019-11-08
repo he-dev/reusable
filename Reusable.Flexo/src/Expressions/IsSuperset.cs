@@ -6,24 +6,25 @@ using Reusable.OmniLog.Abstractions;
 
 namespace Reusable.Flexo
 {
-    public class IsSuperset : CollectionExtension<bool>
+    public class IsSuperset : CollectionExtension<bool>, IFilter
     {
-        public IsSuperset(ILogger<IsSuperset> logger) : base(logger) { }
+        public IsSuperset() : base(default) { }
 
-        public IEnumerable<IExpression> Values { get => ThisInner; set => ThisInner = value; }
+        public IEnumerable<IExpression> Values { get => Arg; set => Arg = value; }
 
         [JsonRequired]
         public List<IExpression> Of { get; set; }
 
-        [JsonProperty("Comparer")]
-        public string? ComparerName { get; set; }
+        [JsonProperty(Filter.Properties.Predicate)]
+        public IExpression Matcher { get; set; }
 
         protected override bool ComputeValue(IImmutableContainer context)
         {
-            var first = This(context).Enabled().Invoke(context).Values<object>();
+            var first = GetArg(context).Invoke(context).Values<object>();
             var second = Of.Invoke(context).Values<object>();
-            var comparer = context.GetEqualityComparerOrDefault(ComparerName);
+            var comparer = this.GetEqualityComparer(context);
             return first.IsSupersetOf(second, comparer);
         }
+
     }
 }

@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Text.RegularExpressions;
 using Newtonsoft.Json;
 using Reusable.Data;
 
@@ -10,6 +9,16 @@ namespace Reusable.Flexo
     public interface IFilter : IIdentifiable
     {
         IExpression? Matcher { get; set; }
+    }
+
+    public static class Filter
+    {
+        public static class Properties
+        {
+            public const string Comparer = nameof(Comparer);
+
+            public const string Predicate = nameof(Predicate);
+        }
     }
 
     public static class FilterExtensions
@@ -27,13 +36,12 @@ namespace Reusable.Flexo
             };
         }
 
-        public static bool Equal(this IFilter filter, IImmutableContainer context)
+        public static bool Equal(this IFilter filter, IImmutableContainer context, IConstant x)
         {
             return filter.Matcher switch
             {
-                //IConstant _ => throw new ArgumentException(paramName: nameof(filter), message: $"'{filter.Id.ToString()}' filter's '{nameof(IFilter.Matcher)}' must be a predicate."),
-                IConstant c => context.GetEqualityComparerOrDefault().Equals(((IConstant)context.GetItem(ExpressionContext.ThisOuter)).Value, c.Value),
-                {} p => p.Invoke(context).Value<bool>(),
+                IConstant c => context.GetEqualityComparerOrDefault().Equals(x.Value, c.Value),
+                {} p => p.Invoke(context.BeginScopeWithArg(x)).Value<bool>(),
                 _ => throw new ArgumentException(paramName: nameof(filter), message: $"'{filter.Id.ToString()}' filter must specify a '{nameof(IFilter.Matcher)}' as a predicate.")
             };
         }
@@ -43,23 +51,23 @@ namespace Reusable.Flexo
     {
         public IsEqual() : base(default)
         {
-            Matcher = Constant.FromValue("Comparer", "Default");
+            Matcher = Constant.DefaultComparer;
         }
 
         public IExpression Left
         {
-            get => ThisInner;
-            set => ThisInner = value;
+            get => Arg;
+            set => Arg = value;
         }
 
         public IExpression Value { get; set; }
 
-        [JsonProperty("Comparer")]
+        [JsonProperty(Filter.Properties.Comparer)]
         public IExpression Matcher { get; set; }
 
         protected override bool ComputeValue(IImmutableContainer context)
         {
-            var x = This(context).Invoke(context).Value;
+            var x = GetArg(context).Invoke(context).Value;
             var y = Value.Invoke(context).Value;
             var c = this.GetEqualityComparer(context);
             return c.Equals(x, y);

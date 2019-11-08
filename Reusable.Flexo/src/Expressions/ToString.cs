@@ -10,14 +10,14 @@ namespace Reusable.Flexo
     {
         public ToString() : base(default) { }
 
-        public IExpression Value { get => ThisInner; set => ThisInner = value; }
+        public IExpression Value { get => Arg; set => Arg = value; }
 
         public IExpression? Format { get; set; }
 
         protected override string ComputeValue(IImmutableContainer context)
         {
             var format = Format?.Invoke(context).ValueOrDefault<string>() ?? "{0}";
-            return string.Format(CultureInfo.InvariantCulture, format, This(context).Invoke(context).Value);
+            return string.Format(CultureInfo.InvariantCulture, format, GetArg(context).Invoke(context).Value);
         }
     }
 }

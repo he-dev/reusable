@@ -13,7 +13,7 @@ namespace Reusable.Flexo
         [AutoEqualityProperty]
         [CanBeNull]
         object Value { get; }
-        
+
         IImmutableContainer Context { get; }
     }
 
@@ -36,7 +36,7 @@ namespace Reusable.Flexo
 
         [AutoEqualityProperty]
         public TValue Value { get; set; }
-        
+
         public IImmutableContainer Context { get; }
 
 //        public override IConstant Invoke(IImmutableContainer context)
@@ -155,9 +155,11 @@ namespace Reusable.Flexo
 
         [NotNull]
         public static readonly IExpression Null = FromValue(nameof(Null), default(object));
-        
+
         [NotNull]
         public static readonly IExpression Unit = FromValue(nameof(Unit), default(object));
+
+        public static readonly IExpression DefaultComparer = FromValue(Filter.Properties.Comparer, "Default");
 
         #endregion
     }

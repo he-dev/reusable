@@ -8,14 +8,14 @@ namespace Reusable.Flexo
     {
         public ForEach() : base(default) { }
 
-        public IEnumerable<IExpression> Values { get => ThisInner; set => ThisInner = value; }
+        public IEnumerable<IExpression> Values { get => Arg; set => Arg = value; }
 
         public IEnumerable<IExpression> Body { get; set; }
 
         protected override object ComputeValue(IImmutableContainer context)
         {
             var query =
-                from item in This(context).Enabled()
+                from item in GetArg(context)
                 from expr in Body.Enabled()
                 select (item, expr);
 

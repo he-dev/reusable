@@ -59,33 +59,18 @@ namespace Reusable.Flexo
             }
         }
 
-        public static T ValueOrDefault<T>(this IConstant expression)
+        public static T ValueOrDefault<T>(this IConstant constant, T defaultValue = default)
         {
             return
-                expression is IConstant constant && constant.Value is T value
+                constant.Value is T value
                     ? value
-                    : default;
+                    : defaultValue;
         }
 
-        public static object ValueOrDefault(this IConstant expression)
+        public static object ValueOrDefault(this IConstant constant, object defaultValue = default)
         {
-            return
-                expression is IConstant constant
-                    ? constant.Value
-                    : default;
+            return constant.Value ?? defaultValue;
         }
-
-        // Resolves the actual expression in case it's Ref
-//        [NotNull]
-//        public static IExpression Resolve(this IExpression expression)
-//        {
-//            while (expression is Ref @ref)
-//            {
-//                expression = @ref.Invoke().Value<IExpression>();
-//            }
-//
-//            return expression;
-//        }
 
         internal static Node<ExpressionDebugView> CreateDebugView(this IExpression expression)
         {
@@ -96,55 +81,6 @@ namespace Reusable.Flexo
                 Description = expression.Description ?? new ExpressionDebugView().Description,
             });
         }
-
-        // Gets the value of 'This' for the specified expression.
-//        internal static object ThisOuterOrDefault(this IExpression expression)
-//        {
-//            var thisOuterValue =
-//                expression is IExtension extension
-//                    ? extension.ThisOuter
-//                    : default;
-//
-//            switch (thisOuterValue)
-//            {
-//                case null: return default;
-//                case IExpression e: return e;
-//                case IEnumerable<IExpression> c: return c;
-//                default:
-//                    throw new ArgumentOutOfRangeException
-//                    (
-//                        paramName: nameof(IExtension.ThisOuter),
-//                        message:
-//                        $"'This' value is of type '{thisOuterValue.GetType().ToPrettyString()}' " +
-//                        $"but it must be either an '{typeof(IExpression).ToPrettyString()}' " +
-//                        $"or an '{typeof(IEnumerable<IExpression>).ToPrettyString()}'"
-//                    );
-//            }
-//        }
-
-//        public static ExpressionInvokeResult Invoke(this IExpression expression, Func<IImmutableContainer, IImmutableContainer> alterContext)
-//        {
-//            using (Expression.BeginScope(alterContext ?? (_ => _)))
-//            {
-//                try
-//                {
-//                    return new ExpressionInvokeResult
-//                    {
-//                        Constant = expression.Invoke(TODO), 
-//                        //Contexts = DumpContexts()
-//                    };
-//                }
-//                catch (Exception inner)
-//                {
-//                    throw new ExpressionException(inner)
-//                    {
-//                        //Contexts = DumpContexts()
-//                    };
-//                }
-//            }
-//        }
-
-        //private static IList<IImmutableContainer> DumpContexts() => Expression.Scope.Enumerate().Select(scope => scope.Context).ToList();
     }
 
 

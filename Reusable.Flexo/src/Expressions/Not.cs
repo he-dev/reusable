@@ -7,11 +7,11 @@ namespace Reusable.Flexo
     {
         public Not() : base(default) { }
 
-        public IExpression Value { get => ThisInner; set => ThisInner = value; }
+        public IExpression Value { get => Arg; set => Arg = value; }
 
         protected override bool ComputeValue(IImmutableContainer context)
         {
-            return !This(context).Invoke(context).Value<bool>();
+            return !GetArg(context).Invoke(context).Value<bool>();
         }
     }
 }

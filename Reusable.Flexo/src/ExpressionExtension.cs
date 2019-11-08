@@ -11,37 +11,39 @@ namespace Reusable.Flexo
         protected ExpressionExtension(ILogger logger) : base(logger) { }
 
         /// <summary>
-        /// Gets or sets expression's own value that overrides 'ThisOuter'.
+        /// Gets or sets the argument that can be passed via context when used as an extension.
         /// </summary>
-        protected TExtension ThisInner { get; set; }
+        protected TExtension Arg { get; set; }
 
         #region IExtension
 
-        bool IExtension.IsInExtensionMode => ThisInner is null;
+        bool IExtension.IsInExtensionMode => Arg is null;
 
-        Type IExtension.ExtensionType => typeof(TExtension);
+        Type IExtension.ExtendsType => typeof(TExtension);
 
         #endregion
 
-        protected TExtension This(IImmutableContainer context) => ThisInner ?? ThisOuter(context.FindItem(ExpressionContext.ThisOuter));
-
-        //protected abstract TResult InvokeThis(IImmutableContainer context, IImmutableContainer? scope = default);
-
-        protected abstract TExtension ThisOuter(object thisOuter);
+        protected abstract TExtension GetArg(IImmutableContainer context);
     }
 
     public abstract class ScalarExtension<TResult> : ExpressionExtension<IExpression, TResult>
     {
-        protected ScalarExtension(ILogger logger) : base(logger) { }
+        protected ScalarExtension(ILogger? logger) : base(logger) { }
 
-        protected override IExpression ThisOuter(object thisOuter)
+        protected override IExpression GetArg(IImmutableContainer context)
         {
-            return thisOuter switch { IExpression e => e, _ => default };
+            return Arg switch
+            {
+                {} a => a, _ => context.FindItem(ExpressionContext.Arg) switch
+                {
+                    IExpression e => e, _ => default
+                }
+            };
         }
 
-        protected IConstant InvokeThis(IImmutableContainer context, IImmutableContainer? scope = default)
+        protected IConstant InvokeArg(IImmutableContainer context, IImmutableContainer? scope = default)
         {
-            return This(context).Invoke(context, scope);
+            return GetArg(context).Invoke(context, scope);
         }
     }
 
@@ -49,17 +51,23 @@ namespace Reusable.Flexo
     {
         protected CollectionExtension(ILogger? logger) : base(logger) { }
 
-        protected override IEnumerable<IExpression> ThisOuter(object thisOuter)
+        /// <summary>
+        /// Gets enabled expressions.
+        /// </summary>
+        protected override IEnumerable<IExpression> GetArg(IImmutableContainer context)
         {
-            return thisOuter switch { IConstant c => c.Value, _ => thisOuter } switch
+            return (Arg switch
             {
-                IEnumerable<IExpression> collection => collection, _ => default
-            };
+                {} a => a, _ => context.FindItem(ExpressionContext.Arg) switch { IConstant c => c.Value, {} x => x, _ => default } switch
+                {
+                    IEnumerable<IExpression> collection => collection, _ => default
+                }
+            })?.Enabled();
         }
 
-        protected IEnumerable<IConstant> InvokeThis(IImmutableContainer context, IImmutableContainer? scope = default)
+        protected IEnumerable<IConstant> InvokeArg(IImmutableContainer context, IImmutableContainer? scope = default)
         {
-            return This(context).Enabled().Select(x => x.Invoke(context, scope));
+            return GetArg(context).Select(x => x.Invoke(context, scope));
         }
     }
 }

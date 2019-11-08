@@ -14,7 +14,7 @@ namespace Reusable.Flexo.Abstractions
         string ComparerName { get; set; }
     }
 
-    public static class FilterExtensions
+    public static class SorterExtensions
     {
         public static IComparer<object> GetComparer(this ISorter sorter, IImmutableContainer context)
         {
@@ -27,10 +27,10 @@ namespace Reusable.Flexo.Abstractions
     {
         private readonly Func<int, bool> _predicate;
 
-        protected Comparer(ILogger? logger, string name, Func<int, bool> predicate)
+        protected Comparer(ILogger logger, Func<int, bool> predicate)
             : base(logger) => _predicate = predicate;
         
-        public IExpression Left { get => ThisInner; set => ThisInner = value; }
+        public IExpression Left { get => Arg; set => Arg = value; }
 
         [JsonRequired]
         [JsonProperty("Value")]
@@ -41,7 +41,7 @@ namespace Reusable.Flexo.Abstractions
         protected override bool ComputeValue(IImmutableContainer context)
         {
             var comparer = this.GetComparer(context);
-            var result = comparer.Compare(This(context).Invoke(context).Value, Right.Invoke(context).Value);
+            var result = comparer.Compare(GetArg(context).Invoke(context).Value, Right.Invoke(context).Value);
             return _predicate(result);
         }
     }

@@ -1,24 +1,31 @@
 using System.Text.RegularExpressions;
+using Newtonsoft.Json;
 using Reusable.Data;
 
 namespace Reusable.Flexo
 {
-    public class Matches : ScalarExtension<bool>
+    public class Matches : ScalarExtension<bool>, IFilter
     {
         public Matches() : base(default) { }
 
-        public bool IgnoreCase { get; set; } = true;
+        public IExpression Value
+        {
+            get => Arg;
+            set => Arg = value;
+        }
         
-        public IExpression Value { get => ThisInner; set => ThisInner = value; }
+        public bool IgnoreCase { get; set; } = true;
 
-        public IExpression Pattern { get; set; }
+        [JsonProperty("Pattern")]
+        public IExpression Matcher { get; set; }
 
         protected override bool ComputeValue(IImmutableContainer context)
         {
-            var input = This(context).Invoke(context).Value<string>();
-            var pattern = Pattern.Invoke(context).Value<string>();
+            var input = GetArg(context).Invoke(context).Value<string>();
+            var pattern = Matcher.Invoke(context).Value<string>();
             var options = IgnoreCase ? RegexOptions.IgnoreCase : RegexOptions.None;
             return Regex.IsMatch(input, pattern, options);
         }
+
     }
 }

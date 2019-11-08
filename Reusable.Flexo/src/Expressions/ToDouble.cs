@@ -23,8 +23,8 @@ namespace Reusable.Flexo
                 },
                 new SwitchCase
                 {
-                    When = Expression<bool>.Create("CheckIfDouble", ctx => This(ctx).Invoke(ctx).Value is double),
-                    Body = Expression<double>.Create("PassDouble", ctx => This(ctx).Invoke(ctx).Value<double>()),
+                    When = Expression<bool>.Create("CheckIfDouble", ctx => GetArg(ctx).Invoke(ctx).Value is double),
+                    Body = Expression<double>.Create("PassDouble", ctx => GetArg(ctx).Invoke(ctx).Value<double>()),
                 },
                 new SwitchCase
                 {

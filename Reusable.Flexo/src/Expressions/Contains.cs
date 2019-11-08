@@ -11,18 +11,21 @@ namespace Reusable.Flexo
     {
         public Contains() : base(default) { }
 
-        public IEnumerable<IExpression> Values { get => ThisInner; set => ThisInner = value; }
+        public IEnumerable<IExpression> Values
+        {
+            get => Arg;
+            set => Arg = value;
+        }
 
-        [JsonProperty("Predicate")]
+        [JsonProperty(Filter.Properties.Predicate)]
         public IExpression? Matcher { get; set; }
 
         protected override bool ComputeValue(IImmutableContainer context)
         {
-            return 
-                This(context)
-                    .Enabled()
+            return
+                GetArg(context)
                     .Select(e => e.Invoke(context))
-                    .Any(c => this.Equal(context.BeginScopeWithThisOuter(c)));
+                    .Any(c => this.Equal(context, c));
         }
     }
 }

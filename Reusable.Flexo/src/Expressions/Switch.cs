@@ -19,16 +19,16 @@ namespace Reusable.Flexo
 
         public IExpression Value
         {
-            get => ThisInner;
-            set => ThisInner = value;
+            get => Arg;
+            set => Arg = value;
         }
 
         public IEnumerable<SwitchCase> Cases { get; set; }
 
         protected override IConstant ComputeConstant(IImmutableContainer context)
         {
-            var value = This(context).Invoke(context);
-            var scope = context.BeginScopeWithThisOuter(value);
+            var value = GetArg(context).Invoke(context);
+            var scope = context.BeginScopeWithArg(value);
 
             foreach (var switchCase in (Cases ?? Enumerable.Empty<SwitchCase>()).Where(c => c.Enabled))
             {

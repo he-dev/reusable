@@ -6,6 +6,6 @@ namespace Reusable.Flexo
 {
     public class Max : Aggregate
     {
-        public Max(ILogger<Max> logger) : base(logger, nameof(Max), Enumerable.Max) { }
+        public Max() : base(default, Enumerable.Max) { }
     }
 }
