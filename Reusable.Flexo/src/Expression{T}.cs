@@ -1,15 +1,16 @@
 ﻿using System;
+using JetBrains.Annotations;
 using Reusable.Data;
 using Reusable.OmniLog.Abstractions;
 
 namespace Reusable.Flexo
 {
-    
+    [PublicAPI]
     public abstract class Expression<TResult> : Expression
     {
         protected Expression(ILogger? logger) : base(logger) { }
 
-        public static IExpression Create(string name, Func<IImmutableContainer, TResult> invokeAsValue) => new Lambda(name, invokeAsValue);
+        public static IExpression Create(string id, Func<IImmutableContainer, TResult> invokeAsValue) => new Lambda(id, invokeAsValue);
 
         protected override IConstant ComputeConstant(IImmutableContainer context) => ComputeConstantGeneric(context);
 

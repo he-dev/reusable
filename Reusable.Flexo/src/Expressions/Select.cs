@@ -23,7 +23,7 @@ namespace Reusable.Flexo
             var query =
                 from item in GetArg(context)
                 let selector = Selector ?? item
-                select selector.Invoke(context, ImmutableContainer.Empty.SetItem(ExpressionContext.Item, item));
+                select selector.Invoke(context.BeginScopeWithArg(item));
 
             return query.ToList();
         }

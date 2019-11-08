@@ -16,7 +16,7 @@ namespace Reusable.Flexo
         {
             if (Body is null) throw new InvalidOperationException($"{nameof(Block)} '{Id.ToString()}' {nameof(Body)} must not be null.");
 
-            return Body.Select(item => item.Invoke(context)).ToList() switch
+            return Body.Select(e => e.Invoke(context)).ToList() switch
             {
                 {} results when results.Any() => results.Last(),
                 _ => throw DynamicException.Create("EmptyBlockBody", $"{nameof(Block)} '{Id.ToString()}' must have at least one element.")

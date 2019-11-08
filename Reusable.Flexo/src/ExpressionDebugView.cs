@@ -52,15 +52,15 @@ namespace Reusable.Flexo
 
         private static string FormatResult(object result)
         {
-            switch (result)
+            return result switch
             {
-                case double d: return d.ToString("F2", CultureInfo.InvariantCulture);
-                case bool b: return b.ToString();
-                case string s: return $"'{s}'";
-                case Type t: return $"'{t.ToPrettyString()}'";
-                case null: return "null";
-                default: return $"'{result.ToString()}'";
-            }
+                double d => d.ToString("F2", CultureInfo.InvariantCulture),
+                bool b => b.ToString(),
+                string s => $"'{s}'",
+                Type t => $"'{t.ToPrettyString()}'",
+                null => "null",
+                _ => $"'{result.ToString()}'"
+            };
         }
 
         public static class Templates

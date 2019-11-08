@@ -8,7 +8,7 @@ namespace Reusable.Flexo
     public class Collection : Expression<IEnumerable<IExpression>>
     {
         [JsonConstructor]
-        public Collection(SoftString name) : base(EmptyLogger.Instance) { }
+        public Collection() : base(default) { }
 
         [JsonRequired]
         public IEnumerable<IExpression> Values { get; set; }

@@ -18,7 +18,7 @@ namespace Reusable.Flexo
             throw new NotSupportedException($"{nameof(ExpressionConverter)} does not support writing.");
         }
 
-        private bool _isArray = false;
+        //private bool _isArray = false;
         private int _index = 0;
 
         public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
@@ -52,13 +52,12 @@ namespace Reusable.Flexo
 
         private static string GetParentName(JContainer jContainer)
         {
-            switch (jContainer)
+            return jContainer switch
             {
-                case JProperty jProperty: return jProperty.Name;
-                case JArray jArray: return GetParentName(jArray.Parent);
-            }
-
-            return "Value";
+                JProperty jProperty => jProperty.Name,
+                JArray jArray => GetParentName(jArray.Parent),
+                _ => "Value"
+            };
         }
     }
 }

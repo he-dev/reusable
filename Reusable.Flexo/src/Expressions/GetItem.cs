@@ -54,18 +54,18 @@ namespace Reusable.Flexo
         }
     }
 
-    public class Item : GetItem<object>
-    {
-        public Item() : base(default, nameof(Item))
-        {
-            Path = ExpressionContext.Item.ToString();
-        }
-
-        protected override Constant<object> ComputeConstantGeneric(IImmutableContainer context)
-        {
-            return (Path, FindItem(context) switch { IConstant c => c.Value, {} x => x, _ => null }, context);
-        }
-    }
+//    public class Item : GetItem<object>
+//    {
+//        public Item() : base(default, nameof(Item))
+//        {
+//            Path = ExpressionContext.Item.ToString();
+//        }
+//
+//        protected override Constant<object> ComputeConstantGeneric(IImmutableContainer context)
+//        {
+//            return (Path, FindItem(context) switch { IConstant c => c.Value, {} x => x, _ => null }, context);
+//        }
+//    }
 
 //    public class Ref : GetItem<IExpression>
 //    {

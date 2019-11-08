@@ -103,7 +103,7 @@ namespace Reusable.Flexo
             typeof(Reusable.Flexo.Where),
             typeof(Reusable.Flexo.Block),
             typeof(Reusable.Flexo.ForEach),
-            typeof(Reusable.Flexo.Item),
+            //typeof(Reusable.Flexo.Item),
         };
         // ReSharper restore RedundantNameQualifier
 
@@ -120,7 +120,7 @@ namespace Reusable.Flexo
         [NotNull]
         protected ILogger Logger { get; }
 
-        public virtual SoftString Id
+        public SoftString Id
         {
             get => _name;
             set => _name = value ?? throw new ArgumentNullException(nameof(Id));
@@ -134,9 +134,7 @@ namespace Reusable.Flexo
 
         [JsonProperty("This")]
         public IExpression? Next { get; set; }
-
-        //public abstract IConstant Invoke(IImmutableContainer context);
-
+        
         public IConstant Invoke(IImmutableContainer context)
         {
             var parentView = context.FindItem(ExpressionContext.DebugView);
@@ -189,7 +187,7 @@ namespace Reusable.Flexo
 
         protected abstract IConstant ComputeConstant(IImmutableContainer context);
 
-        protected class EmptyLogger : ILogger
+        private class EmptyLogger : ILogger
         {
             public static EmptyLogger Instance { get; } = new EmptyLogger();
 
@@ -215,6 +213,11 @@ namespace Reusable.Flexo
         {
             return context.BeginScope(ImmutableContainer.Empty.SetItem(ExpressionContext.Arg, arg));
         }
+        
+//        public static IImmutableContainer BeginScopeWithItem(this IImmutableContainer context, object item)
+//        {
+//            return context.BeginScope(ImmutableContainer.Empty.SetItem(ExpressionContext.Item, item));
+//        }
 
         /// <summary>
         /// Enumerates expression scopes from last to first. 

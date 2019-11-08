@@ -8,9 +8,7 @@ namespace Reusable.Flexo
     [PublicAPI]
     public class Throw : Expression<IExpression>
     {
-        public Throw() : base(EmptyLogger.Instance) { }
-
-        //public string Exception { get; set; }
+        public Throw() : base(default) { }
 
         public IExpression Message { get; set; }
 

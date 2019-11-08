@@ -305,10 +305,7 @@
       "This": {
         "$t": "Flexo.Select",
         "Selector": {
-          "$t": "Flexo.ToString",
-          "Value": {
-            "$f": "Item"
-          }
+          "$t": "Flexo.ToString"
         }
       }
     },
@@ -409,6 +406,26 @@
       }
     },
     "Expected": "bar",
+    "Throws": false
+  },
+  {
+    "Description": "Can loops over all expressions.",
+    "Body": {
+      "$t": "Flexo.Collection",
+      "Values": [
+        1.0,
+        2.0,
+        3.0,
+        4.0
+      ],
+      "This": {
+        "$f": "ForEach",
+        "Body": {
+          "$f": "ToString"
+        }
+      }
+    },
+    "Expected": "4",
     "Throws": false
   }
   // goto 304

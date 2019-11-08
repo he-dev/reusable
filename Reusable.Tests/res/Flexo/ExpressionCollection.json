@@ -233,23 +233,23 @@
       "Value": 1.0
     }
   },
-  {
-    "$t": "Flexo.Collection",
-    "Name": "Collection.Select.ToString",
-    "Values": [
-      1.0,
-      true
-    ],
-    "This": {
-      "$t": "Flexo.Select",
-      "Selector": {
-        "$t": "Flexo.ToString",
-        "Value": {
-          "$f": "Item"
-        }
-      }
-    }
-  },
+//  {
+//    "$t": "Flexo.Collection",
+//    "Name": "Collection.Select.ToString",
+//    "Values": [
+//      1.0,
+//      true
+//    ],
+//    "This": {
+//      "$t": "Flexo.Select",
+//      "Selector": {
+//        "$t": "Flexo.ToString",
+//        "Value": {
+//          "$f": "Item"
+//        }
+//      }
+//    }
+//  },
   {
     "$t": "Flexo.String",
     "Name": "String.In",

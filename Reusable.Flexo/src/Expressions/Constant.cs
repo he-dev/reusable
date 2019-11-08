@@ -25,9 +25,10 @@ namespace Reusable.Flexo
 
     public class Constant<TValue> : Expression<TValue>, IConstant, IConstant<TValue>, IEquatable<Constant<TValue>>
     {
-        public Constant(SoftString name, TValue value, IImmutableContainer? context = default)
-            : base(EmptyLogger.Instance)
+        public Constant(SoftString id, TValue value, IImmutableContainer? context = default)
+            : base(default)
         {
+            Id = id;
             Value = value;
             Context = context ?? ImmutableContainer.Empty;
         }
@@ -38,12 +39,6 @@ namespace Reusable.Flexo
         public TValue Value { get; set; }
 
         public IImmutableContainer Context { get; }
-
-//        public override IConstant Invoke(IImmutableContainer context)
-//        {
-//            // Must return a new constant because predefined ones don't have context.
-//            return Constant.FromValue(Name, Value, context);
-//        }
 
         protected override Constant<TValue> ComputeConstantGeneric(IImmutableContainer context)
         {
@@ -59,9 +54,9 @@ namespace Reusable.Flexo
 
         public override string ToString() => $"{Id.ToString()}: '{Value}'";
 
-        public static implicit operator Constant<TValue>((SoftString Name, TValue Value) t) => new Constant<TValue>(t.Name, t.Value);
+        public static implicit operator Constant<TValue>((SoftString Id, TValue Value) t) => new Constant<TValue>(t.Id, t.Value);
 
-        public static implicit operator Constant<TValue>((SoftString Name, TValue Value, IImmutableContainer Context) t) => new Constant<TValue>(t.Name, t.Value, t.Context);
+        public static implicit operator Constant<TValue>((SoftString Id, TValue Value, IImmutableContainer Context) t) => new Constant<TValue>(t.Id, t.Value, t.Context);
 
         public static implicit operator TValue(Constant<TValue> constant) => constant.Value;
 
@@ -71,12 +66,12 @@ namespace Reusable.Flexo
 
         public override bool Equals(object obj)
         {
-            switch (obj)
+            return obj switch
             {
-                case Constant<TValue> constant: return Equals(constant);
-                case IConstant constant: return Equals(constant);
-                default: return false;
-            }
+                Constant<TValue> constant => Equals(constant),
+                IConstant constant => Equals(constant),
+                _ => false
+            };
         }
 
         public bool Equals(Constant<TValue> other) => AutoEquality<Constant<TValue>>.Comparer.Equals(this, other);
@@ -84,22 +79,6 @@ namespace Reusable.Flexo
         public bool Equals(IConstant other) => AutoEquality<IConstant>.Comparer.Equals(this, other);
 
         #endregion
-    }
-
-    public class EnumerableConstant<T> : Constant<IEnumerable<IExpression>>
-    {
-        public EnumerableConstant
-        (
-            SoftString name,
-            IEnumerable<T> values
-        )
-            : base
-            (
-                name,
-                values
-                    .Select((x, i) => Constant.FromValue($"{name.ToString()}.Items[{i}]"))
-                    .ToList()
-            ) { }
     }
 
     /// <summary>
@@ -130,7 +109,7 @@ namespace Reusable.Flexo
         [NotNull, ItemNotNull]
         internal static IEnumerable<IExpression> CreateMany<TValue>(params TValue[] values)
         {
-            return values.Select(value => FromValue(value));
+            return values.Select((x, i) => FromValue($"{x.ToString()}[{i}]"));
         }
 
         public static Constant<IEnumerable<IExpression>> FromEnumerable(SoftString name, IEnumerable<object> values, IImmutableContainer? context = default)
@@ -140,9 +119,11 @@ namespace Reusable.Flexo
 
         #region Predefined
 
-        //[NotNull] public static readonly IExpression Zero = new Zero(nameof(Zero));
+        [NotNull] 
+        public static readonly IExpression Zero = FromValue(nameof(Zero), 0.0);
 
-        //[NotNull] public static readonly IExpression One = new One(nameof(One));
+        [NotNull]
+        public static readonly IExpression One = FromValue(nameof(One), 1.0);
 
         [NotNull]
         public static readonly IExpression True = FromValue(nameof(True), true);

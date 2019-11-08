@@ -27,7 +27,7 @@ namespace Reusable.Flexo.Helpers
 
             if (throws)
             {
-                var ex = Assert.Throws<ExpressionException>(() => expression.Invoke(context));
+                var ex = Assert.ThrowsAny<Exception>(() => expression.Invoke(context));
                 return new Constant<Exception>("Exception", ex, context);
             }
             else
@@ -74,7 +74,7 @@ namespace Reusable.Flexo.Helpers
 
             if (useCase.Throws)
             {
-                var ex = Assert.Throws<ExpressionException>(() => useCase.Body.Invoke(context));
+                var ex = Assert.ThrowsAny<Exception>(() => useCase.Body.Invoke(context));
                 return Constant.FromValue(nameof(Exception), ex, context);
             }
             else

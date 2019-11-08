@@ -31,5 +31,7 @@
     <Compile Remove="src\EnumerableExtensions.cs" />
     <Compile Remove="src\Expressions\Update.cs" />
     <Compile Remove="src\ExpressionInvoker.cs" />
+    <Compile Remove="src\ExpressionScope.cs" />
+    <Compile Remove="src\ExpressionScopeExtensions.cs" />
   </ItemGroup>
 </Project>

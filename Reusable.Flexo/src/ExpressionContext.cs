@@ -29,7 +29,7 @@ namespace Reusable.Flexo
         /// <summary>
         /// Gets or sets collection item.
         /// </summary>
-        public static readonly Selector<object> Item = Select(() => Item);
+        //public static readonly Selector<object> Item = Select(() => Item);
 
         public static readonly Selector<IImmutableContainer> Parent = Select(() => Parent);
         
