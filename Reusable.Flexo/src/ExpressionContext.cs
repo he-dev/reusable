@@ -47,7 +47,7 @@ namespace Reusable.Flexo
         public static readonly Selector<CancellationToken> CancellationToken = This.Select(() => CancellationToken);
         
         
-        public static string ToDebugViewString(this IImmutableContainer context, RenderTreeNodeValueDelegate<IExpression, NodePlainView> template)
+        public static string ToInvokeLogString(this IImmutableContainer context, RenderTreeNodeValueDelegate<IExpression, NodePlainView> template)
         {
             return
                 context.TryFindItem<Node<IExpression>>(InvokeLog.ToString(), out var debugView)

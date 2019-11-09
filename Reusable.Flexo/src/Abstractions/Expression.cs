@@ -46,7 +46,7 @@ namespace Reusable.Flexo.Abstractions
         /// <summary>
         /// Indicates whether the extension is used as such or overrides it with its native value.
         /// </summary>
-        bool IsInExtensionMode { get; }
+        bool ArgMustMatch { get; }
 
         /// <summary>
         /// Gets the type the extension extends.
@@ -149,32 +149,38 @@ namespace Reusable.Flexo.Abstractions
             var thisContext = context.SetInvokeLog(thisLog);
             var thisResult = ComputeConstant(thisContext);
 
-            switch (Next)
+            if (Next is null)
             {
-                case null: return thisResult;
-                case IExtension extension when extension.IsInExtensionMode:
-                {
-                    // Check whether result and extension match; do it only for extension expressions.
-                    var thisType =
-                        thisResult.Value is IEnumerable<IExpression> collection
-                            ? collection.GetType()
-                            : thisResult.GetType();
-
-                    if (!extension.ExtendsType.IsAssignableFrom(thisType))
-                    {
-                        throw DynamicException.Create
-                        (
-                            $"PipeTypeMismatch",
-                            $"Extension '{extension.GetType().ToPrettyString()}<{extension.ExtendsType.ToPrettyString()}>' does not match the expression it is extending: '{thisResult.Value.GetType().ToPrettyString()}'."
-                        );
-                    }
-
-                    break;
-                }
+                return thisResult;
             }
+            else
+            {
+                if (Next is IExtension extension && extension.ArgMustMatch)
+                {
+                    ValidateArgMatches(thisResult, extension);
+                }
+                
+                var result = Next.Invoke(thisContext.BeginScopeWithArg(thisResult));
+                return (IConstant)thisLog.Add(result).Child.Value;
+            }
+        }
 
-            var result = Next?.Invoke(thisContext.BeginScopeWithArg(thisResult)) ?? thisResult;
-            return (IConstant)thisLog.Add(result).Child.Value;
+        // Check whether result and extension match; do it only for extension expressions.
+        private static void ValidateArgMatches(IConstant arg, IExtension extension)
+        {
+            var thisType =
+                arg.Value is IEnumerable<IExpression> collection
+                    ? collection.GetType()
+                    : arg.GetType();
+
+            if (!extension.ExtendsType.IsAssignableFrom(thisType))
+            {
+                throw DynamicException.Create
+                (
+                    $"PipeTypeMismatch",
+                    $"Extension '{extension.GetType().ToPrettyString()}<{extension.ExtendsType.ToPrettyString()}>' does not match the expression it is extending: '{arg.Value.GetType().ToPrettyString()}'."
+                );
+            }
         }
 
         private Node<IExpression> CreateInvokeLog() => Node.Create<IExpression>(this);

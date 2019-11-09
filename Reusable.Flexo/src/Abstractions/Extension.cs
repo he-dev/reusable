@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Reusable.Data;
+using Reusable.Extensions;
 using Reusable.OmniLog.Abstractions;
 
 namespace Reusable.Flexo.Abstractions
@@ -17,7 +18,7 @@ namespace Reusable.Flexo.Abstractions
 
         #region IExtension
 
-        bool IExtension.IsInExtensionMode => Arg is null;
+        bool IExtension.ArgMustMatch => Arg is null;
 
         Type IExtension.ExtendsType => typeof(TExtension);
 
