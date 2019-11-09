@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Immutable;
 using System.Linq;
 using System.Linq.Custom;
 using System.Reflection;
@@ -18,6 +19,12 @@ namespace Reusable.Flexo
     [PublicAPI]
     public abstract class GetItem<T> : Expression<T>
     {
+        private static readonly IImmutableDictionary<SoftString, string> KeyMap =
+            ImmutableDictionary<SoftString, string>
+                .Empty
+                .Add("arg", ExpressionContext.Arg.ToString())
+                .Add("this", ExpressionContext.Arg.ToString());
+
         protected GetItem(ILogger? logger, string name) : base(logger) { }
 
         public string Path { get; set; }
@@ -27,8 +34,13 @@ namespace Reusable.Flexo
 
         protected object FindItem(IImmutableContainer context, Func<string, string> configurePath = default)
         {
-            var names = Path.Split('.');
-            var itemKey = names.First();
+            var names = Path.Split(new[] { '.' }, StringSplitOptions.RemoveEmptyEntries) switch
+            {
+                {} x when x.Any() => x,
+                _ => throw new InvalidOperationException($"{Id}'s {nameof(Path)} must contain at least one name.")
+            };
+            var itemKey = MapItemKey(names.First());
+
             return
                 context.TryFindItem<object>(itemKey, out var item)
                     ? names.Skip(1).Aggregate(item, GetMemberValue)
@@ -51,6 +63,16 @@ namespace Reusable.Flexo
                 PropertyInfo property => property.GetValue(obj),
                 FieldInfo field => field.GetValue(obj),
                 _ => throw DynamicException.Create("MemberNotFound", $"Could not find member '{obj.GetType().ToPrettyString()}.{memberName}'.")
+            };
+        }
+
+        private static string MapItemKey(string name)
+        {
+            return name switch
+            {
+                {} key when key.In(new[] { "arg", "this", "item", "x" }, SoftString.Comparer) => ExpressionContext.Arg.ToString(),
+                {} key => key,
+                _ => throw new ArgumentNullException(nameof(name))
             };
         }
     }

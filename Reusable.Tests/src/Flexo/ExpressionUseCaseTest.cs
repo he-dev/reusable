@@ -39,7 +39,8 @@ namespace Reusable.Flexo
             var scope =
                 ImmutableContainer
                     .Empty
-                    .SetPackages(packages);
+                    .SetPackages(packages)
+                    .SetItem("Product", new Product());
             //.SetItem(From<ITestMeta>.Select(x => x.Sth), sth),
 
             var useCases = helper.ReadExpressionFile<List<ExpressionUseCase>>("ExpressionUseCases.json");
@@ -50,6 +51,23 @@ namespace Reusable.Flexo
                 useCase.Scope = scope;
                 yield return new { useCase };
             }
+        }
+
+        private class Product
+        {
+            public long Price { get; set; } = 3;
+            
+            public List<Category> Categories { get; set; } = new List<Category>
+            {
+                new Category { Color = "Green" },
+                new Category { Color = "Red" },
+                new Category { Color = "Orange" },
+            };
+        }
+
+        private class Category
+        {
+            public string Color { get; set; }
         }
     }
 

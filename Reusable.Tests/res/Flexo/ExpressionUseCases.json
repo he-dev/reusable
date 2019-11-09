@@ -516,20 +516,51 @@
     "Description": "GetSingle gets value by path.",
     "Body": {
       "$t": "Flexo.GetSingle",
-      "Values": [
-        1.0,
-        2.0,
-        3.0,
-        4.0
-      ],
+      "Path": "Product.Price"
+    },
+    "Expected": 3,
+    "Throws": false
+  },
+  {
+    "Description": "GetMany gets value by path.",
+    "Body": {
+      "$t": "Flexo.GetMany",
+      "Path": "Product.Categories",
       "This": {
-        "$f": "ForEach",
-        "Body": {
-          "$f": "ToString"
+        "$f": "Select",
+        "Selector": {
+          "$f": "GetSingle",
+          "Path": "arg.Color"
         }
       }
     },
-    "Expected": "4",
+    "Expected": [
+      "Green",
+      "Red",
+      "Orange"
+    ],
+    "Throws": false
+  },
+  {
+    "Description": "Block returns the last result.",
+    "Body": {
+      "$f": "Block",
+      "Body": [
+        {
+          "$f": "Double",
+          "Value": 1
+        },
+        {
+          "$f": "Double",
+          "Value": 3
+        },
+        {
+          "$f": "Double",
+          "Value": 2
+        }
+      ]
+    },
+    "Expected": 2.0,
     "Throws": false
   }
   // goto 304
