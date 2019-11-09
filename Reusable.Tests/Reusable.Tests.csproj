@@ -13,6 +13,7 @@
         <LangVersion>latest</LangVersion>
     </PropertyGroup>
     <ItemGroup>
+        <EmbeddedResource Include="res\Flexo\ExpressionCollection.json" />
         <EmbeddedResource Include="res\Flexo\ExpressionUseCases.json" />
         <EmbeddedResource Include="res\Flexo\Packages.IsPositive.json" />
         <EmbeddedResource Include="res\Utilities\JsonNet\PrettyType0.json" />
@@ -20,7 +21,6 @@
         <EmbeddedResource Include="res\Utilities\JsonNet\PrettyType2.json" />
         <EmbeddedResource Include="sql\IOnymous\Config\seed-test-data.sql" />
         <None Remove="res\IOnymous\test.txt" />
-        <EmbeddedResource Include="res\Flexo\ExpressionCollection.json" />
         <EmbeddedResource Include="res\Flexo\ExpressionObject.json" />
         <EmbeddedResource Include="res\IOnymous\Http\Mailr\HtmlTable.json" />
         <EmbeddedResource Include="res\IOnymous\test.txt" />
@@ -88,6 +88,7 @@
         <Compile Remove="src\Translucent\ResourceProviderTest.cs" />
         <Compile Remove="src\Translucent\SmtpProviderTest.cs" />
         <Compile Remove="src\Flexo\ExpressionTest.cs" />
+        <Compile Remove="src\Flexo\ExpressionSerializerTest.cs" />
     </ItemGroup>
     
 </Project>

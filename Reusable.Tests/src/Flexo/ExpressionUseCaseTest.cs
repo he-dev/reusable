@@ -21,6 +21,15 @@ namespace Reusable.Flexo
             _output = output;
         }
 
+        [Fact]
+        public void Can_deserialize_values_into_constants()
+        {
+            using var helper = new ExpressionFixture();
+            var useCases = helper.ReadExpressionFile<List<ExpressionUseCase>>("ExpressionCollection.json");
+            ExpressionAssert.ExpressionEqual(useCases[0], _output);
+            ExpressionAssert.ExpressionEqual(useCases[1], _output);
+        }
+        
         [Theory]
         [SmartMemberData(nameof(GetExpressionUseCases))]
         public void Evaluate(ExpressionUseCase useCase)

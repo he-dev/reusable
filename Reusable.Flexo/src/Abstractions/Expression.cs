@@ -138,31 +138,26 @@ namespace Reusable.Flexo.Abstractions
 
         public IConstant Invoke(IImmutableContainer context)
         {
+            // Disabled because otherwise items are missing from the log.
             // Don't invoke constant again if it already has context it must have been invoked.
-            if (this is IConstant constant && constant.HasContext() && Next is null)
-            {
-                return constant;
-            }
+            //if (this is IConstant constant && constant.HasContext() && Next is null)
+            //{
+            //    //return constant;
+            //}
 
             var parentLog = context.GetInvokeLog();
-            var thisLog = parentLog.Add(CreateInvokeLog());
+            var thisLog = this is IConstant ? parentLog : parentLog.Add(CreateInvokeLog());
             var thisContext = context.SetInvokeLog(thisLog);
             var thisResult = ComputeConstant(thisContext);
 
-            if (Next is null)
+            thisLog.Add(thisResult);
+            
+            if (Next is IExtension extension && extension.ArgMustMatch)
             {
-                return thisResult;
+                ValidateArgMatches(thisResult, extension);
             }
-            else
-            {
-                if (Next is IExtension extension && extension.ArgMustMatch)
-                {
-                    ValidateArgMatches(thisResult, extension);
-                }
-                
-                var result = Next.Invoke(thisContext.BeginScopeWithArg(thisResult));
-                return (IConstant)thisLog.Add(result).Child.Value;
-            }
+
+            return Next?.Invoke(thisContext.BeginScopeWithArg(thisResult)) ?? thisResult;
         }
 
         // Check whether result and extension match; do it only for extension expressions.

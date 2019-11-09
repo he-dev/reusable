@@ -26,17 +26,17 @@ namespace Reusable.Flexo
                     {
                         Text = expression switch
                         {
-                            // Id: 'Value' (const -> value)
-                            IConstant c => $"{c.Id}: '{FormatValue(c.Value)}' ({c.GetType().GetGenericArguments().FirstOrDefault()?.ToPrettyString()} -> {c.Value?.GetType().ToPrettyString()})",
-                            {} e => $"{e.Id} ({e.GetType().ToPrettyString()})",
-                            _ => throw new Exception()
+                            // Id: 'Value' (valueType) [tag1 tag2]
+                            IConstant c => $"{c.Id}: '{FormatValue(c.Value)}' ({c.Value?.GetType().ToPrettyString()}){FormatTags(c)}",
+                            {} e => $"{e.Id} ({e.GetType().ToPrettyString()}){FormatTags(e)}",
+                            _ => "null"
                         },
                         Depth = depth
                     };
                 }
             }
         }
-        
+
         private static string FormatValue(object result)
         {
             return result switch
@@ -51,10 +51,11 @@ namespace Reusable.Flexo
 
         private static string FormatTags(IExpression expression)
         {
-            return
-                expression.Tags.Any()
-                    ? $" {expression.Tags.Join(" ")}"
-                    : string.Empty;
+            return expression.Tags switch
+            {
+                {} tags => $" {tags.Join(" ")}",
+                _ => string.Empty
+            };
         }
     }
 }

@@ -2,6 +2,7 @@ using System;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Reusable.Exceptionize;
+using Reusable.Extensions;
 using Reusable.Flexo.Abstractions;
 
 namespace Reusable.Flexo.Json
@@ -35,8 +36,7 @@ namespace Reusable.Flexo.Json
                 }
 
                 var actualType = Type.GetType(typeName);
-                var result = jToken.ToObject(actualType, serializer);
-                return (IExpression)result;
+                return jToken.ToObject(actualType, serializer);
             }
             else
             {
@@ -46,7 +46,7 @@ namespace Reusable.Flexo.Json
                         ? $"Item[{_index++}]"
                         : GetParentName(jTokenReader.CurrentToken.Parent);
 
-                return Constant.FromValue(name, reader.Value);
+                return CreateConstant(name, reader.Value);
             }
         }
 
@@ -54,10 +54,23 @@ namespace Reusable.Flexo.Json
         {
             return jContainer switch
             {
-                JProperty jProperty => jProperty.Name,
-                JArray jArray => GetParentName(jArray.Parent),
+                JProperty p => p.Name,
+                JArray a => GetParentName(a.Parent),
                 _ => "Value"
             };
+        }
+
+        private static IConstant CreateConstant(string name, object value)
+        {
+            return value switch
+            {
+                double d => (IConstant)new Double(name, d),
+                bool b => (IConstant)Constant.FromValue(name, b),
+                {} x => (IConstant)Activator.CreateInstance(MakeGenericConstant(x), name.ToSoftString(), x, default),
+                _ => throw new InvalidOperationException($"{name} must not be null.")
+            };
+
+            Type MakeGenericConstant(object x) => typeof(Constant<>).MakeGenericType(x.GetType());
         }
     }
 }

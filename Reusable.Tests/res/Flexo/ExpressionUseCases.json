@@ -111,8 +111,7 @@
         2.0
       ],
       "This": {
-        "$t": "Flexo.Sum",
-        "Name": "Sum"
+        "$t": "Flexo.Sum"
       }
     },
     "Expected": 6.0,

@@ -6,6 +6,6 @@ namespace Reusable.Flexo
 {
     public class Min : Aggregate
     {
-        public Min(ILogger<Min> logger) : base(logger, Enumerable.Min) { }
+        public Min() : base(default, Enumerable.Min) { }
     }
 }

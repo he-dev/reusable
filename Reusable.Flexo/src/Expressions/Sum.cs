@@ -6,6 +6,6 @@ namespace Reusable.Flexo
 {
     public class Sum : Aggregate
     {
-        public Sum(ILogger<Sum> logger) : base(logger, Enumerable.Sum) { }
+        public Sum() : base(default, Enumerable.Sum) { }
     }
 }

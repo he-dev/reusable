@@ -12,8 +12,7 @@ namespace Reusable.Flexo.Abstractions
     {
         private readonly Func<IEnumerable<double>, double> _aggregate;
 
-        protected Aggregate(ILogger logger, Func<IEnumerable<double>, double> aggregate)
-            : base(logger) => _aggregate = aggregate;
+        protected Aggregate(ILogger? logger, Func<IEnumerable<double>, double> aggregate) : base(logger) => _aggregate = aggregate;
 
         public IEnumerable<IExpression> Values
         {
