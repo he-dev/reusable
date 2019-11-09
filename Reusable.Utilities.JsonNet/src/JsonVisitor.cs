@@ -122,15 +122,10 @@ namespace Reusable.Utilities.JsonNet
     [PublicAPI]
     public class RewriteTypeVisitor : JsonVisitor
     {
-        [CanBeNull]
-        private readonly string _typePropertyName;
-
         [NotNull]
         private readonly ITypeResolver _typeResolver;
 
         public const string DefaultTypePropertyName = "$type";
-
-        //public const string TypePropertyShortName = "$t";
 
         public RewriteTypeVisitor([NotNull] ITypeResolver typeResolver)
         {
@@ -139,32 +134,37 @@ namespace Reusable.Utilities.JsonNet
 
         protected override JProperty VisitProperty(JProperty property)
         {
-            if (_typePropertyName is null)
+            if (TryParseTypeName(property, out var typeName))
             {
-                var ns = Regex.Match(property.Name.Trim(), @"^\$(?<ns>[a-z0-9_-]+)", RegexOptions.IgnoreCase);
-                if (ns.Success)
-                {
-                    var shortName = property.Value.Value<string>();
-                    var containsNamespace = shortName.Contains('.');
-                    if (!containsNamespace)
-                    {
-                        shortName = $"{ns.Groups["ns"].Value}.{shortName}";
-                    }
-
-                    return new JProperty(DefaultTypePropertyName, _typeResolver.Resolve(shortName));
-                }
-                else
-                {
-                    return base.VisitProperty(property);
-                }
+                return new JProperty(DefaultTypePropertyName, _typeResolver.Resolve(typeName));
             }
             else
             {
-                return
-                    SoftString.Comparer.Equals(property.Name, _typePropertyName)
-                        ? new JProperty(DefaultTypePropertyName, _typeResolver.Resolve(property.Value.Value<string>()))
-                        : base.VisitProperty(property);
+                return base.VisitProperty(property);
             }
+        }
+
+        private bool TryParseTypeName(JProperty property, out string typeName)
+        {
+            var typeMatch = Regex.Match(property.Name.Trim(), @"^\$(?<Namespace>[a-z0-9_-]+)", RegexOptions.IgnoreCase);
+            if (typeMatch.Success)
+            {
+                typeName = FormatTypeName(typeMatch.Groups["Namespace"].Value, property.Value.Value<string>());
+                return true;
+            }
+            else
+            {
+                typeName = default;
+                return false;
+            }
+        }
+
+        private string FormatTypeName(string @namespace, string typeName)
+        {
+            return
+                typeName.Contains('.')
+                    ? typeName
+                    : $"{@namespace}.{typeName}";
         }
     }
 

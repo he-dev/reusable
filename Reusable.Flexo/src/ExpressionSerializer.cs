@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
+using Reusable.Flexo.Json;
 using Reusable.Utilities.JsonNet;
 using Reusable.Utilities.JsonNet.Converters;
 

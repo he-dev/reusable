@@ -20,7 +20,7 @@ namespace Reusable.Flexo
         public List<IExpression> Of { get; set; }
 
         
-        [JsonProperty(Filter.Properties.Predicate)]
+        [JsonProperty(Filter.Properties.Comparer)]
         public IExpression Matcher { get; set; }
 
         protected override bool ComputeValue(IImmutableContainer context)

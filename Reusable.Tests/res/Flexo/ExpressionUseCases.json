@@ -1,26 +1,26 @@
 [
   {
-    "Description": "Can create a collection of double from mixed values.",
+    "Description": "Collection accepts non-expression values.",
     "Body": {
       "$t": "Flexo.Collection",
       "Values": [
-        1.0,
+        2.0,
         {
           "$t": "Flexo.Double",
-          "Value": 2.0
+          "Value": 3.0
         },
-        3.0
+        1.0
       ]
     },
     "Expected": [
-      1,
       2,
-      3
+      3,
+      1
     ],
     "Throws": false
   },
   {
-    "Description": "Any can find true by default.",
+    "Description": "Any returns True when at least one value is True.",
     "Body": {
       "$t": "Flexo.Any",
       "Name": "Any",
@@ -34,7 +34,7 @@
     "Throws": false
   },
   {
-    "Description": "Any doesn't find true when all false.",
+    "Description": "Any returns False when all values are False.",
     "Body": {
       "$t": "Flexo.Any",
       "Name": "Any",
@@ -48,7 +48,7 @@
     "Throws": false
   },
   {
-    "Description": "Any can find false with a custom predicate.",
+    "Description": "Any returns False when at least one value is False and a custom predicate False is used.",
     "Body": {
       "$t": "Flexo.Any",
       "Name": "Any",
@@ -63,7 +63,7 @@
     "Throws": false
   },
   {
-    "Description": "All returns true when all true.",
+    "Description": "All returns True when all values are True.",
     "Body": {
       "$t": "Flexo.All",
       "Values": [
@@ -75,7 +75,7 @@
     "Throws": false
   },
   {
-    "Description": "All returns false when not all true.",
+    "Description": "All returns False when at least one value is False.",
     "Body": {
       "$t": "Flexo.All",
       "Values": [
@@ -88,7 +88,7 @@
     "Throws": false
   },
   {
-    "Description": "All returns true when all false with a custom predicate.",
+    "Description": "All returns True when all values are False and a custom predicate False is used.",
     "Body": {
       "$t": "Flexo.All",
       "Values": [
@@ -102,7 +102,7 @@
     "Throws": false
   },
   {
-    "Description": "Can calculate sum",
+    "Description": "Sum adds all values.",
     "Body": {
       "$t": "Flexo.Collection",
       "Values": [
@@ -119,7 +119,7 @@
     "Throws": false
   },
   {
-    "Description": "Can convert true to 1.",
+    "Description": "ToDouble converts True to 1.",
     "Body": {
       "$t": "Flexo.True",
       "This": {
@@ -130,7 +130,7 @@
     "Throws": false
   },
   {
-    "Description": "Can negate false.",
+    "Description": "Not negates False to True.",
     "Body": {
       "$t": "Flexo.False",
       "This": {
@@ -141,7 +141,7 @@
     "Throws": false
   },
   {
-    "Description": "Doesn't do anything when value already a double.",
+    "Description": "ToDouble doesn't do anything when value is already a double.",
     "Body": {
       "$t": "Flexo.Double",
       "Value": 2.0,
@@ -153,7 +153,7 @@
     "Throws": false
   },
   {
-    "Description": "Can find max.",
+    "Description": "Max returns the max value.",
     "Body": {
       "$t": "Flexo.Collection",
       "Values": [
@@ -169,7 +169,7 @@
     "Throws": false
   },
   {
-    "Description": "Can find min.",
+    "Description": "Min return the min value.",
     "Body": {
       "$t": "Flexo.Collection",
       "Values": [
@@ -185,7 +185,7 @@
     "Throws": false
   },
   {
-    "Description": "Can check if collection contains an element.",
+    "Description": "Contains returns True if at least one element matches the predicate.",
     "Body": {
       "$t": "Flexo.Collection",
       "Values": [
@@ -206,7 +206,7 @@
     "Throws": false
   },
   {
-    "Description": "Can check if collection contains elements by regex.",
+    "Description": "Matches returns true if at least one element matches the pattern.",
     "Body": {
       "$t": "Flexo.Collection",
       "Values": [
@@ -245,7 +245,7 @@
   //    "Throws": false
   //  },
   {
-    "Description": "Can use All as an extension.",
+    "Description": "All can be used as an extension.",
     "Body": {
       "$t": "Flexo.Collection",
       "Values": [
@@ -261,7 +261,7 @@
     "Throws": false
   },
   {
-    "Description": "Can check whether two collections overlap with a custom comparer.",
+    "Description": "Overlaps returns True when it overlaps with Arg.",
     "Body": {
       "$t": "Flexo.Collection",
       "Values": [
@@ -282,7 +282,91 @@
     "Throws": false
   },
   {
-    "Description": "Can check whether two numbers are equal.",
+    "Description": "IsSubset returns True when Arg is subset of values.",
+    "Body": {
+      "$t": "Flexo.Collection",
+      "Values": [
+        "bar",
+        "baz"
+      ],
+      "This": {
+        "$t": "Flexo.IsSubset",
+        "Of": [
+          "foo",
+          "bar",
+          "baz"
+        ],
+        "Comparer": "SoftString"
+      }
+    },
+    "Expected": true,
+    "Throws": false
+  },
+  {
+    "Description": "IsSubset returns False when Arg is not subset of values.",
+    "Body": {
+      "$t": "Flexo.Collection",
+      "Values": [
+        "bar",
+        "qux"
+      ],
+      "This": {
+        "$t": "Flexo.IsSubset",
+        "Of": [
+          "foo",
+          "bar",
+          "baz"
+        ],
+        "Comparer": "SoftString"
+      }
+    },
+    "Expected": false,
+    "Throws": false
+  },
+  {
+    "Description": "IsSuperset returns True when Arg is superset of values.",
+    "Body": {
+      "$t": "Flexo.Collection",
+      "Values": [
+        "foo",
+        "bar",
+        "baz"
+      ],
+      "This": {
+        "$t": "Flexo.IsSuperset",
+        "Of": [
+          "bar",
+          "baz"
+        ],
+        "Comparer": "SoftString"
+      }
+    },
+    "Expected": true,
+    "Throws": false
+  },
+  {
+    "Description": "IsSuperset returns False when Arg is not superset of values.",
+    "Body": {
+      "$t": "Flexo.Collection",
+      "Values": [
+        "foo",
+        "bar",
+        "baz"
+      ],
+      "This": {
+        "$t": "Flexo.IsSuperset",
+        "Of": [
+          "bar",
+          "qux"
+        ],
+        "Comparer": "SoftString"
+      }
+    },
+    "Expected": false,
+    "Throws": false
+  },
+  {
+    "Description": "IsEqual returns True when the value is equal Arg.",
     "Body": {
       "$t": "Flexo.Double",
       "Value": 2.0,
@@ -295,7 +379,7 @@
     "Throws": false
   },
   {
-    "Description": "Can convert collection items to string.",
+    "Description": "ToString converts Arg to string.",
     "Body": {
       "$t": "Flexo.Collection",
       "Values": [
@@ -316,7 +400,7 @@
     "Throws": false
   },
   {
-    "Description": "Uses default comparer to check whether a value is in a collection.",
+    "Description": "In returns True when it contains Arg.",
     "Body": {
       "$t": "Flexo.String",
       "Value": "foo",
@@ -333,7 +417,7 @@
     "Throws": false
   },
   {
-    "Description": "Can import package and check whether a number is positive.",
+    "Description": "Import invokes the imported package which returns True.",
     "Body": {
       "$t": "Flexo.Double",
       "Value": 2.0,
@@ -346,7 +430,7 @@
     "Throws": false
   },
   {
-    "Description": "Can import package and check whether a number is negative.",
+    "Description": "Import invokes the imported package which returns False.",
     "Body": {
       "$t": "Flexo.Double",
       "Value": -1.0,
@@ -359,7 +443,7 @@
     "Throws": false
   },
   {
-    "Description": "Can filter a collection.",
+    "Description": "Where filters a collection.",
     "Body": {
       "$t": "Flexo.Collection",
       "Values": [
@@ -383,7 +467,7 @@
     "Throws": false
   },
   {
-    "Description": "IIf selects True when value True.",
+    "Description": "IIf selects True when Arg is True.",
     "Body": {
       "$t": "Flexo.True",
       "This": {
@@ -396,7 +480,7 @@
     "Throws": false
   },
   {
-    "Description": "IIf selects False when value False.",
+    "Description": "IIf selects False when Arg is False.",
     "Body": {
       "$t": "Flexo.False",
       "This": {
@@ -409,9 +493,29 @@
     "Throws": false
   },
   {
-    "Description": "Can loops over all expressions.",
+    "Description": "ForEach invokes Body with each Arg and return the last result.",
     "Body": {
       "$t": "Flexo.Collection",
+      "Values": [
+        1.0,
+        2.0,
+        3.0,
+        4.0
+      ],
+      "This": {
+        "$f": "ForEach",
+        "Body": {
+          "$f": "ToString"
+        }
+      }
+    },
+    "Expected": "4",
+    "Throws": false
+  },
+  {
+    "Description": "GetSingle gets value by path.",
+    "Body": {
+      "$t": "Flexo.GetSingle",
       "Values": [
         1.0,
         2.0,

@@ -4,14 +4,14 @@ using Newtonsoft.Json.Linq;
 using Reusable.Exceptionize;
 using Reusable.Flexo.Abstractions;
 
-namespace Reusable.Flexo
+namespace Reusable.Flexo.Json
 {
     // Converts a value into Constant when it's not an Expression.
     public class ExpressionConverter : JsonConverter
     {
         public override bool CanConvert(Type objectType)
         {
-            return objectType.IsInterface && objectType == typeof(IExpression);
+            return objectType.IsInterface && typeof(IExpression).IsAssignableFrom(objectType);
         }
 
         public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
@@ -19,7 +19,6 @@ namespace Reusable.Flexo
             throw new NotSupportedException($"{nameof(ExpressionConverter)} does not support writing.");
         }
 
-        //private bool _isArray = false;
         private int _index = 0;
 
         public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
