@@ -4,6 +4,7 @@ using System.Linq;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 using Reusable.Data;
+using Reusable.Flexo.Abstractions;
 
 namespace Reusable.Flexo
 {

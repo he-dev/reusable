@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using Newtonsoft.Json;
 using Reusable.Data;
+using Reusable.Flexo.Abstractions;
 
 namespace Reusable.Flexo
 {
@@ -29,7 +30,7 @@ namespace Reusable.Flexo
             {
                 IConstant c => c.Value switch
                 {
-                    string s => context.GetEqualityComparerOrDefault(s),
+                    string s => context.FindEqualityComparer(s),
                     _ => throw new ArgumentException(paramName: nameof(filter), message: $"'{filter.Id.ToString()}' filter's '{nameof(IFilter.Matcher)}' must be a comparer-id.")
                 },
                 _ => throw new ArgumentException(paramName: nameof(filter), message: $"'{filter.Id.ToString()}' filter must specify a '{nameof(IFilter.Matcher)}' as a comparer-id.")
@@ -40,7 +41,7 @@ namespace Reusable.Flexo
         {
             return filter.Matcher switch
             {
-                IConstant c => context.GetEqualityComparerOrDefault().Equals(x.Value, c.Value),
+                IConstant c => context.FindEqualityComparer().Equals(x.Value, c.Value),
                 {} p => p.Invoke(context.BeginScopeWithArg(x)).Value<bool>(),
                 _ => throw new ArgumentException(paramName: nameof(filter), message: $"'{filter.Id.ToString()}' filter must specify a '{nameof(IFilter.Matcher)}' as a predicate.")
             };

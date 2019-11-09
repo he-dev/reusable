@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Linq;
 using JetBrains.Annotations;
 using Newtonsoft.Json;
 using Reusable.Data;
@@ -11,7 +10,7 @@ using Reusable.OmniLog.Abstractions;
 using Reusable.OmniLog.Abstractions.Data;
 using Reusable.Utilities.JsonNet.Annotations;
 
-namespace Reusable.Flexo
+namespace Reusable.Flexo.Abstractions
 {
     public interface ISwitchable
     {
@@ -97,6 +96,8 @@ namespace Reusable.Flexo
             typeof(Reusable.Flexo.String),
             typeof(Reusable.Flexo.True),
             typeof(Reusable.Flexo.False),
+            typeof(Reusable.Flexo.DateTime),
+            typeof(Reusable.Flexo.TimeSpan),
             typeof(Reusable.Flexo.Collection),
             typeof(Reusable.Flexo.Select),
             typeof(Reusable.Flexo.Throw),
@@ -199,57 +200,6 @@ namespace Reusable.Flexo
             }
 
             public void Log(LogEntry logEntry) { }
-        }
-    }
-
-    public static class ImmutableContainerExtensions
-    {
-        public static IImmutableContainer BeginScope(this IImmutableContainer context, IImmutableContainer? scope = default)
-        {
-            return (scope ?? ImmutableContainer.Empty).SetItem(ExpressionContext.Parent, context);
-        }
-
-        public static IImmutableContainer BeginScopeWithArg(this IImmutableContainer context, object arg)
-        {
-            return context.BeginScope(ImmutableContainer.Empty.SetItem(ExpressionContext.Arg, arg));
-        }
-        
-//        public static IImmutableContainer BeginScopeWithItem(this IImmutableContainer context, object item)
-//        {
-//            return context.BeginScope(ImmutableContainer.Empty.SetItem(ExpressionContext.Item, item));
-//        }
-
-        /// <summary>
-        /// Enumerates expression scopes from last to first. 
-        /// </summary>
-        public static IEnumerable<IImmutableContainer> Enumerate(this IImmutableContainer context)
-        {
-            do
-            {
-                yield return context;
-                context = context.GetItemOrDefault(ExpressionContext.Parent);
-            }
-            while (context.IsNotNull());
-        }
-    }
-
-    public static class ExpressionExtensions
-    {
-        public static IConstant Invoke(this IExpression expression, IImmutableContainer context, IImmutableContainer? scope = default)
-        {
-            return expression.Invoke(context.BeginScope(scope));
-        }
-
-        public static IConstant InvokePackage(this IImmutableContainer context, string packageId, IImmutableContainer? scope = default)
-        {
-            foreach (var packages in context.FindItems(ExpressionContext.Packages))
-            {
-                if (packages.TryGetValue(packageId, out var package))
-                {
-                    return package.Invoke(context, scope);
-                }
-            }
-            throw DynamicException.Create("PackageNotFound", $"Could not find package '{packageId}'.");
         }
     }
 }

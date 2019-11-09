@@ -2,6 +2,7 @@ using System;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Reusable.Exceptionize;
+using Reusable.Flexo.Abstractions;
 
 namespace Reusable.Flexo
 {

@@ -2,6 +2,7 @@
 using System.Linq;
 using JetBrains.Annotations;
 using Reusable.Data;
+using Reusable.Flexo.Abstractions;
 
 namespace Reusable.Flexo
 {

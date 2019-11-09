@@ -5,6 +5,7 @@ using System.Linq;
 using Reusable.Data;
 using Reusable.Exceptionize;
 using Reusable.Extensions;
+using Reusable.Flexo.Abstractions;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -33,7 +34,7 @@ namespace Reusable.Flexo.Helpers
             else
             {
                 var result = expression.Invoke(context);
-                var debugViewString = result.DebugViewToString(ExpressionDebugView.Templates.Compact);
+                var debugViewString = result.Context.ToDebugViewString(ExpressionDebugView.Templates.Compact);
 
                 try
                 {
@@ -80,7 +81,7 @@ namespace Reusable.Flexo.Helpers
             else
             {
                 var result = useCase.Body.Invoke(context);
-                var debugViewString = result.DebugViewToString(ExpressionDebugView.Templates.Compact);
+                var debugViewString = result.Context.ToDebugViewString(ExpressionDebugView.Templates.Compact);
 
                 try
                 {

@@ -46,7 +46,7 @@ namespace Reusable.Flexo
                 useCase,
                 ImmutableContainer
                     .Empty
-                    .WithPackages(_helper.Packages)
+                    .SetPackages(_helper.Packages)
                     .SetItem(From<ITestMeta>.Select(x => x.Sth), sth),
                 _output,
                 throws,

@@ -6,6 +6,7 @@ using JetBrains.Annotations;
 using Reusable.Data;
 using Reusable.Exceptionize;
 using Reusable.Extensions;
+using Reusable.Flexo.Abstractions;
 using Reusable.OmniLog.Abstractions;
 
 namespace Reusable.Flexo
@@ -53,33 +54,4 @@ namespace Reusable.Flexo
             };
         }
     }
-
-//    public class Item : GetItem<object>
-//    {
-//        public Item() : base(default, nameof(Item))
-//        {
-//            Path = ExpressionContext.Item.ToString();
-//        }
-//
-//        protected override Constant<object> ComputeConstantGeneric(IImmutableContainer context)
-//        {
-//            return (Path, FindItem(context) switch { IConstant c => c.Value, {} x => x, _ => null }, context);
-//        }
-//    }
-
-//    public class Ref : GetItem<IExpression>
-//    {
-//        public Ref([NotNull] ILogger<Ref> logger) : base(logger, nameof(Ref)) { }
-//
-//        protected override Constant<IExpression> InvokeAsConstant(IImmutableContainer context)
-//        {
-//            var expressions = context.GetItemOrDefault(ExpressionContext.Packages);
-//            var path = Path.StartsWith("R.", StringComparison.OrdinalIgnoreCase) ? Path : $"R.{Path}";
-//
-//            return
-//                expressions.TryGetValue(path, out var expression)
-//                    ? (Path, expression)
-//                    : throw DynamicException.Create("RefNotFound", $"Could not find a reference to '{path}'.");
-//        }
-//    }
 }

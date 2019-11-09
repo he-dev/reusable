@@ -4,6 +4,7 @@ using System.Linq;
 using Autofac;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
+using Reusable.Flexo.Abstractions;
 using Reusable.Utilities.JsonNet;
 
 namespace Reusable.Flexo

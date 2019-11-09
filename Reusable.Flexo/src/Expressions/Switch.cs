@@ -5,6 +5,7 @@ using JetBrains.Annotations;
 using Newtonsoft.Json;
 using Reusable.Data;
 using Reusable.Exceptionize;
+using Reusable.Flexo.Abstractions;
 using Reusable.OmniLog.Abstractions;
 
 namespace Reusable.Flexo
@@ -60,7 +61,7 @@ namespace Reusable.Flexo
         {
             return When switch
             {
-                IConstant constant => context.GetEqualityComparerOrDefault(ComparerName).Equals(value.Value, constant.Value),
+                IConstant constant => context.FindEqualityComparer(ComparerName).Equals(value.Value, constant.Value),
                 {} expression => expression.Invoke(context).Value<bool>(),
                 _ => true // If not specified then use it as a default case.
             };

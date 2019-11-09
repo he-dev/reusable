@@ -1,6 +1,7 @@
 ﻿using System;
 using Newtonsoft.Json;
 using Reusable.Data;
+using Reusable.Flexo.Abstractions;
 
 namespace Reusable.Flexo
 {

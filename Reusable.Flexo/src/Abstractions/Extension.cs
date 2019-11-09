@@ -4,11 +4,11 @@ using System.Linq;
 using Reusable.Data;
 using Reusable.OmniLog.Abstractions;
 
-namespace Reusable.Flexo
+namespace Reusable.Flexo.Abstractions
 {
-    public abstract class ExpressionExtension<TExtension, TResult> : Expression<TResult>, IExtension where TExtension : class
+    public abstract class Extension<TExtension, TResult> : Expression<TResult>, IExtension where TExtension : class
     {
-        protected ExpressionExtension(ILogger logger) : base(logger) { }
+        protected Extension(ILogger logger) : base(logger) { }
 
         /// <summary>
         /// Gets or sets the argument that can be passed via context when used as an extension.
@@ -26,7 +26,7 @@ namespace Reusable.Flexo
         protected abstract TExtension GetArg(IImmutableContainer context);
     }
 
-    public abstract class ScalarExtension<TResult> : ExpressionExtension<IExpression, TResult>
+    public abstract class ScalarExtension<TResult> : Extension<IExpression, TResult>
     {
         protected ScalarExtension(ILogger? logger) : base(logger) { }
 
@@ -47,7 +47,7 @@ namespace Reusable.Flexo
         }
     }
 
-    public abstract class CollectionExtension<TResult> : ExpressionExtension<IEnumerable<IExpression>, TResult>
+    public abstract class CollectionExtension<TResult> : Extension<IEnumerable<IExpression>, TResult>
     {
         protected CollectionExtension(ILogger? logger) : base(logger) { }
 

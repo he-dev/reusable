@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Reusable.Data;
 using Reusable.Exceptionize;
+using Reusable.Flexo.Abstractions;
 
 namespace Reusable.Flexo
 {

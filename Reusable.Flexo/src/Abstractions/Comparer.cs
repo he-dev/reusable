@@ -18,7 +18,7 @@ namespace Reusable.Flexo.Abstractions
     {
         public static IComparer<object> GetComparer(this ISorter sorter, IImmutableContainer context)
         {
-            return context.GetComparerOrDefault(sorter.ComparerName);
+            return context.FindComparer(sorter.ComparerName);
         }
     }
     
