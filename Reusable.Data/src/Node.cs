@@ -56,12 +56,12 @@ namespace Reusable.Data
             return (parent, child);
         }
 
-        public static IEnumerable<TView> Views<T, TView>(this Node<T> root, RenderTreeNodeValueCallback<T, TView> renderTreeNodeValue) where TView : INodeView
+        public static IEnumerable<TView> Views<T, TView>(this Node<T> root, RenderTreeNodeValueDelegate<T, TView> renderTreeNodeValue) where TView : INodeView
         {
             return Views(root, 0, renderTreeNodeValue);
         }
 
-        private static IEnumerable<TView> Views<T, TView>(Node<T> root, int depth, RenderTreeNodeValueCallback<T, TView> renderTreeNodeValue) where TView : INodeView
+        private static IEnumerable<TView> Views<T, TView>(Node<T> root, int depth, RenderTreeNodeValueDelegate<T, TView> renderTreeNodeValue) where TView : INodeView
         {
             yield return renderTreeNodeValue(root, depth);
 
@@ -97,12 +97,12 @@ namespace Reusable.Data
         public int Depth { get; set; }
     }
 
-    public delegate TView RenderTreeNodeValueCallback<in T, out TView>(T value, int depth) where TView : INodeView;
+    public delegate TView RenderTreeNodeValueDelegate<in T, out TView>(T value, int depth) where TView : INodeView;
 
     [PublicAPI]
     public interface ITreeRenderer<out TResult, in TView> where TView : INodeView
     {
-        TResult Render<TValue>(Node<TValue> root, RenderTreeNodeValueCallback<TValue, TView> renderTreeNodeValue);
+        TResult Render<TValue>(Node<TValue> root, RenderTreeNodeValueDelegate<TValue, TView> renderTreeNodeValue);
     }
 
     public class PlainTreeRenderer : ITreeRenderer<string, NodePlainView>
@@ -111,7 +111,7 @@ namespace Reusable.Data
         
         public int IndentWidth { get; set; } = 3;
 
-        public string Render<TValue>(Node<TValue> root, RenderTreeNodeValueCallback<TValue, NodePlainView> renderTreeNodeValue)
+        public string Render<TValue>(Node<TValue> root, RenderTreeNodeValueDelegate<TValue, NodePlainView> renderTreeNodeValue)
         {
             return 
                 root

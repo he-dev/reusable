@@ -17,7 +17,7 @@ namespace Reusable.Flexo
                 .Empty
                 .SetItem(EqualityComparers, ImmutableDictionary<SoftString, IEqualityComparer<object>>.Empty)
                 .SetItem(Packages, ImmutableDictionary<SoftString, IExpression>.Empty)
-                .SetItem(DebugView, Node.Create(ExpressionDebugView.Root))
+                .SetItem(InvokeLog, Node.Create((IExpression)Constant.FromValue<object>("ExpressionInvokeLog")))
                 .SetDefaultComparer()
                 .SetEqualityComparer("Default", EqualityComparer<object>.Default)
                 .SetEqualityComparer<string>(nameof(SoftString), SoftString.Comparer);
@@ -42,15 +42,15 @@ namespace Reusable.Flexo
 
         public static readonly Selector<IImmutableDictionary<SoftString, IExpression>> Packages = This.Select(() => Packages);
 
-        public static readonly Selector<Node<ExpressionDebugView>> DebugView = This.Select(() => DebugView);
+        public static readonly Selector<Node<IExpression>> InvokeLog = This.Select(() => InvokeLog);
 
         public static readonly Selector<CancellationToken> CancellationToken = This.Select(() => CancellationToken);
         
         
-        public static string ToDebugViewString(this IImmutableContainer context, RenderTreeNodeValueCallback<ExpressionDebugView, NodePlainView> template)
+        public static string ToDebugViewString(this IImmutableContainer context, RenderTreeNodeValueDelegate<IExpression, NodePlainView> template)
         {
             return
-                context.TryFindItem<Node<ExpressionDebugView>>(DebugView.ToString(), out var debugView)
+                context.TryFindItem<Node<IExpression>>(InvokeLog.ToString(), out var debugView)
                     ? debugView.Views(template).Render()
                     : throw DynamicException.Create("DebugViewNotFound", $"Could not find DebugView in context.");
         }

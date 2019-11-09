@@ -57,14 +57,14 @@ namespace Reusable.Flexo
         }
 
 
-        public static Node<ExpressionDebugView> GetDebugView(this IImmutableContainer context)
+        public static Node<IExpression> GetInvokeLog(this IImmutableContainer context)
         {
-            return context.GetItemOrDefault(DebugView);
+            return context.FindItem(InvokeLog);
         }
 
-        public static IImmutableContainer SetDebugView(this IImmutableContainer context, Node<ExpressionDebugView> debugView)
+        public static IImmutableContainer SetInvokeLog(this IImmutableContainer context, Node<IExpression> invokeLog)
         {
-            return context.SetItem(DebugView, debugView);
+            return context.SetItem(InvokeLog, invokeLog);
         }
     }
 }

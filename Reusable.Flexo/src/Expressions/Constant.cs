@@ -31,7 +31,7 @@ namespace Reusable.Flexo
         {
             Id = id;
             Value = value;
-            Context = context ?? ImmutableContainer.Empty;
+            Context = context; // ?? ImmutableContainer.Empty;
         }
 
         object IConstant.Value => Value;
@@ -144,5 +144,7 @@ namespace Reusable.Flexo
         public static readonly IExpression DefaultComparer = FromValue(Filter.Properties.Comparer, "Default");
 
         #endregion
+
+        public static bool HasContext(this IConstant constant) => constant.Context.IsNotNull();
     }
 }

@@ -34,7 +34,7 @@ namespace Reusable.Flexo.Helpers
             else
             {
                 var result = expression.Invoke(context);
-                var debugViewString = result.Context.ToDebugViewString(ExpressionDebugView.Templates.Compact);
+                var debugViewString = result.Context.ToDebugViewString(ExpressionInvokeLog.Templates.Compact);
 
                 try
                 {
@@ -81,7 +81,7 @@ namespace Reusable.Flexo.Helpers
             else
             {
                 var result = useCase.Body.Invoke(context);
-                var debugViewString = result.Context.ToDebugViewString(ExpressionDebugView.Templates.Compact);
+                var debugViewString = result.Context.ToDebugViewString(ExpressionInvokeLog.Templates.Compact);
 
                 try
                 {

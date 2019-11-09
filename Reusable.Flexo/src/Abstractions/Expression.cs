@@ -135,56 +135,49 @@ namespace Reusable.Flexo.Abstractions
 
         [JsonProperty("This")]
         public IExpression? Next { get; set; }
-        
+
         public IConstant Invoke(IImmutableContainer context)
         {
-            var parentView = context.FindItem(ExpressionContext.DebugView);
-            var thisView = parentView.Add(this.CreateDebugView());
-
-            // Take a shortcut when this is a constant without an extension. This helps to avoid another debug-view.
-            if (this is IConstant constant && Next is null)
+            // Don't invoke constant again if it already has context it must have been invoked.
+            if (this is IConstant constant && constant.HasContext() && Next is null)
             {
-                thisView.Value.Result = constant.Value;
-                return ComputeConstant(context); // Constant.FromValue(constant.Name, constant.Value, context);// constant.Invoke(context);
+                return constant;
             }
 
-            var thisContext = context.BeginScope
-            (
-                ImmutableContainer
-                    .Empty
-                    .SetItem(ExpressionContext.DebugView, thisView)
-            );
-
+            var parentLog = context.GetInvokeLog();
+            var thisLog = parentLog.Add(CreateInvokeLog());
+            var thisContext = context.SetInvokeLog(thisLog);
             var thisResult = ComputeConstant(thisContext);
-            thisView.Value.Result = thisResult.Value;
 
-            if (Next is IExtension extension && extension.IsInExtensionMode)
+            switch (Next)
             {
-                // Check whether result and extension match; do it only for extension expressions.
-                var thisType =
-                    thisResult.Value is IEnumerable<IExpression> collection
-                        ? collection.GetType()
-                        : thisResult.GetType();
-
-                if (!extension.ExtendsType.IsAssignableFrom(thisType))
+                case null: return thisResult;
+                case IExtension extension when extension.IsInExtensionMode:
                 {
-                    throw DynamicException.Create
-                    (
-                        $"PipeTypeMismatch",
-                        $"Extension '{extension.GetType().ToPrettyString()}<{extension.ExtendsType.ToPrettyString()}>' does not match the expression it is extending: '{thisResult.Value.GetType().ToPrettyString()}'."
-                    );
+                    // Check whether result and extension match; do it only for extension expressions.
+                    var thisType =
+                        thisResult.Value is IEnumerable<IExpression> collection
+                            ? collection.GetType()
+                            : thisResult.GetType();
+
+                    if (!extension.ExtendsType.IsAssignableFrom(thisType))
+                    {
+                        throw DynamicException.Create
+                        (
+                            $"PipeTypeMismatch",
+                            $"Extension '{extension.GetType().ToPrettyString()}<{extension.ExtendsType.ToPrettyString()}>' does not match the expression it is extending: '{thisResult.Value.GetType().ToPrettyString()}'."
+                        );
+                    }
+
+                    break;
                 }
             }
 
-            return Next?.Invoke
-            (
-                thisContext,
-                ImmutableContainer
-                    .Empty
-                    .SetItem(ExpressionContext.DebugView, thisView)
-                    .SetItem(ExpressionContext.Arg, thisResult)
-            ) ?? thisResult;
+            var result = Next?.Invoke(thisContext.BeginScopeWithArg(thisResult)) ?? thisResult;
+            return (IConstant)thisLog.Add(result).Child.Value;
         }
+
+        private Node<IExpression> CreateInvokeLog() => Node.Create<IExpression>(this);
 
         protected abstract IConstant ComputeConstant(IImmutableContainer context);
 
