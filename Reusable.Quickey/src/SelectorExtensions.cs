@@ -49,7 +49,7 @@ namespace Reusable.Quickey
 
             return
                 from f in selectors
-                where f.Tags<T>().IsSubsetOf(names, SoftString.Comparer)
+                where f.Tags<T>().IsSupersetOf(names, SoftString.Comparer)
                 select f;
         }
 

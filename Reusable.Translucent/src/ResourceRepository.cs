@@ -24,14 +24,14 @@ namespace Reusable.Translucent
             var setup = new TSetup();
 
             var resourceControllerBuilder = new ResourceControllerBuilder(services);
-            var resourceRepositoryBuilder = new ResourceRepositoryBuilder(services);
+            var resourceRepositoryBuilder = new ResourceRepositoryBuilder<ResourceContext>(services);
 
             InvokeMethod<IResourceControllerBuilder>(setup, nameof(QuickSetup.ConfigureServices), false, resourceControllerBuilder, services);
-            InvokeMethod<IResourceRepositoryBuilder>(setup, nameof(QuickSetup.Configure), true, resourceRepositoryBuilder, services);
+            InvokeMethod<IResourceRepositoryBuilder<ResourceContext>>(setup, nameof(QuickSetup.Configure), true, resourceRepositoryBuilder, services);
 
             resourceRepositoryBuilder.UseMiddleware<ControllerMiddleware>(new object[] { resourceControllerBuilder.Controllers.AsEnumerable() });
 
-            _requestDelegate = resourceRepositoryBuilder.Build<ResourceContext>();
+            _requestDelegate = resourceRepositoryBuilder.Build();
         }
 
         private static void InvokeMethod<T>(TSetup setup, string methodName, bool isOptional, T defaultParameter, IServiceProvider services)
@@ -101,7 +101,7 @@ namespace Reusable.Translucent
             configure(controller);
         }
 
-        public void Configure(IResourceRepositoryBuilder repository, ConfigureDelegate configure)
+        public void Configure(IResourceRepositoryBuilder<ResourceContext> repository, ConfigureDelegate configure)
         {
             configure(repository);
         }
@@ -109,5 +109,5 @@ namespace Reusable.Translucent
 
     public delegate void ConfigureServicesDelegate(IResourceControllerBuilder resourceController);
 
-    public delegate void ConfigureDelegate(IResourceRepositoryBuilder resourceRepositoryController);
+    public delegate void ConfigureDelegate(IResourceRepositoryBuilder<ResourceContext> resourceRepositoryController);
 }

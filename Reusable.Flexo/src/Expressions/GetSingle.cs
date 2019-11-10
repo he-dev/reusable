@@ -4,7 +4,7 @@ namespace Reusable.Flexo
 {
     public class GetSingle : GetItem<object>
     {
-        public GetSingle() : base(default, nameof(GetSingle)) { }
+        public GetSingle() : base(default) { }
 
         protected override Constant<object> ComputeConstantGeneric(IImmutableContainer context)
         {

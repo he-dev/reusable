@@ -26,18 +26,17 @@ namespace Reusable.Flexo
 
     public class Constant<TValue> : Expression<TValue>, IConstant, IConstant<TValue>, IEquatable<Constant<TValue>>
     {
-        public Constant(SoftString id, TValue value, IImmutableContainer? context = default)
-            : base(default)
+        public Constant(SoftString id, TValue value, IImmutableContainer? context = default) : base(default)
         {
             Id = id;
             Value = value;
-            Context = context; // ?? ImmutableContainer.Empty;
+            Context = context;
         }
 
         object IConstant.Value => Value;
 
         [AutoEqualityProperty]
-        public TValue Value { get; set; }
+        public TValue Value { get; }
 
         public IImmutableContainer Context { get; }
 
@@ -53,7 +52,7 @@ namespace Reusable.Flexo
             context = Context;
         }
 
-        public override string ToString() => $"{Id.ToString()}: '{Value}'";
+        public override string ToString() => $"{Id}: '{Value}'";
 
         public static implicit operator Constant<TValue>((SoftString Id, TValue Value) t) => new Constant<TValue>(t.Id, t.Value);
 
@@ -120,7 +119,7 @@ namespace Reusable.Flexo
 
         #region Predefined
 
-        [NotNull] 
+        [NotNull]
         public static readonly IExpression Zero = FromValue(nameof(Zero), 0.0);
 
         [NotNull]

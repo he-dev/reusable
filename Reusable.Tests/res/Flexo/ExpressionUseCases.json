@@ -23,7 +23,6 @@
     "Description": "Any returns True when at least one value is True.",
     "Body": {
       "$t": "Flexo.Any",
-      "Name": "Any",
       "Values": [
         false,
         true,
@@ -37,7 +36,6 @@
     "Description": "Any returns False when all values are False.",
     "Body": {
       "$t": "Flexo.Any",
-      "Name": "Any",
       "Values": [
         false,
         false,
@@ -51,7 +49,6 @@
     "Description": "Any returns False when at least one value is False and a custom predicate False is used.",
     "Body": {
       "$t": "Flexo.Any",
-      "Name": "Any",
       "Values": [
         true,
         true,

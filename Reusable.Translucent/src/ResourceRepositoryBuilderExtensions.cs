@@ -8,7 +8,7 @@ namespace Reusable.Translucent
 {
     public static class ResourceRepositoryBuilderExtensions
     {
-        public static IResourceRepositoryBuilder UseResources(this IResourceRepositoryBuilder builder, Action<IResourceControllerBuilder> configure)
+        public static IResourceRepositoryBuilder<ResourceContext> UseResources(this IResourceRepositoryBuilder<ResourceContext> builder, Action<IResourceControllerBuilder> configure)
         {
             var resourceBuilder = new ResourceControllerBuilder(builder.ServiceProvider)
             {

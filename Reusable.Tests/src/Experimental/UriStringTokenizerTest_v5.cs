@@ -433,15 +433,15 @@ namespace Reusable.Experimental.TokenizerV5.UriString
             //Assert.Equal(expected.Replace(" ", string.Empty), actual);
         }
 
-        [Fact]
-        public void Throws_when_invalid_character()
-        {
-// Using single letters for faster debugging.
-            var uri = "s://:u@h:1/p?k=v&k=v#f";
-//             ^ - invalid character
-            var ex = Assert.Throws<ArgumentException>(() => Tokenizer.Tokenize(uri).ToList());
-            Assert.Equal("Invalid character ':' at 4.", ex.Message);
-        }
+//        [Fact]
+//        public void Throws_when_invalid_character()
+//        {
+//// Using single letters for faster debugging.
+//            var uri = "s://:u@h:1/p?k=v&k=v#f";
+////             ^ - invalid character
+//            var ex = Assert.Throws<ArgumentException>(() => Tokenizer.Tokenize(uri).ToList());
+//            Assert.Equal("Invalid character ':' at 4.", ex.Message);
+//        }
     }
 
     public class UriStringTokenizer : Tokenizer<UriToken>

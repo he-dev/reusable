@@ -51,7 +51,7 @@ namespace Reusable.Translucent.Middleware
 
     public static class TelemetryMiddlewareHelper
     {
-        public static IResourceRepositoryBuilder UseTelemetry(this IResourceRepositoryBuilder builder, ILogger<TelemetryMiddleware> logger)
+        public static IResourceRepositoryBuilder<TContext> UseTelemetry<TContext>(this IResourceRepositoryBuilder<TContext> builder, ILogger<TelemetryMiddleware> logger)
         {
             return builder.UseMiddleware<TelemetryMiddleware>(logger);
         }

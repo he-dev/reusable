@@ -20,29 +20,44 @@ namespace Reusable.Flexo
         /// </summary>
         public static T Value<T>(this IConstant constant)
         {
-            if (typeof(T) == typeof(object))
+            return TryGetValue<T>(constant, out var value) switch
             {
-                return (T)constant.Value;
-            }
-            else
-            {
-                return
-                    constant.Value is T value
-                        ? value
-                        : throw DynamicException.Create
-                        (
-                            "ValueType",
-                            $"Constant '{constant.Id.ToString()}' should be of type '{typeof(T).ToPrettyString()}' but is '{constant.Value?.GetType().ToPrettyString()}'."
-                        );
-            }
+                true => value,
+                false => throw DynamicException.Create("ValueType", $"Constant '{constant.Id}' should be of type '{typeof(T).ToPrettyString()}' but is '{constant.Value?.GetType().ToPrettyString()}'.")
+            };
         }
 
         public static T ValueOrDefault<T>(this IConstant constant, T defaultValue = default)
         {
-            return
-                constant.Value is T value
-                    ? value
-                    : defaultValue;
+            return TryGetValue<T>(constant, out var value) switch
+            {
+                true => value,
+                false => defaultValue
+            };
+        }
+
+        private static bool TryGetValue<T>(this IConstant constant, out T value)
+        {
+            if (typeof(T) == typeof(object))
+            {
+                value = (T)constant.Value;
+                return true;
+            }
+
+            if (constant is Constant<T> generic)
+            {
+                value = generic.Value;
+                return true;
+            }
+
+            if (constant.Value is T casted)
+            {
+                value = casted;
+                return true;
+            }
+
+            value = default;
+            return false;
         }
     }
 }

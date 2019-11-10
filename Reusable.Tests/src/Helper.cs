@@ -53,7 +53,7 @@ namespace Reusable
                                 .Add("_env", "else")));
             }
 
-            public void Configure(IResourceRepositoryBuilder repository)
+            public void Configure(IResourceRepositoryBuilder<ResourceContext> repository)
             {
                 //repository.UseMiddleware<SettingFormatValidationMiddleware>();
                 repository.UseMiddleware<CacheMiddleware>();

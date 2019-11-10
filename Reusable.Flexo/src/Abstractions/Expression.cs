@@ -138,13 +138,6 @@ namespace Reusable.Flexo.Abstractions
 
         public IConstant Invoke(IImmutableContainer context)
         {
-            // Disabled because otherwise items are missing from the log.
-            // Don't invoke constant again if it already has context it must have been invoked.
-            //if (this is IConstant constant && constant.HasContext() && Next is null)
-            //{
-            //    //return constant;
-            //}
-
             var parentLog = context.GetInvokeLog();
             var thisLog = this is IConstant ? parentLog : parentLog.Add(CreateInvokeLog());
             var thisContext = context.SetInvokeLog(thisLog);

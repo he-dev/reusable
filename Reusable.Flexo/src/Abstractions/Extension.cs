@@ -7,12 +7,14 @@ using Reusable.OmniLog.Abstractions;
 
 namespace Reusable.Flexo.Abstractions
 {
+    public interface IExpressionCollection : IEnumerable<IExpression> { }
+
     public abstract class Extension<TExtension, TResult> : Expression<TResult>, IExtension where TExtension : class
     {
         protected Extension(ILogger logger) : base(logger) { }
 
         /// <summary>
-        /// Gets or sets the argument that can be passed via context when used as an extension.
+        /// Gets or sets the local Arg that overrides the one passed via context.
         /// </summary>
         protected TExtension Arg { get; set; }
 

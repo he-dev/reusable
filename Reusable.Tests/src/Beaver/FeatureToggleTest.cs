@@ -105,7 +105,8 @@ namespace Reusable.Beaver
         [Fact]
         public void Can_toggle_feature()
         {
-            var features = new FeatureToggle(new FeatureOptionRepository()).DecorateWith<IFeatureToggle>(instance => new FeatureToggler(instance));
+            var options = new FeatureOptionRepository().DecorateWith<IFeatureOptionRepository>(instance => new FeatureOptionFallback(instance, Option<Feature>.None));
+            var features = new FeatureToggle(options).DecorateWith<IFeatureToggle>(instance => new FeatureToggler(instance));
             Assert.False(features.IsEnabled("test")); // it disabled by default
             features.Update("test", f => f.Set(Feature.Options.Toggle).Set(Feature.Options.ToggleOnce)); // activate feature-toggler
             Assert.True(features.Switch("test", false, true)); // it's still disabled and will now switch

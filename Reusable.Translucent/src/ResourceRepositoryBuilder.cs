@@ -2,36 +2,36 @@ using System;
 
 namespace Reusable.Translucent
 {
-    public interface IResourceRepositoryBuilder
+    public interface IResourceRepositoryBuilder<in TContext>
     {
         IServiceProvider ServiceProvider { get; }
         
-        IResourceRepositoryBuilder UseMiddleware<T>(params object[] args);
+        IResourceRepositoryBuilder<TContext> UseMiddleware<T>(params object[] args);
 
-        RequestDelegate<TContext> Build<TContext>();
+        RequestDelegate<TContext> Build();
     }
     
-    internal class ResourceRepositoryBuilder : IResourceRepositoryBuilder
+    internal class ResourceRepositoryBuilder<TContext> : IResourceRepositoryBuilder<TContext>
     {
-        private readonly RequestDelegateBuilder _requestDelegateBuilder;
+        private readonly RequestDelegateBuilder<TContext> _requestDelegateBuilder;
 
         public ResourceRepositoryBuilder(IServiceProvider serviceProvider)
         {
             ServiceProvider = serviceProvider;
-            _requestDelegateBuilder = new RequestDelegateBuilder(serviceProvider);
+            _requestDelegateBuilder = new RequestDelegateBuilder<TContext>(serviceProvider);
         }
 
         public IServiceProvider ServiceProvider { get; }
 
-        public IResourceRepositoryBuilder UseMiddleware<T>(params object[] args)
+        public IResourceRepositoryBuilder<TContext> UseMiddleware<T>(params object[] args)
         {
             _requestDelegateBuilder.UseMiddleware<T>(args);
             return this;
         }
 
-        public RequestDelegate<TContext> Build<TContext>()
+        public RequestDelegate<TContext> Build()
         {
-            return _requestDelegateBuilder.Build<TContext>();
+            return _requestDelegateBuilder.Build();
         }
     }
 }

@@ -11,7 +11,11 @@ namespace Reusable.Flexo
     {
         public ToString() : base(default) { }
 
-        public IExpression Value { get => Arg; set => Arg = value; }
+        public IExpression Value
+        {
+            get => Arg;
+            set => Arg = value;
+        }
 
         public IExpression? Format { get; set; }
 

@@ -4,6 +4,7 @@ using System.Linq;
 using System.Linq.Custom;
 using System.Reflection;
 using JetBrains.Annotations;
+using Newtonsoft.Json;
 using Reusable.Data;
 using Reusable.Exceptionize;
 using Reusable.Extensions;
@@ -15,18 +16,12 @@ namespace Reusable.Flexo
     /// <summary>
     /// Gets an item from the context. Calls Invoke if it's an expression, otherwise it's wrapped in a Constant.
     /// </summary>
-    [UsedImplicitly]
     [PublicAPI]
     public abstract class GetItem<T> : Expression<T>
     {
-        private static readonly IImmutableDictionary<SoftString, string> KeyMap =
-            ImmutableDictionary<SoftString, string>
-                .Empty
-                .Add("arg", ExpressionContext.Arg.ToString())
-                .Add("this", ExpressionContext.Arg.ToString());
+        protected GetItem(ILogger logger) : base(logger) { }
 
-        protected GetItem(ILogger? logger, string name) : base(logger) { }
-
+        [JsonRequired]
         public string Path { get; set; }
 
         // key.Property.Property --> session[key].Property.Property
@@ -41,16 +36,27 @@ namespace Reusable.Flexo
             };
             var itemKey = MapItemKey(names.First());
 
-            return
-                context.TryFindItem<object>(itemKey, out var item)
-                    ? names.Skip(1).Aggregate(item, GetMemberValue)
-                    : throw DynamicException.Create("ContextItemNotFound", $"Could not find an item with the key '{itemKey}' from '{Path}'.");
+            if (context.TryFindItem<object>(itemKey, out var item))
+            {
+                try
+                {
+                    return names.Skip(1).Aggregate(item, GetMemberValue);
+                }
+                catch (Exception inner)
+                {
+                    throw DynamicException.Create("InvalidPath", $"{Id} could not resolve path '{Path}'. See the inner exception for details.", inner);
+                }
+            }
+            else
+            {
+                throw DynamicException.Create("ContextItemNotFound", $"{Id} could not find an item with the key '{itemKey}' from '{Path}'.");
+            }
         }
 
         [NotNull]
         private object GetMemberValue(object obj, string memberName)
         {
-            obj = obj switch { IConstant c => c.Value ?? throw new ArgumentException($"{c.Id.ToString()}'s value is null."), _ => obj };
+            obj = obj switch { IConstant c => c.Value ?? throw new ArgumentException($"{c.Id}'s value is null."), _ => obj };
 
             var member = obj.GetType().GetMember(memberName).SingleOrThrow
             (
@@ -70,7 +76,7 @@ namespace Reusable.Flexo
         {
             return name switch
             {
-                {} key when key.In(new[] { "arg", "this", "item", "x" }, SoftString.Comparer) => ExpressionContext.Arg.ToString(),
+                {} key when key.In(new[] { "arg", "this", "item", "x", "_" }, SoftString.Comparer) => ExpressionContext.Arg.ToString(),
                 {} key => key,
                 _ => throw new ArgumentNullException(nameof(name))
             };

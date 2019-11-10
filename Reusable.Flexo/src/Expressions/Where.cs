@@ -8,7 +8,7 @@ using Reusable.Flexo.Abstractions;
 
 namespace Reusable.Flexo
 {
-    public class Where : CollectionExtension<IEnumerable<IConstant>>, IFilter
+    public class Where : CollectionExtension<IEnumerable<IExpression>>, IFilter
     {
         public Where() : base(default) { }
 
@@ -21,7 +21,7 @@ namespace Reusable.Flexo
         [JsonProperty(Filter.Properties.Predicate)]
         public IExpression Matcher { get; set; }
 
-        protected override IEnumerable<IConstant> ComputeValue(IImmutableContainer context)
+        protected override IEnumerable<IExpression> ComputeValue(IImmutableContainer context)
         {
             var query =
                 from item in GetArg(context).Invoke(context)

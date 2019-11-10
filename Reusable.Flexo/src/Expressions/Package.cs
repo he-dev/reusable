@@ -9,9 +9,9 @@ namespace Reusable.Flexo
 
         public IExpression Body { get; set; }
 
-        protected override object ComputeValue(IImmutableContainer context)
+        protected override IConstant ComputeConstant(IImmutableContainer context)
         {
-            return Body.Invoke(context).Value<object>();
+            return Body.Invoke(context);
         }
     }
 }
