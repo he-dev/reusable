@@ -36,17 +36,19 @@ namespace Reusable.Flexo
             return expression.Invoke(context.BeginScope(scope));
         }
 
-        public static IConstant InvokePackage(this IImmutableContainer context, string packageId, IImmutableContainer? scope = default)
-        {
-            foreach (var packages in context.FindItems(ExpressionContext.Packages))
-            {
-                if (packages.TryGetValue(packageId, out var package))
-                {
-                    return package.Invoke(context, scope);
-                }
-            }
-
-            throw DynamicException.Create("PackageNotFound", $"Could not find package '{packageId}'.");
-        }
+        // public static IConstant InvokePackage(this IImmutableContainer context, string packageId, IImmutableContainer? scope = default)
+        // {
+        //     var tryCount = 0;
+        //     foreach (var tryGetPackage in context.FindItems(ExpressionContext.TryGetPackageFunc))
+        //     {
+        //         tryCount++;
+        //         if (tryGetPackage(packageId, out var package))
+        //         {
+        //             return package.Invoke(context, scope);
+        //         }
+        //     }
+        //
+        //     throw DynamicException.Create("PackageNotFound", $"Could not find package '{packageId}' after {tryCount} {(tryCount == 1 ? "try" : "tries")}.");
+        // }
     }
 }

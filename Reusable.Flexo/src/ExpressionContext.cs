@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Threading;
@@ -18,6 +19,11 @@ namespace Reusable.Flexo
                 .SetItem(EqualityComparers, ImmutableDictionary<SoftString, IEqualityComparer<object>>.Empty)
                 .SetItem(Packages, ImmutableDictionary<SoftString, IExpression>.Empty)
                 .SetItem(InvokeLog, Node.Create((IExpression)Constant.FromValue<object>("ExpressionInvokeLog")))
+                .SetItem(TryGetPackageFunc, (string packageId, out IExpression package) =>
+                {
+                    package = default;
+                    return false;
+                })
                 .SetDefaultComparer()
                 .SetEqualityComparer("Default", EqualityComparer<object>.Default)
                 .SetEqualityComparer<string>(nameof(SoftString), SoftString.Comparer);
@@ -42,11 +48,12 @@ namespace Reusable.Flexo
 
         public static readonly Selector<IImmutableDictionary<SoftString, IExpression>> Packages = This.Select(() => Packages);
 
+        public static readonly Selector<TryGetPackageFunc> TryGetPackageFunc = This.Select(() => TryGetPackageFunc);
+
         public static readonly Selector<Node<IExpression>> InvokeLog = This.Select(() => InvokeLog);
 
         public static readonly Selector<CancellationToken> CancellationToken = This.Select(() => CancellationToken);
-        
-        
+
         public static string ToInvokeLogString(this IImmutableContainer context, RenderTreeNodeValueDelegate<IExpression, NodePlainView> template)
         {
             return
@@ -55,4 +62,6 @@ namespace Reusable.Flexo
                     : throw DynamicException.Create("DebugViewNotFound", $"Could not find DebugView in context.");
         }
     }
+
+    public delegate bool TryGetPackageFunc(string packageId, out IExpression package);
 }
