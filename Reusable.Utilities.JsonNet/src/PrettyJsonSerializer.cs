@@ -53,7 +53,7 @@ namespace Reusable.Utilities.JsonNet
                 ImmutableList<IJsonVisitor>
                     .Empty
                     .Add(new TrimPropertyNameVisitor())
-                    .Add(new RewriteTypeVisitor(PrettyTypeResolver.FromDictionary(knownTypes)))
+                    .Add(new RewriteTypeVisitor(new PrettyTypeResolver(knownTypes)))
                     .Visit(JToken.Parse(json))
                     .ToObject<T>(_jsonSerializer);
         }

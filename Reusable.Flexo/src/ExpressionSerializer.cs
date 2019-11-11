@@ -33,8 +33,7 @@ namespace Reusable.Flexo
             Action<JsonSerializer>? configureSerializer = null
         )
         {
-            if (expressionTypes == null) throw new ArgumentNullException(nameof(expressionTypes));
-            _contractResolver = contractResolver; // ?? throw new ArgumentNullException(paramName: nameof(contractResolver), message: $"You need to register na {nameof(IContractResolver)}.");
+            _contractResolver = contractResolver;
 
             Transform =
                 CompositeJsonVisitor
@@ -63,17 +62,13 @@ namespace Reusable.Flexo
 
         public JsonSerializer JsonSerializer { get; set; }
 
-        [ContractAnnotation("jsonStream: null => halt")]
         public async Task<T> DeserializeAsync<T>(Stream jsonStream)
         {
-            if (jsonStream == null) throw new ArgumentNullException(nameof(jsonStream));
             return Deserialize<T>(await ReadJsonAsync(jsonStream));
         }
 
-        [ContractAnnotation("json: null => halt")]
         public T Deserialize<T>(string json)
         {
-            if (json == null) throw new ArgumentNullException(nameof(json));
             return Transform.Visit(json).ToObject<T>(JsonSerializer);
         }
 

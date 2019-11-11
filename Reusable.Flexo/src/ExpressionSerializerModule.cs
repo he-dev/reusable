@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
+using System.Linq.Custom;
 using Autofac;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
@@ -11,28 +13,28 @@ namespace Reusable.Flexo
 {
     public class ExpressionSerializerModule : Module
     {
-        private readonly IEnumerable<Type> _expressionTypes;
+        private readonly IImmutableDictionary<SoftString, Type> _expressionTypes;
         private readonly Action<JsonSerializer>? _configureSerializer;
 
         public ExpressionSerializerModule(IEnumerable<Type> expressionTypes, Action<JsonSerializer>? configureSerializer = default)
         {
-            _expressionTypes = Expression.BuiltInTypes.Concat(expressionTypes);
+            _expressionTypes =
+                TypeDictionary
+                    .BuiltInTypes
+                    .AddRange(TypeDictionary.From(Expression.BuiltInTypes))
+                    .AddRange(TypeDictionary.From(expressionTypes));
             _configureSerializer = configureSerializer;
         }
 
         protected override void Load(ContainerBuilder builder)
         {
-            foreach (var type in _expressionTypes)
+            // Register all types but the built-in ones.
+            foreach (var type in _expressionTypes.Except(TypeDictionary.BuiltInTypes, x => x.Value).Select(x => x.Value).Distinct())
             {
                 builder.RegisterType(type);
             }
 
-            builder.Register(ctx =>
-            {
-                var contractResolver = ctx.Resolve<IContractResolver>();
-                var types = TypeDictionary.BuiltInTypes.AddRange(TypeDictionary.From(_expressionTypes));
-                return new ExpressionSerializer(types, contractResolver, _configureSerializer);
-            });
+            builder.Register(ctx => new ExpressionSerializer(_expressionTypes, ctx.Resolve<IContractResolver>(), _configureSerializer));
         }
     }
 }

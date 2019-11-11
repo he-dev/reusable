@@ -23,9 +23,8 @@ namespace Reusable.Flexo
             get => Arg;
             set => Arg = value;
         }
-
-        [JsonRequired]
-        public IEnumerable<SwitchCase> Cases { get; set; } = default!;
+        
+        public IEnumerable<SwitchCase>? Cases { get; set; } = default!;
 
         protected override IConstant ComputeConstant(IImmutableContainer context)
         {

@@ -16,6 +16,8 @@ namespace Reusable.Utilities.JsonNet
         string Resolve([NotNull] string name);
     }
 
+    public delegate Type GetTypeFunc(string name);
+
     public class PrettyTypeResolver : ITypeResolver
     {
         // Used to specify user-friendly type names like: "List<int>" instead of "List`1[System.Int32...]" etc.
@@ -23,32 +25,11 @@ namespace Reusable.Utilities.JsonNet
         // language=regexp
         private const string PrettyTypePattern = @"(?<type>(?i)[a-z0-9_.]+)(?:\<(?<genericArguments>(?i)[a-z0-9_., ]+)\>)?";
 
-        private readonly Func<string, Type> _resolveType;
+        private readonly GetTypeFunc _resolveType;
 
-        public PrettyTypeResolver([NotNull] IImmutableDictionary<SoftString, Type> knownTypes)
-        {
-            if (knownTypes == null) throw new ArgumentNullException(nameof(knownTypes));
+        public PrettyTypeResolver(GetTypeFunc getType) => _resolveType = getType;
 
-            _resolveType =
-                typeName =>
-                    (knownTypes.TryGetValue(typeName, out var type)
-                        ? type
-                        : Type.GetType(typeName, ignoreCase: true, throwOnError: false)) ?? throw DynamicException.Create("TypeNotFound", $"Could not resolve '{typeName}'.");
-        }
-
-        private PrettyTypeResolver(Func<string, Type> resolveType)
-        {
-            _resolveType = resolveType ?? throw new ArgumentNullException(nameof(resolveType));
-        }
-
-        public static ITypeResolver FromDictionary(IImmutableDictionary<SoftString, Type> knownTypes)
-        {
-            return new PrettyTypeResolver(
-                typeName =>
-                    (knownTypes.TryGetValue(typeName, out var type)
-                        ? type
-                        : Type.GetType(typeName, ignoreCase: true, throwOnError: false)) ?? throw DynamicException.Create("TypeNotFound", $"Could not resolve '{typeName}'."));
-        }
+        public PrettyTypeResolver(IImmutableDictionary<SoftString, Type> source) : this(source.ToGetTypeFunc()) { }
 
         public string Resolve(string prettyType)
         {
@@ -92,6 +73,16 @@ namespace Reusable.Utilities.JsonNet
             {
                 return (default, default);
             }
+        }
+    }
+
+    public static class DictionaryExtensions
+    {
+        public static GetTypeFunc ToGetTypeFunc(this IImmutableDictionary<SoftString, Type> source)
+        {
+            return typeName => GetType(typeName) ?? throw DynamicException.Create("TypeNotFound", $"Could not resolve '{typeName}'.");
+
+            Type? GetType(string typeName) => source.TryGetValue(typeName, out var type) ? type : Type.GetType(typeName, ignoreCase: true, throwOnError: false);
         }
     }
 }

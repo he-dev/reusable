@@ -122,19 +122,18 @@ namespace Reusable.Utilities.JsonNet
     [PublicAPI]
     public class RewriteTypeVisitor : JsonVisitor
     {
-        [NotNull]
         private readonly ITypeResolver _typeResolver;
 
         public const string DefaultTypePropertyName = "$type";
 
-        public RewriteTypeVisitor([NotNull] ITypeResolver typeResolver)
+        public RewriteTypeVisitor(ITypeResolver typeResolver)
         {
             _typeResolver = typeResolver;
         }
 
         protected override JProperty VisitProperty(JProperty property)
         {
-            if (TryParseTypeName(property, out var typeName))
+            if (ParseTypeName(property) is {} typeName)
             {
                 return new JProperty(DefaultTypePropertyName, _typeResolver.Resolve(typeName));
             }
@@ -144,19 +143,10 @@ namespace Reusable.Utilities.JsonNet
             }
         }
 
-        private bool TryParseTypeName(JProperty property, out string typeName)
+        private string? ParseTypeName(JProperty property)
         {
             var typeMatch = Regex.Match(property.Name.Trim(), @"^\$(?<Namespace>[a-z0-9_-]+)", RegexOptions.IgnoreCase);
-            if (typeMatch.Success)
-            {
-                typeName = FormatTypeName(typeMatch.Groups["Namespace"].Value, property.Value.Value<string>());
-                return true;
-            }
-            else
-            {
-                typeName = default;
-                return false;
-            }
+            return typeMatch.Success ? FormatTypeName(typeMatch.Groups["Namespace"].Value, property.Value.Value<string>()) : default;
         }
 
         private string FormatTypeName(string @namespace, string typeName)

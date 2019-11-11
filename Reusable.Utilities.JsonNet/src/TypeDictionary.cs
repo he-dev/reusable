@@ -11,6 +11,9 @@ namespace Reusable.Utilities.JsonNet
 {
     public static class TypeDictionary
     {
+        /// <summary>
+        /// Gets a dictionary of primitive types.
+        /// </summary>
         public static readonly IImmutableDictionary<SoftString, Type> BuiltInTypes =
             ImmutableDictionary
                 .Create<SoftString, Type>()
