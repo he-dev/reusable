@@ -3,7 +3,6 @@ using System.Linq.Custom;
 using Newtonsoft.Json;
 using Reusable.Data;
 using Reusable.Flexo.Abstractions;
-using Reusable.OmniLog.Abstractions;
 
 namespace Reusable.Flexo
 {
@@ -13,15 +12,15 @@ namespace Reusable.Flexo
         {
             Matcher = Constant.DefaultComparer;
         }
-
-        public IEnumerable<IExpression> Values { get => Arg; set => Arg = value; }
+        
+        public IEnumerable<IExpression>? Values { get => Arg; set => Arg = value; }
 
         [JsonRequired]
-        public List<IExpression> Of { get; set; }
+        public List<IExpression> Of { get; set; } = default!;
 
         
         [JsonProperty(Filter.Properties.Comparer)]
-        public IExpression Matcher { get; set; }
+        public IExpression? Matcher { get; set; }
 
         protected override bool ComputeValue(IImmutableContainer context)
         {

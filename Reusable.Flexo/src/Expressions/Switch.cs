@@ -24,7 +24,8 @@ namespace Reusable.Flexo
             set => Arg = value;
         }
 
-        public IEnumerable<SwitchCase> Cases { get; set; }
+        [JsonRequired]
+        public IEnumerable<SwitchCase> Cases { get; set; } = default!;
 
         protected override IConstant ComputeConstant(IImmutableContainer context)
         {
@@ -49,10 +50,10 @@ namespace Reusable.Flexo
         public bool Enabled { get; set; } = true;
 
         [JsonRequired]
-        public IExpression When { get; set; }
+        public IExpression When { get; set; } = default!;
 
         [JsonRequired]
-        public IExpression Body { get; set; }
+        public IExpression Body { get; set; } = default!;
 
         [JsonProperty("Comparer")]
         public string? ComparerName { get; set; }
@@ -61,7 +62,7 @@ namespace Reusable.Flexo
         {
             return When switch
             {
-                IConstant constant => context.FindEqualityComparer(ComparerName).Equals(value.Value, constant.Value),
+                IConstant constant => context.FindEqualityComparer(ComparerName).Equals(value.Value!, constant.Value!),
                 {} expression => expression.Invoke(context).Value<bool>(),
                 _ => true // If not specified then use it as a default case.
             };

@@ -7,7 +7,7 @@ namespace Reusable.Flexo
     {
         public IsNullOrEmpty() : base(default) { }
 
-        public IExpression Left
+        public IExpression? Left
         {
             get => Arg;
             set => Arg = value;

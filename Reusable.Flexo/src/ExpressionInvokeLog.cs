@@ -1,8 +1,5 @@
-using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
-using System.Linq;
 using System.Linq.Custom;
 using JetBrains.Annotations;
 using Reusable.Data;
@@ -37,7 +34,7 @@ namespace Reusable.Flexo
             }
         }
 
-        private static string FormatValue(object result)
+        private static string FormatValue(object? result)
         {
             return result switch
             {

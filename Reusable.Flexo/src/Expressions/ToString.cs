@@ -11,7 +11,7 @@ namespace Reusable.Flexo
     {
         public ToString() : base(default) { }
 
-        public IExpression Value
+        public IExpression? Value
         {
             get => Arg;
             set => Arg = value;

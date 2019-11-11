@@ -1,17 +1,10 @@
 ﻿using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
-using System.Linq.Custom;
-using System.Reflection;
-using System.Runtime.CompilerServices;
-using System.Text.RegularExpressions;
-using JetBrains.Annotations;
 using Reusable.Collections;
 using Reusable.Data;
 using Reusable.Exceptionize;
-using Reusable.Extensions;
 using Reusable.Flexo.Abstractions;
-using Reusable.Quickey;
 using linq = System.Linq.Expressions;
 
 namespace Reusable.Flexo
@@ -49,7 +42,7 @@ namespace Reusable.Flexo
                 (current, next) => next switch
                 {
                     Package p => current.SetItem(p.Id, p),
-                    {} x => throw DynamicException.Create("InvalidExpression", $"{x.Id.ToString()} is not a package."),
+                    {} x => throw DynamicException.Create("InvalidExpression", $"{x.Id} is not a package."),
                     _ => throw DynamicException.Create("PackageNull", "Package must not be null.")
                 }
             );

@@ -15,7 +15,7 @@ namespace Reusable.Flexo
     {
         public Select() : base(default) { }
 
-        public IEnumerable<IExpression> Values { get => Arg; set => Arg = value; }
+        public IEnumerable<IExpression>? Values { get => Arg; set => Arg = value; }
 
         public IExpression? Selector { get; set; }
 

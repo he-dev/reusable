@@ -12,14 +12,14 @@ namespace Reusable.Flexo
         public Collection() : base(default) { }
 
         [JsonRequired]
-        public IEnumerable<IExpression> Values { get; set; }
+        public IEnumerable<IExpression> Values { get; set; } = null!;
 
         protected override IEnumerable<IExpression> ComputeValue(IImmutableContainer context)
         {
             return 
                 Values
                     .Enabled()
-                    .Select((e, i) => Constant.FromValue($"{Id.ToString()}[{i}]", e.Invoke(context).Value, context))
+                    .Select((e, i) => Constant.FromValue($"{Id}[{i}]", e.Invoke(context).Value, context))
                     .ToList();
         }
     }

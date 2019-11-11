@@ -9,7 +9,7 @@ namespace Reusable.Flexo
     {
         public Matches() : base(default) { }
 
-        public IExpression Value
+        public IExpression? Value
         {
             get => Arg;
             set => Arg = value;
@@ -17,13 +17,14 @@ namespace Reusable.Flexo
         
         public bool IgnoreCase { get; set; } = true;
 
+        [JsonRequired]
         [JsonProperty("Pattern")]
-        public IExpression Matcher { get; set; }
+        public IExpression? Matcher { get; set; } = default!;
 
         protected override bool ComputeValue(IImmutableContainer context)
         {
             var input = GetArg(context).Invoke(context).Value<string>();
-            var pattern = Matcher.Invoke(context).Value<string>();
+            var pattern = Matcher!.Invoke(context).Value<string>();
             var options = IgnoreCase ? RegexOptions.IgnoreCase : RegexOptions.None;
             return Regex.IsMatch(input, pattern, options);
         }

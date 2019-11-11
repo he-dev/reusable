@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Immutable;
 using System.Linq;
 using System.Linq.Custom;
 using System.Reflection;
@@ -22,7 +21,7 @@ namespace Reusable.Flexo
         protected GetItem(ILogger? logger) : base(logger) { }
 
         [JsonRequired]
-        public string Path { get; set; }
+        public string Path { get; set; } = default!;
 
         // key.Property.Property --> session[key].Property.Property
         // this.Property.Property --> @this.Property.Property

@@ -13,7 +13,7 @@ namespace Reusable.Flexo
             Matcher = Constant.DefaultComparer;
         }
 
-        public IExpression Value { get => Arg; set => Arg = value; }
+        public IExpression? Value { get => Arg; set => Arg = value; }
         
         [JsonProperty(Filter.Properties.Comparer)]
         public IExpression? Matcher { get; set; }
@@ -28,7 +28,7 @@ namespace Reusable.Flexo
             
             var value = GetArg(context).Invoke(context);
             var comparer = this.GetEqualityComparer(context);
-            return comparer.Equals(value.Value, true) switch
+            return comparer.Equals(value.Value!, true) switch
             {
                 true => True?.Invoke(context).Value ?? Constant.Unit,
                 false => False?.Invoke(context).Value ?? Constant.Unit

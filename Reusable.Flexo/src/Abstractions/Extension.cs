@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using Reusable.Data;
 using Reusable.Exceptionize;
-using Reusable.Extensions;
 using Reusable.OmniLog.Abstractions;
 
 namespace Reusable.Flexo.Abstractions

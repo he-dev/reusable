@@ -20,7 +20,7 @@ namespace Reusable.Flexo.Json
             throw new NotSupportedException($"{nameof(ExpressionConverter)} does not support writing.");
         }
 
-        private int _index = 0;
+        private int _index;
 
         public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
         {
@@ -60,7 +60,7 @@ namespace Reusable.Flexo.Json
             };
         }
 
-        private static IConstant CreateConstant(string name, object value)
+        private static IConstant CreateConstant(string name, object? value)
         {
             return value switch
             {

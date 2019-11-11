@@ -8,7 +8,7 @@ namespace Reusable.Flexo
     {
         public Not() : base(default) { }
 
-        public IExpression Value { get => Arg; set => Arg = value; }
+        public IExpression? Value { get => Arg; set => Arg = value; }
 
         protected override bool ComputeValue(IImmutableContainer context)
         {

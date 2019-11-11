@@ -31,9 +31,9 @@ namespace Reusable.Flexo
                 IConstant c => c.Value switch
                 {
                     string s => context.FindEqualityComparer(s),
-                    _ => throw new ArgumentException(paramName: nameof(filter), message: $"'{filter.Id.ToString()}' filter's '{nameof(IFilter.Matcher)}' must be a comparer-id.")
+                    _ => throw new ArgumentException(paramName: nameof(filter), message: $"'{filter.Id}' filter's '{nameof(IFilter.Matcher)}' must be a comparer-id.")
                 },
-                _ => throw new ArgumentException(paramName: nameof(filter), message: $"'{filter.Id.ToString()}' filter must specify a '{nameof(IFilter.Matcher)}' as a comparer-id.")
+                _ => throw new ArgumentException(paramName: nameof(filter), message: $"'{filter.Id}' filter must specify a '{nameof(IFilter.Matcher)}' as a comparer-id.")
             };
         }
 
@@ -41,9 +41,9 @@ namespace Reusable.Flexo
         {
             return filter.Matcher switch
             {
-                IConstant c => context.FindEqualityComparer().Equals(x.Value, c.Value),
+                IConstant c => context.FindEqualityComparer().Equals(x.Value!, c.Value!),
                 {} p => p.Invoke(context.BeginScopeWithArg(x)).Value<bool>(),
-                _ => throw new ArgumentException(paramName: nameof(filter), message: $"'{filter.Id.ToString()}' filter must specify a '{nameof(IFilter.Matcher)}' as a predicate.")
+                _ => throw new ArgumentException(paramName: nameof(filter), message: $"'{filter.Id}' filter must specify a '{nameof(IFilter.Matcher)}' as a predicate.")
             };
         }
     }
@@ -55,23 +55,24 @@ namespace Reusable.Flexo
             Matcher = Constant.DefaultComparer;
         }
 
-        public IExpression Left
+        public IExpression? Left
         {
             get => Arg;
             set => Arg = value;
         }
 
-        public IExpression Value { get; set; }
+        [JsonRequired]
+        public IExpression Value { get; set; } = default!;
 
         [JsonProperty(Filter.Properties.Comparer)]
-        public IExpression Matcher { get; set; }
+        public IExpression? Matcher { get; set; }
 
         protected override bool ComputeValue(IImmutableContainer context)
         {
             var x = GetArg(context).Invoke(context).Value;
             var y = Value.Invoke(context).Value;
             var c = this.GetEqualityComparer(context);
-            return c.Equals(x, y);
+            return c.Equals(x!, y!);
         }
     }
 }

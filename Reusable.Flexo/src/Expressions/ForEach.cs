@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
+using Newtonsoft.Json;
 using Reusable.Data;
 using Reusable.Flexo.Abstractions;
 
@@ -13,7 +14,8 @@ namespace Reusable.Flexo
 
         public IEnumerable<IExpression>? Values { get => Arg; set => Arg = value; }
 
-        public IExpression Body { get; set; }
+        [JsonRequired]
+        public IExpression Body { get; set; } = default!;
 
         protected override object ComputeValue(IImmutableContainer context)
         {
@@ -22,7 +24,7 @@ namespace Reusable.Flexo
                 select Body.Invoke(context.BeginScopeWithArg(arg));
 
             var results = query.ToList();
-            return results.LastOrDefault()?.Value;
+            return results.LastOrDefault()?.Value!;
         }
     }
 }

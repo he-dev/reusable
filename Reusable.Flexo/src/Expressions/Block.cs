@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
@@ -23,7 +22,7 @@ namespace Reusable.Flexo
             return Body.Select(e => e.Invoke(context)).ToList() switch
             {
                 {} results when results.Any() => results.Last(),
-                _ => throw DynamicException.Create("EmptyBlockBody", $"{nameof(Block)} '{Id.ToString()}' must have at least one element.")
+                _ => throw DynamicException.Create("EmptyBlockBody", $"{nameof(Block)} '{Id}' must have at least one element.")
             };
         }
     }

@@ -12,8 +12,7 @@ namespace Reusable.Flexo
     public interface IConstant : IExpression, IEquatable<IConstant>
     {
         [AutoEqualityProperty]
-        [CanBeNull]
-        object Value { get; }
+        object? Value { get; }
 
         IImmutableContainer? Context { get; }
     }
@@ -33,7 +32,7 @@ namespace Reusable.Flexo
             Context = context;
         }
 
-        object IConstant.Value => Value;
+        object? IConstant.Value => Value;
 
         [AutoEqualityProperty]
         public TValue Value { get; }
@@ -45,7 +44,7 @@ namespace Reusable.Flexo
             return (Id, Value, context);
         }
 
-        public void Deconstruct(out SoftString name, out TValue value, out IImmutableContainer context)
+        public void Deconstruct(out SoftString name, out TValue value, out IImmutableContainer? context)
         {
             name = Id;
             value = Value;
@@ -109,12 +108,12 @@ namespace Reusable.Flexo
         [NotNull, ItemNotNull]
         internal static IEnumerable<IExpression> CreateMany<TValue>(params TValue[] values)
         {
-            return values.Select((x, i) => FromValue($"{x.ToString()}[{i}]"));
+            return values.Select((x, i) => FromValue($"{x?.ToString()}[{i}]"));
         }
 
         public static Constant<IEnumerable<IExpression>> FromEnumerable(SoftString name, IEnumerable<object> values, IImmutableContainer? context = default)
         {
-            return FromValue(name, values.Select((x, i) => x is IConstant constant ? constant : FromValue($"{name.ToString()}.Items[{i}]", x)).ToList().Cast<IExpression>(), context);
+            return FromValue(name, values.Select((x, i) => x is IConstant constant ? constant : FromValue($"{name}.Items[{i}]", x)).ToList().Cast<IExpression>(), context);
         }
 
         #region Predefined

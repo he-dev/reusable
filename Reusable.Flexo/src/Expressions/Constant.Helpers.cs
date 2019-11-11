@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using System.Linq;
-using Reusable.Data;
 using Reusable.Exceptionize;
 using Reusable.Extensions;
 
@@ -40,7 +39,7 @@ namespace Reusable.Flexo
         {
             if (typeof(T) == typeof(object))
             {
-                value = (T)constant.Value;
+                value = (T)constant.Value!;
                 return true;
             }
 
@@ -56,7 +55,7 @@ namespace Reusable.Flexo
                 return true;
             }
 
-            value = default;
+            value = default!;
             return false;
         }
     }

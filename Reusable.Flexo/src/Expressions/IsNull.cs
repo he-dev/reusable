@@ -6,9 +6,9 @@ namespace Reusable.Flexo
 {
     public class IsNull : ScalarExtension<bool>
     {
-        public IsNull(ILogger<IsNull> logger) : base(logger) { }
+        public IsNull() : base(default) { }
         
-        public IExpression Left { get => Arg; set => Arg = value; }
+        public IExpression? Left { get => Arg; set => Arg = value; }
 
         protected override bool ComputeValue(IImmutableContainer context)
         {

@@ -1,14 +1,12 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using Reusable.Data;
-using Reusable.Exceptionize;
-using Reusable.Extensions;
 using Reusable.Flexo.Abstractions;
 
 namespace Reusable.Flexo
 {
     // There is already an ExpressionExtension so you use Helpers to easier tell them apart. 
-    public static partial class ExpressionExtensions
+    public static class ExpressionExtensions
     {
         /// <summary>
         /// Gets only enabled expressions.

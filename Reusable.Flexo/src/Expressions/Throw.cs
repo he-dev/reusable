@@ -1,4 +1,5 @@
 using JetBrains.Annotations;
+using Newtonsoft.Json;
 using Reusable.Data;
 using Reusable.Exceptionize;
 using Reusable.Flexo.Abstractions;
@@ -11,9 +12,10 @@ namespace Reusable.Flexo
     {
         public Throw() : base(default) { }
 
-        public string? Exception { get; set; }
-        
-        public string Message { get; set; }
+        public string? Exception { get; set; } = default!;
+
+        [JsonRequired]
+        public string Message { get; set; } = default!;
 
         protected override IExpression ComputeValue(IImmutableContainer context)
         {

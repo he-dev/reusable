@@ -29,7 +29,7 @@ namespace Reusable.Flexo
                 },
                 new SwitchCase
                 {
-                    When = null,
+                    When = default!,
                     Body = Double.Zero
                 }
             };

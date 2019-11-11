@@ -34,14 +34,14 @@ namespace Reusable.Flexo.Abstractions
 
         [JsonRequired]
         [JsonProperty("Value")]
-        public IExpression Right { get; set; }
+        public IExpression Right { get; set; } = default!;
         
         public string? ComparerName { get; set; }
 
         protected override bool ComputeValue(IImmutableContainer context)
         {
             var comparer = this.GetComparer(context);
-            var result = comparer.Compare(GetArg(context).Invoke(context).Value, Right.Invoke(context).Value);
+            var result = comparer.Compare(GetArg(context).Invoke(context).Value!, Right.Invoke(context).Value!);
             return _predicate(result);
         }
     }

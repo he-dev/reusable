@@ -166,7 +166,7 @@ namespace Reusable.Flexo.Abstractions
                 throw DynamicException.Create
                 (
                     $"PipeTypeMismatch",
-                    $"Extension '{extension.GetType().ToPrettyString()}<{extension.ExtendsType.ToPrettyString()}>' does not match the expression it is extending: '{arg.Value.GetType().ToPrettyString()}'."
+                    $"Extension '{extension.GetType().ToPrettyString()}<{extension.ExtendsType.ToPrettyString()}>' does not match the expression it is extending: '{arg.Value?.GetType().ToPrettyString()}'."
                 );
             }
         }
@@ -179,12 +179,9 @@ namespace Reusable.Flexo.Abstractions
         {
             public static EmptyLogger Instance { get; } = new EmptyLogger();
 
-            public LoggerNode Node { get; }
+            public LoggerNode Node { get; } = null!;
 
-            public T Use<T>(T next) where T : LoggerNode
-            {
-                return default;
-            }
+            public T Use<T>(T next) where T : LoggerNode => default!;
 
             public void Log(LogEntry logEntry) { }
         }

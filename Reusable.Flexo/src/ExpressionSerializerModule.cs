@@ -12,7 +12,7 @@ namespace Reusable.Flexo
     public class ExpressionSerializerModule : Module
     {
         private readonly IEnumerable<Type> _expressionTypes;
-        private readonly Action<JsonSerializer> _configureSerializer;
+        private readonly Action<JsonSerializer>? _configureSerializer;
 
         public ExpressionSerializerModule(IEnumerable<Type> expressionTypes, Action<JsonSerializer>? configureSerializer = default)
         {

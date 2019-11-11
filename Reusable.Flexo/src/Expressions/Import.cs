@@ -1,7 +1,6 @@
 using System;
 using Newtonsoft.Json;
 using Reusable.Data;
-using Reusable.Exceptionize;
 using Reusable.Flexo.Abstractions;
 
 namespace Reusable.Flexo
@@ -11,7 +10,7 @@ namespace Reusable.Flexo
         public Import() : base(default) { }
 
         [JsonRequired]
-        public string Package { get; set; }
+        public string Package { get; set; } = default!;
 
         protected override IConstant ComputeConstant(IImmutableContainer context)
         {

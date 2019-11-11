@@ -1,8 +1,6 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Serialization;
 using Reusable.Data;
 using Reusable.Flexo.Abstractions;
 
@@ -12,14 +10,15 @@ namespace Reusable.Flexo
     {
         public Where() : base(default) { }
 
-        public IEnumerable<IExpression> Values
+        public IEnumerable<IExpression>? Values
         {
             get => Arg;
             set => Arg = value;
         }
 
+        [JsonRequired]
         [JsonProperty(Filter.Properties.Predicate)]
-        public IExpression Matcher { get; set; }
+        public IExpression? Matcher { get; set; } = default!;
 
         protected override IEnumerable<IExpression> ComputeValue(IImmutableContainer context)
         {
