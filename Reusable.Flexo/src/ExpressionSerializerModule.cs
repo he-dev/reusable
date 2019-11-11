@@ -14,7 +14,7 @@ namespace Reusable.Flexo
         private readonly IEnumerable<Type> _expressionTypes;
         private readonly Action<JsonSerializer> _configureSerializer;
 
-        public ExpressionSerializerModule(IEnumerable<Type> expressionTypes, Action<JsonSerializer> configureSerializer = default)
+        public ExpressionSerializerModule(IEnumerable<Type> expressionTypes, Action<JsonSerializer>? configureSerializer = default)
         {
             _expressionTypes = Expression.BuiltInTypes.Concat(expressionTypes);
             _configureSerializer = configureSerializer;

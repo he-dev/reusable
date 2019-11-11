@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Runtime.CompilerServices;
 using System.Threading;
 using Reusable.Data;
 using Reusable.Exceptionize;
@@ -19,11 +20,7 @@ namespace Reusable.Flexo
                 .SetItem(EqualityComparers, ImmutableDictionary<SoftString, IEqualityComparer<object>>.Empty)
                 .SetItem(Packages, ImmutableDictionary<SoftString, IExpression>.Empty)
                 .SetItem(InvokeLog, Node.Create((IExpression)Constant.FromValue<object>("ExpressionInvokeLog")))
-                .SetItem(TryGetPackageFunc, (string packageId, out IExpression package) =>
-                {
-                    package = default;
-                    return false;
-                })
+                .SetItem(GetPackageFunc, (string packageId) => default)
                 .SetDefaultComparer()
                 .SetEqualityComparer("Default", EqualityComparer<object>.Default)
                 .SetEqualityComparer<string>(nameof(SoftString), SoftString.Comparer);
@@ -48,7 +45,7 @@ namespace Reusable.Flexo
 
         public static readonly Selector<IImmutableDictionary<SoftString, IExpression>> Packages = This.Select(() => Packages);
 
-        public static readonly Selector<TryGetPackageFunc> TryGetPackageFunc = This.Select(() => TryGetPackageFunc);
+        public static readonly Selector<GetPackageFunc> GetPackageFunc = This.Select(() => GetPackageFunc);
 
         public static readonly Selector<Node<IExpression>> InvokeLog = This.Select(() => InvokeLog);
 
@@ -56,12 +53,32 @@ namespace Reusable.Flexo
 
         public static string ToInvokeLogString(this IImmutableContainer context, RenderTreeNodeValueDelegate<IExpression, NodePlainView> template)
         {
-            return
-                context.TryFindItem<Node<IExpression>>(InvokeLog.ToString(), out var debugView)
-                    ? debugView.Views(template).Render()
-                    : throw DynamicException.Create("DebugViewNotFound", $"Could not find DebugView in context.");
+            return context.FindItem(InvokeLog).Views(template).Render();
+
+        }
+
+        public static IExpression? GetPackage(this IImmutableContainer context, string packageId)
+        {
+            foreach (var getPackage in context.FindItems(GetPackageFunc))
+            {
+                if (getPackage(packageId) is {} package)
+                {
+                    return package;
+                }
+            }
+
+            return default;
+        }
+
+        public static IConstant InvokePackage(this IImmutableContainer context, string packageId)
+        {
+            return context.GetPackage(packageId) switch
+            {
+                {} package => package.Invoke(context),
+                _ => throw DynamicException.Create("PackageNotFound", $"Could not find package '{packageId}'.")
+            };
         }
     }
 
-    public delegate bool TryGetPackageFunc(string packageId, out IExpression package);
+    public delegate IExpression? GetPackageFunc(string packageId);
 }

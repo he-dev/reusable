@@ -20,7 +20,6 @@ namespace Reusable.Flexo.Abstractions
 
     public interface IIdentifiable
     {
-        [NotNull]
         SoftString Id { get; }
     }
 
@@ -28,16 +27,12 @@ namespace Reusable.Flexo.Abstractions
     [PublicAPI]
     public interface IExpression : IIdentifiable, ISwitchable
     {
-        [CanBeNull]
-        string Description { get; }
+        string? Description { get; }
 
-        ISet<SoftString> Tags { get; }
+        ISet<SoftString>? Tags { get; }
 
-        [CanBeNull]
-        IExpression Next { get; }
+        IExpression? Next { get; }
 
-        [NotNull]
-        //IConstant Invoke();
         IConstant Invoke(IImmutableContainer context);
     }
 
@@ -127,14 +122,19 @@ namespace Reusable.Flexo.Abstractions
             set => _name = value ?? throw new ArgumentNullException(nameof(Id));
         }
 
-        public string Description { get; set; }
+        public string? Description { get; set; }
 
-        public ISet<SoftString> Tags { get; set; }
+        public ISet<SoftString>? Tags { get; set; }
 
         public bool Enabled { get; set; } = true;
 
         [JsonProperty("This")]
         public IExpression? Next { get; set; }
+
+        public static IConstant InvokePackage(string packageId, IImmutableContainer context)
+        {
+            return context.InvokePackage(packageId);
+        }
 
         public IConstant Invoke(IImmutableContainer context)
         {
@@ -144,7 +144,7 @@ namespace Reusable.Flexo.Abstractions
             var thisResult = ComputeConstant(thisContext);
 
             thisLog.Add(thisResult);
-            
+
             if (Next is IExtension extension && extension.ArgMustMatch)
             {
                 ValidateArgMatches(thisResult, extension);

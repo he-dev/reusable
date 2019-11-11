@@ -11,11 +11,13 @@ namespace Reusable.Flexo
     {
         public Throw() : base(default) { }
 
-        public IExpression Message { get; set; }
+        public string? Exception { get; set; }
+        
+        public string Message { get; set; }
 
         protected override IExpression ComputeValue(IImmutableContainer context)
         {
-            throw DynamicException.Create(Id.ToString(), Message.Invoke(context).Value<string>());
+            throw DynamicException.Create(Exception ?? Id.ToString(), Message);
         }
     }
 }

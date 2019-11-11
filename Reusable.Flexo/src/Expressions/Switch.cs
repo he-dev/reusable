@@ -14,11 +14,11 @@ namespace Reusable.Flexo
     [PublicAPI]
     public class Switch : ScalarExtension<object>
     {
-        public Switch() : this(default, nameof(Switch)) { }
+        public Switch() : this(default) { }
 
-        protected Switch(ILogger? logger, SoftString name) : base(logger) { }
+        protected Switch(ILogger? logger) : base(logger) { }
 
-        public IExpression Value
+        public IExpression? Value
         {
             get => Arg;
             set => Arg = value;

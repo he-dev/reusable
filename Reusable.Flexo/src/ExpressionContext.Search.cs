@@ -16,45 +16,34 @@ namespace Reusable.Flexo
 {
     public static partial class ExpressionContext
     {
-        public static T FindItem<T>(this IImmutableContainer scope, Selector<T> key)
-        {
-            var keyToFind = key.ToString();
-            foreach (var current in scope.Scopes())
-            {
-                if (current.TryGetItem(keyToFind, out var obj) && obj is T value)
-                {
-                    return value;
-                }
-            }
-
-            return default;
-        }
-
         public static IEnumerable<T> FindItems<T>(this IImmutableContainer context, Selector<T> key)
         {
-            var keyToFind = key.ToString();
+            return context.FindItems<T>(key.ToString());
+        }
+
+        public static IEnumerable<T> FindItems<T>(this IImmutableContainer context, string key)
+        {
             foreach (var current in context.Scopes())
             {
-                if (current.TryGetItem(keyToFind, out var obj) && obj is T value)
+                if (current.TryGetItem(key, out var obj) && obj is T value)
                 {
                     yield return value;
                 }
             }
         }
 
-        public static bool TryFindItem<T>(this IImmutableContainer context, string keyToFind, out T item)
+        public static T FindItem<T>(this IImmutableContainer context, Selector<T> key)
         {
-            foreach (var current in context.Scopes())
+            return context.FindItem<T>(key.ToString());
+        }
+        
+        public static T FindItem<T>(this IImmutableContainer context, string key)
+        {
+            return context.FindItems<T>(key).Take(1).ToList() switch
             {
-                if (current.TryGetItem(keyToFind, out var obj) && obj is T value)
-                {
-                    item = value;
-                    return true;
-                }
-            }
-
-            item = default;
-            return false;
+                {} items when items.Any() => items.Single(),
+                _ => throw DynamicException.Create("ItemNotFound", $"Could not find item {key} in any context.")
+            };
         }
 
         public static IEqualityComparer<object> FindEqualityComparer(this IImmutableContainer context, string? name = default)
@@ -82,7 +71,7 @@ namespace Reusable.Flexo
 
             throw DynamicException.Create("ComparerNotFound", $"There is no comparer with the name '{name}'.");
         }
-        
+
         public static (object Object, PropertyInfo Property, object Value) FindMember(this IImmutableContainer context, string path)
         {
             // Supported paths: sth.Property[index].Property

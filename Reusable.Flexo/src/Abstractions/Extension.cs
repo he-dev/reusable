@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Reusable.Data;
+using Reusable.Exceptionize;
 using Reusable.Extensions;
 using Reusable.OmniLog.Abstractions;
 
@@ -11,12 +12,12 @@ namespace Reusable.Flexo.Abstractions
 
     public abstract class Extension<TExtension, TResult> : Expression<TResult>, IExtension where TExtension : class
     {
-        protected Extension(ILogger logger) : base(logger) { }
+        protected Extension(ILogger? logger) : base(logger) { }
 
         /// <summary>
         /// Gets or sets the local Arg that overrides the one passed via context.
         /// </summary>
-        protected TExtension Arg { get; set; }
+        protected TExtension? Arg { get; set; }
 
         #region IExtension
 
@@ -35,13 +36,12 @@ namespace Reusable.Flexo.Abstractions
 
         protected override IExpression GetArg(IImmutableContainer context)
         {
-            return Arg switch
+            if (Arg is {})
             {
-                {} a => a, _ => context.FindItem(ExpressionContext.Arg) switch
-                {
-                    IExpression e => e, _ => default
-                }
-            };
+                return Arg;
+            }
+
+            return context.FindItem(ExpressionContext.Arg) is var item && item is IExpression expression ? expression : throw DynamicException.Create("ArgNotFound", $"Could not find {nameof(Arg)} in any context.");
         }
 
         protected IConstant InvokeArg(IImmutableContainer context, IImmutableContainer? scope = default)
@@ -59,13 +59,13 @@ namespace Reusable.Flexo.Abstractions
         /// </summary>
         protected override IEnumerable<IExpression> GetArg(IImmutableContainer context)
         {
-            return (Arg switch
+            if (Arg is {})
             {
-                {} a => a, _ => context.FindItem(ExpressionContext.Arg) switch { IConstant c => c.Value, {} x => x, _ => default } switch
-                {
-                    IEnumerable<IExpression> collection => collection, _ => default
-                }
-            })?.Enabled();
+                return Arg.Enabled();
+            }
+
+            var arg = context.FindItem(ExpressionContext.Arg) is var item && item is IConstant constant ? constant.Value : item;
+            return arg is IEnumerable<IExpression> expressions ? expressions.Enabled() : throw DynamicException.Create("ArgNotFound", $"Could not find {nameof(Arg)} in any context.");
         }
 
         protected IEnumerable<IConstant> InvokeArg(IImmutableContainer context, IImmutableContainer? scope = default)

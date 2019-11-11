@@ -29,7 +29,7 @@ namespace Reusable.Flexo
             ExpressionAssert.ExpressionEqual(useCases[0], _output);
             ExpressionAssert.ExpressionEqual(useCases[1], _output);
         }
-        
+
         [Theory]
         [SmartMemberData(nameof(GetExpressionUseCases))]
         public void Evaluate(ExpressionUseCase useCase)
@@ -49,8 +49,8 @@ namespace Reusable.Flexo
                 ImmutableContainer
                     .Empty
                     .SetPackages(packages)
+                    .SetTryGetPackageFunc(packageId => packages.Single(p => p.Id == packageId))
                     .SetItem("Product", new Product());
-            //.SetItem(From<ITestMeta>.Select(x => x.Sth), sth),
 
             var useCases = helper.ReadExpressionFile<List<ExpressionUseCase>>("ExpressionUseCases.json");
 
@@ -65,7 +65,7 @@ namespace Reusable.Flexo
         private class Product
         {
             public long Price { get; set; } = 3;
-            
+
             public List<Category> Categories { get; set; } = new List<Category>
             {
                 new Category { Color = "Green" },

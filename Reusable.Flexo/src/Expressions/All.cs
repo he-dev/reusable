@@ -19,14 +19,14 @@ namespace Reusable.Flexo
             };
         }
 
-        public IEnumerable<IExpression> Values
+        public IEnumerable<IExpression>? Values
         {
             get => Arg;
             set => Arg = value;
         }
 
         [JsonProperty(Filter.Properties.Predicate)]
-        public IExpression Matcher { get; set; }
+        public IExpression? Matcher { get; set; }
 
         protected override bool ComputeValue(IImmutableContainer context)
         {

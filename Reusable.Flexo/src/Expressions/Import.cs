@@ -17,17 +17,7 @@ namespace Reusable.Flexo
         {
             if (string.IsNullOrEmpty(Package)) throw new InvalidOperationException($"{nameof(Package)} must be not null or empty.");
 
-            var tryCount = 0;
-            foreach (var tryGetPackage in context.FindItems(ExpressionContext.TryGetPackageFunc))
-            {
-                tryCount++;
-                if (tryGetPackage(Package, out var package))
-                {
-                    return package.Invoke(context);
-                }
-            }
-
-            throw DynamicException.Create("PackageNotFound", $"Could not find package '{Package}' after {tryCount} {(tryCount == 1 ? "try" : "tries")}.");
+            return context.InvokePackage(Package);
         }
     }
 }

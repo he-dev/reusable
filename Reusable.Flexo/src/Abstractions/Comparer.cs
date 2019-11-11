@@ -11,7 +11,7 @@ namespace Reusable.Flexo.Abstractions
     public interface ISorter
     {
         [JsonProperty("Comparer")]
-        string ComparerName { get; set; }
+        string? ComparerName { get; set; }
     }
 
     public static class SorterExtensions
@@ -27,16 +27,16 @@ namespace Reusable.Flexo.Abstractions
     {
         private readonly Func<int, bool> _predicate;
 
-        protected Comparer(ILogger logger, Func<int, bool> predicate)
+        protected Comparer(ILogger? logger, Func<int, bool> predicate)
             : base(logger) => _predicate = predicate;
         
-        public IExpression Left { get => Arg; set => Arg = value; }
+        public IExpression? Left { get => Arg; set => Arg = value; }
 
         [JsonRequired]
         [JsonProperty("Value")]
         public IExpression Right { get; set; }
         
-        public string ComparerName { get; set; }
+        public string? ComparerName { get; set; }
 
         protected override bool ComputeValue(IImmutableContainer context)
         {

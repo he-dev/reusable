@@ -15,7 +15,7 @@ namespace Reusable.Flexo
         [CanBeNull]
         object Value { get; }
 
-        IImmutableContainer Context { get; }
+        IImmutableContainer? Context { get; }
     }
 
     public interface IConstant<out TValue> : IExpression
@@ -38,7 +38,7 @@ namespace Reusable.Flexo
         [AutoEqualityProperty]
         public TValue Value { get; }
 
-        public IImmutableContainer Context { get; }
+        public IImmutableContainer? Context { get; }
 
         protected override Constant<TValue> ComputeConstantGeneric(IImmutableContainer context)
         {

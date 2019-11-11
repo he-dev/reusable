@@ -8,7 +8,7 @@ namespace Reusable.Flexo
     /// </summary>
     public class ToDouble : Switch
     {
-        public ToDouble() : base(default, nameof(ToDouble))
+        public ToDouble() : base(default)
         {
             Cases = new List<SwitchCase>
             {

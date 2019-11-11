@@ -26,27 +26,23 @@ namespace Reusable.Flexo
         [NotNull]
         private readonly IContractResolver _contractResolver;
 
-        private readonly IJsonVisitor _transform;
-
-        private readonly JsonSerializer _jsonSerializer;
-
         public ExpressionSerializer
         (
-            [NotNull] IImmutableDictionary<SoftString, Type> expressionTypes,
-            [NotNull] IContractResolver contractResolver,
-            [CanBeNull] Action<JsonSerializer> configureSerializer = null
+            IImmutableDictionary<SoftString, Type> expressionTypes,
+            IContractResolver contractResolver,
+            Action<JsonSerializer>? configureSerializer = null
         )
         {
             if (expressionTypes == null) throw new ArgumentNullException(nameof(expressionTypes));
-            _contractResolver = contractResolver ?? throw new ArgumentNullException(paramName: nameof(contractResolver), message: $"You need to register na {nameof(IContractResolver)}.");
+            _contractResolver = contractResolver; // ?? throw new ArgumentNullException(paramName: nameof(contractResolver), message: $"You need to register na {nameof(IContractResolver)}.");
 
-            _transform =
+            Transform =
                 CompositeJsonVisitor
                     .Empty
                     .Add(new TrimPropertyNameVisitor())
                     .Add(new RewriteTypeVisitor(new PrettyTypeResolver(expressionTypes)));
 
-            _jsonSerializer = new JsonSerializer
+            JsonSerializer = new JsonSerializer
             {
                 NullValueHandling = NullValueHandling.Ignore,
                 TypeNameHandling = TypeNameHandling.Auto,
@@ -60,7 +56,7 @@ namespace Reusable.Flexo
                 }
             };
 
-            configureSerializer?.Invoke(_jsonSerializer);
+            configureSerializer?.Invoke(JsonSerializer);
         }
 
         public IJsonVisitor Transform { get; set; }
@@ -78,7 +74,7 @@ namespace Reusable.Flexo
         public T Deserialize<T>(string json)
         {
             if (json == null) throw new ArgumentNullException(nameof(json));
-            return _transform.Visit(json).ToObject<T>(_jsonSerializer);
+            return Transform.Visit(json).ToObject<T>(JsonSerializer);
         }
 
         private static async Task<string> ReadJsonAsync(Stream jsonStream)

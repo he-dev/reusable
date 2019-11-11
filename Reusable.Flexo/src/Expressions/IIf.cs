@@ -16,11 +16,11 @@ namespace Reusable.Flexo
         public IExpression Value { get => Arg; set => Arg = value; }
         
         [JsonProperty(Filter.Properties.Comparer)]
-        public IExpression Matcher { get; set; }
+        public IExpression? Matcher { get; set; }
         
-        public IExpression True { get; set; }
+        public IExpression? True { get; set; }
 
-        public IExpression False { get; set; }
+        public IExpression? False { get; set; }
 
         protected override object ComputeValue(IImmutableContainer context)
         {

@@ -12,7 +12,7 @@ namespace Reusable.Flexo
     {
         public Contains() : base(default) { }
 
-        public IEnumerable<IExpression> Values
+        public IEnumerable<IExpression>? Values
         {
             get => Arg;
             set => Arg = value;

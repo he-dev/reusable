@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
+using System.Linq.Custom;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
@@ -66,5 +67,12 @@ namespace Reusable.Flexo
         {
             return context.SetItem(InvokeLog, invokeLog);
         }
+        
+        public static IImmutableContainer SetTryGetPackageFunc(this IImmutableContainer context, GetPackageFunc tryGetPackageFunc)
+        {
+            return context.SetItem(GetPackageFunc, tryGetPackageFunc);
+        }
+
+        
     }
 }
