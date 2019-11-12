@@ -16,8 +16,8 @@ namespace Reusable.Extensions
         [ContractAnnotation("value: null => true")]
         public static bool IsNullOrEmpty([CanBeNull] this string value) => string.IsNullOrEmpty(value);
 
-        [ContractAnnotation("value: null => false")]
-        public static bool IsNotNullOrEmpty([CanBeNull] this string value) => !IsNullOrEmpty(value);
+        [ContractAnnotation("value: null => false; notnull => true")]
+        public static bool IsNotNullOrEmpty(this string? value) => !IsNullOrEmpty(value);
 
         #region IIf
 

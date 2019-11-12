@@ -15,8 +15,10 @@ namespace Reusable.Utilities.JsonNet.Converters
             return primitiveType != null && MakePrimitiveType(primitiveType).IsAssignableFrom(objectType);
         }
 
-        public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
+        public override void WriteJson(JsonWriter writer, object? value, JsonSerializer serializer)
         {
+            if (value is null) return;
+            
             var primitiveType = GetPrimitiveType(value.GetType());
             // ReSharper disable once PossibleNullReferenceException - CanConvert guards this so nothing is null here.
             writer.WriteValue(
@@ -26,7 +28,7 @@ namespace Reusable.Utilities.JsonNet.Converters
             );
         }
 
-        public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
+        public override object ReadJson(JsonReader reader, Type objectType, object? existingValue, JsonSerializer serializer)
         {
             var primitiveType = GetPrimitiveType(objectType);
             // ReSharper disable once PossibleNullReferenceException - CanConvert guards this so nothing is null here.

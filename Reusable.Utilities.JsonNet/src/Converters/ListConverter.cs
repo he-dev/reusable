@@ -36,7 +36,7 @@ namespace Reusable.Utilities.JsonNet.Converters
                 );
         }
 
-        public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
+        public override object ReadJson(JsonReader reader, Type objectType, object? existingValue, JsonSerializer serializer)
         {
             var valueType = objectType.GetGenericArguments()[0];
             var collectionType = typeof(List<>).MakeGenericType(valueType);
@@ -70,7 +70,7 @@ namespace Reusable.Utilities.JsonNet.Converters
             return collection;
         }
 
-        public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
+        public override void WriteJson(JsonWriter writer, object? value, JsonSerializer serializer)
         {
             throw new NotSupportedException("Not required in this scenario because it's only for reading.");
         }

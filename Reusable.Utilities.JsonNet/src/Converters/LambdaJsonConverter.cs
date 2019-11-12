@@ -10,11 +10,9 @@ namespace Reusable.Utilities.JsonNet.Converters
     [PublicAPI]
     public class LambdaJsonConverter<T> : JsonConverter<T>
     {
-        [CanBeNull]
-        public Func<string, T> ReadJsonCallback { get; set; }
+        public Func<string, T>? ReadJsonCallback { get; set; }
 
-        [CanBeNull]
-        public Func<T, string> WriteJsonCallback { get; set; }
+        public Func<T, string>? WriteJsonCallback { get; set; }
 
         public override bool CanRead => !(ReadJsonCallback is null);
 
@@ -22,6 +20,8 @@ namespace Reusable.Utilities.JsonNet.Converters
 
         public override T ReadJson(JsonReader reader, Type objectType, T existingValue, bool hasExistingValue, JsonSerializer serializer)
         {
+            if (ReadJsonCallback is null) throw new InvalidOperationException($"Cannot read json because {nameof(ReadJsonCallback)} is not set.");
+            
             var jToken = JToken.Load(reader);
             var value = jToken.Value<string>();
 
@@ -30,6 +30,8 @@ namespace Reusable.Utilities.JsonNet.Converters
 
         public override void WriteJson(JsonWriter writer, T value, JsonSerializer serializer)
         {
+            if (WriteJsonCallback is null) throw new InvalidOperationException($"Cannot write json because {nameof(WriteJsonCallback)} is not set.");
+            
             serializer.Serialize(writer, WriteJsonCallback(value));
         }
     }

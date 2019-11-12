@@ -12,19 +12,16 @@ namespace Reusable.Utilities.JsonNet.Annotations
     {
         private readonly string _name;
 
-        public NamespaceAttribute([NotNull] string name)
-        {
-            _name = name ?? throw new ArgumentNullException(nameof(name));
-        }
+        public NamespaceAttribute(string name) => _name = name;
 
-        public string Alias { get; set; }
+        public string? Alias { get; set; }
 
         public override string ToString() => _name;
 
         public IEnumerator<string> GetEnumerator()
         {
             yield return _name;
-            if (Alias.IsNotNullOrEmpty()) yield return Alias;
+            if (Alias.IsNotNullOrEmpty()) yield return Alias!;
         }
 
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();

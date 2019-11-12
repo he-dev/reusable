@@ -14,7 +14,7 @@ namespace Reusable.Utilities.JsonNet
 {
     public interface IPrettyJsonSerializer
     {
-        T Deserialize<T>([NotNull] string json, IImmutableDictionary<SoftString, Type> knownTypes);
+        T Deserialize<T>(string json, IImmutableDictionary<SoftString, Type> knownTypes);
     }
 
     [PublicAPI]
@@ -25,8 +25,8 @@ namespace Reusable.Utilities.JsonNet
 
         public PrettyJsonSerializer
         (
-            [NotNull] IContractResolver contractResolver,
-            [CanBeNull] Action<JsonSerializer> configureSerializer = default
+            IContractResolver contractResolver,
+            Action<JsonSerializer>? configureSerializer = default
         )
         {
             _contractResolver = contractResolver ?? throw new ArgumentNullException(paramName: nameof(contractResolver), message: $"You need to register na {nameof(IContractResolver)}.");

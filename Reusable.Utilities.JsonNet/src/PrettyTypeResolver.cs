@@ -48,7 +48,7 @@ namespace Reusable.Utilities.JsonNet
 
         // Placeholder: "<, >"
         // Signature: "[[T1],[T2]]" - the generic type count prefix, e.g. "`2" is added by Type.FullName later. 
-        private (string Placeholder, string Signature) GetGenericsInfo(Group genericArguments)
+        private (string? Placeholder, string? Signature) GetGenericsInfo(Group genericArguments)
         {
             if (genericArguments.Success)
             {

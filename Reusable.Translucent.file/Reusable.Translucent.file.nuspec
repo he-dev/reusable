@@ -2,7 +2,7 @@
 <package>
   <metadata>
     <id>Reusable.Translucent.file</id>
-    <version>15.0.0</version>
+    <version>15.0.1</version>
     <title>Reusable.Translucent.file</title>
     <authors>He-Dev</authors>
     <owners>He-Dev</owners>
@@ -16,15 +16,15 @@
     <tags>Utility Extension</tags>
     <dependencies>
       <dependency id="JetBrains.Annotations" version="2019.1.3" />
-      <dependency id="Microsoft.Extensions.Caching.Memory" version="2.2.0" />
-      <dependency id="Newtonsoft.Json" version="12.0.2" />
-      <dependency id="System.Collections.Immutable" version="1.5.0" />
-      <dependency id="Reusable.Core" version="15.0.0" />
-      <dependency id="Reusable.Data" version="15.0.0" />
-      <dependency id="Reusable.Flawless" version="15.0.0" />
-      <dependency id="Reusable.Quickey" version="15.0.0" />
-      <dependency id="Reusable.Utilities.JsonNet" version="15.0.0" />
-      <dependency id="Reusable.Translucent" version="15.0.0" />
+      <dependency id="Microsoft.Extensions.Caching.Memory" version="3.0.0" />
+      <dependency id="Newtonsoft.Json" version="12.0.3" />
+      <dependency id="System.Collections.Immutable" version="1.6.0" />
+      <dependency id="Reusable.Core" version="15.0.1" />
+      <dependency id="Reusable.Data" version="15.0.1" />
+      <dependency id="Reusable.Flawless" version="15.0.1" />
+      <dependency id="Reusable.Quickey" version="15.0.1" />
+      <dependency id="Reusable.Utilities.JsonNet" version="15.0.1" />
+      <dependency id="Reusable.Translucent" version="15.0.1" />
     </dependencies>
   </metadata>
   <files>

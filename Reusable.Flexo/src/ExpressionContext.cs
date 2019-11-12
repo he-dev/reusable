@@ -52,10 +52,9 @@ namespace Reusable.Flexo
         public static string ToInvokeLogString(this IImmutableContainer context, RenderTreeNodeValueDelegate<IExpression, NodePlainView> template)
         {
             return context.FindItem(InvokeLog).Views(template).Render();
-
         }
 
-        public static IExpression? GetPackage(this IImmutableContainer context, string packageId)
+        public static IExpression FindPackage(this IImmutableContainer context, string packageId)
         {
             foreach (var getPackage in context.FindItems(GetPackageFunc))
             {
@@ -65,16 +64,12 @@ namespace Reusable.Flexo
                 }
             }
 
-            return default;
+            throw DynamicException.Create("PackageNotFound", $"Could not find package '{packageId}'.");
         }
 
         public static IConstant InvokePackage(this IImmutableContainer context, string packageId)
         {
-            return context.GetPackage(packageId) switch
-            {
-                {} package => package.Invoke(context),
-                _ => throw DynamicException.Create("PackageNotFound", $"Could not find package '{packageId}'.")
-            };
+            return context.FindPackage(packageId).Invoke(context);
         }
     }
 

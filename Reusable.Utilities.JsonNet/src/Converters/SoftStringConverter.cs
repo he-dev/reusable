@@ -13,16 +13,16 @@ namespace Reusable.Utilities.JsonNet.Converters
             return objectType == typeof(SoftString);
         }
 
-        public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
+        public override object ReadJson(JsonReader reader, Type objectType, object? existingValue, JsonSerializer serializer)
         {
             var jToken = JToken.Load(reader);
             var softString = jToken.Value<string>();
             return SoftString.Create(softString);
         }
 
-        public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
+        public override void WriteJson(JsonWriter writer, object? value, JsonSerializer serializer)
         {
-            writer.WriteValue(value.ToString());
+            writer.WriteValue(value?.ToString());
         }
     }
 

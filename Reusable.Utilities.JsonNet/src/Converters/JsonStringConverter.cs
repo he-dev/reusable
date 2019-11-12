@@ -26,14 +26,14 @@ namespace Reusable.Utilities.JsonNet.Converters
             return objectType.GetCustomAttributes<JsonStringAttribute>().Any() || _stringTypes.Contains(objectType);
         }
 
-        public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
+        public override object ReadJson(JsonReader reader, Type objectType, object? existingValue, JsonSerializer serializer)
         {
             var jToken = JToken.Load(reader);
             var value = jToken.Value<string>();
 
             if (value is null)
             {
-                return default;
+                return default!;
             }
 
             if (objectType.GetConstructor(new[] { typeof(string) }) is var constructor && !(constructor is null))
@@ -53,9 +53,9 @@ namespace Reusable.Utilities.JsonNet.Converters
             );
         }
 
-        public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
+        public override void WriteJson(JsonWriter writer, object? value, JsonSerializer serializer)
         {
-            writer.WriteValue(value.ToString());
+            writer.WriteValue(value?.ToString());
         }
     }
 }

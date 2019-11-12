@@ -60,7 +60,7 @@ namespace Reusable.Utilities.JsonNet.Converters
             return objectType == typeof(Color);
         }
 
-        public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
+        public override object ReadJson(JsonReader reader, Type objectType, object? existingValue, JsonSerializer serializer)
         {
             var jToken = JToken.Load(reader);
             var colorString = jToken.Value<string>();
@@ -75,7 +75,7 @@ namespace Reusable.Utilities.JsonNet.Converters
             throw new JsonSerializationException($"Unrecognized color format: '{colorString}'");
         }
 
-        public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
+        public override void WriteJson(JsonWriter writer, object? value, JsonSerializer serializer)
         {
             var hexColorString = string.Format(ColorFormatProvider, $"#{ColorFormat}", value); // ColorFormatProvider.Format(ColorFormat, (Color)value, CultureInfo.InvariantCulture);
             writer.WriteValue(hexColorString);

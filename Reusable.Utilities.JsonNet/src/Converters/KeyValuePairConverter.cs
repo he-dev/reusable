@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using Newtonsoft.Json;
 
 namespace Reusable.Utilities.JsonNet.Converters
@@ -13,14 +14,14 @@ namespace Reusable.Utilities.JsonNet.Converters
             return typeof(IEnumerable<KeyValuePair<TKey, TValue>>).IsAssignableFrom(objectType);
         }
 
-        public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
+        public override object ReadJson(JsonReader reader, Type objectType, object? existingValue, JsonSerializer serializer)
         {
             throw new NotSupportedException();
         }
 
-        public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
+        public override void WriteJson(JsonWriter writer, object? value, JsonSerializer serializer)
         {
-            var items = (IEnumerable<KeyValuePair<TKey, TValue>>)value;
+            var items = value as IEnumerable<KeyValuePair<TKey, TValue>> ?? Enumerable.Empty<KeyValuePair<TKey, TValue>>();
 
             writer.WriteStartObject();
             foreach (var item in items)
