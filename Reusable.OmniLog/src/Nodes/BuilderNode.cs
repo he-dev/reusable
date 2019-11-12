@@ -7,14 +7,12 @@ namespace Reusable.OmniLog.Nodes
 {
     public class BuilderNode : LoggerNode
     {
-        public BuilderNode() : base(true) { }
-
         /// <summary>
         /// Gets or sets the names of the builders to copy to the log or all if empty.
         /// </summary>
         public HashSet<string> Names { get; set; } = new HashSet<string>(SoftString.Comparer);
 
-        protected override void InvokeCore(LogEntry request)
+        protected override void invoke(LogEntry request)
         {
             var builders =
                 request

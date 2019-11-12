@@ -1,15 +1,4 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Collections.Immutable;
-using System.Diagnostics;
-using System.Linq;
-using System.Linq.Custom;
-using System.Text.RegularExpressions;
-using JetBrains.Annotations;
-using Reusable.Collections;
-using Reusable.Data;
-using Reusable.OmniLog.Abstractions;
+﻿using Reusable.Data;
 
 namespace Reusable.OmniLog
 {

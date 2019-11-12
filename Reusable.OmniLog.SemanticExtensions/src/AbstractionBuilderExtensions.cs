@@ -186,21 +186,41 @@ namespace Reusable.OmniLog.SemanticExtensions
 
     public static class AbstractionCategoryExtensions
     {
+        /// <summary>
+        /// Indicates that a routine is still running.
+        /// </summary>
         public static ILogEntryBuilder<ILogEntryCategory> Running(this ILogEntryBuilder<ILogEntryCategory> category)
         {
             return category.Update(l => l.SetItem(LogEntry.Names.Snapshot, LogEntry.Tags.Loggable, nameof(Running)));
         }
 
+        /// <summary>
+        /// Indicates that a routine completed its task. Use this only when no errors occured.
+        /// </summary>
         public static ILogEntryBuilder<ILogEntryCategory> Completed(this ILogEntryBuilder<ILogEntryCategory> category)
         {
             return category.Update(l => l.SetItem(LogEntry.Names.Snapshot, LogEntry.Tags.Loggable, nameof(Completed)));
         }
+        
+        /// <summary>
+        /// Indicates that a routine finished its task. Use this regardless of errors.
+        /// </summary>
+        public static ILogEntryBuilder<ILogEntryCategory> Finished(this ILogEntryBuilder<ILogEntryCategory> category)
+        {
+            return category.Update(l => l.SetItem(LogEntry.Names.Snapshot, LogEntry.Tags.Loggable, nameof(Finished)));
+        }
 
+        /// <summary>
+        /// Indicates that a routine was canceled and could not complete its task. 
+        /// </summary>
         public static ILogEntryBuilder<ILogEntryCategory> Canceled(this ILogEntryBuilder<ILogEntryCategory> category)
         {
             return category.Update(l => l.SetItem(LogEntry.Names.Snapshot, LogEntry.Tags.Loggable, nameof(Canceled))).Warning();
         }
 
+        /// <summary>
+        /// Indicates that a routine faulted before it could complete its task. 
+        /// </summary>
         public static ILogEntryBuilder<ILogEntryCategory> Faulted(this ILogEntryBuilder<ILogEntryCategory> category, Exception exception = default)
         {
             return category.Update(l =>

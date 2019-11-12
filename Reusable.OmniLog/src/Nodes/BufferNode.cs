@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using Reusable.OmniLog.Abstractions;
@@ -9,51 +8,35 @@ namespace Reusable.OmniLog.Nodes
     /// <summary>
     /// Temporarily holding log-entries while it's waiting to be transferred to another location. 
     /// </summary>
-    public class BufferNode : LoggerNode, ILoggerNodeScope<BufferNode.Scope, object>
+    public class BufferNode : LoggerNode
     {
-        public BufferNode() : base(false) { }
+        private readonly Queue<LogEntry> _buffer = new Queue<LogEntry>();
 
-        public override bool Enabled => AsyncScope<Scope>.Any;
-
-        protected override void InvokeCore(LogEntry request)
+        protected override void invoke(LogEntry request)
         {
-            AsyncScope<Scope>.Current.Value.Buffer.Enqueue(request);
-            // Don't call Next until Commit.
-        }
-        
-        public Scope Current => AsyncScope<Scope>.Current?.Value;
-
-        public Scope Push(object parameter)
-        {
-            return AsyncScope<Scope>.Push(new Scope { Next = Next }).Value;
+            _buffer.Enqueue(request);
+            // Don't call Next until Flush.
         }
 
-        public Scope Push() => Push(default);
+        public int Count => _buffer.Count;
 
-        public class Scope : IDisposable
+        public void Flush()
         {
-            internal Queue<LogEntry> Buffer { get; } = new Queue<LogEntry>();
-
-            internal LoggerNode Next { get; set; }
-
-            public void Flush()
+            while (_buffer.Any())
             {
-                while (Buffer.Any())
-                {
-                    Next?.Invoke(Buffer.Dequeue());
-                }
+                invokeNext(_buffer.Dequeue());
             }
+        }
 
-            public void Clear()
-            {
-                Buffer.Clear();
-            }
+        public void Clear()
+        {
+            _buffer.Clear();
+        }
 
-            public void Dispose()
-            {
-                Buffer.Clear();
-                AsyncScope<Scope>.Current.Dispose();
-            }
+        public override void Dispose()
+        {
+            _buffer.Clear();
+            base.Dispose();
         }
     }
 
@@ -66,18 +49,11 @@ namespace Reusable.OmniLog.Nodes
         //             .Node<BufferNode>()
         //             .Push(default);
         // }
+
+        public static ILoggerScope UseBuffer(this ILoggerScope scope) => scope.AddMiddleware(new BufferNode());
+
+        public static BufferNode Buffer(this ILogger logger) => logger.Node<BufferNode>();
         
-        public static ILoggerScope UseBuffer(this ILogger logger)
-        {
-            return new LoggerScope<BufferNode>(logger, node => node.Push(default));
-        }
-        
-        public static BufferNode.Scope Buffer(this ILogger logger)
-        {
-            return
-                logger
-                    .Node<BufferNode>()
-                    .Current;
-        }
+        public static IEnumerable<BufferNode> Buffers(this ILogger logger) => logger.Scope().SelectMany(s => s.OfType<BufferNode>());
     }
 }

@@ -239,15 +239,15 @@ namespace System.Linq.Custom
 
             var items = source.Take(2).ToList();
 
-            onEmpty = onEmpty ?? (() => DynamicException.Create("Empty", $"{source.GetType().ToPrettyString()} does not contain any elements that match the specified predicate."));
-            onMany = onMany ?? (() => DynamicException.Create("Many", $"{source.GetType().ToPrettyString()} contains more than one element that matches the specified predicate."));
+            onEmpty ??= () => DynamicException.Create("Empty", $"{source.GetType().ToPrettyString()} does not contain any elements that match the specified predicate.");
+            onMany ??= () => DynamicException.Create("Many", $"{source.GetType().ToPrettyString()} contains more than one element that matches the specified predicate.");
 
-            switch (items.Count)
+            return items.Count switch
             {
-                case 0: throw onEmpty();
-                case 1: return items[0];
-                default: throw onMany();
-            }
+                0 => throw onEmpty(),
+                1 => items[0],
+                _ => throw onMany()
+            };
         }
 
 //        public static T SingleOrThrow<T>([NotNull] this IEnumerable<T> source, (string Name, string Message)? onEmpty = null, (string Name, string Message)? onMany = null)

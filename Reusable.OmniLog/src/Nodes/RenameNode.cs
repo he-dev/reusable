@@ -8,11 +8,9 @@ namespace Reusable.OmniLog.Nodes
     // Reroutes items from one property to the other: Meta#Dump --> Snapshot#Dump 
     public class RenameNode : LoggerNode
     {
-        public RenameNode() : base(true) { }
-
         public Dictionary<string, string> Mappings { get; set; } = new Dictionary<string, string>();
 
-        protected override void InvokeCore(LogEntry request)
+        protected override void invoke(LogEntry request)
         {
             foreach (var route in Mappings.Where(x => !SoftString.Comparer.Equals(x.Key, x.Value)))
             {

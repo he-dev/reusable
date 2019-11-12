@@ -3,9 +3,6 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
-using System.Reflection;
-using Reusable.Exceptionize;
-using Reusable.Extensions;
 using Reusable.OmniLog.Abstractions;
 using Reusable.OmniLog.Abstractions.Data;
 
@@ -19,11 +16,9 @@ namespace Reusable.OmniLog.Nodes
     /// </summary>
     public class MapperNode : LoggerNode
     {
-        public MapperNode() : base(true) { }
-
         public MappingCollection Mappings { get; set; } = new MappingCollection();
 
-        protected override void InvokeCore(LogEntry request)
+        protected override void invoke(LogEntry request)
         {
             foreach (var item in request.Where(x => x.Key.Tag.Equals(LogEntry.Tags.Serializable)).ToList())
             {

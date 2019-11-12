@@ -18,29 +18,27 @@ namespace Reusable.OmniLog
         public void Can_log_message()
         {
             var rx = new MemoryRx();
-            using (var lf = new LoggerFactory
+            using var lf = new LoggerFactory
             {
                 Nodes =
                 {
                     new StopwatchNode(),
                     new ScalarNode(),
                     new LambdaNode(),
-                    new CorrelationNode(),
+                    new ScopeNode(),
                     new SerializerNode(),
                     //new LoggerFilter()
-                    new BufferNode(),
+                    //new BufferNode(),
                     new EchoNode
                     {
                         Rx = { rx },
                     }
                 }
-            })
-            {
-                var logger = lf.CreateLogger("test");
-                logger.Log(l => l.Message("Hallo!"));
-                Assert.Equal(1, rx.Count());
-                Assert.Equal("Hallo!", rx.First()["Message"]);
-            }
+            };
+            var logger = lf.CreateLogger("test");
+            logger.Log(l => l.Message("Hallo!"));
+            Assert.Equal(1, rx.Count());
+            Assert.Equal("Hallo!", rx.First()["Message"]);
         }
 
         [Fact]
@@ -56,10 +54,10 @@ namespace Reusable.OmniLog
                     new StopwatchNode(),
                     new ScalarNode(),
                     new LambdaNode(),
-                    new CorrelationNode(),
+                    new ScopeNode(),
                     new SerializerNode(),
                     //new LoggerFilter()
-                    new BufferNode(),
+                    //new BufferNode(),
                     new EchoNode
                     {
                         Rx = { rx },
@@ -70,7 +68,7 @@ namespace Reusable.OmniLog
             {
                 var logger = lf.CreateLogger("test");
                 var outerCorrelationId = "test-id-1";
-                using (logger.UseScope(outerCorrelationId))
+                using (logger.BeginScope(outerCorrelationId))
                 {
                     var scope1 = logger.Scope();
                     logger.Log(l => l.Message("Hallo!"));
@@ -78,7 +76,7 @@ namespace Reusable.OmniLog
                     Assert.NotNull(rx[0][LogEntry.Names.Scope]);
 
                     var innerCorrelationId = "test-id-2";
-                    using (logger.UseScope(innerCorrelationId))
+                    using (logger.BeginScope(innerCorrelationId))
                     {
                         var scope2 = logger.Scope();
                         logger.Log(l => l.Message("Hi!"));
@@ -104,11 +102,11 @@ namespace Reusable.OmniLog
                     new StopwatchNode(),
                     new ScalarNode(),
                     new LambdaNode(),
-                    new CorrelationNode(),
+                    new ScopeNode(),
                     new OneToManyNode(),
                     new SerializerNode(),
                     //new LoggerFilter()
-                    new BufferNode(),
+                    //new BufferNode(),
                     new EchoNode
                     {
                         Rx = { rx },

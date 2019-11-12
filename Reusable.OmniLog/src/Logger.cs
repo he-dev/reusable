@@ -1,35 +1,18 @@
 using System;
-using System.Collections.Generic;
 using Reusable.Extensions;
 using Reusable.OmniLog.Abstractions;
 using Reusable.OmniLog.Abstractions.Data;
 
 namespace Reusable.OmniLog
 {
-    public class Logger : ILogger
+    public class Logger : LoggerNode, ILogger
     {
-        private readonly LoggerNode _node;
+        public virtual void Log(LogEntry logEntry) => invokeNext(logEntry);
 
-        public Logger(LoggerNode node)
-        {
-            // Always start with the first middleware.
-            _node = node;
-        }
-
-        public LoggerNode Node => _node;
-
-        //        public T Use<T>(T next) where T : LoggerNode
-        //        {
-        //            return (T)_node.InsertRelative(next, _middlewarePositions);
-        //        }
-
-        public void Log(LogEntry logEntry)
-        {
-            _node.Invoke(logEntry);
-        }
+        protected override void invoke(LogEntry request) => Log(request);
     }
 
-    public class Logger<T> : ILogger<T>
+    public class Logger<T> : Logger, ILogger<T>
     {
         private readonly ILogger _logger;
 
@@ -40,52 +23,24 @@ namespace Reusable.OmniLog
 
         public static ILogger<T> Empty { get; } = new EmptyLogger();
 
-        public LoggerNode Node => _logger.Node;
+        public override void Log(LogEntry logEntry) => _logger.Log(logEntry);
 
-        //        public T1 Use<T1>(T1 next) where T1 : LoggerNode
-        //        {
-        //            return _logger.Use(next);
-        //        }
-
-        public void Log(LogEntry logEntry)
-        {
-            _logger.Log(logEntry);
-        }
-
-        private class EmptyLogger : ILogger<T>
-        {
-            public LoggerNode Node { get; }
-
-            public void Log(LogEntry logEntry) { }
-        }
+        private class EmptyLogger : Logger, ILogger<T> { }
     }
 
-    public readonly struct LoggerScope<T> : ILoggerScope where T : LoggerNode
+    public class LoggerScope<T> : Logger, ILoggerScope where T : ILoggerNode
     {
         private readonly ILogger _logger;
         private readonly IDisposable _scope;
 
-        public LoggerScope(ILogger logger, Func<T, IDisposable> push)
+        public LoggerScope(ILogger logger, Func<T, IDisposable> configureNode)
         {
             _logger = logger;
-            _scope = push(logger.Node<T>());
+            _scope = configureNode(logger.Node<T>());
         }
 
-        #region ILogger
+        public override void Log(LogEntry logEntry) => _logger.Log(logEntry);
 
-        public LoggerNode Node => _logger.Node;
-
-        public void Log(LogEntry logEntry) => _logger.Log(logEntry);
-
-        #endregion
-
-        public void Dispose()
-        {
-            _scope.Dispose();
-            if (_logger is IDisposable disposable)
-            {
-                disposable.Dispose();
-            }
-        }
+        public override void Dispose() => _scope.Dispose();
     }
 }

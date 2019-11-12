@@ -6,13 +6,11 @@ namespace Reusable.OmniLog.Nodes
 {
     public class LambdaNode : LoggerNode
     {
-        public LambdaNode() : base(false) { }
-
         public override bool Enabled => AsyncScope<Item>.Any;
 
         public static void Push(Item item) => AsyncScope<Item>.Push(item);
 
-        protected override void InvokeCore(LogEntry request)
+        protected override void invoke(LogEntry request)
         {
             while (Enabled)
             {

@@ -10,7 +10,7 @@ namespace Reusable.OmniLog.Nodes
     {
         private readonly ISerializer _serializer;
 
-        public SerializerNode(ISerializer serializer) : base(true)
+        public SerializerNode(ISerializer serializer)
         {
             _serializer = serializer;
         }
@@ -24,7 +24,7 @@ namespace Reusable.OmniLog.Nodes
         
         public static ItemKey<SoftString> CreateRequestItemKey(SoftString name) => new ItemKey<SoftString>(name, LogEntry.Tags.Serializable);
 
-        protected override void InvokeCore(LogEntry request)
+        protected override void invoke(LogEntry request)
         {
             // Process only selected #Serializable properties or all.
             var keys =

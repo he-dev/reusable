@@ -1,5 +1,4 @@
 using System;
-using System.Linq;
 using JetBrains.Annotations;
 using Reusable.Extensions;
 using Reusable.FormatProviders;

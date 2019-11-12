@@ -3,6 +3,7 @@ using System.Linq;
 using Reusable.OmniLog.Abstractions;
 using Reusable.OmniLog.Abstractions.Data;
 using Reusable.OmniLog.Nodes;
+using Reusable.OmniLog.Rx;
 using Telerik.JustMock;
 using Telerik.JustMock.Helpers;
 using Xunit;
@@ -18,12 +19,12 @@ namespace Reusable.OmniLog
             [Fact]
             public void Can_push_an_pop_scope()
             {
-                var node = new CorrelationNode();
+                var node = new ScopeNode();
                 var logEntry = new LogEntry();
-                
+
                 var key = new ItemKey<SoftString>(LogEntry.Names.Scope, LogEntry.Tags.Serializable);
 
-                Assert.False(logEntry.TryGetItem<List<CorrelationNode.Scope>>(key, out var scope));
+                Assert.False(logEntry.TryGetItem<List<ScopeNode.Scope>>(key, out var scope));
 
 
                 using (node.Push((CorrelationId: "scope-1", CorrelationHandle: "handle-1")))
@@ -84,7 +85,7 @@ namespace Reusable.OmniLog
                     .Arrange(x => x.Invoke(Arg.IsAny<LogEntry>()))
                     .DoInstead<LogEntry>(r => logs.Add(r))
                     .Occurs(2);
-                node.InsertNext(next);
+                next.InsertAfter(node);
 
                 var requestKey = new ItemKey<SoftString>("test", LogEntry.Tags.Explodable);
                 node.Invoke(new LogEntry().SetItem(requestKey, new Dictionary<string, object>
@@ -113,7 +114,7 @@ namespace Reusable.OmniLog
                     .Arrange(x => x.Invoke(Arg.IsAny<LogEntry>()))
                     .DoInstead<LogEntry>(r => logs.Add(r))
                     .Occurs(2);
-                node.InsertNext(next);
+                next.InsertAfter(node);
 
                 var requestKey = new ItemKey<SoftString>("test", LogEntry.Tags.Explodable);
                 node.Invoke(new LogEntry().SetItem(requestKey, new
@@ -142,7 +143,7 @@ namespace Reusable.OmniLog
                     .Arrange(x => x.Invoke(Arg.IsAny<LogEntry>()))
                     .DoInstead<LogEntry>(r => logs.Add(r))
                     .Occurs(1);
-                node.InsertNext(next);
+                next.InsertAfter(node);
 
                 var requestKey = new ItemKey<SoftString>("test", LogEntry.Tags.Loggable);
                 node.Invoke(new LogEntry().SetItem(requestKey, "abc"));
@@ -168,13 +169,13 @@ namespace Reusable.OmniLog
                     .Arrange(x => x.Invoke(Arg.IsAny<LogEntry>()))
                     .DoInstead<LogEntry>(r => logs.Add(r))
                     .Occurs(1);
-                node.InsertNext(next);
+                next.InsertAfter(node);
 
                 node.Invoke(new LogEntry().SetItem(SerializerNode.CreateRequestItemKey("test"), new { a = "2a" }));
 
                 Assert.Equal(1, logs.Count);
                 Assert.Equal(@"{""a"":""2a""}", logs[0]["test"]);
-                
+
                 next.Assert();
             }
         }
@@ -184,49 +185,60 @@ namespace Reusable.OmniLog
             [Fact]
             public void Can_push_an_pop_scope()
             {
-                var node = new BufferNode();
-
-                var next = Mock.Create<LoggerNode>();
-                next.Arrange(x => x.Invoke(Arg.IsAny<LogEntry>())).Occurs(3);
-                node.InsertNext(next);
-
-                using (var tran1 = node.Push())
+                var rx = new MemoryRx();
+                using var lf = new LoggerFactory
                 {
-                    node.Invoke(new LogEntry());
-                    Assert.Equal(1, tran1.Buffer.Count);
-
-                    using (var tran2 = node.Push())
+                    Nodes =
                     {
-                        node.Invoke(new LogEntry());
-                        node.Invoke(new LogEntry());
+                        new ScopeNode(),
+                        new BufferNode(),
+                        new EchoNode { Rx = { rx } }
+                    }
+                };
+                
+                var logger = lf.CreateLogger("test");
 
-                        Assert.Equal(2, tran2.Buffer.Count);
+                //var next = Mock.Create<LoggerNode>();
+                //next.Arrange(x => x.Invoke(Arg.IsAny<LogEntry>())).Occurs(3);
+                //next.InsertAfter(node);
 
-                        using (var tran3 = node.Push())
+                using (logger.BeginScope().UseBuffer())
+                {
+                    logger.Log(new LogEntry());
+                    Assert.Equal(1, logger.Buffers().ElementAt(0).Count);
+
+                    using (logger.BeginScope().UseBuffer())
+                    {
+                        logger.Log(new LogEntry());
+                        logger.Log(new LogEntry());
+
+                        Assert.Equal(2, logger.Buffers().ElementAt(1).Count);
+
+                        using (logger.BeginScope().UseBuffer())
                         {
-                            node.Invoke(new LogEntry());
-                            node.Invoke(new LogEntry());
-                            node.Invoke(new LogEntry());
+                            logger.Log(new LogEntry());
+                            logger.Log(new LogEntry());
+                            logger.Log(new LogEntry());
 
-                            Assert.Equal(1, tran1.Buffer.Count);
-                            Assert.Equal(2, tran2.Buffer.Count);
-                            Assert.Equal(3, tran3.Buffer.Count);
+                            Assert.Equal(1, logger.Buffers().ElementAt(0).Count);
+                            Assert.Equal(2, logger.Buffers().ElementAt(1).Count);
+                            Assert.Equal(3, logger.Buffers().ElementAt(2).Count);
 
-                            tran3.Flush();
+                            logger.Buffer().Flush();
 
-                            Assert.Equal(1, tran1.Buffer.Count);
-                            Assert.Equal(2, tran2.Buffer.Count);
-                            Assert.Equal(0, tran3.Buffer.Count);
+                            Assert.Equal(1, logger.Buffers().ElementAt(0).Count);
+                            Assert.Equal(2, logger.Buffers().ElementAt(1).Count);
+                            Assert.Equal(0, logger.Buffers().ElementAt(2).Count);
                         }
 
-                        Assert.Equal(1, tran1.Buffer.Count);
-                        Assert.Equal(2, tran2.Buffer.Count);
+                        Assert.Equal(1, logger.Buffers().ElementAt(0).Count);
+                        Assert.Equal(2, logger.Buffers().ElementAt(1).Count);
                     }
 
-                    Assert.Equal(1, tran1.Buffer.Count);
+                    Assert.Equal(1, logger.Buffers().ElementAt(0).Count);
                 }
 
-                next.Assert();
+                //next.Assert();
             }
         }
     }

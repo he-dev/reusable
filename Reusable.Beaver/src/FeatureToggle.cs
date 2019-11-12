@@ -92,8 +92,7 @@ namespace Reusable.Beaver
         {
             if (Options[name].Contains(Feature.Options.Telemetry))
             {
-                using (_logger.UseScope(correlationHandle: nameof(FeatureTelemetry)))
-                using (_logger.UseStopwatch())
+                using (_logger.UseScope().WithCorrelationHandle("CollectFeatureTelemetry").UseStopwatch())
                 {
                     _logger.Log(Abstraction.Layer.Service().Meta(new
                     {

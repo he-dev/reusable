@@ -1,5 +1,3 @@
-using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using Reusable.OmniLog.Abstractions;
@@ -12,13 +10,11 @@ namespace Reusable.OmniLog.Nodes
     /// </summary>
     public class ScalarNode : LoggerNode
     {
-        public ScalarNode() : base(true) { }
-
         public override bool Enabled => base.Enabled && Functions.Any();
 
         public List<IScalar> Functions { get; set; } = new List<IScalar>();
 
-        protected override void InvokeCore(LogEntry request)
+        protected override void invoke(LogEntry request)
         {
             foreach (var computable in Functions.Where(x => x.Enabled))
             {

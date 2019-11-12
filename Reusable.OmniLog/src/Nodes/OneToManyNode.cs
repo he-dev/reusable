@@ -1,8 +1,6 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using System.Linq.Expressions;
 using System.Reflection;
 using Reusable.Exceptionize;
 using Reusable.OmniLog.Abstractions;
@@ -18,9 +16,7 @@ namespace Reusable.OmniLog.Nodes
     /// </summary>
     public class OneToManyNode : LoggerNode
     {
-        public OneToManyNode() : base(true) { }
-
-        protected override void InvokeCore(LogEntry request)
+        protected override void invoke(LogEntry request)
         {
             var explodeCount = 0;
 

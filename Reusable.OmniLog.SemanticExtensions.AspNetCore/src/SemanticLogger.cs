@@ -36,8 +36,7 @@ namespace Reusable.OmniLog.SemanticExtensions.AspNetCore
 
         public async Task Invoke(HttpContext context, IFeatureToggle featureToggle)
         {
-            using (_logger.UseStopwatch())
-            using (_logger.UseScope(correlationId: _getCorrelationId(context)))
+            using (_logger.UseScope().WithCorrelationHandle(_getCorrelationId(context)).UseStopwatch())
             {
                 _logger.Log(Abstraction.Layer.Service().Meta(new
                 {

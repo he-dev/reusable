@@ -7,13 +7,11 @@ namespace Reusable.OmniLog.Nodes
 {
     public class FallbackNode : LoggerNode
     {
-        public FallbackNode() : base(true) { }
-
         public override bool Enabled => base.Enabled && Defaults?.Any() == true;
 
         public Dictionary<SoftString, object> Defaults { get; set; } = new Dictionary<SoftString, object>();
 
-        protected override void InvokeCore(LogEntry request)
+        protected override void invoke(LogEntry request)
         {
             foreach (var item in Defaults)
             {

@@ -7,8 +7,6 @@ namespace Reusable.OmniLog.Nodes
 {
     public class CorrelationNode : LoggerNode, ILoggerNodeScope<CorrelationNode.Scope, (object CorrelationId, object CorrelationHandle)>
     {
-        public CorrelationNode() : base(false) { }
-
         /// <summary>
         /// Gets or sets the factory for the default correlation-id. By default it's a Guid.
         /// </summary>
@@ -27,7 +25,7 @@ namespace Reusable.OmniLog.Nodes
             }).Value;
         }
 
-        protected override void InvokeCore(LogEntry request)
+        protected override void invoke(LogEntry request)
         {
             request.SetItem(LogEntry.Names.Scope, LogEntry.Tags.Serializable, AsyncScope<Scope>.Current.Enumerate().Select(x => x.Value).ToList());
             Next?.Invoke(request);
@@ -53,20 +51,15 @@ namespace Reusable.OmniLog.Nodes
         //             .Push((correlationId, correlationHandle));
         // }
         
+        // Obsolete
         public static ILoggerScope UseScope(this ILogger logger, object correlationId = default, object correlationHandle = default)
         {
             return new LoggerScope<CorrelationNode>(logger, node => node.Push((correlationId, correlationHandle)));
         }
-
-        /// <summary>
-        /// Gets the current correlation scope.
-        /// </summary>
-        public static CorrelationNode.Scope Scope(this ILogger logger)
+        
+        public static ILoggerScope BeginScope(this ILogger logger)
         {
-            return
-                logger
-                    .Node<CorrelationNode>()
-                    .Current;
+            return new LoggerScope<CorrelationNode>(logger, node => node.Push((default, default)));
         }
     }
 }

@@ -1,7 +1,6 @@
 using Reusable.Extensions;
 using Reusable.OmniLog.Abstractions;
 using Reusable.OmniLog.Abstractions.Data;
-using Reusable.OmniLog.Nodes;
 
 namespace Reusable.OmniLog
 {

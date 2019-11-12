@@ -109,12 +109,12 @@ namespace Reusable.Flexo.Abstractions
 
         protected Expression(ILogger? logger)
         {
-            Logger = logger ?? EmptyLogger.Instance;
+            //Logger = logger ?? EmptyLogger.Instance;
             _name = $"{GetType().ToPrettyString()}-{++_counter}";
         }
 
-        [NotNull]
-        protected ILogger Logger { get; }
+        //[NotNull]
+        //protected ILogger Logger { get; }
 
         public SoftString Id
         {
@@ -175,15 +175,11 @@ namespace Reusable.Flexo.Abstractions
 
         protected abstract IConstant ComputeConstant(IImmutableContainer context);
 
-        private class EmptyLogger : ILogger
-        {
-            public static EmptyLogger Instance { get; } = new EmptyLogger();
-
-            public LoggerNode Node { get; } = null!;
-
-            public T Use<T>(T next) where T : LoggerNode => default!;
-
-            public void Log(LogEntry logEntry) { }
-        }
+//        private class EmptyLogger : ILogger
+//        {
+//            public static EmptyLogger Instance { get; } = new EmptyLogger();
+//
+//            public void Log(LogEntry logEntry) { }
+//        }
     }
 }

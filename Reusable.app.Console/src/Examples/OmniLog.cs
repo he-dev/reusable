@@ -33,11 +33,11 @@ namespace Reusable
                         }
                     },
                     // Adds elapsed time to each log-entry. Can be enabled with logger.UseStopwatch(). Dispose to disable.
-                    new StopwatchNode
-                    {
-                        // Selects milliseconds to be logged. This is the default.
-                        GetValue = elapsed => elapsed.TotalMilliseconds
-                    },
+//                    new StopwatchNode
+//                    {
+//                        // Selects milliseconds to be logged. This is the default.
+//                        GetValue = elapsed => elapsed.TotalMilliseconds
+//                    },
                     // Adds computed properties to each log-entry.
                     new ScalarNode
                     {
@@ -50,7 +50,8 @@ namespace Reusable
                     // Adds support for logger.Log(log => ..) overload.
                     new LambdaNode(),
                     // Adds Correlation object to each log-entry.
-                    new CorrelationNode(),
+                    //new CorrelationNode(),
+                    new ScopeNode(),
                     // Copies everything from AbstractionBuilder to each log-entry.
                     // Contains properties Layer and Category and Meta#Dump.
                     new BuilderNode
@@ -95,7 +96,7 @@ namespace Reusable
                         }
                     },
                     // When activated, buffers log-entries until committed. Can be enabled with logger.UseTransaction(). Dispose to disable.
-                    new BufferNode(),
+                    //new BufferNode(),
                     // The final node that sends log-entries to the receivers.
                     new EchoNode
                     {
@@ -125,8 +126,7 @@ namespace Reusable
             logger.Log(Abstraction.Layer.Service().Meta(new { Null = (string)default }));
 
             // Opening outer-scope.
-            using (logger.UseScope(correlationHandle: "my-handle"))
-            using (logger.UseStopwatch())
+            using (logger.UseScope(correlationHandle: "my-handle").UseStopwatch())
             {
                 var variable = new { John = "Doe" };
                 // Logging some single business variable and a message.
@@ -135,8 +135,7 @@ namespace Reusable
                 logger.Log(Abstraction.Layer.Database().Flow().Decision("Log something.").Because("Logger works!"));
 
                 // Opening inner-scope.
-                using (logger.UseScope())
-                using (logger.UseStopwatch())
+                using (logger.UseScope().UseStopwatch())
                 {
                     // Logging an entire object in a single line.
                     var customer = new Person
@@ -158,21 +157,20 @@ namespace Reusable
                 }
             }
 
-            using (logger.UseScope(correlationHandle: "Transaction"))
-            using (logger.UseStopwatch())
+            using (logger.UseScope(correlationHandle: "Transaction").UseStopwatch())
             {
-                using (var tran = logger.UseBuffer())
+                using (logger.UseScope().UseBuffer())
                 {
                     logger.Information("This message is not logged.");
                 }
 
-                using (var tran = logger.UseBuffer())
+                using (logger.UseScope().UseBuffer())
                 {
                     logger.Information("This message is not logged.");
                     //logger.Information("This message overrides the transaction.", LoggerTransaction.Override);
                 }
 
-                using (logger.UseBuffer())
+                using (logger.UseScope().UseBuffer())
                 {
                     logger.Information("This message is delayed.");
                     logger.Information("This message is delayed too.");

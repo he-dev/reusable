@@ -131,12 +131,14 @@ namespace Reusable.OmniLog
 
         #endregion
 
-        public static T Node<T>(this ILogger logger) where T : LoggerNode
+        /// <summary>
+        /// Gets logger-node of the specified type.
+        /// </summary>
+        public static T Node<T>(this ILogger logger) where T : ILoggerNode
         {
             return
                 logger
-                    .Node
-                    .Enumerate(m => m.Next)
+                    //.Enumerate(m => m.Next)
                     .OfType<T>()
                     .SingleOrThrow(onEmpty: () => DynamicException.Create($"{nameof(LoggerNode)}NotFound", $"There was no {typeof(T).ToPrettyString()}."));
         }

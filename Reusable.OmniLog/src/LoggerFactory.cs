@@ -4,34 +4,33 @@ using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
 using Reusable.OmniLog.Abstractions;
-using Reusable.OmniLog.Abstractions.Data;
 using Reusable.OmniLog.Nodes;
 
 namespace Reusable.OmniLog
 {
     public class LoggerFactory : ILoggerFactory
     {
-        private readonly ConcurrentDictionary<SoftString, ILogger> _loggers;
+        private readonly ConcurrentDictionary<SoftString, ILogger> _loggers = new ConcurrentDictionary<SoftString, ILogger>();
 
-        public LoggerFactory()
-        {
-            _loggers = new ConcurrentDictionary<SoftString, ILogger>();
-        }
-
-        public List<LoggerNode> Nodes { get; set; } = new List<LoggerNode>();
+        public List<ILoggerNode> Nodes { get; set; } = new List<ILoggerNode>();
 
         #region ILoggerFactory
 
-        public ILogger CreateLogger(string name)
-        {
-            if (name == null) throw new ArgumentNullException(nameof(name));
+        public ILogger CreateLogger(string name) => _loggers.GetOrAdd(name, n => (ILogger)CreatePipeline(n.ToString()));
 
-            return _loggers.GetOrAdd(name, n => new Logger(CreatePipeline(n.ToString())));
-        }
-
-        private LoggerNode CreatePipeline(string logger)
+        private ILoggerNode CreatePipeline(string loggerName)
         {
-            return Nodes.Aggregate<LoggerNode, LoggerNode>(new ConstantNode { Constants = { [nameof(Logger)] = logger } }, (current, next) => current.InsertNext(next)).First();
+            var logger = new Logger
+            {
+                Next = new ConstantNode { Constants = { [nameof(Logger)] = loggerName } }
+            };
+            var current = logger.Next;
+            foreach (var node in Nodes)
+            {
+                current = node.InsertAfter(current);
+            }
+
+            return logger;
         }
 
         public void Dispose() { }
@@ -42,14 +41,12 @@ namespace Reusable.OmniLog
     public static class LoggerFactoryExtensions
     {
         [NotNull]
-        public static ILogger<T> CreateLogger<T>([NotNull] this ILoggerFactory loggerFactory, bool includeNamespace = false)
+        public static ILogger<T> CreateLogger<T>(this ILoggerFactory loggerFactory)
         {
-            if (loggerFactory == null) throw new ArgumentNullException(nameof(loggerFactory));
-
             return new Logger<T>(loggerFactory);
         }
 
-        public static LoggerFactory Use<T>(this LoggerFactory loggerFactory, Action<T> configure = default) where T : LoggerNode, new()
+        public static LoggerFactory Use<T>(this LoggerFactory loggerFactory, Action<T>? configure = default) where T : ILoggerNode, new()
         {
             var node = new T();
             configure?.Invoke(node);
@@ -57,7 +54,7 @@ namespace Reusable.OmniLog
         }
 
 
-        public static LoggerFactory Use<T>(this LoggerFactory loggerFactory, T node) where T : LoggerNode
+        public static LoggerFactory Use<T>(this LoggerFactory loggerFactory, T node) where T : ILoggerNode
         {
             loggerFactory.Nodes.Add(node);
             return loggerFactory;

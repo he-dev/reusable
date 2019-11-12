@@ -8,12 +8,12 @@ namespace Reusable.OmniLog.Nodes
     {
         private readonly Func<LogEntry, bool> _canLog;
 
-        public FilterNode(Func<LogEntry, bool> canLog) : base(true)
+        public FilterNode(Func<LogEntry, bool> canLog)
         {
             _canLog = canLog;
         }
 
-        protected override void InvokeCore(LogEntry request)
+        protected override void invoke(LogEntry request)
         {
             if (_canLog(request))
             {
