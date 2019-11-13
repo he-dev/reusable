@@ -14,18 +14,18 @@ namespace Reusable.OmniLog
 
         public T Value { get; }
 
-        public AsyncScope<T> Parent { get; private set; }
+        public AsyncScope<T>? Parent { get; private set; }
 
-        public static AsyncScope<T> Current
+        public static AsyncScope<T>? Current
         {
             get => State.Value;
-            private set => State.Value = value;
+            private set => State.Value = value!;
         }
 
         /// <summary>
         /// Gets a value indicating whether there are any states on the stack.
         /// </summary>
-        public static bool Any => !(Current is null);
+        public static bool Any => Current is {};
 
         public static AsyncScope<T> Push(T value)
         {
@@ -45,10 +45,10 @@ namespace Reusable.OmniLog
         public static IEnumerable<AsyncScope<T>> Enumerate<T>(this AsyncScope<T> scope)
         {
             var current = scope;
-            while (current != null)
+            while (current is {})
             {
                 yield return current;
-                current = current.Parent;
+                current = current.Parent!;
             }
         }
     }

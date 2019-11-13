@@ -22,9 +22,10 @@ namespace Reusable.OmniLog
         {
             var logger = new Logger
             {
-                Next = new ConstantNode { Constants = { [nameof(Logger)] = loggerName } }
+                Next = new ConstantNode { Values = { [nameof(Logger)] = loggerName } }
             };
             var current = logger.Next;
+            
             foreach (var node in Nodes)
             {
                 current = current.AddAfter(node);

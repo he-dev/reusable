@@ -1,27 +1,23 @@
 using System.Collections.Generic;
+using System.Linq;
 using Reusable.OmniLog.Abstractions;
 using Reusable.OmniLog.Abstractions.Data;
+using Reusable.OmniLog.Abstractions.Data.LogPropertyActions;
 
 namespace Reusable.OmniLog.Nodes
 {
-    public class ConstantNode : LoggerNode //, IEnumerable<(string Name, object Value)>
+    public class ConstantNode : LoggerNode
     {
-        public Dictionary<string, object> Constants { get; set; } = new Dictionary<string, object>();
+        public Dictionary<string, object> Values { get; set; } = new Dictionary<string, object>();
 
         protected override void invoke(LogEntry request)
         {
-            foreach (var item in Constants)
+            foreach (var (key, value) in Values.Select(x => (x.Key, x.Value)))
             {
-                request.SetItem(item.Key, default, item.Value);
+                request.Add<Log>(key, value);
             }
 
-            Next?.Invoke(request);
+            invokeNext(request);
         }
-
-        //public void Add(string name, object value) => _properties.Add((name, value));
-
-        //public IEnumerator<(string Name, object Value)> GetEnumerator() => _properties.GetEnumerator();
-
-        //IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable)_properties).GetEnumerator();
     }
 }

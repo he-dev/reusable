@@ -7,6 +7,7 @@ using JetBrains.Annotations;
 using Reusable.Data;
 using Reusable.OmniLog.Abstractions;
 using Reusable.OmniLog.Abstractions.Data;
+using Reusable.OmniLog.Abstractions.Data.LogPropertyActions;
 using Reusable.OmniLog.Nodes;
 
 namespace Reusable.OmniLog.SemanticExtensions
@@ -75,11 +76,11 @@ namespace Reusable.OmniLog.SemanticExtensions
 
     public static class AbstractionLayerBuilder
     {
-        public static ILogEntryBuilder<ILogEntryLayer> CreateLayerWithCallerName(this ILogEntryBuilder<Abstraction> builder, [CallerMemberName] string name = null)
+        public static ILogEntryBuilder<ILogEntryLayer> CreateLayerWithCallerName(this ILogEntryBuilder<Abstraction> builder, [CallerMemberName] string? name = null)
         {
             var abstractionProperty = typeof(ILogEntryLayer).GetCustomAttribute<AbstractionPropertyAttribute>().ToString();
-            var abstractionLevel = AbstractionLayers.Levels[name];
-            return new LogEntryBuilder<ILogEntryLayer>(LogEntry.Empty(), nameof(Abstraction)).Update(l => l.SetItem(abstractionProperty, default, name).Level(abstractionLevel));
+            var abstractionLevel = AbstractionLayers.Levels[name!];
+            return new LogEntryBuilder<ILogEntryLayer>(LogEntry.Empty(), nameof(Abstraction)).Update(l => l.Add<Log>(abstractionProperty, name).Level(abstractionLevel));
         }
     }
 
@@ -140,14 +141,14 @@ namespace Reusable.OmniLog.SemanticExtensions
             {
                 return
                     logEntry
-                        .SetItem(LogEntry.Names.Snapshot, LogEntry.Tags.Explodable, snapshot);
+                        .Add<Explode>(LogEntry.Names.Snapshot, snapshot);
             }
             else
             {
                 return
                     logEntry
-                        .SetItem(LogEntry.Names.Object, LogEntry.Tags.Loggable, identifier)
-                        .SetItem(LogEntry.Names.Snapshot, LogEntry.Tags.Serializable, snapshot);
+                        .Add<Log>(LogEntry.Names.Object, identifier)
+                        .Add<Serialize>(LogEntry.Names.Snapshot, snapshot);
             }
         }
 
@@ -158,7 +159,7 @@ namespace Reusable.OmniLog.SemanticExtensions
         /// </summary>
         public static ILogEntryBuilder<ILogEntryCategory> Routine(this ILogEntryBuilder<ILogEntryLayer> layer, string identifier)
         {
-            return layer.CreateCategoryWithCallerName().Update(l => l.SetItem(LogEntry.Names.Object, LogEntry.Tags.Loggable, identifier));
+            return layer.CreateCategoryWithCallerName().Update(l => l.Add<Log>(LogEntry.Names.Object, identifier));
         }
 
 
@@ -176,7 +177,7 @@ namespace Reusable.OmniLog.SemanticExtensions
         public static ILogEntryBuilder<ILogEntryCategory> CreateCategoryWithCallerName(this ILogEntryBuilder<ILogEntryLayer> layer, [CallerMemberName] string name = null)
         {
             var abstractionProperty = typeof(ILogEntryCategory).GetCustomAttribute<AbstractionPropertyAttribute>().ToString();
-            return new LogEntryBuilder<ILogEntryCategory>(layer).Update(l => l.SetItem(abstractionProperty, default, name));
+            return new LogEntryBuilder<ILogEntryCategory>(layer).Update(l => l.Add<Log>(abstractionProperty, name));
         }
     }
 
@@ -191,7 +192,7 @@ namespace Reusable.OmniLog.SemanticExtensions
         /// </summary>
         public static ILogEntryBuilder<ILogEntryCategory> Running(this ILogEntryBuilder<ILogEntryCategory> category)
         {
-            return category.Update(l => l.SetItem(LogEntry.Names.Snapshot, LogEntry.Tags.Loggable, nameof(Running)));
+            return category.Update(l => l.Add<Log>(LogEntry.Names.Snapshot, nameof(Running)));
         }
 
         /// <summary>
@@ -199,15 +200,15 @@ namespace Reusable.OmniLog.SemanticExtensions
         /// </summary>
         public static ILogEntryBuilder<ILogEntryCategory> Completed(this ILogEntryBuilder<ILogEntryCategory> category)
         {
-            return category.Update(l => l.SetItem(LogEntry.Names.Snapshot, LogEntry.Tags.Loggable, nameof(Completed)));
+            return category.Update(l => l.Add<Log>(LogEntry.Names.Snapshot, nameof(Completed)));
         }
-        
+
         /// <summary>
         /// Indicates that a routine finished its task. Use this regardless of errors.
         /// </summary>
         public static ILogEntryBuilder<ILogEntryCategory> Finished(this ILogEntryBuilder<ILogEntryCategory> category)
         {
-            return category.Update(l => l.SetItem(LogEntry.Names.Snapshot, LogEntry.Tags.Loggable, nameof(Finished)));
+            return category.Update(l => l.Add<Log>(LogEntry.Names.Snapshot, nameof(Finished)));
         }
 
         /// <summary>
@@ -215,7 +216,7 @@ namespace Reusable.OmniLog.SemanticExtensions
         /// </summary>
         public static ILogEntryBuilder<ILogEntryCategory> Canceled(this ILogEntryBuilder<ILogEntryCategory> category)
         {
-            return category.Update(l => l.SetItem(LogEntry.Names.Snapshot, LogEntry.Tags.Loggable, nameof(Canceled))).Warning();
+            return category.Update(l => l.Add<Log>(LogEntry.Names.Snapshot, nameof(Canceled))).Warning();
         }
 
         /// <summary>
@@ -225,7 +226,7 @@ namespace Reusable.OmniLog.SemanticExtensions
         {
             return category.Update(l =>
             {
-                l.SetItem(LogEntry.Names.Snapshot, LogEntry.Tags.Loggable, nameof(Running));
+                l.Add<Log>(LogEntry.Names.Snapshot, nameof(Running));
                 if (!(exception is null))
                 {
                     l.Exception(exception);
@@ -236,8 +237,8 @@ namespace Reusable.OmniLog.SemanticExtensions
         public static ILogEntryBuilder<ILogEntryCategory> Decision(this ILogEntryBuilder<ILogEntryCategory> category, string decision)
         {
             return category.Update(l => l
-                .SetItem(LogEntry.Names.Object, LogEntry.Tags.Loggable, nameof(Decision))
-                .SetItem(LogEntry.Names.Snapshot, LogEntry.Tags.Loggable, decision)
+                .Add<Log>(LogEntry.Names.Object, nameof(Decision))
+                .Add<Log>(LogEntry.Names.Snapshot, decision)
             );
         }
 

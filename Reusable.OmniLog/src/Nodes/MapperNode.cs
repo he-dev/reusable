@@ -5,6 +5,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using Reusable.OmniLog.Abstractions;
 using Reusable.OmniLog.Abstractions.Data;
+using Reusable.OmniLog.Abstractions.Data.LogPropertyActions;
 
 namespace Reusable.OmniLog.Nodes
 {
@@ -20,19 +21,17 @@ namespace Reusable.OmniLog.Nodes
 
         protected override void invoke(LogEntry request)
         {
-            foreach (var item in request.Where(x => x.Key.Tag.Equals(LogEntry.Tags.Serializable)).ToList())
+            foreach (var (name, property) in request.Action<Serialize>().ToList())
             {
-                var obj = item.Value;
-
                 // Do we have a custom mapping for the dump?
-                if (Mappings.TryGetMapping(obj.GetType(), out var map))
+                if (property.Value is {} && Mappings.TryGetMapping(property.Value.GetType(), out var map))
                 {
-                    obj = map(obj);
-                    request.SetItem(item.Key, obj); // Replace the original object.
+                    var obj = map(property.Value);
+                    request.Add<Serialize>(name, obj); // Replace the original object.
                 }
             }
 
-            Next?.Invoke(request);
+            invokeNext(request);
         }
 
         public class Mapping
@@ -47,7 +46,7 @@ namespace Reusable.OmniLog.Nodes
                 // to use T so we need to cast the parameter from 'object' to T.
 
                 // Compile: map((T)obj)
-                var parameter = Expression.Parameter(typeof(object), LogEntry.Tags.Serializable);
+                var parameter = Expression.Parameter(typeof(object), "obj");
                 var mapFunc =
                     Expression.Lambda<Func<object, object>>(
                             Expression.Call(

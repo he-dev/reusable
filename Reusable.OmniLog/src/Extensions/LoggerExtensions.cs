@@ -9,6 +9,7 @@ using Reusable.Exceptionize;
 using Reusable.Extensions;
 using Reusable.OmniLog.Abstractions;
 using Reusable.OmniLog.Abstractions.Data;
+using Reusable.OmniLog.Abstractions.Data.LogPropertyActions;
 using Reusable.OmniLog.Nodes;
 using Reusable.OmniLog.Rx.ConsoleRenderers;
 using Reusable.OmniLog.Utilities;
@@ -22,32 +23,32 @@ namespace Reusable.OmniLog
     {
         #region LogLevels
 
-        public static void Trace(this ILogger logger, string message, AlterLogEntryCallback alter = null)
+        public static void Trace(this ILogger logger, string message, AlterLogEntryCallback? alter = null)
         {
             logger.Log(LogLevel.Trace, message, null, alter);
         }
 
-        public static void Debug(this ILogger logger, string message, AlterLogEntryCallback alter = null)
+        public static void Debug(this ILogger logger, string message, AlterLogEntryCallback? alter = null)
         {
             logger.Log(LogLevel.Debug, message, null, alter);
         }
 
-        public static void Warning(this ILogger logger, string message, AlterLogEntryCallback alter = null)
+        public static void Warning(this ILogger logger, string message, AlterLogEntryCallback? alter = null)
         {
             logger.Log(LogLevel.Warning, message, null, alter);
         }
 
-        public static void Information(this ILogger logger, string message, AlterLogEntryCallback alter = null)
+        public static void Information(this ILogger logger, string message, AlterLogEntryCallback? alter = null)
         {
             logger.Log(LogLevel.Information, message, null, alter);
         }
 
-        public static void Error(this ILogger logger, string message, Exception exception = null, AlterLogEntryCallback alter = null)
+        public static void Error(this ILogger logger, string message, Exception? exception = null, AlterLogEntryCallback? alter = null)
         {
             logger.Log(LogLevel.Error, message, exception, alter);
         }
 
-        public static void Fatal(this ILogger logger, string message, Exception exception = null, AlterLogEntryCallback alter = null)
+        public static void Fatal(this ILogger logger, string message, Exception? exception = null, AlterLogEntryCallback? alter = null)
         {
             logger.Log(LogLevel.Fatal, message, exception, alter);
         }
@@ -60,16 +61,13 @@ namespace Reusable.OmniLog
 
         private static void Log
         (
-            [NotNull] this ILogger logger,
-            [NotNull] Option<LogLevel> level,
-            [CanBeNull] string message,
-            [CanBeNull] Exception exception,
-            [CanBeNull] AlterLogEntryCallback alter
+            this ILogger logger,
+            Option<LogLevel> level,
+            string? message,
+            Exception? exception,
+            AlterLogEntryCallback? alter
         )
         {
-            if (logger == null) throw new ArgumentNullException(nameof(logger));
-            if (level == null) throw new ArgumentNullException(nameof(level));
-
             logger.Log(log =>
             {
                 log.Level(level);
@@ -126,7 +124,8 @@ namespace Reusable.OmniLog
 
         private static LogEntry ConsoleTemplateBuilder(this LogEntry logEntry, HtmlConsoleTemplateBuilder htmlConsoleTemplateBuilder)
         {
-            return logEntry.SetItem(LogEntry.Names.Message, nameof(HtmlConsoleTemplateBuilder), htmlConsoleTemplateBuilder);
+            return logEntry.Add<Build>(LogEntry.Names.Message, htmlConsoleTemplateBuilder);
+            //return logEntry.Add<Meta>(LogEntry.Names.Message, nameof(HtmlConsoleTemplateBuilder), htmlConsoleTemplateBuilder);
         }
 
         #endregion
@@ -152,19 +151,19 @@ namespace Reusable.OmniLog
         (
             this ILogger logger,
             ILogEntryBuilder<T> context,
-            AlterLogEntryCallback alter = null,
+            AlterLogEntryCallback? alter = null,
             // These properties are for free so let's just log them too.
-            [CallerMemberName] string callerMemberName = null,
-            [CallerLineNumber] int callerLineNumber = 0,
-            [CallerFilePath] string callerFilePath = null
+            [CallerMemberName] string? callerMemberName = null,
+            [CallerLineNumber] int? callerLineNumber = 0,
+            [CallerFilePath] string? callerFilePath = null
         )
         {
             logger.Log(log =>
             {
-                log.SetItem(context.Name, LogEntry.Tags.Copyable, context);
-                log.SetItem(LogEntry.Names.CallerMemberName, default, callerMemberName);
-                log.SetItem(LogEntry.Names.CallerLineNumber, default, callerLineNumber);
-                log.SetItem(LogEntry.Names.CallerFilePath, default, Path.GetFileName(callerFilePath));
+                log.Add<Copy>(context.Name, context);
+                log.Add<Log>(LogEntry.Names.CallerMemberName, callerMemberName);
+                log.Add<Log>(LogEntry.Names.CallerLineNumber, callerLineNumber);
+                log.Add<Log>(LogEntry.Names.CallerFilePath, Path.GetFileName(callerFilePath));
                 alter?.Invoke(log);
             });
         }
@@ -175,9 +174,9 @@ namespace Reusable.OmniLog
             ILogEntryBuilder<T> context,
             string message,
             Exception exception,
-            [CallerMemberName] string callerMemberName = null,
-            [CallerLineNumber] int callerLineNumber = 0,
-            [CallerFilePath] string callerFilePath = null)
+            [CallerMemberName] string? callerMemberName = null,
+            [CallerLineNumber] int? callerLineNumber = 0,
+            [CallerFilePath] string? callerFilePath = null)
         {
             logger.Log
             (
@@ -194,9 +193,9 @@ namespace Reusable.OmniLog
             this ILogger logger,
             ILogEntryBuilder<T> context,
             string message,
-            [CallerMemberName] string callerMemberName = null,
-            [CallerLineNumber] int callerLineNumber = 0,
-            [CallerFilePath] string callerFilePath = null)
+            [CallerMemberName] string? callerMemberName = null,
+            [CallerLineNumber] int? callerLineNumber = 0,
+            [CallerFilePath] string? callerFilePath = null)
         {
             logger.Log
             (
@@ -213,9 +212,9 @@ namespace Reusable.OmniLog
             this ILogger logger,
             ILogEntryBuilder<T> context,
             Exception exception,
-            [CallerMemberName] string callerMemberName = null,
-            [CallerLineNumber] int callerLineNumber = 0,
-            [CallerFilePath] string callerFilePath = null)
+            [CallerMemberName] string? callerMemberName = null,
+            [CallerLineNumber] int? callerLineNumber = 0,
+            [CallerFilePath] string? callerFilePath = null)
         {
             logger.Log
             (

@@ -25,7 +25,7 @@ namespace Reusable.Translucent.Middleware
 
         public async Task InvokeAsync(ResourceContext context)
         {
-            using (_logger.UseScope().WithCorrelationHandle("CollectMiddlewareTelemetry").UseStopwatch())
+            using (_logger.BeginScope().WithCorrelationHandle("CollectMiddlewareTelemetry").UseStopwatch())
             {
                 var requestUri = context.Request.Uri.ToString();
                 try

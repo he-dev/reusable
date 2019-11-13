@@ -5,6 +5,7 @@ using System.Reflection;
 using Reusable.Exceptionize;
 using Reusable.OmniLog.Abstractions;
 using Reusable.OmniLog.Abstractions.Data;
+using Reusable.OmniLog.Abstractions.Data.LogPropertyActions;
 
 namespace Reusable.OmniLog.Nodes
 {
@@ -18,33 +19,27 @@ namespace Reusable.OmniLog.Nodes
     {
         protected override void invoke(LogEntry request)
         {
-            var explodeCount = 0;
+            var explodable =
+                from e in request.Action<Explode>()
+                from p in e.Property.Value.EnumerateProperties().Where(x => x.Value is {})
+                select p;
 
-            foreach (var item in request.Where(x => x.Key.Tag.Equals(LogEntry.Tags.Explodable)).ToList())
+            if (explodable.ToList() is var items && items.Any())
             {
-                var obj = item.Value;
-
-                foreach (var (name, value) in obj.EnumerateProperties().Where(x => !(x.Value is null)))
+                foreach (var (name, value) in items)
                 {
                     var copy = request.Clone();
 
-                    copy.SetItem(LogEntry.Names.Object, LogEntry.Tags.Loggable, name);
-                    copy.SetItem(LogEntry.Names.Snapshot, LogEntry.Tags.Serializable, value);
+                    copy.Add<Log>(LogEntry.Names.Object, name);
+                    copy.Add<Serialize>(LogEntry.Names.Snapshot, value);
 
-                    InvokeNext(copy);
+                    invokeNext(copy);
                 }
             }
-
             // There wasn't anything to explode so just invoke the next node. 
-            if (explodeCount == 0)
+            else
             {
-                Next?.Invoke(request);
-            }
-
-            void InvokeNext(LogEntry logEntry)
-            {
-                explodeCount++;
-                Next?.Invoke(logEntry);
+                invokeNext(request);
             }
         }
     }

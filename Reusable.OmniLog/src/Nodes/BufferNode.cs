@@ -45,7 +45,5 @@ namespace Reusable.OmniLog.Nodes
         public static ILoggerScope UseBuffer(this ILoggerScope scope) => scope.AddMiddleware(new BufferNode());
 
         public static BufferNode? Buffer(this ScopeNode.Item? scope) => scope?.EnumerateNext().OfType<BufferNode>().SingleOrDefault();
-        
-        //public static IEnumerable<BufferNode> Buffers(this ILogger logger) => logger.Scope().Branch.EnumerateNext().OfType<BufferNode>();
     }
 }

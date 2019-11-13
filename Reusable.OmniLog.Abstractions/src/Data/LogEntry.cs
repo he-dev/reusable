@@ -5,111 +5,82 @@ using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using JetBrains.Annotations;
 using Reusable.Collections;
 using Reusable.Data;
 using Reusable.Diagnostics;
+using Reusable.Exceptionize;
 using Reusable.Extensions;
 using Reusable.OmniLog.Abstractions;
 
 namespace Reusable.OmniLog.Abstractions.Data
 {
-    public class LogEntry : IEnumerable<KeyValuePair<ItemKey<SoftString>, object>>
+    [PublicAPI]
+    public class LogEntry : IEnumerable<KeyValuePair<SoftString, IImmutableList<LogProperty>>>
     {
-        public static readonly string DefaultItemTag = Tags.Loggable;
-
-        private readonly IDictionary<ItemKey<SoftString>, object> _data;
+        private readonly IDictionary<SoftString, IImmutableList<LogProperty>> _data;
 
         [DebuggerStepThrough]
         public LogEntry()
         {
-            _data = new Dictionary<ItemKey<SoftString>, object>();
+            _data = new Dictionary<SoftString, IImmutableList<LogProperty>>();
         }
 
-        private LogEntry(IDictionary<ItemKey<SoftString>, object> data)
+        private LogEntry(IDictionary<SoftString, IImmutableList<LogProperty>> data)
         {
-            _data = new Dictionary<ItemKey<SoftString>, object>(data);
+            _data = new Dictionary<SoftString, IImmutableList<LogProperty>>(data);
         }
 
         public static LogEntry Empty() => new LogEntry();
 
-        public object this[ItemKey<SoftString> key]
+        public IImmutableList<LogProperty> this[SoftString key]
         {
             get => _data[key];
             set => _data[key] = value;
         }
 
-        public object this[SoftString name]
+        public LogEntry Add<T>(SoftString name, object? value) where T : struct, ILogPropertyAction
         {
-            get => this[name, DefaultItemTag];
-            set => this[name, DefaultItemTag] = value;
+            var current = _data.TryGetValue(name, out var property) ? property : ImmutableList<LogProperty>.Empty;
+            _data[name] = current.Add(new LogProperty(value, default(T)));
+            return this;
         }
 
-        public object this[SoftString name, SoftString tag]
+        public LogEntry Add(SoftString name, IEnumerable<LogProperty> properties)
         {
-            get => _data[(name, tag)];
-            set => _data[(name, tag)] = value;
+            var current = _data.TryGetValue(name, out var versions) ? versions : ImmutableList<LogProperty>.Empty;
+            _data[name] = current.AddRange(properties);
+            return this;
         }
 
         public LogEntry Clone() => new LogEntry(_data);
 
-        public bool ContainsKey(SoftString name, SoftString tag) => _data.ContainsKey((name, tag ?? DefaultItemTag));
-
-        public LogEntry SetItem(ItemKey<SoftString> key, object value)
+        public LogProperty GetPropertyOrDefault<T>(SoftString name) where T : struct, ILogPropertyAction
         {
-            this[key] = value;
-            return this;
+            return
+                TryGetProperty<T>(name, out var property)
+                    ? property
+                    : default; //throw DynamicException.Create("PropertyNotFound", $"There is no such property as '{name}'.");
         }
 
-        public LogEntry SetItem(SoftString name, SoftString tag, object value)
+        public bool TryGetProperty<T>(SoftString name, out LogProperty property) where T : struct, ILogPropertyAction
         {
-            this[name, tag ?? DefaultItemTag] = value;
-            return this;
-        }
-
-        public T GetItemOrDefault<T>(SoftString name, SoftString tag, T defaultValue = default)
-        {
-            return _data.TryGetValue((name, tag ?? DefaultItemTag), out var obj) && obj is T value ? value : defaultValue;
-        }
-
-        public bool TryGetItem<T>(ItemKey<SoftString> key, out T value)
-        {
-            if (_data.TryGetValue(key, out var obj))
+            if (_data.TryGetValue(name, out var propertyVersions))
             {
-                switch (obj)
-                {
-                    case T t:
-                        value = t;
-                        return true;
-
-                    case { } o:
-                        value = (T)o;
-                        return true;
-
-                    default:
-                        value = default;
-                        return false;
-                }
+                property = propertyVersions.LastOrDefault() is {} version && version.Action.Equals(default(T)) ? version : default;
+                return !property.IsEmpty;
             }
-            else
-            {
-                value = default;
-                return false;
-            }
-        }
 
-        public bool TryGetItem<T>(SoftString name, SoftString tag, out T value)
-        {
-            return TryGetItem((name, tag ?? DefaultItemTag), out value);
+            property = default;
+            return false;
         }
-
-        public bool RemoveItem(SoftString name, SoftString tag) => _data.Remove((name, tag ?? DefaultItemTag));
 
         public override string ToString()
         {
             return @"[{Timestamp:HH:mm:ss:fff}] [{Logger:u}] {Message}".Format(this);
         }
 
-        public IEnumerator<KeyValuePair<ItemKey<SoftString>, object>> GetEnumerator() => _data.GetEnumerator();
+        public IEnumerator<KeyValuePair<SoftString, IImmutableList<LogProperty>>> GetEnumerator() => _data.GetEnumerator();
 
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
@@ -121,6 +92,7 @@ namespace Reusable.OmniLog.Abstractions.Data
             public static readonly string Logger = nameof(Logger);
             public static readonly string Level = nameof(Level);
             public static readonly string Message = nameof(Message);
+            public static readonly string MessageBuilder = nameof(MessageBuilder);
             public static readonly string Exception = nameof(Exception);
             public static readonly string CallerMemberName = nameof(CallerMemberName);
             public static readonly string CallerLineNumber = nameof(CallerLineNumber);
@@ -132,73 +104,75 @@ namespace Reusable.OmniLog.Abstractions.Data
             public static readonly string Scope = nameof(Scope);
             public static readonly string Elapsed = nameof(Stopwatch.Elapsed);
         }
+    }
 
-        public static class Tags
+    public readonly struct LogProperty
+    {
+        public LogProperty(object value, ILogPropertyAction state)
         {
-            /// <summary>
-            /// Item is suitable for logging.
-            /// </summary>
-            public static readonly string Loggable = nameof(Loggable);
-
-            //public static readonly string Metadata = nameof(Metadata);
-
-            /// <summary>
-            /// Item needs to be exploded.
-            /// </summary>
-            public static readonly string Explodable = nameof(Explodable);
-
-            /// <summary>
-            /// Item needs to be mapped or serialized.
-            /// </summary>
-            public static readonly string Serializable = nameof(Serializable);
-
-            public static readonly string Copyable = nameof(Copyable);
+            Value = value;
+            Action = state;
         }
 
+        public object? Value { get; }
 
-        
+        public ILogPropertyAction Action { get; }
+
+        public bool IsEmpty => Value is null && Action is null;
+    }
+
+    public static class LogPropertyExtensions
+    {
+        public static T ValueOrDefault<T>(this LogProperty property, T defaultValue = default)
+        {
+            return property.Value switch
+            {
+                T t => t,
+                _ => defaultValue
+                //_ => throw DynamicException.Create("LogProperty", $"Property value should be of type '{typeof(T).ToPrettyString()}' but is '{property.Value?.GetType().ToPrettyString()}'.")
+            };
+        }
+    }
+
+    public interface ILogPropertyAction { }
+
+    namespace LogPropertyActions
+    {
+        /// <summary>
+        /// Item is suitable for logging.
+        /// </summary>
+        public readonly struct Log : ILogPropertyAction { }
+
+        /// <summary>
+        /// Item needs to be exploded.
+        /// </summary>
+        public readonly struct Explode : ILogPropertyAction { }
+
+        /// <summary>
+        /// Item needs to be mapped or serialized.
+        /// </summary>
+        public readonly struct Serialize : ILogPropertyAction { }
+
+        public readonly struct Copy : ILogPropertyAction { }
+
+        public readonly struct Delete : ILogPropertyAction { }
+
+        public readonly struct Build : ILogPropertyAction { }
     }
 
     public static class LogEntryExtensions
     {
-        public static IEnumerable<ItemKey<SoftString>> Keys(this LogEntry logEntry) => logEntry.Select(le => le.Key);
-    }
+        //public static IEnumerable<ItemKey<SoftString>> Keys(this LogEntry logEntry) => logEntry.Select(le => le.Key);
 
-    [DebuggerDisplay(DebuggerDisplayString.DefaultNoQuotes)]
-    public readonly struct ItemKey<T> : IEquatable<ItemKey<T>>
-    {
-        public ItemKey(SoftString name, T tag)
+        public static IEnumerable<(SoftString Name, LogProperty Property)> Action<T>(this LogEntry entry) where T : struct, ILogPropertyAction
         {
-            Name = name;
-            Tag = tag;
+            foreach (var (name, _) in entry.Select(x => (x.Key, x.Value)))
+            {
+                if (entry.TryGetProperty<T>(name, out var property))
+                {
+                    yield return (name, property);
+                }
+            }
         }
-
-        private string DebuggerDisplay => this.ToDebuggerDisplayString(b =>
-        {
-            b.DisplayScalar(x => x.Name.ToString());
-            b.DisplayScalar(x => x.Tag.ToString());
-        });
-
-        [AutoEqualityProperty]
-        public SoftString Name { get; }
-
-        [AutoEqualityProperty]
-        public T Tag { get; }
-
-        public override int GetHashCode() => AutoEquality<ItemKey<T>>.Comparer.GetHashCode(this);
-
-        public override bool Equals(object obj) => obj is ItemKey<T> key && Equals(key);
-
-        public bool Equals(ItemKey<T> other) => AutoEquality<ItemKey<T>>.Comparer.Equals(this, other);
-
-        public override string ToString() => $"{Name.ToString()}#{Tag.ToString()}";
-
-        public void Deconstruct(out string name, out T tag)
-        {
-            name = Name.ToString();
-            tag = Tag;
-        }
-
-        public static implicit operator ItemKey<T>((SoftString name, T tag) key) => new ItemKey<T>(key.name, key.tag);
     }
 }

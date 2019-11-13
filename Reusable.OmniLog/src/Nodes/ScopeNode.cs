@@ -7,6 +7,7 @@ using Newtonsoft.Json;
 using Reusable.Extensions;
 using Reusable.OmniLog.Abstractions;
 using Reusable.OmniLog.Abstractions.Data;
+using Reusable.OmniLog.Abstractions.Data.LogPropertyActions;
 
 namespace Reusable.OmniLog.Nodes
 {
@@ -29,9 +30,9 @@ namespace Reusable.OmniLog.Nodes
         {
             if (AsyncScope<Item>.Any)
             {
-                var scopes = AsyncScope<Item>.Current.Enumerate().Select(x => x.Value).ToList();
-                request.SetItem(LogEntry.Names.Scope, LogEntry.Tags.Serializable, scopes);
-                AsyncScope<Item>.Current.Value.Invoke(request);
+                var scopes = AsyncScope<Item>.Current!.Enumerate().Select(x => x.Value).ToList();
+                request.Add<Serialize>(LogEntry.Names.Scope, scopes);
+                AsyncScope<Item>.Current!.Value.Invoke(request);
             }
             else
             {
@@ -42,7 +43,7 @@ namespace Reusable.OmniLog.Nodes
         [JsonObject(MemberSerialization.OptIn)]
         public class Item : ILoggerNode
         {
-            public Item(object correlationId, ILoggerNode next) => (CorrelationId, Next) = (correlationId, new TerminatorMiddleware { Prev = this, Next = next });
+            public Item(object correlationId, ILoggerNode? next) => (CorrelationId, Next) = (correlationId, new TerminatorMiddleware { Prev = this, Next = next });
 
             [JsonProperty]
             public object CorrelationId { get; }
@@ -61,7 +62,7 @@ namespace Reusable.OmniLog.Nodes
             public void Dispose()
             {
                 Next?.Dispose();
-                AsyncScope<Item>.Current.Dispose();
+                AsyncScope<Item>.Current?.Dispose();
             }
         }
     }
@@ -95,11 +96,11 @@ namespace Reusable.OmniLog.Nodes
         public static ILoggerScope BeginScope(this ILogger logger, out object correlationId)
         {
             var scope = new LoggerScope<ScopeNode>(logger, node => node.Push(default));
-            correlationId = scope.Scope().CorrelationId;
+            correlationId = scope.Scope()!.CorrelationId;
             return scope;
         }
 
-        public static ILoggerScope WithCorrelationHandle(this ILoggerScope scope, object correlationHandle)
+        public static ILoggerScope WithCorrelationHandle(this ILoggerScope scope, object? correlationHandle)
         {
             return scope.WithScope(s => s.CorrelationHandle = correlationHandle);
         }

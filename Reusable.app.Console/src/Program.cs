@@ -33,8 +33,8 @@ namespace Reusable
             //Demo.SemanticExtensions();
 
 
-            //Examples.Log();
-            Examples.Tokenize();
+            Examples.Log();
+            //Examples.Tokenize();
             //await Examples.SendEmailAsync_Mailr();
             //await Examples.SendEmailAsync_Smtp();
 

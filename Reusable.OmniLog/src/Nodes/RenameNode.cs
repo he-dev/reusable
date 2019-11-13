@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Reusable.OmniLog.Abstractions;
 using Reusable.OmniLog.Abstractions.Data;
+using Reusable.OmniLog.Abstractions.Data.LogPropertyActions;
 
 namespace Reusable.OmniLog.Nodes
 {
@@ -12,15 +13,16 @@ namespace Reusable.OmniLog.Nodes
 
         protected override void invoke(LogEntry request)
         {
-            foreach (var route in Mappings.Where(x => !SoftString.Comparer.Equals(x.Key, x.Value)))
+            foreach (var (key, value) in Mappings.Select(x => (x.Key, x.Value)))
             {
-                if (request.TryGetItem<object>(route.Key, default, out var item))
+                if (request.TryGetProperty<Log>(key, out var property))
                 {
-                    request.RemoveItem(route.Key, default);
-                    request.SetItem(route.Value, default, item);
+                    request.Add<Delete>(key, default);
+                    request.Add<Log>(value, property.Value);
                 }
             }
-            Next?.Invoke(request);
+
+            invokeNext(request);
         }
     }
 }

@@ -6,6 +6,7 @@ using Reusable.Data;
 using Reusable.Extensions;
 using Reusable.OmniLog.Abstractions;
 using Reusable.OmniLog.Abstractions.Data;
+using Reusable.OmniLog.Abstractions.Data.LogPropertyActions;
 
 namespace Reusable.OmniLog
 {
@@ -25,7 +26,7 @@ namespace Reusable.OmniLog
 
         public void Log(LogEntry logEntry)
         {
-            var loggerName = logEntry.GetItemOrDefault<string>(LogEntry.Names.Logger, default);
+            var loggerName = logEntry.GetPropertyOrDefault<Log>(LogEntry.Names.Logger).ValueOrDefault<string>();
             GetLogger(loggerName).Log(CreateLogEventInfo(logEntry));
         }
 
@@ -33,16 +34,16 @@ namespace Reusable.OmniLog
         {
             var logEventInfo = new NLog.LogEventInfo
             {
-                Level = LogLevels[logEntry.GetItemOrDefault<Option<LogLevel>>(LogEntry.Names.Level, default)],
-                LoggerName = logEntry.GetItemOrDefault<string>(LogEntry.Names.Logger, default),
-                Message = logEntry.GetItemOrDefault<string>(LogEntry.Names.Message, default),
-                Exception = logEntry.GetItemOrDefault<Exception>(LogEntry.Names.Exception, default),
-                TimeStamp = logEntry.GetItemOrDefault<DateTime>(LogEntry.Names.Timestamp, default),
+                Level = LogLevels[logEntry.GetPropertyOrDefault<Log>(LogEntry.Names.Level).ValueOrDefault<Option<LogLevel>>()],
+                LoggerName = logEntry.GetPropertyOrDefault<Log>(LogEntry.Names.Logger).ValueOrDefault<string>(),
+                Message = logEntry.GetPropertyOrDefault<Log>(LogEntry.Names.Message).ValueOrDefault<string>(),
+                Exception = logEntry.GetPropertyOrDefault<Log>(LogEntry.Names.Exception).ValueOrDefault<Exception>(),
+                TimeStamp = logEntry.GetPropertyOrDefault<Log>(LogEntry.Names.Timestamp).ValueOrDefault<DateTime>(),
             };
 
-            foreach (var item in logEntry.Where(x => x.Key.Tag.Equals(LogEntry.DefaultItemTag)))
+            foreach (var item in logEntry.Action<Log>())
             {
-                logEventInfo.Properties.Add(item.Key.Name.ToString(), item.Value);
+                logEventInfo.Properties.Add(item.Name.ToString(), item.Property.Value);
             }
 
             return logEventInfo;

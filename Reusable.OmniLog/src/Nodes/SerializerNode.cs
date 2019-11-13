@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Reusable.OmniLog.Abstractions;
 using Reusable.OmniLog.Abstractions.Data;
+using Reusable.OmniLog.Abstractions.Data.LogPropertyActions;
 using Reusable.OmniLog.Utilities;
 
 namespace Reusable.OmniLog.Nodes
@@ -10,41 +11,23 @@ namespace Reusable.OmniLog.Nodes
     {
         private readonly ISerializer _serializer;
 
-        public SerializerNode(ISerializer serializer)
-        {
-            _serializer = serializer;
-        }
+        public SerializerNode(ISerializer serializer) => _serializer = serializer;
 
         public SerializerNode() : this(new JsonSerializer()) { }
 
         /// <summary>
         /// Gets or sets serializable properties. If empty then all items are scanned.
         /// </summary>
-        public HashSet<string> SerializableItems { get; set; } = new HashSet<string>(SoftString.Comparer);
-        
-        public static ItemKey<SoftString> CreateRequestItemKey(SoftString name) => new ItemKey<SoftString>(name, LogEntry.Tags.Serializable);
-
+        //public HashSet<string> SerializableProperties { get; set; } = new HashSet<string>(SoftString.Comparer);
         protected override void invoke(LogEntry request)
         {
-            // Process only selected #Serializable properties or all.
-            var keys =
-                SerializableItems.Any()
-                    ? SerializableItems.Select(name => new ItemKey<SoftString>(name, LogEntry.Tags.Serializable))
-                    : request.Keys().Where(k => k.Tag.Equals(LogEntry.Tags.Serializable));
-
-            foreach (var (name, tag) in keys.ToList())
+            foreach (var (name, property) in request.Action<Serialize>().ToList())
             {
-                if (request.TryGetItem<object>(name, tag, out var obj))
-                {
-                    request.SetItem(name, default, _serializer.Serialize(obj));
-                    //request.RemoveItem((name, tag.ToString())); // Clean-up the old property.
-                }
+                request.Add<Log>(name, _serializer.Serialize(property.Value));
             }
 
-            Next?.Invoke(request);
+            invokeNext(request);
         }
-
-        //public static ItemKey<SoftString> CreateItemKey(string propertyName) => (propertyName, LogEntryItemTags.Object);
     }
 
     public static class LoggerSerializerHelper

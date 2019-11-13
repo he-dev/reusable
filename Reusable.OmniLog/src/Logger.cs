@@ -47,13 +47,13 @@ namespace Reusable.OmniLog
             set => _logger.Enabled = value;
         }
 
-        public ILoggerNode Prev
+        public ILoggerNode? Prev
         {
             get => _logger.Prev;
             set => _logger.Prev = value;
         }
 
-        public ILoggerNode Next
+        public ILoggerNode? Next
         {
             get => _logger.Next;
             set => _logger.Next = value;

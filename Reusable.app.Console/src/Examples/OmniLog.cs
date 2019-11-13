@@ -26,7 +26,7 @@ namespace Reusable
                     // Adds constant values to each log-entry.
                     new ConstantNode
                     {
-                        Constants =
+                        Values =
                         {
                             { "Environment", "Demo" },
                             { "Product", "Reusable.app.Console" }

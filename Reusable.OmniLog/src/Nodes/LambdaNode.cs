@@ -16,23 +16,21 @@ namespace Reusable.OmniLog.Nodes
             {
                 using (var item = AsyncScope<Item>.Current.Value)
                 {
-                    item.AlterLogEntry(request);
+                    item?.AlterLogEntry(request);
                 }
             }
 
-            Next?.Invoke(request);
+            invokeNext(request);
         }
 
         public class Item : IDisposable
         {
-            public AlterLogEntryCallback AlterLogEntry { get; set; }
+            public AlterLogEntryCallback? AlterLogEntry { get; set; }
 
-            public void Dispose() => AsyncScope<Item>.Current.Dispose();
+            public void Dispose() => AsyncScope<Item>.Current?.Dispose();
         }
     }
 
-    
-    
     public static class LoggerLambdaHelper
     {
         public static void UseLambda(this ILogger logger, AlterLogEntryCallback alter)

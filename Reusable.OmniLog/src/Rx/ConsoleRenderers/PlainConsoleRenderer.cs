@@ -3,6 +3,7 @@ using JetBrains.Annotations;
 using Reusable.Extensions;
 using Reusable.FormatProviders;
 using Reusable.OmniLog.Abstractions.Data;
+using Reusable.OmniLog.Abstractions.Data.LogPropertyActions;
 
 namespace Reusable.OmniLog.Rx.ConsoleRenderers
 {
@@ -20,7 +21,19 @@ namespace Reusable.OmniLog.Rx.ConsoleRenderers
 
         public virtual void Render(LogEntry logEntry)
         {
-            Console.WriteLine(Template.Format((string name, out object value) => logEntry.TryGetItem(name, default, out value), FormatProvider));
+            Console.WriteLine(Template.Format((string name, out object value) =>
+            {
+                if (logEntry.TryGetProperty<Log>(name, out var property))
+                {
+                    value = property.Value;
+                    return true;
+                }
+                else
+                {
+                    value = default;
+                    return false;
+                }
+            }, FormatProvider));
         }
     }
 }

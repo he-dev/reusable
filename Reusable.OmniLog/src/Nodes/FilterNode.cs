@@ -17,7 +17,7 @@ namespace Reusable.OmniLog.Nodes
         {
             if (_canLog(request))
             {
-                Next?.Invoke(request);
+                invokeNext(request);
             }
         }
     }

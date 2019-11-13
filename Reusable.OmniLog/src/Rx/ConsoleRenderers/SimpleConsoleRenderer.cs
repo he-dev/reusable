@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using Reusable.Data;
 using Reusable.OmniLog.Abstractions.Data;
+using Reusable.OmniLog.Abstractions.Data.LogPropertyActions;
 
 namespace Reusable.OmniLog.Rx.ConsoleRenderers
 {
@@ -21,7 +22,7 @@ namespace Reusable.OmniLog.Rx.ConsoleRenderers
         {
             using (Disposable.Create(Console.ResetColor))
             {
-                var logLevel = logEntry.GetItemOrDefault(LogEntry.Names.Level, default, LogLevel.Information);
+                var logLevel = logEntry.GetPropertyOrDefault<Log>(LogEntry.Names.Level).ValueOrDefault<Option<LogLevel>>();
                 if (LogLevelColor.TryGetValue(logLevel, out var consoleColor))
                 {
                     Console.ForegroundColor = consoleColor;

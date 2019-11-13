@@ -4,6 +4,7 @@ using System.Linq;
 using JetBrains.Annotations;
 using Reusable.MarkupBuilder.Html;
 using Reusable.OmniLog.Abstractions.Data;
+using Reusable.OmniLog.Abstractions.Data.LogPropertyActions;
 using Reusable.OmniLog.Utilities;
 
 namespace Reusable.OmniLog.Rx.ConsoleRenderers
@@ -26,7 +27,13 @@ namespace Reusable.OmniLog.Rx.ConsoleRenderers
         {
             lock (_syncLock)
             {
-                if (logEntry.GetItemOrDefault(LogEntry.Names.Message, nameof(HtmlConsoleTemplateBuilder), TemplateBuilder) is var builder && builder is null)
+                var builder = logEntry.TryGetProperty<Build>(LogEntry.Names.MessageBuilder, out var property) switch
+                {
+                    true => property.ValueOrDefault<HtmlConsoleTemplateBuilder>(),
+                    false => TemplateBuilder
+                };
+
+                if (builder is null)
                 {
                     return;
                 }
