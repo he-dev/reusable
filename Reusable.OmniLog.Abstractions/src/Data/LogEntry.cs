@@ -81,7 +81,7 @@ namespace Reusable.OmniLog.Abstractions.Data
                         value = t;
                         return true;
 
-                    case object o:
+                    case { } o:
                         value = (T)o;
                         return true;
 

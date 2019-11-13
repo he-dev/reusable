@@ -175,7 +175,7 @@ namespace Reusable
                     logger.Information("This message is delayed.");
                     logger.Information("This message is delayed too.");
                     //logger.Information("This message overrides the transaction as first.", LoggerTransaction.Override);
-                    logger.Buffer().Flush();
+                    logger.Scope().Buffer().Flush();
                 }
             }
         }

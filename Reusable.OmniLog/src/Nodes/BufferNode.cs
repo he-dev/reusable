@@ -42,18 +42,10 @@ namespace Reusable.OmniLog.Nodes
 
     public static class BufferNodeHelper
     {
-        // public static BufferNode.Scope UseBuffer(this ILogger logger)
-        // {
-        //     return
-        //         logger
-        //             .Node<BufferNode>()
-        //             .Push(default);
-        // }
-
         public static ILoggerScope UseBuffer(this ILoggerScope scope) => scope.AddMiddleware(new BufferNode());
 
-        public static BufferNode Buffer(this ILogger logger) => logger.Node<BufferNode>();
+        public static BufferNode? Buffer(this ScopeNode.Item? scope) => scope?.EnumerateNext().OfType<BufferNode>().SingleOrDefault();
         
-        public static IEnumerable<BufferNode> Buffers(this ILogger logger) => logger.Scope().SelectMany(s => s.OfType<BufferNode>());
+        //public static IEnumerable<BufferNode> Buffers(this ILogger logger) => logger.Scope().Branch.EnumerateNext().OfType<BufferNode>();
     }
 }

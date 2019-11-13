@@ -1,6 +1,7 @@
 using System;
 using System.Linq;
 using System.Threading;
+using Reusable.OmniLog.Abstractions;
 using Reusable.OmniLog.Abstractions.Data;
 using Reusable.OmniLog.Nodes;
 using Reusable.OmniLog.Rx;
@@ -14,6 +15,32 @@ namespace Reusable.OmniLog
 {
     public class LoggerMiddlewareTest
     {
+        [Fact]
+        public void Can_add_nodes_after()
+        {
+            var nodes = new[] { new Node(1), new Node(2), new Node(3) };
+            var last = nodes.Aggregate<ILoggerNode>((current, next) => current.AddAfter(next));
+            
+            Assert.Same(last, nodes.Last());
+        }
+
+        private class Node : ILoggerNode
+        {
+            public Node(int id) => Id = id;
+
+            public int Id { get; }
+
+            public bool Enabled { get; set; }
+
+            public ILoggerNode Prev { get; set; }
+
+            public ILoggerNode Next { get; set; }
+
+            public void Invoke(LogEntry request) => throw new NotImplementedException();
+
+            public void Dispose() => throw new NotImplementedException();
+        }
+
         [Fact]
         public void Can_log_message()
         {

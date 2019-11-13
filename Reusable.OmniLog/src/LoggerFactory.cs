@@ -27,7 +27,7 @@ namespace Reusable.OmniLog
             var current = logger.Next;
             foreach (var node in Nodes)
             {
-                current = node.InsertAfter(current);
+                current = current.AddAfter(node);
             }
 
             return logger;

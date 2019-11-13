@@ -2,34 +2,36 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using JetBrains.Annotations;
+using Newtonsoft.Json;
 using Reusable.Extensions;
 using Reusable.OmniLog.Abstractions;
 using Reusable.OmniLog.Abstractions.Data;
 
 namespace Reusable.OmniLog.Nodes
 {
-    public class ScopeNode : LoggerNode, ILoggerNodeScope<ScopeNode.Scope, object>
+    [PublicAPI]
+    public class ScopeNode : LoggerNode, ILoggerNodeScope<ScopeNode.Item, object>
     {
         /// <summary>
         /// Gets or sets the factory for the default correlation-id. By default it's a Guid.
         /// </summary>
         public Func<object> NextCorrelationId { get; set; } = () => Guid.NewGuid().ToString("N");
 
-        //public override bool Enabled => AsyncScope<Scope>.Any;
+        public Item? Current => AsyncScope<Item>.Current?.Value;
 
-        public Scope? Current => AsyncScope<Scope>.Current?.Value;
-
-        public Scope Push(object? correlationId)
+        public Item Push(object? correlationId)
         {
-            return AsyncScope<Scope>.Push(new Scope(correlationId ?? NextCorrelationId(), Next)).Value;
+            return AsyncScope<Item>.Push(new Item(correlationId ?? NextCorrelationId(), Next)).Value;
         }
 
         protected override void invoke(LogEntry request)
         {
-            if (AsyncScope<Scope>.Any)
+            if (AsyncScope<Item>.Any)
             {
-                request.SetItem(LogEntry.Names.Scope, LogEntry.Tags.Serializable, AsyncScope<Scope>.Current.Enumerate().Select(x => x.Value).ToList());
-                AsyncScope<Scope>.Current.Value.Next.Invoke(request);
+                var scopes = AsyncScope<Item>.Current.Enumerate().Select(x => x.Value).ToList();
+                request.SetItem(LogEntry.Names.Scope, LogEntry.Tags.Serializable, scopes);
+                AsyncScope<Item>.Current.Value.Invoke(request);
             }
             else
             {
@@ -37,25 +39,30 @@ namespace Reusable.OmniLog.Nodes
             }
         }
 
-        public class Scope : IDisposable, IEnumerable<ILoggerNode>
+        [JsonObject(MemberSerialization.OptIn)]
+        public class Item : ILoggerNode
         {
-            public Scope(object correlationId, ILoggerNode next) => (CorrelationId, Next) = (correlationId, new TerminatorMiddleware().InsertAfter(next));
+            public Item(object correlationId, ILoggerNode next) => (CorrelationId, Next) = (correlationId, new TerminatorMiddleware { Prev = this, Next = next });
 
+            [JsonProperty]
             public object CorrelationId { get; }
 
+            [JsonProperty]
             public object? CorrelationHandle { get; set; }
 
-            public ILoggerNode Next { get; set; }
+            public bool Enabled { get; set; } = true;
+
+            public ILoggerNode? Prev { get; set; }
+
+            public ILoggerNode? Next { get; set; }
+
+            public void Invoke(LogEntry request) => Next?.Invoke(request);
 
             public void Dispose()
             {
-                Next.Dispose();
-                AsyncScope<Scope>.Current.Dispose();
+                Next?.Dispose();
+                AsyncScope<Item>.Current.Dispose();
             }
-
-            public IEnumerator<ILoggerNode> GetEnumerator() => Next.GetEnumerator();
-
-            IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
         }
     }
 
@@ -71,7 +78,6 @@ namespace Reusable.OmniLog.Nodes
             // Terminate the Dispose chain.
         }
     }
-
 
     public static class ScopeNodeHelper
     {
@@ -100,15 +106,15 @@ namespace Reusable.OmniLog.Nodes
 
         public static ILoggerScope AddMiddleware(this ILoggerScope scope, ILoggerNode node)
         {
-            return scope.WithScope(s => node.InsertAfter(s.Next));
+            return scope.WithScope(s => s.EnumerateNext().OfType<TerminatorMiddleware>().Single().AddBefore(node));
         }
 
         /// <summary>
         /// Gets the current correlation scope.
         /// </summary>
-        public static ScopeNode.Scope Scope(this ILogger logger) => logger.Node<ScopeNode>().Current;
+        public static ScopeNode.Item? Scope(this ILogger logger) => logger.Node<ScopeNode>().Current;
 
-        public static ILoggerScope WithScope(this ILoggerScope scope, Action<ScopeNode.Scope> scopeAction)
+        public static ILoggerScope WithScope(this ILoggerScope scope, Action<ScopeNode.Item> scopeAction)
         {
             return scope.Do(s => scopeAction(s.Scope()));
         }

@@ -139,6 +139,7 @@ namespace Reusable.OmniLog
             return
                 logger
                     //.Enumerate(m => m.Next)
+                    .EnumerateNext()
                     .OfType<T>()
                     .SingleOrThrow(onEmpty: () => DynamicException.Create($"{nameof(LoggerNode)}NotFound", $"There was no {typeof(T).ToPrettyString()}."));
         }

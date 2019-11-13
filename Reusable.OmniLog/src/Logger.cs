@@ -28,7 +28,7 @@ namespace Reusable.OmniLog
         private class EmptyLogger : Logger, ILogger<T> { }
     }
 
-    public class LoggerScope<T> : Logger, ILoggerScope where T : ILoggerNode
+    public class LoggerScope<T> : ILoggerScope where T : ILoggerNode
     {
         private readonly ILogger _logger;
         private readonly IDisposable _scope;
@@ -39,8 +39,31 @@ namespace Reusable.OmniLog
             _scope = configureNode(logger.Node<T>());
         }
 
-        public override void Log(LogEntry logEntry) => _logger.Log(logEntry);
+        public void Log(LogEntry logEntry) => _logger.Log(logEntry);
 
-        public override void Dispose() => _scope.Dispose();
+        public bool Enabled
+        {
+            get => _logger.Enabled;
+            set => _logger.Enabled = value;
+        }
+
+        public ILoggerNode Prev
+        {
+            get => _logger.Prev;
+            set => _logger.Prev = value;
+        }
+
+        public ILoggerNode Next
+        {
+            get => _logger.Next;
+            set => _logger.Next = value;
+        }
+
+        public void Invoke(LogEntry request)
+        {
+            _logger.Invoke(request);
+        }
+
+        public void Dispose() => _scope.Dispose();
     }
 }
