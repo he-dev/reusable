@@ -1,17 +1,11 @@
-﻿using System;
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using JetBrains.Annotations;
-using Reusable.Collections;
-using Reusable.Data;
-using Reusable.Diagnostics;
-using Reusable.Exceptionize;
 using Reusable.Extensions;
-using Reusable.OmniLog.Abstractions;
 
 namespace Reusable.OmniLog.Abstractions.Data
 {
@@ -42,7 +36,7 @@ namespace Reusable.OmniLog.Abstractions.Data
         public LogEntry Add<T>(SoftString name, object? value) where T : struct, ILogPropertyAction
         {
             var current = _data.TryGetValue(name, out var property) ? property : ImmutableList<LogProperty>.Empty;
-            _data[name] = current.Add(new LogProperty(value, default(T)));
+            _data[name] = current.Add(new LogProperty(name, value, default(T)));
             return this;
         }
 
@@ -53,14 +47,14 @@ namespace Reusable.OmniLog.Abstractions.Data
             return this;
         }
 
-        public LogEntry Clone() => new LogEntry(_data);
+        public LogEntry Copy() => new LogEntry(_data);
 
         public LogProperty GetPropertyOrDefault<T>(SoftString name) where T : struct, ILogPropertyAction
         {
             return
                 TryGetProperty<T>(name, out var property)
                     ? property
-                    : default; //throw DynamicException.Create("PropertyNotFound", $"There is no such property as '{name}'.");
+                    : default;
         }
 
         public bool TryGetProperty<T>(SoftString name, out LogProperty property) where T : struct, ILogPropertyAction
@@ -98,7 +92,7 @@ namespace Reusable.OmniLog.Abstractions.Data
             public static readonly string CallerLineNumber = nameof(CallerLineNumber);
             public static readonly string CallerFilePath = nameof(CallerFilePath);
 
-            public static readonly string Object = nameof(Object);
+            public static readonly string SnapshotName = nameof(SnapshotName);
             public static readonly string Snapshot = nameof(Snapshot);
 
             public static readonly string Scope = nameof(Scope);
@@ -106,71 +100,18 @@ namespace Reusable.OmniLog.Abstractions.Data
         }
     }
 
-    public readonly struct LogProperty
-    {
-        public LogProperty(object value, ILogPropertyAction state)
-        {
-            Value = value;
-            Action = state;
-        }
-
-        public object? Value { get; }
-
-        public ILogPropertyAction Action { get; }
-
-        public bool IsEmpty => Value is null && Action is null;
-    }
-
-    public static class LogPropertyExtensions
-    {
-        public static T ValueOrDefault<T>(this LogProperty property, T defaultValue = default)
-        {
-            return property.Value switch
-            {
-                T t => t,
-                _ => defaultValue
-                //_ => throw DynamicException.Create("LogProperty", $"Property value should be of type '{typeof(T).ToPrettyString()}' but is '{property.Value?.GetType().ToPrettyString()}'.")
-            };
-        }
-    }
-
-    public interface ILogPropertyAction { }
-
-    namespace LogPropertyActions
-    {
-        /// <summary>
-        /// Item is suitable for logging.
-        /// </summary>
-        public readonly struct Log : ILogPropertyAction { }
-
-        /// <summary>
-        /// Item needs to be exploded.
-        /// </summary>
-        public readonly struct Explode : ILogPropertyAction { }
-
-        /// <summary>
-        /// Item needs to be mapped or serialized.
-        /// </summary>
-        public readonly struct Serialize : ILogPropertyAction { }
-
-        public readonly struct Copy : ILogPropertyAction { }
-
-        public readonly struct Delete : ILogPropertyAction { }
-
-        public readonly struct Build : ILogPropertyAction { }
-    }
-
     public static class LogEntryExtensions
     {
-        //public static IEnumerable<ItemKey<SoftString>> Keys(this LogEntry logEntry) => logEntry.Select(le => le.Key);
-
-        public static IEnumerable<(SoftString Name, LogProperty Property)> Action<T>(this LogEntry entry) where T : struct, ILogPropertyAction
+        /// <summary>
+        /// Enumerates log-properties where the specified action is the last one.
+        /// </summary>
+        public static IEnumerable<LogProperty> Action<T>(this LogEntry entry) where T : struct, ILogPropertyAction
         {
-            foreach (var (name, _) in entry.Select(x => (x.Key, x.Value)))
+            foreach (var name in entry.Select(x => x.Key))
             {
                 if (entry.TryGetProperty<T>(name, out var property))
                 {
-                    yield return (name, property);
+                    yield return property;
                 }
             }
         }

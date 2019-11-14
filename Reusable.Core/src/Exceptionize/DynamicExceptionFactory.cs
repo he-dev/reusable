@@ -18,7 +18,7 @@ namespace Reusable.Exceptionize
         /// <param name="message">The message for the exception. It can be 'null' but you should provide it anyway if you want to find what wend wrong later</param>
         /// <param name="innerException">The inner exception. It can be 'null' but remember to set it if you have one.</param>
         [NotNull, ContractAnnotation("name: null => halt")]
-        Exception CreateDynamicException([NotNull] ExceptionName name, [CanBeNull] string message, [CanBeNull] Exception innerException);
+        Exception CreateDynamicException(ExceptionName name, string? message, Exception? innerException);
 
         /// <summary>
         /// Gets a dynamic exception type.
@@ -33,7 +33,7 @@ namespace Reusable.Exceptionize
 
         public static IDynamicExceptionFactory Default { get; } = new DynamicExceptionFactory();
 
-        public Exception CreateDynamicException(ExceptionName name, string message, Exception innerException)
+        public Exception CreateDynamicException(ExceptionName name, string? message, Exception? innerException)
         {
             if (name == null) throw new ArgumentNullException(nameof(name));
 

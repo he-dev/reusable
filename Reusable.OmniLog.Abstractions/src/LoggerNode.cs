@@ -1,25 +1,26 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
-using Newtonsoft.Json;
 using Reusable.OmniLog.Abstractions.Data;
 
 namespace Reusable.OmniLog.Abstractions
 {
-    public interface ILoggerNode : IDisposable
+    public interface ILinkedListNode<T> where T : class, ILinkedListNode<T>
+    {
+        T? Prev { get; set; }
+
+        T? Next { get; set; }
+    }
+
+    public interface ILoggerNode : ILinkedListNode<ILoggerNode>, IDisposable
     {
         bool Enabled { get; set; }
-
-        ILoggerNode? Prev { get; set; }
-
-        ILoggerNode? Next { get; set; }
-
+        
         void Invoke(LogEntry request);
     }
 
-    public static class LoggerMiddlewareHelper
+    public static class LinkedListExtensions
     {
-        public static ILoggerNode AddAfter(this ILoggerNode a, ILoggerNode b)
+        public static T AddAfter<T>(this T a, T b) where T : class, ILinkedListNode<T>
         {
             var c = a.Next;
 
@@ -32,7 +33,7 @@ namespace Reusable.OmniLog.Abstractions
             return b;
         }
 
-        public static ILoggerNode AddBefore(this ILoggerNode c, ILoggerNode b)
+        public static T AddBefore<T>(this T c, T b)where T : class, ILinkedListNode<T>
         {
             var a = c.Prev;
 

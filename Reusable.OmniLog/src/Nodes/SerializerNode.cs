@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using System.Linq;
 using Reusable.OmniLog.Abstractions;
 using Reusable.OmniLog.Abstractions.Data;
@@ -21,9 +20,9 @@ namespace Reusable.OmniLog.Nodes
         //public HashSet<string> SerializableProperties { get; set; } = new HashSet<string>(SoftString.Comparer);
         protected override void invoke(LogEntry request)
         {
-            foreach (var (name, property) in request.Action<Serialize>().ToList())
+            foreach (var property in request.Action<Serialize>().Where(property => property.Value is {}).ToList())
             {
-                request.Add<Log>(name, _serializer.Serialize(property.Value));
+                request.Add<Log>(property.Name, _serializer.Serialize(property.Value));
             }
 
             invokeNext(request);

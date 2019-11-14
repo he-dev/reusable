@@ -13,7 +13,7 @@ namespace Reusable.OmniLog.Nodes
     {
         public override bool Enabled => base.Enabled && Functions.Any();
 
-        public List<IScalar> Functions { get; set; } = new List<IScalar>();
+        public List<IComputable> Functions { get; set; } = new List<IComputable>();
 
         protected override void invoke(LogEntry request)
         {

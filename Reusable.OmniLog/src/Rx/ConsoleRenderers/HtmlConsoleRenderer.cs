@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using JetBrains.Annotations;
 using Reusable.MarkupBuilder.Html;
 using Reusable.OmniLog.Abstractions.Data;
 using Reusable.OmniLog.Abstractions.Data.LogPropertyActions;
@@ -17,8 +16,7 @@ namespace Reusable.OmniLog.Rx.ConsoleRenderers
 
         public IConsoleStyle Style { get; set; } = DefaultStyle;
 
-        [CanBeNull]
-        public HtmlConsoleTemplateBuilder TemplateBuilder { get; set; }
+        public ConsoleTemplateBuilder<HtmlElement>? TemplateBuilder { get; set; }
 
         /// <summary>
         /// Renders the Html to the console. This method is thread-safe.
@@ -29,7 +27,7 @@ namespace Reusable.OmniLog.Rx.ConsoleRenderers
             {
                 var builder = logEntry.TryGetProperty<Build>(LogEntry.Names.MessageBuilder, out var property) switch
                 {
-                    true => property.ValueOrDefault<HtmlConsoleTemplateBuilder>(),
+                    true => property.ValueOrDefault<ConsoleTemplateBuilder<HtmlElement>>(),
                     false => TemplateBuilder
                 };
 

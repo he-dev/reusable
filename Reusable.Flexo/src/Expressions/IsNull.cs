@@ -1,6 +1,5 @@
 using Reusable.Data;
 using Reusable.Flexo.Abstractions;
-using Reusable.OmniLog.Abstractions;
 
 namespace Reusable.Flexo
 {

@@ -2,5 +2,5 @@
 using System.Runtime.CompilerServices;
 using Reusable.OmniLog.Abstractions;
 
-[assembly: DebuggerDisplay("{DebuggerDisplay(),nq}", Target = typeof(Scalar))]
+[assembly: DebuggerDisplay("{DebuggerDisplay(),nq}", Target = typeof(Computable))]
 [assembly: InternalsVisibleTo("Reusable.Tests")]

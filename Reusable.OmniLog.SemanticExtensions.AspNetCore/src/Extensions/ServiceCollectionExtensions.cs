@@ -3,7 +3,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Reusable.OmniLog.Abstractions;
 
-namespace Reusable.OmniLog.SemanticExtensions.AspNetCore
+namespace Reusable.OmniLog.SemanticExtensions.AspNetCore.Extensions
 {
     public static class ServiceCollectionExtensions
     {

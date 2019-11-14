@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Reusable.OmniLog.Abstractions;
 using Reusable.OmniLog.Abstractions.Data;
+using Reusable.OmniLog.Abstractions.Data.LogPropertyActions;
 using Reusable.OmniLog.Nodes;
 using Reusable.OmniLog.Rx;
 using Telerik.JustMock;
@@ -22,17 +23,17 @@ namespace Reusable.OmniLog
                 var node = new ScopeNode();
                 var logEntry = new LogEntry();
 
-                var key = new ItemKey<SoftString>(LogEntry.Names.Scope, LogEntry.Tags.Serializable);
+                var key = LogEntry.Names.Scope;
 
-                Assert.False(logEntry.TryGetProperty<List<ScopeNode.Item>>(key, out var scope));
+                Assert.False(logEntry.TryGetProperty<Serialize>(key, out var scope));
 
 
                 using (node.Push("scope-1"))
                 {
                     node.Invoke(logEntry = new LogEntry());
 
-                    Assert.True(logEntry.TryGetProperty(key, out scope));
-                    Assert.Equal(1, scope.Count);
+                    Assert.True(logEntry.TryGetProperty<Serialize>(key, out scope));
+                    Assert.Equal(1, scope.ValueOrDefault<List<ScopeNode.Item>>().Count);
                     Assert.Equal(new[] { "scope-1" }, scope.Select(x => x.CorrelationId));
 
                     using (node.Push("scope-2"))
@@ -95,9 +96,9 @@ namespace Reusable.OmniLog
                 }));
 
                 Assert.Equal(2, logs.Count);
-                Assert.Equal("a", logs[0][LogEntry.Names.Object]);
+                Assert.Equal("a", logs[0][LogEntry.Names.SnapshotName]);
                 Assert.Equal("aa", logs[0][LogEntry.Names.Snapshot, LogEntry.Tags.Serializable]);
-                Assert.Equal("b", logs[1][LogEntry.Names.Object]);
+                Assert.Equal("b", logs[1][LogEntry.Names.SnapshotName]);
                 Assert.Equal("bb", logs[1][LogEntry.Names.Snapshot, LogEntry.Tags.Serializable]);
 
                 next.Assert();
@@ -124,9 +125,9 @@ namespace Reusable.OmniLog
                 }));
 
                 Assert.Equal(2, logs.Count);
-                Assert.Equal("a", logs[0][LogEntry.Names.Object]);
+                Assert.Equal("a", logs[0][LogEntry.Names.SnapshotName]);
                 Assert.Equal("aaa", logs[0][LogEntry.Names.Snapshot, LogEntry.Tags.Serializable]);
-                Assert.Equal("b", logs[1][LogEntry.Names.Object]);
+                Assert.Equal("b", logs[1][LogEntry.Names.SnapshotName]);
                 Assert.Equal("bbb", logs[1][LogEntry.Names.Snapshot, LogEntry.Tags.Serializable]);
 
                 next.Assert();

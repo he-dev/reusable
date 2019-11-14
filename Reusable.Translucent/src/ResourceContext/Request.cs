@@ -4,7 +4,6 @@ using System.Threading;
 using JetBrains.Annotations;
 using Reusable.Data;
 using Reusable.Quickey;
-using Reusable.Translucent.Controllers;
 
 namespace Reusable.Translucent
 {

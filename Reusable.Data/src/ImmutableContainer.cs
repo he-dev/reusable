@@ -4,13 +4,8 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Linq;
-using System.Linq.Expressions;
-using System.Text.RegularExpressions;
 using JetBrains.Annotations;
 using Reusable.Diagnostics;
-using Reusable.Exceptionize;
-using Reusable.Extensions;
-using Reusable.Quickey;
 
 namespace Reusable.Data
 {

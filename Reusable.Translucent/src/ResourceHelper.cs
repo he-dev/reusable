@@ -4,8 +4,6 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
-using Reusable.Data;
-using Reusable.Exceptionize;
 using Reusable.Extensions;
 
 namespace Reusable.Translucent

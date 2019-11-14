@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Linq.Custom;
 using JetBrains.Annotations;
+using System.Linq.Custom;
 
 namespace Reusable.Diagnostics
 {

@@ -11,6 +11,7 @@ using Reusable.OmniLog;
 using Reusable.OmniLog.Abstractions;
 using Reusable.OmniLog.SemanticExtensions;
 using Reusable.OmniLog.SemanticExtensions.AspNetCore;
+using Reusable.OmniLog.SemanticExtensions.AspNetCore.Extensions;
 using Reusable.Utilities.AspNetCore;
 using Reusable.Utilities.AspNetCore.Hosting;
 using Reusable.Utilities.NLog.LayoutRenderers;

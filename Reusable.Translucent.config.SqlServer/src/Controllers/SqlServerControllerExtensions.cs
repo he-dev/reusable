@@ -1,4 +1,3 @@
-using System;
 using Reusable.Data;
 using Reusable.Translucent.Controllers;
 

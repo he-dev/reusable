@@ -1,5 +1,3 @@
-using System.Collections.Immutable;
-
 namespace Reusable.Data
 {
     public abstract class MimeType 

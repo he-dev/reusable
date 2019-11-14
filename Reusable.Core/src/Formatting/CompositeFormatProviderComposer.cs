@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Reusable
+﻿namespace Reusable
 {
     public static class CompositeFormatProviderComposer
     {

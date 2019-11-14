@@ -8,6 +8,7 @@ using Reusable.OmniLog.Abstractions.Data;
 
 namespace Reusable.OmniLog.Rx
 {
+    [PublicAPI]
     public class MemoryRx : ILogRx, IEnumerable<LogEntry>
     {
         public const int DefaultCapacity = 1_000;
@@ -21,7 +22,6 @@ namespace Reusable.OmniLog.Rx
 
         public int Capacity { get; }
 
-        [NotNull]
         public LogEntry this[int index] => this.ElementAtOrDefault(index) ?? throw DynamicException.Create("LogIndexOutOfRange", $"There is no log at {index}.");
 
         public void Log(LogEntry logEntry)

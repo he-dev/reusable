@@ -1,9 +1,9 @@
-﻿using System;
-using JetBrains.Annotations;
-
-namespace Reusable
+﻿namespace Reusable
 {
 #if NET47
+    using System;
+    using JetBrains.Annotations;
+
     [PublicAPI]
     public sealed class Isolated<T> : IDisposable where T : MarshalByRefObject, new()
     {

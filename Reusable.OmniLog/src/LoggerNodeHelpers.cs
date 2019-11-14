@@ -26,7 +26,7 @@ namespace Reusable.OmniLog
         public static LoggerFactory UseRename(this LoggerFactory loggerFactory, Action<RenameNode> configure) => loggerFactory.Use(configure);
         public static LoggerFactory UseRename(this LoggerFactory loggerFactory, params (string From, string To)[] mappings) => loggerFactory.Use<RenameNode>(n => n.Mappings.AddRangeSafely(mappings));
         public static LoggerFactory UseScalar(this LoggerFactory loggerFactory, Action<ScalarNode> configure) => loggerFactory.Use(configure);
-        public static LoggerFactory UseScalar(this LoggerFactory loggerFactory, params IScalar[] scalars) => loggerFactory.Use<ScalarNode>(n => n.Functions.AddRange(scalars));
+        public static LoggerFactory UseScalar(this LoggerFactory loggerFactory, params IComputable[] scalars) => loggerFactory.Use<ScalarNode>(n => n.Functions.AddRange(scalars));
         public static LoggerFactory UseSerializer(this LoggerFactory loggerFactory, Action<SerializerNode>? configure = default) => loggerFactory.Use(configure);
         public static LoggerFactory UseStopwatch(this LoggerFactory loggerFactory, Action<StopwatchNode>? configure = default) => loggerFactory.Use(configure);
     }

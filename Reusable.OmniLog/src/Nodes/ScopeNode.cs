@@ -1,6 +1,4 @@
 using System;
-using System.Collections;
-using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
 using Newtonsoft.Json;
@@ -12,7 +10,7 @@ using Reusable.OmniLog.Abstractions.Data.LogPropertyActions;
 namespace Reusable.OmniLog.Nodes
 {
     [PublicAPI]
-    public class ScopeNode : LoggerNode, ILoggerNodeScope<ScopeNode.Item, object>
+    public class ScopeNode : LoggerNode //, ILoggerNodeScope<ScopeNode.Item, object>
     {
         /// <summary>
         /// Gets or sets the factory for the default correlation-id. By default it's a Guid.
@@ -117,7 +115,7 @@ namespace Reusable.OmniLog.Nodes
 
         public static ILoggerScope WithScope(this ILoggerScope scope, Action<ScopeNode.Item> scopeAction)
         {
-            return scope.Do(s => scopeAction(s.Scope()));
+            return scope.Do(s => scopeAction(s.Scope() ?? throw new InvalidOperationException("Cannot use scope right now because there is none.")));
         }
     }
 }

@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using System.Linq;
 using Reusable.OmniLog.Abstractions;
 using Reusable.OmniLog.Abstractions.Data;
@@ -18,7 +17,7 @@ namespace Reusable.OmniLog.Nodes
             var builders = 
                 request
                     .Action<Copy>()
-                    .Select(x => x.Property.ValueOrDefault<ILogEntryBuilder>())
+                    .Select(p => p.ValueOrDefault<ILogEntryBuilder>())
                     .ToList();
 
             var logEntries =

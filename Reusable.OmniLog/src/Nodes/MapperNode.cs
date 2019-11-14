@@ -21,13 +21,13 @@ namespace Reusable.OmniLog.Nodes
 
         protected override void invoke(LogEntry request)
         {
-            foreach (var (name, property) in request.Action<Serialize>().ToList())
+            foreach (var property in request.Action<Serialize>().ToList())
             {
                 // Do we have a custom mapping for the dump?
                 if (property.Value is {} && Mappings.TryGetMapping(property.Value.GetType(), out var map))
                 {
                     var obj = map(property.Value);
-                    request.Add<Serialize>(name, obj); // Replace the original object.
+                    request.Add<Serialize>(property.Name, obj); // Replace the original object.
                 }
             }
 
@@ -36,9 +36,15 @@ namespace Reusable.OmniLog.Nodes
 
         public class Mapping
         {
-            public Type Type { get; private set; }
+            private Mapping(Type type, Func<object, object> map)
+            {
+                Type = type;
+                Map = map;
+            }
 
-            public Func<object, object> Map { get; private set; }
+            public Type Type { get; }
+
+            public Func<object, object> Map { get; }
 
             public static Mapping For<T>(Func<T, object> map)
             {
@@ -56,7 +62,7 @@ namespace Reusable.OmniLog.Nodes
                             parameter)
                         .Compile();
 
-                return new Mapping { Type = typeof(T), Map = mapFunc };
+                return new Mapping(typeof(T), mapFunc);
             }
         }
 

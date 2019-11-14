@@ -20,17 +20,17 @@ namespace Reusable.OmniLog.Nodes
         protected override void invoke(LogEntry request)
         {
             var explodable =
-                from e in request.Action<Explode>()
-                from p in e.Property.Value.EnumerateProperties().Where(x => x.Value is {})
-                select p;
+                from p in request.Action<Explode>()
+                from x in p.Value.EnumerateProperties().Where(x => x.Value is {})
+                select x;
 
             if (explodable.ToList() is var items && items.Any())
             {
                 foreach (var (name, value) in items)
                 {
-                    var copy = request.Clone();
+                    var copy = request.Copy();
 
-                    copy.Add<Log>(LogEntry.Names.Object, name);
+                    copy.Add<Log>(LogEntry.Names.SnapshotName, name);
                     copy.Add<Serialize>(LogEntry.Names.Snapshot, value);
 
                     invokeNext(copy);
@@ -56,14 +56,15 @@ namespace Reusable.OmniLog.Nodes
     {
         public static IEnumerable<(string Name, object Value)> EnumerateProperties<T>(this T obj)
         {
-            return
-                obj is IDictionary<string, object> dictionary
-                    ? dictionary.Select(item => (item.Key, item.Value))
-                    : obj
-                        .GetType()
-                        //.ValidateIsAnonymous()
-                        .GetProperties(BindingFlags.Public | BindingFlags.Instance)
-                        .Select(property => (property.Name, property.GetValue(obj)));
+            return obj switch
+            {
+                IDictionary<string, object> d => d.Select(item => (item.Key, item.Value)),
+                {} => obj
+                    .GetType()
+                    .GetProperties(BindingFlags.Public | BindingFlags.Instance)
+                    .Select(property => (property.Name, property.GetValue(obj))),
+                _ => Enumerable.Empty<(string, object)>()
+            };
         }
 
         private static Type ValidateIsAnonymous(this Type type)

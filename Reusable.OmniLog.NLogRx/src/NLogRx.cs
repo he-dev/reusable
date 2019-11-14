@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Linq;
 using Reusable.Data;
-using Reusable.Extensions;
 using Reusable.OmniLog.Abstractions;
 using Reusable.OmniLog.Abstractions.Data;
 using Reusable.OmniLog.Abstractions.Data.LogPropertyActions;
@@ -43,7 +41,7 @@ namespace Reusable.OmniLog
 
             foreach (var item in logEntry.Action<Log>())
             {
-                logEventInfo.Properties.Add(item.Name.ToString(), item.Property.Value);
+                logEventInfo.Properties.Add(item.Name.ToString(), item.Value);
             }
 
             return logEventInfo;

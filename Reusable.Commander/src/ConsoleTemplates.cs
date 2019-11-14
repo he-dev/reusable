@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq.Custom;
 using Reusable.MarkupBuilder.Html;
-using Reusable.OmniLog.Abstractions;
 using Reusable.OmniLog.Abstractions.Data;
 using Reusable.OmniLog.Rx.ConsoleRenderers;
 
@@ -21,7 +20,7 @@ namespace Reusable.Commander.ConsoleTemplates
 //                .span(span => span.text($"[{Timestamp:yyyy-MM-dd HH:mm:ss}]>"));
 //    }
 
-    public class Indent : HtmlConsoleTemplateBuilder
+    public class Indent : ConsoleTemplateBuilder<HtmlElement>
     {
         private readonly int _depth;
 
@@ -40,7 +39,7 @@ namespace Reusable.Commander.ConsoleTemplates
 
     namespace Help
     {
-        public class TableRow : HtmlConsoleTemplateBuilder
+        public class TableRow : ConsoleTemplateBuilder<HtmlElement>
         {
             public IEnumerable<string> Cells { get; set; }
 
@@ -53,7 +52,7 @@ namespace Reusable.Commander.ConsoleTemplates
     }
 
 
-    public class Error : HtmlConsoleTemplateBuilder
+    public class Error : ConsoleTemplateBuilder<HtmlElement>
     {
         public string Text { get; set; }
 

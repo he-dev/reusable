@@ -14,10 +14,8 @@ namespace Reusable.OmniLog.Nodes
         {
             while (Enabled)
             {
-                using (var item = AsyncScope<Item>.Current.Value)
-                {
-                    item?.AlterLogEntry(request);
-                }
+                using var item = AsyncScope<Item>.Current!.Value!;
+                item.AlterLogEntry(request);
             }
 
             invokeNext(request);
@@ -25,7 +23,12 @@ namespace Reusable.OmniLog.Nodes
 
         public class Item : IDisposable
         {
-            public AlterLogEntryCallback? AlterLogEntry { get; set; }
+            public Item(AlterLogEntryDelegate alterLogEntry)
+            {
+                AlterLogEntry = alterLogEntry;
+            }
+            
+            public AlterLogEntryDelegate AlterLogEntry { get; }
 
             public void Dispose() => AsyncScope<Item>.Current?.Dispose();
         }
@@ -33,9 +36,9 @@ namespace Reusable.OmniLog.Nodes
 
     public static class LoggerLambdaHelper
     {
-        public static void UseLambda(this ILogger logger, AlterLogEntryCallback alter)
+        public static void UseLambda(this ILogger logger, AlterLogEntryDelegate alter)
         {
-            LambdaNode.Push(new LambdaNode.Item { AlterLogEntry = alter });
+            LambdaNode.Push(new LambdaNode.Item(alter));
         }
     }
 }

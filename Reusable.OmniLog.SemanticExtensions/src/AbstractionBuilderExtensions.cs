@@ -3,12 +3,10 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 using System.Runtime.CompilerServices;
-using JetBrains.Annotations;
 using Reusable.Data;
 using Reusable.OmniLog.Abstractions;
 using Reusable.OmniLog.Abstractions.Data;
 using Reusable.OmniLog.Abstractions.Data.LogPropertyActions;
-using Reusable.OmniLog.Nodes;
 
 namespace Reusable.OmniLog.SemanticExtensions
 {
@@ -98,7 +96,7 @@ namespace Reusable.OmniLog.SemanticExtensions
         /// <summary>
         /// Logs variables. The dump must be an anonymous type with at least one property: new { foo[, bar] }
         /// </summary>
-        public static ILogEntryBuilder<ILogEntryCategory> Variable(this ILogEntryBuilder<ILogEntryLayer> layer, object snapshot, string identifier = default)
+        public static ILogEntryBuilder<ILogEntryCategory> Variable(this ILogEntryBuilder<ILogEntryLayer> layer, object snapshot, string? identifier = default)
         {
             return layer.CreateCategoryWithCallerName().Update(l => l.Snapshot(snapshot, identifier));
         }
@@ -106,7 +104,7 @@ namespace Reusable.OmniLog.SemanticExtensions
         /// <summary>
         /// Logs properties. The dump must be an anonymous type with at least one property: new { foo[, bar] }
         /// </summary>
-        public static ILogEntryBuilder<ILogEntryCategory> Property(this ILogEntryBuilder<ILogEntryLayer> layer, object snapshot, string identifier = default)
+        public static ILogEntryBuilder<ILogEntryCategory> Property(this ILogEntryBuilder<ILogEntryLayer> layer, object snapshot, string? identifier = default)
         {
             return layer.CreateCategoryWithCallerName().Update(l => l.Snapshot(snapshot, identifier));
         }
@@ -114,7 +112,7 @@ namespace Reusable.OmniLog.SemanticExtensions
         /// <summary>
         /// Logs arguments. The dump must be an anonymous type with at leas one property: new { foo[, bar] }
         /// </summary>
-        public static ILogEntryBuilder<ILogEntryCategory> Argument(this ILogEntryBuilder<ILogEntryLayer> layer, object snapshot, string identifier = default)
+        public static ILogEntryBuilder<ILogEntryCategory> Argument(this ILogEntryBuilder<ILogEntryLayer> layer, object snapshot, string? identifier = default)
         {
             return layer.CreateCategoryWithCallerName().Update(l => l.Snapshot(snapshot, identifier));
         }
@@ -122,7 +120,7 @@ namespace Reusable.OmniLog.SemanticExtensions
         /// <summary>
         /// Logs metadata. The dump must be an anonymous type with at leas one property: new { foo[, bar] }
         /// </summary>
-        public static ILogEntryBuilder<ILogEntryCategory> Meta(this ILogEntryBuilder<ILogEntryLayer> layer, object snapshot, string identifier = default)
+        public static ILogEntryBuilder<ILogEntryCategory> Meta(this ILogEntryBuilder<ILogEntryLayer> layer, object snapshot, string? identifier = default)
         {
             return layer.CreateCategoryWithCallerName().Update(l => l.Snapshot(snapshot, identifier));
         }
@@ -130,26 +128,31 @@ namespace Reusable.OmniLog.SemanticExtensions
         /// <summary>
         /// Logs performance counters. The dump must be an anonymous type with at leas one property: new { foo[, bar] }
         /// </summary>
-        public static ILogEntryBuilder<ILogEntryCategory> Counter(this ILogEntryBuilder<ILogEntryLayer> layer, object snapshot, string identifier = default)
+        public static ILogEntryBuilder<ILogEntryCategory> Counter(this ILogEntryBuilder<ILogEntryLayer> layer, object snapshot, string? identifier = default)
         {
             return layer.CreateCategoryWithCallerName().Update(l => l.Snapshot(snapshot, identifier));
         }
 
-        private static LogEntry Snapshot(this LogEntry logEntry, object snapshot, string identifier = default)
+        /// <summary>
+        /// Logs information about the 'thing' the service is primarily build to work with.
+        /// </summary>
+        public static ILogEntryBuilder<ILogEntryCategory> Subject(this ILogEntryBuilder<ILogEntryLayer> layer, object snapshot, string? identifier = default)
         {
-            if (identifier is null)
+            return layer.CreateCategoryWithCallerName().Update(l => l.Snapshot(snapshot, identifier));
+        }
+
+        public static LogEntry Snapshot(this LogEntry logEntry, object snapshot, string identifier = default)
+        {
+            return identifier switch
             {
-                return
-                    logEntry
-                        .Add<Explode>(LogEntry.Names.Snapshot, snapshot);
-            }
-            else
-            {
-                return
-                    logEntry
-                        .Add<Log>(LogEntry.Names.Object, identifier)
-                        .Add<Serialize>(LogEntry.Names.Snapshot, snapshot);
-            }
+                {} =>
+                logEntry
+                    .Add<Log>(LogEntry.Names.SnapshotName, identifier)
+                    .Add<Serialize>(LogEntry.Names.Snapshot, snapshot),
+                _ =>
+                logEntry
+                    .Add<Explode>(LogEntry.Names.Snapshot, snapshot)
+            };
         }
 
         #endregion
@@ -159,7 +162,7 @@ namespace Reusable.OmniLog.SemanticExtensions
         /// </summary>
         public static ILogEntryBuilder<ILogEntryCategory> Routine(this ILogEntryBuilder<ILogEntryLayer> layer, string identifier)
         {
-            return layer.CreateCategoryWithCallerName().Update(l => l.Add<Log>(LogEntry.Names.Object, identifier));
+            return layer.CreateCategoryWithCallerName().Update(l => l.Add<Log>(LogEntry.Names.SnapshotName, identifier));
         }
 
 
@@ -237,7 +240,7 @@ namespace Reusable.OmniLog.SemanticExtensions
         public static ILogEntryBuilder<ILogEntryCategory> Decision(this ILogEntryBuilder<ILogEntryCategory> category, string decision)
         {
             return category.Update(l => l
-                .Add<Log>(LogEntry.Names.Object, nameof(Decision))
+                .Add<Log>(LogEntry.Names.SnapshotName, nameof(Decision))
                 .Add<Log>(LogEntry.Names.Snapshot, decision)
             );
         }

@@ -54,13 +54,7 @@ namespace Reusable
                     new ScopeNode(),
                     // Copies everything from AbstractionBuilder to each log-entry.
                     // Contains properties Layer and Category and Meta#Dump.
-                    new BuilderNode
-                    {
-                        Names =
-                        {
-                            nameof(Abstraction)
-                        }
-                    },
+                    new BuilderNode(),
                     // Explodes objects and dictionaries into multiple log-entries. One per each property/item.
                     new OneToManyNode(),
                     // Converts #Serializable items. Objects and dictionaries are treated as collections of KeyValuePairs.
@@ -82,9 +76,9 @@ namespace Reusable
                     {
                         Mappings =
                         {
-                            { LogEntry.Names.Scope, "Scope" },
-                            { LogEntry.Names.Object, "Identifier" },
-                            { LogEntry.Names.Snapshot, "Snapshot" },
+                            //{ LogEntry.Names.Scope, "Scope" },
+                            { LogEntry.Names.SnapshotName, "Identifier" },
+                            //{ LogEntry.Names.Snapshot, "Snapshot" },
                         }
                     },
                     // Sets default values for the specified keys when they are not set already. 
@@ -126,7 +120,7 @@ namespace Reusable
             logger.Log(Abstraction.Layer.Service().Meta(new { Null = (string)default }));
 
             // Opening outer-scope.
-            using (logger.UseScope(correlationHandle: "my-handle").UseStopwatch())
+            using (logger.BeginScope().WithCorrelationHandle("outer").UseStopwatch())
             {
                 var variable = new { John = "Doe" };
                 // Logging some single business variable and a message.
@@ -135,7 +129,7 @@ namespace Reusable
                 logger.Log(Abstraction.Layer.Database().Flow().Decision("Log something.").Because("Logger works!"));
 
                 // Opening inner-scope.
-                using (logger.UseScope().UseStopwatch())
+                using (logger.BeginScope().WithCorrelationHandle("inner").UseStopwatch())
                 {
                     // Logging an entire object in a single line.
                     var customer = new Person

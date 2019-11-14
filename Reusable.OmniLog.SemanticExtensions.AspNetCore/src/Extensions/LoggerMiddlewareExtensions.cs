@@ -2,7 +2,7 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 
-namespace Reusable.OmniLog.SemanticExtensions.AspNetCore
+namespace Reusable.OmniLog.SemanticExtensions.AspNetCore.Extensions
 {
     public static class LoggerMiddlewareExtensions
     {

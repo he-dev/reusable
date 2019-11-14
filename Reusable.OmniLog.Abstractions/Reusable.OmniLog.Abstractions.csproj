@@ -29,5 +29,10 @@
   <ItemGroup>
     <Reference Include="System.Configuration" />
   </ItemGroup>
+  
+  <ItemGroup>
+    <Compile Remove="src\ILinkedListNode.cs" />
+    <Compile Remove="src\ILoggerNodeScope.cs" />
+  </ItemGroup>
 
 </Project>

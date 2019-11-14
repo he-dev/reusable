@@ -7,7 +7,6 @@ using Reusable.Data;
 using Reusable.Exceptionize;
 using Reusable.Extensions;
 using Reusable.OmniLog.Abstractions;
-using Reusable.OmniLog.Abstractions.Data;
 using Reusable.Utilities.JsonNet.Annotations;
 
 namespace Reusable.Flexo.Abstractions

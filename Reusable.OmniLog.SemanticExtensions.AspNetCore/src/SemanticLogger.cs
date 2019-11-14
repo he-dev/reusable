@@ -18,50 +18,28 @@ namespace Reusable.OmniLog.SemanticExtensions.AspNetCore
     public class SemanticLogger
     {
         private readonly ILogger _logger;
-
         private readonly RequestDelegate _next;
-        private readonly Func<HttpContext, object> _getCorrelationId;
+        private readonly SemanticLoggerConfig _config;
 
         public SemanticLogger
         (
             ILoggerFactory loggerFactory,
             RequestDelegate next,
-            Func<HttpContext, object> getCorrelationId
+            SemanticLoggerConfig config
         )
         {
             _next = next;
+            _config = config;
             _logger = loggerFactory.CreateLogger<SemanticLogger>();
-            _getCorrelationId = getCorrelationId;
         }
 
         public async Task Invoke(HttpContext context, IFeatureToggle featureToggle)
         {
-            using (_logger.UseScope().WithCorrelationHandle(_getCorrelationId(context)).UseStopwatch())
+            using (_logger.BeginScope(_config.GetCorrelationId(context)).WithCorrelationHandle("HandleRequest").UseStopwatch())
             {
-                _logger.Log(Abstraction.Layer.Service().Meta(new
-                {
-                    UserAgent =
-                        context.Request.Headers.TryGetValue("User-Agent", out var userAgent)
-                            ? userAgent.First()
-                            : "Unknown"
-                }));
-
-                _logger.Log(Abstraction.Layer.Network().Argument(new
-                {
-                    Request = new
-                    {
-                        Path = context.Request.Path.Value,
-                        Host = context.Request.Host.Value,
-                        context.Request.ContentLength,
-                        context.Request.ContentType,
-                        //context.Request.Cookies,
-                        context.Request.Headers,
-                        context.Request.IsHttps,
-                        context.Request.Method,
-                        context.Request.Protocol,
-                        context.Request.QueryString,
-                    }
-                }));
+                _logger.Log(Abstraction.Layer.Network().Subject(new { Path = context.Request.Path.ToString() }));
+                _logger.Log(Abstraction.Layer.Service().Meta(new { UserAgent = context.Request.Headers.TryGetValue("User-Agent", out var userAgent) ? userAgent.First() : "Unknown" }));
+                _logger.Log(Abstraction.Layer.Network().Meta(new { Request = _config.CreateRequestSnapshot(context) }));
 
                 try
                 {
@@ -76,7 +54,7 @@ namespace Reusable.OmniLog.SemanticExtensions.AspNetCore
 
                         using (var reader = new StreamReader(memory.Rewind()))
                         {
-                            body = await featureToggle.ExecuteAsync(Features.LogResponseBody, async () => await reader.ReadToEndAsync());
+                            body = featureToggle.IsEnabled(Features.LogResponseBody) ? await reader.ReadToEndAsync() : default;
 
                             // Restore Response.Body
                             if (!context.Response.StatusCode.In(304))
@@ -88,19 +66,13 @@ namespace Reusable.OmniLog.SemanticExtensions.AspNetCore
                         }
                     }
 
-                    _logger.Log(Abstraction.Layer.Network().Argument(new
+                    _logger.Log(Abstraction.Layer.Network().Meta(new
                     {
-                        Response = new
-                        {
-                            context.Response.ContentLength,
-                            context.Response.ContentType,
-                            context.Response.Headers,
-                            context.Response.StatusCode,
-                        }
+                        Response = _config.CreateResponseSnapshot(context)
                     }), log =>
                     {
                         log.Level(MapStatusCode(context.Response.StatusCode));
-                        if (featureToggle.IsEnabled(Features.LogResponseBody))
+                        if (body is {})
                         {
                             log.Message(body);
                         }
@@ -108,7 +80,7 @@ namespace Reusable.OmniLog.SemanticExtensions.AspNetCore
                 }
                 catch (Exception inner)
                 {
-                    _logger.Log(Abstraction.Layer.Network().Routine("next").Faulted(), inner);
+                    _logger.Log(Abstraction.Layer.Network().Routine("Request").Faulted(), inner);
                     throw;
                 }
             }
@@ -116,35 +88,13 @@ namespace Reusable.OmniLog.SemanticExtensions.AspNetCore
 
         private static Option<LogLevel> MapStatusCode(int statusCode)
         {
-            if (statusCode >= 500)
+            return statusCode switch
             {
-                return LogLevel.Fatal;
-            }
-
-            if (statusCode >= 400)
-            {
-                return LogLevel.Error;
-            }
-
-            if (statusCode >= 300)
-            {
-                return LogLevel.Warning;
-            }
-
-            return LogLevel.Information;
+                var x when x >= 500 => LogLevel.Fatal,
+                var x when x >= 400 => LogLevel.Error,
+                var x when x >= 300 => LogLevel.Warning,
+                _ => LogLevel.Information,
+            };
         }
-    }
-
-    public static class HttpContextExtensions
-    {
-        //public static void EnableResponseBodyLogging(this HttpContext context)
-        //{
-        //    context.Items[nameof(ResponseBodyLoggingEnabled)] = true;
-        //}
-
-        //public static bool ResponseBodyLoggingEnabled(this HttpContext context)
-        //{
-        //    return context.Items[nameof(ResponseBodyLoggingEnabled)] is bool enabled && enabled;
-        //}
     }
 }

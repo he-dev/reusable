@@ -3,6 +3,7 @@ using System.Linq;
 using System.Threading;
 using Reusable.OmniLog.Abstractions;
 using Reusable.OmniLog.Abstractions.Data;
+using Reusable.OmniLog.Abstractions.Data.LogPropertyActions;
 using Reusable.OmniLog.Nodes;
 using Reusable.OmniLog.Rx;
 using Reusable.OmniLog.Scalars;
@@ -18,23 +19,23 @@ namespace Reusable.OmniLog
         [Fact]
         public void Can_add_nodes_after()
         {
-            var nodes = new[] { new Node(1), new Node(2), new Node(3) };
+            var nodes = new[] { new TestNode(1), new TestNode(2), new TestNode(3) };
             var last = nodes.Aggregate<ILoggerNode>((current, next) => current.AddAfter(next));
             
             Assert.Same(last, nodes.Last());
         }
 
-        private class Node : ILoggerNode
+        private class TestNode : ILoggerNode
         {
-            public Node(int id) => Id = id;
+            public TestNode(int id) => Id = id;
 
             public int Id { get; }
 
             public bool Enabled { get; set; }
 
-            public ILoggerNode Prev { get; set; }
+            public ILoggerNode? Prev { get; set; }
 
-            public ILoggerNode Next { get; set; }
+            public ILoggerNode? Next { get; set; }
 
             public void Invoke(LogEntry request) => throw new NotImplementedException();
 
@@ -65,7 +66,7 @@ namespace Reusable.OmniLog
             var logger = lf.CreateLogger("test");
             logger.Log(l => l.Message("Hallo!"));
             Assert.Equal(1, rx.Count());
-            Assert.Equal("Hallo!", rx.First()["Message"]);
+            Assert.Equal("Hallo!", rx.First().GetPropertyOrDefault<Log>("Message").Value);
         }
 
         [Fact]
@@ -113,8 +114,8 @@ namespace Reusable.OmniLog
                 }
 
                 Assert.Equal(2, rx.Count());
-                Assert.Equal("Hallo!", rx[0]["Message"]);
-                Assert.Equal("Hi!", rx[1]["Message"]);
+                Assert.Equal("Hallo!", rx[0].GetPropertyOrDefault<Log>("Message").Value);
+                Assert.Equal("Hi!", rx[1].GetPropertyOrDefault<Log>("Message").Value);
             }
         }
 
@@ -143,13 +144,13 @@ namespace Reusable.OmniLog
             using (lf)
             {
                 var logger = lf.CreateLogger("test");
-                logger.Log(l => l.Message("Hallo!").Snapshot(new { Greeting = "Hi!" }));
+                logger.Log(l => l.Message("Hallo!").Snapshot<Log>(new { Greeting = "Hi!" }));
             }
 
             Assert.Equal(1, rx.Count());
-            Assert.Equal("Hallo!", rx.First()["Message"]);
-            Assert.Equal("Greeting", rx.First()[LogEntry.Names.Object]);
-            Assert.Equal("Hi!", rx.First()[LogEntry.Names.Snapshot, LogEntry.Tags.Serializable]);
+            Assert.Equal("Hallo!", rx.First().GetPropertyOrDefault<Log>("Message").Value);
+            Assert.Equal("Greeting", rx.First().GetPropertyOrDefault<Log>(LogEntry.Names.SnapshotName).Value);
+            Assert.Equal("Hi!", rx.First().GetPropertyOrDefault<Log>(LogEntry.Names.Snapshot).Value);
             //Assert.Equal("{\"Greeting\":\"Hi!\"}", rx.First()["Snapshot"]);
         }
 
@@ -184,8 +185,8 @@ namespace Reusable.OmniLog
             }
 
             Assert.Equal(1, rx.Count());
-            Assert.Equal("Hallo!", rx.First()["Message"]);
-            Assert.Equal(timestamp, rx.First()["Timestamp"]);
+            Assert.Equal("Hallo!", rx.First().GetPropertyOrDefault<Log>("Message").Value);
+            Assert.Equal(timestamp, rx.First().GetPropertyOrDefault<Log>("Timestamp").Value);
         }
 
         [Fact]
@@ -224,14 +225,14 @@ namespace Reusable.OmniLog
             using (lf)
             {
                 var logger = lf.CreateLogger("test");
-                logger.Log(l => l.Snapshot(new Person { FirstName = "John", LastName = "Doe" }));
+                logger.Log(l => l.Snapshot<Log>(new Person { FirstName = "John", LastName = "Doe" }));
             }
 
             Assert.Equal(2, rx.Count());
-            Assert.Equal("FirstName", rx[0][LogEntry.Names.Object]);
-            Assert.Equal("John", rx[0][LogEntry.Names.Snapshot, LogEntry.Tags.Serializable]);
-            Assert.Equal("LastName", rx[1][LogEntry.Names.Object]);
-            Assert.Equal("Doe", rx[1][LogEntry.Names.Snapshot, LogEntry.Tags.Serializable]);
+            Assert.Equal("FirstName", rx[0].GetPropertyOrDefault<Log>(LogEntry.Names.SnapshotName).Value);
+            Assert.Equal("John", rx[0].GetPropertyOrDefault<Serialize>(LogEntry.Names.Snapshot).Value);
+            Assert.Equal("LastName", rx[1].GetPropertyOrDefault<Log>(LogEntry.Names.SnapshotName).Value);
+            Assert.Equal("Doe", rx[1].GetPropertyOrDefault<Serialize>(LogEntry.Names.Snapshot).Value);
             //Assert.Equal(timestamp, rx.First()["Timestamp"]);
         }
 
@@ -270,7 +271,7 @@ namespace Reusable.OmniLog
             using (lf)
             {
                 var logger = lf.CreateLogger("test");
-                logger.Log(l => l.Snapshot(new Person { FirstName = "John", LastName = "Doe" }, explodable: false));
+                logger.Log(l => l.Snapshot<Explode>(new Person { FirstName = "John", LastName = "Doe" }));
             }
 
             Assert.Equal(1, rx.Count());

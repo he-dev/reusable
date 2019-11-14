@@ -1,6 +1,5 @@
 using System.Threading.Tasks;
 using Reusable.Data;
-using Reusable.Translucent.Controllers;
 
 namespace Reusable.Translucent
 {

@@ -1,12 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
-using JetBrains.Annotations;
 using Reusable.OmniLog.Abstractions;
 using Reusable.OmniLog.Abstractions.Data;
 
 namespace Reusable.OmniLog.Scalars
 {
-    public class Timestamp : Scalar, IDisposable
+    public class Timestamp : Computable, IDisposable
     {
         private int _timestampCount;
 
@@ -14,13 +13,13 @@ namespace Reusable.OmniLog.Scalars
 
         // There is no pretty way to get the name without `1
 
-        public Timestamp([NotNull] IEnumerable<DateTime> timestamps) : base("Timestamp")
+        public Timestamp(IEnumerable<DateTime> timestamps) : base("Timestamp")
         {
             if (timestamps == null) throw new ArgumentNullException(nameof(timestamps));
             _timestamps = timestamps.GetEnumerator();
         }
 
-        public override object Compute(LogEntry logEntry)
+        public override object? Compute(LogEntry logEntry)
         {
             if (_timestamps.MoveNext())
             {
