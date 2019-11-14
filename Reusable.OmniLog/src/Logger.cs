@@ -23,6 +23,10 @@ namespace Reusable.OmniLog
 
         public static ILogger<T> Empty { get; } = new EmptyLogger();
 
+        public override ILoggerNode? Prev { get => _logger.Prev; set => _logger.Prev = value; }
+
+        public override ILoggerNode? Next { get => _logger.Next; set => _logger.Next = value; }
+
         public override void Log(LogEntry logEntry) => _logger.Log(logEntry);
 
         private class EmptyLogger : Logger, ILogger<T> { }

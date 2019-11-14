@@ -65,9 +65,9 @@ namespace Reusable.OmniLog.Abstractions
     {
         public virtual bool Enabled { get; set; } = true;
 
-        public ILoggerNode? Prev { get; set; }
+        public virtual ILoggerNode? Prev { get; set; }
 
-        public ILoggerNode? Next { get; set; }
+        public virtual ILoggerNode? Next { get; set; }
 
         // This being virtual makes testing easier.
         public virtual void Invoke(LogEntry request)
