@@ -21,7 +21,7 @@ namespace Reusable.OmniLog.Rx.ConsoleRenderers
 
         public virtual void Render(LogEntry logEntry)
         {
-            Console.WriteLine(Template.Format((string name, out object value) =>
+            Console.WriteLine(Template.Format((string name, out object? value) =>
             {
                 if (logEntry.TryGetProperty<Log>(name, out var property))
                 {

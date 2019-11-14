@@ -90,16 +90,8 @@ namespace Reusable.Translucent
 
             return ctors.SingleOrThrow
             (
-                onEmpty: () => throw DynamicException.Create
-                (
-                    "ConstructorNotFound",
-                    $"Type '{middlewareType.ToPrettyString()}' does not have a constructor with the first parameter '{typeof(RequestDelegate<TContext>).ToPrettyString()}'."
-                ),
-                onMany: () => throw DynamicException.Create
-                (
-                    "AmbiguousConstructorsFound",
-                    $"Type '{middlewareType.ToPrettyString()}' has more than one constructor with the first parameter '{typeof(RequestDelegate<TContext>).ToPrettyString()}'."
-                )
+                onEmpty: ("ConstructorNotFound", $"Type '{middlewareType.ToPrettyString()}' does not have a constructor with the first parameter '{typeof(RequestDelegate<TContext>).ToPrettyString()}'."),
+                onMany: ("AmbiguousConstructorsFound", $"Type '{middlewareType.ToPrettyString()}' has more than one constructor with the first parameter '{typeof(RequestDelegate<TContext>).ToPrettyString()}'.")
             );
         }
 
@@ -136,8 +128,8 @@ namespace Reusable.Translucent
 
             var invokeMethod = invokeMethods.SingleOrThrow
             (
-                onEmpty: () => DynamicException.Create("InvokeNotFound", $"{middlewareType.ToPrettyString()} must implement either 'InvokeAsync' or 'Invoke'."),
-                onMany: () => DynamicException.Create("AmbiguousInvoke", $"{middlewareType.ToPrettyString()} must implement either 'InvokeAsync' or 'Invoke' but not both.")
+                onEmpty: ("InvokeNotFound", $"{middlewareType.ToPrettyString()} must implement either 'InvokeAsync' or 'Invoke'."),
+                onMany: ("AmbiguousInvoke", $"{middlewareType.ToPrettyString()} must implement either 'InvokeAsync' or 'Invoke' but not both.")
             );
 
             if (!typeof(Task).IsAssignableFrom(invokeMethod.ReturnType))

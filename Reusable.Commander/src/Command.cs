@@ -73,7 +73,7 @@ namespace Reusable.Commander
 
         public override async Task ExecuteAsync(object argument, object context, CancellationToken cancellationToken)
         {
-            using (_logger.UseScope().WithCorrelationHandle("ExecuteCommand").UseStopwatch())
+            using (_logger.BeginScope().WithCorrelationHandle("ExecuteCommand").UseStopwatch())
             {
                 _logger.Log(Abstraction.Layer.Service().Meta(new { CommandName = Command.Name.Default.ToString() }).Trace());
                 try

@@ -27,14 +27,13 @@ namespace Reusable.Translucent
         /// Specifies the maximum amount of time a resource will be considered fresh.
         /// </summary>
         public static Selector<TimeSpan> MaxAge { get; } = Select(() => MaxAge);
-        
+
         public static Selector<ITypeConverter> Converter { get; } = Select(() => Converter);
-        
+
         public static Selector<Type> Type { get; } = Select(() => Type);
 
         #endregion
     }
-
-
+    
     public delegate Task<Stream> CreateBodyStreamDelegate();
 }

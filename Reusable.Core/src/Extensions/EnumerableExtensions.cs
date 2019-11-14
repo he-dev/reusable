@@ -249,15 +249,14 @@ namespace System.Linq.Custom
             };
         }
 
-//        public static T SingleOrThrow<T>([NotNull] this IEnumerable<T> source, (string Name, string Message)? onEmpty = null, (string Name, string Message)? onMany = null)
-//        {
-//            return source.SingleOrThrow
-//            (
-//                _ => true,
-//                onEmpty: onEmpty is null ? default(Func<Exception>) : () => DynamicException.Create(onEmpty.Value.Name, onEmpty.Value.Message),
-//                onMany: onMany is null ? default(Func<Exception>) : () => DynamicException.Create(onMany.Value.Name, onMany.Value.Message)
-//            );
-//        }
+        public static T SingleOrThrow<T>([NotNull] this IEnumerable<T> source, (string Name, string Message) onEmpty = default, (string Name, string Message) onMany = default)
+        {
+            return source.SingleOrThrow
+            (
+                onEmpty: () => DynamicException.Create(onEmpty.Name ?? "Empty", onEmpty.Message ?? $"{source.GetType().ToPrettyString()} does not contain any elements that match the specified predicate."),
+                onMany: () => DynamicException.Create(onMany.Name ?? "Many", onMany.Message ?? $"{source.GetType().ToPrettyString()} contains more than one element that matches the specified predicate.")
+            );
+        }
 
 //        public static T SingleOrThrow<T>([NotNull] this IEnumerable<T> source, Func<T, bool> predicate, Func<Exception> onEmpty = null, Func<Exception> onMany = null)
 //        {
@@ -368,7 +367,7 @@ namespace System.Linq.Custom
                     .Intersect(second, comparer)
                     .SequenceEqual(first, comparer);
         }
-        
+
         public static bool IsSupersetOf<T>(this IEnumerable<T> first, IEnumerable<T> second, IEqualityComparer<T> comparer = default)
         {
             return second.IsSubsetOf(first, comparer);

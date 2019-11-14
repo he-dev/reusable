@@ -52,7 +52,7 @@ namespace Reusable.Translucent.Controllers
         public virtual IImmutableContainer Properties { get; }
 
         // ReSharper disable once InconsistentNaming
-        protected Response OK(object body, IImmutableContainer metadata = default) => new Response
+        protected static Response OK(object body, IImmutableContainer metadata = default) => new Response
         {
             StatusCode = ResourceStatusCode.OK,
             Body = body,
@@ -60,9 +60,9 @@ namespace Reusable.Translucent.Controllers
         };
 
         // ReSharper disable once InconsistentNaming
-        protected Response OK() => new Response { StatusCode = ResourceStatusCode.OK };
+        protected static Response OK() => new Response { StatusCode = ResourceStatusCode.OK };
 
-        protected Response NotFound() => new Response { StatusCode = ResourceStatusCode.NotFound };
+        protected static Response NotFound() => new Response { StatusCode = ResourceStatusCode.NotFound };
 
         // Can be overriden when derived.
         public virtual void Dispose() { }

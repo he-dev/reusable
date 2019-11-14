@@ -26,15 +26,15 @@ namespace Reusable.Translucent
             var resourceControllerBuilder = new ResourceControllerBuilder(services);
             var resourceRepositoryBuilder = new ResourceRepositoryBuilder<ResourceContext>(services);
 
-            InvokeMethod<IResourceControllerBuilder>(setup, nameof(QuickSetup.ConfigureServices), false, resourceControllerBuilder, services);
-            InvokeMethod<IResourceRepositoryBuilder<ResourceContext>>(setup, nameof(QuickSetup.Configure), true, resourceRepositoryBuilder, services);
+            InvokeSetupMethod<IResourceControllerBuilder>(setup, nameof(QuickSetup.ConfigureServices), false, resourceControllerBuilder, services);
+            InvokeSetupMethod<IResourceRepositoryBuilder<ResourceContext>>(setup, nameof(QuickSetup.Configure), true, resourceRepositoryBuilder, services);
 
             resourceRepositoryBuilder.UseMiddleware<ControllerMiddleware>(new object[] { resourceControllerBuilder.Controllers.AsEnumerable() });
 
             _requestDelegate = resourceRepositoryBuilder.Build();
         }
 
-        private static void InvokeMethod<T>(TSetup setup, string methodName, bool isOptional, T defaultParameter, IServiceProvider services)
+        private static void InvokeSetupMethod<T>(TSetup setup, string methodName, bool isOptional, T defaultParameter, IServiceProvider services)
         {
             var configure = typeof(TSetup).GetMethod(methodName);
             if (configure is null)

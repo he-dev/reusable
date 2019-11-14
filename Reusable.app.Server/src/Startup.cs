@@ -127,7 +127,7 @@ namespace Reusable.Apps.Server
                     appBuilder.Run(async context =>
                     {
                         context.Response.StatusCode = 500;
-                        await context.Response.WriteAsync("An unhandeled fault happened.");
+                        await context.Response.WriteAsync("An unhandled fault happened.");
                     });
                 });
             }

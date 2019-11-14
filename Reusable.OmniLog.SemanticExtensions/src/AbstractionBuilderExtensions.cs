@@ -38,7 +38,7 @@ namespace Reusable.OmniLog.SemanticExtensions
         /// <summary>
         /// Provides the starting point for all semantic extensions.
         /// </summary>
-        public static ILogEntryBuilder<Abstraction> Layer => default;
+        public static ILogEntryBuilder<Abstraction>? Layer => default;
     }
 
     #region Layers
@@ -141,7 +141,7 @@ namespace Reusable.OmniLog.SemanticExtensions
             return layer.CreateCategoryWithCallerName().Update(l => l.Snapshot(snapshot, identifier));
         }
 
-        public static LogEntry Snapshot(this LogEntry logEntry, object snapshot, string identifier = default)
+        public static LogEntry Snapshot(this LogEntry logEntry, object snapshot, string? identifier = default)
         {
             return identifier switch
             {
@@ -177,7 +177,7 @@ namespace Reusable.OmniLog.SemanticExtensions
         /// <summary>
         /// Logs variables. The dump must be an anonymous type with at least one property: new { foo[, bar] }
         /// </summary>
-        public static ILogEntryBuilder<ILogEntryCategory> CreateCategoryWithCallerName(this ILogEntryBuilder<ILogEntryLayer> layer, [CallerMemberName] string name = null)
+        public static ILogEntryBuilder<ILogEntryCategory> CreateCategoryWithCallerName(this ILogEntryBuilder<ILogEntryLayer> layer, [CallerMemberName] string? name = null)
         {
             var abstractionProperty = typeof(ILogEntryCategory).GetCustomAttribute<AbstractionPropertyAttribute>().ToString();
             return new LogEntryBuilder<ILogEntryCategory>(layer).Update(l => l.Add<Log>(abstractionProperty, name));
@@ -225,7 +225,7 @@ namespace Reusable.OmniLog.SemanticExtensions
         /// <summary>
         /// Indicates that a routine faulted before it could complete its task. 
         /// </summary>
-        public static ILogEntryBuilder<ILogEntryCategory> Faulted(this ILogEntryBuilder<ILogEntryCategory> category, Exception exception = default)
+        public static ILogEntryBuilder<ILogEntryCategory> Faulted(this ILogEntryBuilder<ILogEntryCategory> category, Exception? exception = default)
         {
             return category.Update(l =>
             {

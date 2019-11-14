@@ -15,20 +15,20 @@ namespace Reusable.Flexo.Json
             return objectType.IsInterface && typeof(IExpression).IsAssignableFrom(objectType);
         }
 
-        public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
+        public override void WriteJson(JsonWriter writer, object? value, JsonSerializer serializer)
         {
             throw new NotSupportedException($"{nameof(ExpressionConverter)} does not support writing.");
         }
 
         private int _index;
 
-        public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
+        public override object ReadJson(JsonReader reader, Type objectType, object? existingValue, JsonSerializer serializer)
         {
             if (reader.Value is null && reader.TokenType == JsonToken.StartObject)
             {
                 _index = 0;
                 var jToken = JObject.Load(reader);
-                var typeName = (string)jToken.SelectToken("$.$type");
+                var typeName = (string?)jToken.SelectToken("$.$type");
 
                 if (typeName is null)
                 {

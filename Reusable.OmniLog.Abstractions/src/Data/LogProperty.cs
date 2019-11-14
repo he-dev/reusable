@@ -5,7 +5,7 @@ namespace Reusable.OmniLog.Abstractions.Data
     [PublicAPI]
     public readonly struct LogProperty
     {
-        public LogProperty(SoftString name, object value, ILogPropertyAction state)
+        public LogProperty(SoftString name, object? value, ILogPropertyAction state)
         {
             Name = name;
             Value = value;

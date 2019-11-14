@@ -30,9 +30,9 @@ namespace Reusable.OmniLog.Abstractions
 
         #region IEquatable
 
-        public bool Equals(IComputable other) => AutoEquality<IComputable>.Comparer.Equals(this, other);
+        public bool Equals(IComputable? other) => AutoEquality<IComputable>.Comparer.Equals(this, other);
 
-        public override bool Equals(object obj) => Equals(obj as IComputable);
+        public override bool Equals(object? obj) => Equals(obj as IComputable);
 
         public override int GetHashCode() => AutoEquality<IComputable>.Comparer.GetHashCode(this);
 

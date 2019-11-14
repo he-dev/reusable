@@ -17,7 +17,7 @@ namespace Reusable.Utilities.JsonNet.Serialization
             return 
                 typeof(T).IsAssignableFrom(type) 
                     ? base.ResolveContract(typeof(T)) 
-                    : default;
+                    : default!;
         }
 
         protected override IList<JsonProperty> CreateProperties(Type type, MemberSerialization memberSerialization)
@@ -25,7 +25,7 @@ namespace Reusable.Utilities.JsonNet.Serialization
             return
                 typeof(T).IsAssignableFrom(type)
                     ? base.CreateProperties(typeof(T), memberSerialization)
-                    : default;
+                    : default!;
         }
     }
 }

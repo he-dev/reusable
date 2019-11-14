@@ -67,14 +67,13 @@ namespace Reusable.Translucent.Middleware
                     var resourceProvider =
                         _cache.Set(
                             providerKey,
-                            filtered.SingleOrThrow(
-                                onEmpty: () => DynamicException.Create("ResourceProviderNotFound", $"Could not get resource '{context.Request.Uri.ToString()}'.")));
+                            filtered.SingleOrThrow(onEmpty: ("ResourceProviderNotFound", $"Could not get resource '{context.Request.Uri.ToString()}'.")));
                     context.Response = await InvokeAsync(resourceProvider, context.Request);
                 }
             }
         }
 
-        private Task<Response> InvokeAsync(IResourceController controller, Request request)
+        private static Task<Response> InvokeAsync(IResourceController controller, Request request)
         {
             var method =
                 controller

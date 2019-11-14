@@ -15,6 +15,7 @@ namespace Reusable.Translucent
 
         public IImmutableContainer Metadata { get; set; } = ImmutableContainer.Empty;
 
+        // ReSharper disable once InconsistentNaming
         public static Response OK() => new Response { StatusCode = ResourceStatusCode.OK };
         
         public static Response NotFound() => new Response { StatusCode = ResourceStatusCode.NotFound };
@@ -42,6 +43,7 @@ namespace Reusable.Translucent
 
     public enum ResourceStatusCode
     {
+        // ReSharper disable once InconsistentNaming
         OK,
         NotFound
     }

@@ -22,7 +22,7 @@ namespace Reusable.OmniLog.Nodes
         {
             foreach (var property in request.Action<Serialize>().Where(property => property.Value is {}).ToList())
             {
-                request.Add<Log>(property.Name, _serializer.Serialize(property.Value));
+                request.Add<Log>(property.Name, _serializer.Serialize(property.Value!));
             }
 
             invokeNext(request);
