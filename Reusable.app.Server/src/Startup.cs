@@ -91,7 +91,7 @@ namespace Reusable.Apps.Server
             //loggerFactory.AddDebug();      
 
             
-            app.UseOmniLog(httpContext => httpContext.GetClientCorrelationIdOrDefault());
+            app.UseOmniLog();
 
             //app.UseWhen(
             //    httpContext => !httpContext.Request.Method.In(new[] { "GET" }, StringComparer.OrdinalIgnoreCase),
