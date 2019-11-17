@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Linq;
@@ -18,7 +19,7 @@ namespace Reusable.Translucent.Controllers
         IImmutableContainer Properties { get; }
     }
 
-    public delegate Task<Response> InvokeDelegate(Request request);
+    //public delegate Task<Response> InvokeDelegate(Request request);
 
     [UseType, UseMember]
     [PlainSelectorFormatter]
@@ -34,11 +35,20 @@ namespace Reusable.Translucent.Controllers
                 throw new ArgumentException
                 (
                     paramName: nameof(properties),
-                    message: $"{GetType().ToPrettyString().ToSoftString()} must specify at least one scheme."
+                    message: $"{GetType().ToPrettyString()} must specify at least one scheme."
                 );
             }
 
             Properties = properties.UpdateItem(Tags, tags => tags.Add(GetType().ToPrettyString().ToSoftString()));
+        }
+
+        protected ResourceController(IEnumerable<SoftString> schemes, string? baseUri, IImmutableContainer? properties = default)
+        {
+            Properties =
+                properties
+                    .ThisOrEmpty()
+                    .SetItem(Schemes, ImmutableHashSet<SoftString>.Empty.Union(schemes))
+                    .SetItem(BaseUri, baseUri is {} ? new UriString(baseUri) : default);
         }
 
         private string DebuggerDisplay => this.ToDebuggerDisplayString(builder =>
@@ -52,15 +62,15 @@ namespace Reusable.Translucent.Controllers
         public virtual IImmutableContainer Properties { get; }
 
         // ReSharper disable once InconsistentNaming
-        protected static Response OK(object body, IImmutableContainer metadata = default) => new Response
+        protected static Response OK(object? body = default, IImmutableContainer? metadata = default) => new Response
         {
             StatusCode = ResourceStatusCode.OK,
             Body = body,
-            Metadata = metadata
+            Metadata = metadata.ThisOrEmpty()
         };
 
         // ReSharper disable once InconsistentNaming
-        protected static Response OK() => new Response { StatusCode = ResourceStatusCode.OK };
+        //protected static Response OK() => new Response { StatusCode = ResourceStatusCode.OK };
 
         protected static Response NotFound() => new Response { StatusCode = ResourceStatusCode.NotFound };
 
@@ -69,13 +79,15 @@ namespace Reusable.Translucent.Controllers
 
         #region Properties
 
-        private static readonly From<ResourceController> This;
+        private static readonly From<ResourceController>? This;
 
-        public static readonly Selector<IImmutableSet<SoftString>> Schemes = This.Select(() => Schemes);
+        public static Selector<SoftString?> Id { get; } = This.Select(() => Id);
+        
+        public static Selector<UriString?> BaseUri { get; } = This.Select(() => BaseUri);
 
-        public static readonly Selector<IImmutableSet<SoftString>> Tags = This.Select(() => Tags);
+        public static Selector<IImmutableSet<SoftString>> Schemes { get; } = This.Select(() => Schemes);
 
-        public static readonly Selector<bool> SupportsRelativeUri = This.Select(() => SupportsRelativeUri);
+        public static Selector<IImmutableSet<SoftString>> Tags { get; } = This.Select(() => Tags);
 
         #endregion
     }
@@ -86,7 +98,7 @@ namespace Reusable.Translucent.Controllers
         {
             return container.UpdateItem(ResourceController.Schemes, x => x.Add(scheme));
         }
-        
+
         public static IImmutableContainer AddTag(this IImmutableContainer container, SoftString tag)
         {
             return container.UpdateItem(ResourceController.Tags, x => x.Add(tag));

@@ -18,7 +18,7 @@ namespace Reusable.Quickey
         /// <summary>
         /// Gets the current From that can be used later for selection.
         /// </summary>
-        public static From<T> This => default;
+        public static From<T>? This => default;
 
         [NotNull]
         public static Selector<TMember> Select<TMember>([NotNull] Expression<Func<T, TMember>> selector)
@@ -30,13 +30,13 @@ namespace Reusable.Quickey
     public static class FromExtensions
     {
         [NotNull]
-        public static Selector<TMember> Select<T, TMember>(this From<T> from, [NotNull] Expression<Func<T, TMember>> selector)
+        public static Selector<TMember> Select<T, TMember>(this From<T>? from, [NotNull] Expression<Func<T, TMember>> selector)
         {
             return new Selector<TMember>(selector);
         }
 
         [NotNull]
-        public static Selector<TMember> Select<T, TMember>(this From<T> from, [NotNull] Expression<Func<Selector<TMember>>> selector)
+        public static Selector<TMember> Select<T, TMember>(this From<T>? from, [NotNull] Expression<Func<Selector<TMember>>> selector)
         {
             return new Selector<TMember>(selector);
         }

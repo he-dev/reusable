@@ -10,20 +10,9 @@ namespace Reusable.Translucent.Controllers
     [PublicAPI]
     public class PhysicalFileController : ResourceController
     {
-        public PhysicalFileController()
-            : this(ImmutableContainer.Empty
-                .SetItem(SupportsRelativeUri, false)
-            ) { }
-
-        public PhysicalFileController(string basePath)
-            : this(ImmutableContainer.Empty
-                .SetItem(SupportsRelativeUri, true)
-                .SetItem(BasePath, basePath)
-            ) { }
-
-        public PhysicalFileController(IImmutableContainer properties)
-            : base(properties.UpdateItem(Schemes, s => s.Add(UriSchemes.Known.File))) { }
-
+        public PhysicalFileController(string? basePath = default, IImmutableContainer? properties = default)
+            : base(new SoftString[] { UriSchemes.Known.File }, basePath, properties) { }
+        
         [ResourceGet]
         public Task<Response> GetFileAsync(Request request)
         {
@@ -39,7 +28,7 @@ namespace Reusable.Translucent.Controllers
         public async Task<Response> CreateFileAsync(Request request)
         {
             var path = CreatePath(request.Uri);
-            
+
             using (var fileStream = new FileStream(path, FileMode.CreateNew, FileAccess.Write))
             using (var body = await request.CreateBodyStreamAsync())
             {

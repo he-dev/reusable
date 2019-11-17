@@ -5,9 +5,14 @@ namespace Reusable.Translucent
 {
     public static class AppSettingControllerExtensions
     {
-        public static IResourceControllerBuilder AddAppConfig(this IResourceControllerBuilder builder)
+        public static IResourceCollection AddAppConfig(this IResourceCollection controllers)
         {
-            return builder.AddController(new AppSettingController());
+            return controllers.Add(new AppSettingController());
         }
+        
+//        public static IResourceController ConfigureAppConfig(this IResourceRepositorySetup setup)
+//        {
+//            return new AppSettingController();
+//        }
     }
 }

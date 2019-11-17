@@ -11,7 +11,7 @@ namespace Reusable.Translucent
     {
         public ResourceStatusCode StatusCode { get; set; }
 
-        public object Body { get; set; }
+        public object? Body { get; set; }
 
         public IImmutableContainer Metadata { get; set; } = ImmutableContainer.Empty;
 

@@ -25,7 +25,7 @@ namespace Reusable.Translucent.Middleware
         private readonly RequestDelegate<ResourceContext> _next;
         private readonly IMemoryCache _cache;
 
-        public ControllerMiddleware(RequestDelegate<ResourceContext> next, IEnumerable<IResourceController> controllers)
+        public ControllerMiddleware(RequestDelegate<ResourceContext> next, IResourceCollection controllers)
         {
             _next = next;
             _controllers = controllers.ToImmutableList();
@@ -81,7 +81,7 @@ namespace Reusable.Translucent.Middleware
                     .GetMethods(BindingFlags.Instance | BindingFlags.Public)
                     .SingleOrDefault(m => m.GetCustomAttribute<ResourceActionAttribute>()?.Method == request.Method);
 
-            return (Task<Response>)method.Invoke(controller, new object[] { request });
+            return (Task<Response>)method?.Invoke(controller, new object[] { request });
         }
     }
 }

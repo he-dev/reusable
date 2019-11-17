@@ -5,9 +5,9 @@ namespace Reusable.Translucent
 {
     public static class SmtpControllerExtensions
     {
-        public static IResourceControllerBuilder AddSmtp(this IResourceControllerBuilder builder, IImmutableContainer properties = default)
+        public static IResourceCollection AddSmtp(this IResourceCollection controllers, IImmutableContainer properties = default)
         {
-            return builder.AddController(new SmtpController(properties));
+            return controllers.Add(new SmtpController(properties));
         }
     }
 }

@@ -20,8 +20,7 @@ namespace Reusable.Translucent
         [NotNull]
         public IImmutableContainer Metadata { get; set; } = ImmutableContainer.Empty;
 
-        [CanBeNull]
-        public object Body { get; set; }
+        public object? Body { get; set; }
 
         public void Dispose()
         {

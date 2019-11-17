@@ -8,43 +8,36 @@ namespace Reusable.Translucent
 {
     public static class ResourceRepositoryBuilderExtensions
     {
-        public static IResourceRepositoryBuilder<ResourceContext> UseResources(this IResourceRepositoryBuilder<ResourceContext> builder, Action<IResourceControllerBuilder> configure)
+        public static IPipelineBuilder<ResourceContext> UseResources(this IPipelineBuilder<ResourceContext> builder, Action<IResourceCollection> configure)
         {
-            var resourceBuilder = new ResourceControllerBuilder(builder.ServiceProvider)
-            {
-                Controllers = new List<IResourceController>()
-            };
-            configure(resourceBuilder);
+            var resourceControllers = new ResourceCollection();
+            configure(resourceControllers);
 
-            return builder.UseMiddleware<ControllerMiddleware>(new object[] { resourceBuilder.Controllers.AsEnumerable() });
+            return builder.UseMiddleware<ControllerMiddleware>(new object[] { resourceControllers });
         }
     }
 
-    internal class ResourceControllerBuilder : IResourceControllerBuilder
+    public interface IResourceCollection : IList<IResourceController>
     {
-        public ResourceControllerBuilder(IServiceProvider serviceProvider)
+        IResourceCollection Add<T>(T controller) where T : IResourceController;
+    }
+
+    public class ResourceCollection : List<IResourceController>, IResourceCollection
+    {
+        public IResourceCollection Add<T>(T controller) where T : IResourceController
         {
-            ServiceProvider = serviceProvider;
+            base.Add(controller);
+            return this;
         }
-
-        public IServiceProvider ServiceProvider { get; }
-
-        public IList<IResourceController> Controllers { get; internal set; } = new List<IResourceController>();
     }
 
-    public interface IResourceControllerBuilder
-    {
-        IServiceProvider ServiceProvider { get; }
-
-        IList<IResourceController> Controllers { get; }
-    }
 
     public static class ResourceBuilderExtensions
     {
-        public static IResourceControllerBuilder AddController(this IResourceControllerBuilder builder, IResourceController controller)
-        {
-            builder.Controllers.Add(controller);
-            return builder;
-        }
+//        public static IResourceControllerCollection AddController(this IResourceControllerCollection builder, IResourceController controller)
+//        {
+//            builder.Add(controller);
+//            return builder;
+//        }
     }
 }

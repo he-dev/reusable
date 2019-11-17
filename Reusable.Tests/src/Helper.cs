@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Collections.Immutable;
 using Microsoft.Extensions.Caching.Memory;
 using Reusable.Data;
@@ -13,21 +14,25 @@ namespace Reusable
     {
         public static readonly string ConnectionString = "Data Source=(local);Initial Catalog=TestDb;Integrated Security=SSPI;";
 
-        public static readonly IResourceRepository Resources = new ResourceRepository<TestResourceSetup>(ImmutableServiceProvider.Empty.Add<IMemoryCache>(new MemoryCache(new MemoryCacheOptions())));
+        public static readonly IResourceRepository Resources = 
+            ResourceRepositoryBuilder
+                .Empty
+                .UseSetup<TestResourceSetup>()
+                .Build(ImmutableServiceProvider.Empty.Add<IMemoryCache>(new MemoryCache(new MemoryCacheOptions())));
 
         private class TestResourceSetup
         {
-            public void ConfigureServices(IResourceControllerBuilder controller)
+            public void ConfigureResources(IResourceCollection resources)
             {
-                controller.AddEmbeddedFiles<TestHelper>
+                resources.AddEmbeddedFiles<TestHelper>
                 (
                     @"Reusable/res/IOnymous",
                     @"Reusable/res/Flexo",
                     @"Reusable/res/Utilities/JsonNet",
                     @"Reusable/sql"
                 );
-                controller.AddAppConfig();
-                controller.AddSqlServer(
+                resources.AddAppConfig();
+                resources.AddSqlServer(
                     ConnectionString,
                     ImmutableContainer
                         .Empty
@@ -43,7 +48,7 @@ namespace Reusable
                         .SetItem(
                             SqlServerController.Where,
                             ImmutableDictionary<string, object>
-                                .Empty 
+                                .Empty
                                 .Add("_env", "test")
                                 .Add("_ver", "1"))
                         .SetItem(
@@ -53,12 +58,12 @@ namespace Reusable
                                 .Add("_env", "else")));
             }
 
-            public void Configure(IResourceRepositoryBuilder<ResourceContext> repository)
+            public void ConfigurePipeline(IPipelineBuilder<ResourceContext> pipeline)
             {
                 //repository.UseMiddleware<SettingFormatValidationMiddleware>();
-                repository.UseMiddleware<CacheMiddleware>();
-                repository.UseMiddleware<SettingExistsValidationMiddleware>();
-                repository.UseMiddleware<SettingConverterMiddleware>();
+                pipeline.UseMiddleware<CacheMiddleware>();
+                pipeline.UseMiddleware<SettingExistsValidationMiddleware>();
+                pipeline.UseMiddleware<SettingConverterMiddleware>();
             }
         }
     }

@@ -28,7 +28,7 @@ namespace Reusable.Translucent
 
         // --------
 
-        public static Task<Stream> SerializeTextAsync(string value, Encoding encoding = null)
+        public static Task<Stream> SerializeTextAsync(string value, Encoding? encoding = null)
         {
             encoding ??= Encoding.UTF8;
             return Task.FromResult<Stream>(new MemoryStream(encoding.GetBytes(value)));
@@ -42,7 +42,7 @@ namespace Reusable.Translucent
             return Task.FromResult<Stream>(memoryStream);
         }
 
-        public static async Task<string> DeserializeTextAsync(Stream stream, Encoding encoding = null)
+        public static async Task<string> DeserializeTextAsync(Stream stream, Encoding? encoding = null)
         {
             encoding ??= Encoding.UTF8;
             using (var reader = new StreamReader(stream.Rewind(), encoding))
@@ -57,7 +57,7 @@ namespace Reusable.Translucent
             return binaryFormatter.Deserialize(stream.Rewind()).ToTask();
         }
 
-        public static async Task<Stream> SerializeAsJsonAsync(object value, JsonSerializer jsonSerializer = null)
+        public static async Task<Stream> SerializeAsJsonAsync(object value, JsonSerializer? jsonSerializer = null)
         {
             jsonSerializer ??= new JsonSerializer();
 

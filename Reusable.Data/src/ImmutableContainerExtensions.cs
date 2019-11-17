@@ -13,7 +13,7 @@ namespace Reusable.Data
     public static class ImmutableContainerExtensions
     {
         [NotNull]
-        public static IImmutableContainer ThisOrEmpty(this IImmutableContainer container) => container ?? ImmutableContainer.Empty;
+        public static IImmutableContainer ThisOrEmpty(this IImmutableContainer? container) => container ?? ImmutableContainer.Empty;
 
         #region Helpers
 

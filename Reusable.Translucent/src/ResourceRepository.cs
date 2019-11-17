@@ -1,11 +1,7 @@
 using System;
 using System.Diagnostics.CodeAnalysis;
-using System.Linq;
-using System.Linq.Custom;
 using System.Threading.Tasks;
-using Reusable.Exceptionize;
-using Reusable.Extensions;
-using Reusable.Translucent.Middleware;
+using Reusable.Translucent.Controllers;
 
 
 namespace Reusable.Translucent
@@ -15,55 +11,26 @@ namespace Reusable.Translucent
         Task<Response> InvokeAsync(Request request);
     }
 
-    public class ResourceRepository<TSetup> : IResourceRepository where TSetup : new()
+    public class ResourceRepository : IResourceRepository
     {
         private readonly RequestDelegate<ResourceContext> _requestDelegate;
 
-        public ResourceRepository(IServiceProvider services)
+        public ResourceRepository(RequestDelegate<ResourceContext> requestDelegate)
         {
-            var setup = new TSetup();
-
-            var resourceControllerBuilder = new ResourceControllerBuilder(services);
-            var resourceRepositoryBuilder = new ResourceRepositoryBuilder<ResourceContext>(services);
-
-            InvokeSetupMethod<IResourceControllerBuilder>(setup, nameof(QuickSetup.ConfigureServices), false, resourceControllerBuilder, services);
-            InvokeSetupMethod<IResourceRepositoryBuilder<ResourceContext>>(setup, nameof(QuickSetup.Configure), true, resourceRepositoryBuilder, services);
-
-            resourceRepositoryBuilder.UseMiddleware<ControllerMiddleware>(new object[] { resourceControllerBuilder.Controllers.AsEnumerable() });
-
-            _requestDelegate = resourceRepositoryBuilder.Build();
+            _requestDelegate = requestDelegate;
         }
 
-        private static void InvokeSetupMethod<T>(TSetup setup, string methodName, bool isOptional, T defaultParameter, IServiceProvider services)
+        public static IResourceRepository Create(ConfigureResourcesDelegate configureResources, ConfigurePipelineDelegate<ResourceContext>? configurePipeline = default)
         {
-            var configure = typeof(TSetup).GetMethod(methodName);
-            if (configure is null)
-            {
-                if (isOptional)
-                {
-                    return;
-                }
-
-                throw DynamicException.Create($"{methodName}MethodNotFound", $"'{typeof(TSetup).ToPrettyString()}' does not specify the '{methodName}' method;");
-            }
-
-            var parameterInfos = configure.GetParameters();
-
-            var defaultParameterInfo = parameterInfos.FirstOrDefault();
-            if (defaultParameterInfo is null || defaultParameterInfo.ParameterType != typeof(T))
-            {
-                throw DynamicException.Create("DefaultParameterNotFound", $"'{typeof(TSetup).ToPrettyString()}.{methodName}' method's first parameter must be '{typeof(T).ToPrettyString()}'.");
-            }
-
-            var parameterValues =
-                parameterInfos
-                    .Skip(1) // Default parameter.
-                    .Aggregate(
-                        new object[] { defaultParameter }.AsEnumerable(),
-                        (current, next) => current.Append(services.Resolve(next.ParameterType)))
-                    .ToArray();
-
-            configure.Invoke(setup, parameterValues);
+            return
+                ResourceRepositoryBuilder
+                    .Empty
+                    .UseSetup<QuickSetup<ResourceContext>>()
+                    .Build(
+                        ImmutableServiceProvider
+                            .Empty
+                            .Add(configureResources)
+                            .Add(configurePipeline));
         }
 
         public async Task<Response> InvokeAsync(Request request)
@@ -81,33 +48,22 @@ namespace Reusable.Translucent
         public void Dispose() { }
     }
 
-    public static class ResourceRepository
-    {
-        public static IResourceRepository Create(ConfigureServicesDelegate controller, ConfigureDelegate repository = default)
-        {
-            return new ResourceRepository<QuickSetup>(
-                ImmutableServiceProvider
-                    .Empty
-                    .Add(controller)
-                    .Add(repository ?? (_ => { })));
-        }
-    }
 
     [SuppressMessage("ReSharper", "MemberCanBeMadeStatic.Global")]
-    public class QuickSetup
+    public class QuickSetup<T>
     {
-        public void ConfigureServices(IResourceControllerBuilder controller, ConfigureServicesDelegate configure)
+        public void ConfigureResources(IResourceCollection resources, ConfigureResourcesDelegate configure)
         {
-            configure(controller);
+            configure(resources);
         }
 
-        public void Configure(IResourceRepositoryBuilder<ResourceContext> repository, ConfigureDelegate configure)
+        public void ConfigurePipeline(IPipelineBuilder<T> repository, ConfigurePipelineDelegate<T>? configure)
         {
-            configure(repository);
+            configure?.Invoke(repository);
         }
     }
 
-    public delegate void ConfigureServicesDelegate(IResourceControllerBuilder resourceController);
+    public delegate void ConfigureResourcesDelegate(IResourceCollection resource);
 
-    public delegate void ConfigureDelegate(IResourceRepositoryBuilder<ResourceContext> resourceRepositoryController);
+    public delegate void ConfigurePipelineDelegate<out T>(IPipelineBuilder<T> pipelineController);
 }

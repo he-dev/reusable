@@ -41,7 +41,7 @@ namespace Reusable.Translucent.Middleware
 
     public static class EnvironmentVariableMiddlewareHelper
     {
-        public static IResourceRepositoryBuilder<TContext> UseEnvironmentVariables<TContext>(this IResourceRepositoryBuilder<TContext> builder)
+        public static IPipelineBuilder<TContext> UseEnvironmentVariables<TContext>(this IPipelineBuilder<TContext> builder)
         {
             return builder.UseMiddleware<EnvironmentVariableMiddleware>();
         }

@@ -6,53 +6,41 @@ using Reusable.Translucent.Controllers;
 // ReSharper disable once CheckNamespace
 namespace Reusable.Translucent
 {
-    public static class ResourceSquidBuilderExtensions
+    public static class EmbeddedFileControllerExtensions
     {
-        public static IResourceControllerBuilder AddEmbeddedFiles<T>(this IResourceControllerBuilder builder, params string[] basePaths)
+        public static IResourceCollection AddEmbeddedFiles<T>(this IResourceCollection controllers, params string[] basePaths)
         {
             foreach (var basePath in basePaths)
             {
-                builder.Controllers.Add(new EmbeddedFileController<T>(basePath));
+                controllers.Add(new EmbeddedFileController<T>(basePath));
             }
 
-            return builder;
+            return controllers;
         }
 
-        public static IResourceControllerBuilder AddEmbeddedFiles(this IResourceControllerBuilder builder, Type assemblyProvider, params string[] basePaths)
+        public static IResourceCollection AddEmbeddedFiles(this IResourceCollection controllers, Type assemblyProvider, params string[] basePaths)
         {
             foreach (var basePath in basePaths)
             {
-                builder.Controllers.Add(new EmbeddedFileController(assemblyProvider.Assembly, ImmutableContainer.Empty.SetItem(EmbeddedFileControllerProperties.BaseUri, basePath)));
+                controllers.Add(new EmbeddedFileController(assemblyProvider.Assembly, basePath));
             }
 
-            return builder;
+            return controllers;
         }
 
-        public static IResourceControllerBuilder AddPhysicalFiles(this IResourceControllerBuilder builder, string basePath = default)
+        public static IResourceCollection AddPhysicalFiles(this IResourceCollection controllers, string? basePath = default, IImmutableContainer? properties = default)
         {
-            builder
-                .Controllers
-                .Add(
-                    basePath is null
-                        ? new PhysicalFileController()
-                        : new PhysicalFileController(basePath));
-
-            return builder;
+            return controllers.Add(new PhysicalFileController(basePath, properties));
         }
 
-        public static IResourceControllerBuilder AddPhysicalFiles(this IResourceControllerBuilder builder, IImmutableContainer properties)
-        {
-            return builder.AddController(new PhysicalFileController(properties));
-        }
-
-        public static IResourceControllerBuilder UseInMemoryFiles<T>(this IResourceControllerBuilder builder, params string[] basePaths)
+        public static IResourceCollection UseInMemoryFiles<T>(this IResourceCollection controllers, params string[] basePaths)
         {
             foreach (var basePath in basePaths)
             {
-                builder.Controllers.Add(new EmbeddedFileController<T>(basePath));
+                controllers.Add(new EmbeddedFileController<T>(basePath));
             }
 
-            return builder;
+            return controllers;
         }
     }
 }

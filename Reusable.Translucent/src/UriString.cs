@@ -95,11 +95,8 @@ namespace Reusable.Translucent
         public UriString(string scheme, string path)
             : this($"{scheme}:{UriStringHelper.Normalize(path)}") { }
 
-        public UriString([NotNull] UriString first, [NotNull] UriString second)
+        public UriString(UriString first, UriString second)
         {
-            if (first == null) throw new ArgumentNullException(nameof(first));
-            if (second == null) throw new ArgumentNullException(nameof(second));
-
             Scheme = first.Scheme;
             Authority = first.Authority;
             Path =

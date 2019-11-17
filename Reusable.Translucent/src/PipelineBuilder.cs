@@ -11,21 +11,28 @@ using Reusable.Extensions;
 
 namespace Reusable.Translucent
 {
-    [PublicAPI]
-    public class RequestDelegateBuilder<TContext>
+    public interface IPipelineBuilder<in TContext>
     {
+        IPipelineBuilder<TContext> UseMiddleware(Type middlewareType, params object[] args);
+        
+        IPipelineBuilder<TContext> UseMiddleware<T>(params object[] args);
+
+        RequestDelegate<TContext> Build();
+    }
+    
+    [PublicAPI]
+    public class PipelineBuilder<TContext> : IPipelineBuilder<TContext>
+    {
+        // ReSharper disable once StaticMemberInGenericType - this is OK
         public static readonly IImmutableList<string> InvokeMethodNames = ImmutableList<string>.Empty.Add("InvokeAsync").Add("Invoke");
 
         private readonly IServiceProvider _services;
 
         private readonly Stack<(Type Type, ConstructorInfo Ctor, MethodInfo InvokeMethod, object[] Args)> _pipeline = new Stack<(Type, ConstructorInfo, MethodInfo, object[])>();
 
-        public RequestDelegateBuilder(IServiceProvider services)
-        {
-            _services = services;
-        }
+        public PipelineBuilder(IServiceProvider services) => _services = services;
 
-        public RequestDelegateBuilder<TContext> UseMiddleware(Type middlewareType, params object[] args)
+        public IPipelineBuilder<TContext> UseMiddleware(Type middlewareType, params object[] args)
         {
             _pipeline.Push((middlewareType, GetConstructor(middlewareType), GetInvokeMethod(middlewareType), args));
             var last = _pipeline.Peek();
@@ -46,10 +53,7 @@ namespace Reusable.Translucent
             return this;
         }
 
-        public RequestDelegateBuilder<TContext> UseMiddleware<TMiddleware>(params object[] args)
-        {
-            return UseMiddleware(typeof(TMiddleware), args);
-        }
+        public IPipelineBuilder<TContext> UseMiddleware<TMiddleware>(params object[] args) => UseMiddleware(typeof(TMiddleware), args);
 
         public RequestDelegate<TContext> Build()
         {

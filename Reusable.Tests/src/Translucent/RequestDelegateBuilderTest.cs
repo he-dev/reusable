@@ -8,7 +8,7 @@ namespace Reusable.Translucent
         [Fact]
         public void Can_build_pipeline()
         {
-            var builder = new RequestDelegateBuilder<Context>(ImmutableServiceProvider.Empty);
+            var builder = new PipelineBuilder<Context>(ImmutableServiceProvider.Empty);
 
             var invoke = builder.UseMiddleware<M1>().UseMiddleware<M1>().UseMiddleware<M1>().Build();
             var context = new Context();

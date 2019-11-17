@@ -33,10 +33,9 @@ namespace Reusable.Translucent
             }
             
             return
-                from p in controllers
-                let schemes = p.Properties.GetItem(ResourceController.Schemes)
-                where schemes.Contains(request.Uri.Scheme)
-                select p;
+                from c in controllers
+                where c.Properties.GetItem(ResourceController.Schemes).Contains(request.Uri.Scheme)
+                select c;
         }
 
         public static IEnumerable<IResourceController> FilterByUriPath(this IEnumerable<IResourceController> controllers, Request request)
@@ -47,9 +46,9 @@ namespace Reusable.Translucent
             }
 
             return
-                from p in controllers
-                where p.Properties.GetItemOrDefault(ResourceController.SupportsRelativeUri)
-                select p;
+                from c in controllers
+                where c.SupportsRelativeUri()
+                select c;
         }
     }
 }

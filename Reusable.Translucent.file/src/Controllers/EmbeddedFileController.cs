@@ -11,56 +11,48 @@ namespace Reusable.Translucent.Controllers
 {
     public class EmbeddedFileController : ResourceController
     {
-        private readonly Assembly _assembly;
-
-        public EmbeddedFileController([NotNull] Assembly assembly, IImmutableContainer properties = default)
+        public EmbeddedFileController(Assembly assembly, UriString baseUri, IImmutableContainer? properties = default)
             : base(
+                new SoftString[] { UriSchemes.Known.File },
+                baseUri,
                 properties
                     .ThisOrEmpty()
-                    .UpdateItem(Schemes, s => s.Add(UriSchemes.Known.File))
-                    .SetItem(SupportsRelativeUri, true)
-            )
-
-        {
-            _assembly = assembly ?? throw new ArgumentNullException(nameof(assembly));
-        }
+                    .SetItem(Assembly, assembly)
+            ) { }
 
         [ResourceGet]
         public Task<Response> GetFileAsync(Request request)
         {
             // Embedded resource names are separated by '.' so replace the windows separator.
 
-            var baseUri = Properties.GetItemOrDefault(EmbeddedFileControllerProperties.BaseUri);
-
+            var baseUri = Properties.GetItemOrDefault(BaseUri);
             var fullUri = baseUri is null ? request.Uri : baseUri + request.Uri.Path;
             var fullName = fullUri.Path.Decoded.ToString().Replace('/', '.');
 
             // Embedded resource names are case sensitive so find the actual name of the resource.
-            var actualName = _assembly.GetManifestResourceNames().FirstOrDefault(name => SoftString.Comparer.Equals(name, fullName));
+            var actualName = Properties.GetItem(Assembly).GetManifestResourceNames().FirstOrDefault(name => SoftString.Comparer.Equals(name, fullName));
 
             return
                 actualName is null
                     ? NotFound().ToTask()
-                    : OK(_assembly.GetManifestResourceStream(actualName)).ToTask();
+                    : OK(Properties.GetItem(Assembly).GetManifestResourceStream(actualName)).ToTask();
         }
-    }
 
-    [UseType, UseMember]
-    [PlainSelectorFormatter]
-    public class EmbeddedFileControllerProperties : SelectorBuilder<EmbeddedFileControllerProperties>
-    {
-        public static Selector<UriString> BaseUri { get; } = Select(() => BaseUri);
+        #region Properties
+
+        private static readonly From<EmbeddedFileController>? This;
+
+        public static Selector<Assembly> Assembly { get; } = This.Select(() => Assembly);
+
+        #endregion
     }
 
     public class EmbeddedFileController<T> : EmbeddedFileController
     {
-        public static IResourceController Default { get; } = new EmbeddedFileController(typeof(T).Assembly, ImmutableContainer.Empty);
+        public static IResourceController Default { get; } = new EmbeddedFileController(typeof(T).Assembly, typeof(T).Namespace);
 
-        public static IResourceController Create(string basePath) => new EmbeddedFileController(typeof(T).Assembly, ImmutableContainer.Empty.SetItem(EmbeddedFileControllerProperties.BaseUri, basePath));
+        public static IResourceController Create(string basePath) => new EmbeddedFileController(typeof(T).Assembly, basePath);
 
-        public EmbeddedFileController(IImmutableContainer properties = default) : base(typeof(T).Assembly, properties) { }
-
-        public EmbeddedFileController(string baseUri)
-            : base(typeof(T).Assembly, ImmutableContainer.Empty.SetItem(EmbeddedFileControllerProperties.BaseUri, baseUri)) { }
+        public EmbeddedFileController(string baseUri) : base(typeof(T).Assembly, baseUri) { }
     }
 }

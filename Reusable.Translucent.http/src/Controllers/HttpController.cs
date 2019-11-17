@@ -20,20 +20,20 @@ namespace Reusable.Translucent.Controllers
     {
         private readonly HttpClient _client;
 
-        public HttpController(HttpClient httpClient, IImmutableContainer metadata = default)
+        public HttpController(HttpClient httpClient, IImmutableContainer? properties = default)
             : base(
-                metadata
-                    .ThisOrEmpty()
-                    .UpdateItem(Schemes, s => s
-                        .Add(UriSchemes.Known.Http)
-                        .Add(UriSchemes.Known.Https))
-                    .SetItem(SupportsRelativeUri, true))
+                new SoftString[]
+                {
+                    UriSchemes.Known.Http,
+                    UriSchemes.Known.Https
+                },
+                httpClient.BaseAddress.ToString(),
+                properties
+            )
         {
-            _client = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
+            _client = httpClient;
             _client.DefaultRequestHeaders.Clear();
         }
-
-        public string BaseUri => _client.BaseAddress.ToString();
 
         public JsonSerializer Serializer { get; set; } = new JsonSerializer
         {
@@ -57,25 +57,22 @@ namespace Reusable.Translucent.Controllers
         }
 
         [ResourceGet]
-        public async Task<Response> GetAsync(Request request) => await CreateRequestCallback(HttpMethod.Get)(request);
+        public async Task<Response> GetAsync(Request request) => await InvokeAsync(HttpMethod.Get, request);
 
         [ResourcePut]
-        public async Task<Response> PutAsync(Request request) => await CreateRequestCallback(HttpMethod.Put)(request);
+        public async Task<Response> PutAsync(Request request) => await InvokeAsync(HttpMethod.Put, request);
 
         [ResourcePost]
-        public async Task<Response> PostAsync(Request request) => await CreateRequestCallback(HttpMethod.Post)(request);
+        public async Task<Response> PostAsync(Request request) => await InvokeAsync(HttpMethod.Post, request);
 
         [ResourceDelete]
-        public async Task<Response> DeleteAsync(Request request) => await CreateRequestCallback(HttpMethod.Delete)(request);
+        public async Task<Response> DeleteAsync(Request request) => await InvokeAsync(HttpMethod.Delete, request);
 
-        public InvokeDelegate CreateRequestCallback(HttpMethod httpMethod)
+        public async Task<Response> InvokeAsync(HttpMethod httpMethod, Request request)
         {
-            return async request =>
-            {
-                var uri = BaseUri + request.Uri;
-                var (response, contentType) = await InvokeAsync(uri, httpMethod, request.Body, request.Metadata);
-                return OK(response, request.Metadata.SetItem(HttpRequest.ContentType, contentType));
-            };
+            var uri = Properties.GetItemOrDefault(BaseUri) is var baseUri && baseUri is {} ? baseUri + request.Uri : request.Uri;
+            var (response, contentType) = await InvokeAsync(uri, httpMethod, request.Body, request.Metadata);
+            return OK(response, request.Metadata.SetItem(HttpRequest.ContentType, contentType));
         }
 
         private async Task<(Stream Content, string ContentType)> InvokeAsync(UriString uri, HttpMethod method, object body, IImmutableContainer context)

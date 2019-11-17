@@ -36,7 +36,7 @@ namespace Reusable.Translucent.Middleware
             Mock.Arrange(() => c2.Properties).Returns(ImmutableContainer.Empty.AddScheme("s").AddTag("b"));
             Mock.Arrange(() => c2.Get(Arg.IsAny<Request>())).OccursOnce();
 
-            var middleware = new ControllerMiddleware(c => Task.CompletedTask, new[] { c1, c2 });
+            var middleware = new ControllerMiddleware(c => Task.CompletedTask, new ResourceCollection().Add(c1).Add(c2));
 
             middleware.InvokeAsync(new ResourceContext
             {

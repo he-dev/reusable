@@ -16,9 +16,9 @@ namespace Reusable.Translucent
         /// <summary>
         /// Encodes the specified value by replacing reserved characters with their byte codes. '%' is always handled.
         /// </summary>
-        public static string Encode(string value, string reservedCharacters = null)
+        public static string Encode(string value, string? reservedCharacters = null)
         {
-            reservedCharacters = reservedCharacters ?? string.Empty;
+            reservedCharacters ??= string.Empty;
             
             var escaped =
                 // Ignore '%' and reappend it with a different regex.
@@ -57,7 +57,7 @@ namespace Reusable.Translucent
             return $"{scheme}:///{path.Join("/")}?{queryString}";
         }
 
-        public static bool TryGetDataString(this UriString uriString, string name, out string dataString)
+        public static bool TryGetDataString(this UriString uriString, string name, out string? dataString)
         {
             if (uriString.Query.TryGetValue(name, out var value))
             {
