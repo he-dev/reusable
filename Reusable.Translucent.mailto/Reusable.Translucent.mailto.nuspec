@@ -2,7 +2,7 @@
 <package>
   <metadata>
     <id>Reusable.Translucent.mailto</id>
-    <version>15.0.3</version>
+    <version>15.0.6</version>
     <title>Reusable.Translucent.mailto</title>
     <authors>He-Dev</authors>
     <owners>He-Dev</owners>
@@ -17,8 +17,8 @@
     <dependencies>
       <dependency id="JetBrains.Annotations" version="2019.1.3" />
       <dependency id="MailKit" version="2.4.1" />
-      <dependency id="Reusable.Core" version="15.0.3" />
-      <dependency id="Reusable.Translucent" version="15.0.3" />
+      <dependency id="Reusable.Core" version="15.0.6" />
+      <dependency id="Reusable.Translucent" version="15.0.6" />
     </dependencies>
   </metadata>
   <files>

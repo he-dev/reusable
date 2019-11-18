@@ -53,6 +53,6 @@ namespace Reusable.Translucent.Controllers
 
         public static IResourceController Create(string basePath) => new EmbeddedFileController(typeof(T).Assembly, basePath);
 
-        public EmbeddedFileController(string baseUri) : base(typeof(T).Assembly, baseUri) { }
+        public EmbeddedFileController(string baseUri, IImmutableContainer? properties = default) : base(typeof(T).Assembly, baseUri, properties) { }
     }
 }
