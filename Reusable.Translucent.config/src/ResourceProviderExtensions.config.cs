@@ -13,23 +13,20 @@ using Reusable.Translucent.Controllers;
 
 namespace Reusable.Translucent
 {
+    [PublicAPI]
     public static class ResourceProviderExtensions
     {
         public static async Task<object> ReadSettingAsync(this IResourceRepository resourceRepository, Selector selector, TimeSpan maxAge = default)
         {
-            using (var request = ConfigRequestBuilder.CreateRequest(RequestMethod.Get, selector, maxAge: maxAge))
-            using (var response = await resourceRepository.InvokeAsync(request))
-            {
-                return response.Body;
-            }
+            using var request = ConfigRequestBuilder.CreateRequest(RequestMethod.Get, selector, metadata: ImmutableContainer.Empty.SetItem(Resource.MaxAge, maxAge));
+            using var response = await resourceRepository.InvokeAsync(request);
+            return response.Body;
         }
 
         public static async Task WriteSettingAsync(this IResourceRepository resourceRepository, Selector selector, object newValue)
         {
-            using (var request = ConfigRequestBuilder.CreateRequest(RequestMethod.Put, selector, newValue))
-            {
-                await resourceRepository.InvokeAsync(request);
-            }
+            using var request = ConfigRequestBuilder.CreateRequest(RequestMethod.Put, selector, newValue);
+            await resourceRepository.InvokeAsync(request);
         }
 
         #region Helpers
@@ -84,7 +81,7 @@ namespace Reusable.Translucent
 
         #endregion
 
-        private static Selector CreateSelector<T>(LambdaExpression selector, string index)
+        private static Selector CreateSelector<T>(LambdaExpression selector, string? index)
         {
             return
                 index is null

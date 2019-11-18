@@ -61,7 +61,6 @@ namespace Reusable.Translucent.Controllers
         public void Dispose()
         {
             _serverContext.Dispose();
-            _resources.Dispose();
         }
     }
 

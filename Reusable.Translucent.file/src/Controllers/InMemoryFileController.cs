@@ -12,7 +12,7 @@ namespace Reusable.Translucent.Controllers
     {
         private readonly IDictionary<UriString, object> _items = new Dictionary<UriString, object>();
 
-        public InMemoryFileController(IImmutableContainer properties = default) : base(properties.ThisOrEmpty().UpdateItem(Schemes, x => x.Add(UriSchemes.Known.File))) { }
+        public InMemoryFileController(IImmutableContainer? properties = default) : base(new SoftString[] { UriSchemes.Known.File }, default, properties) { }
 
         [ResourceGet]
         public Task<Response> GetAsync(Request request)

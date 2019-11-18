@@ -8,27 +8,17 @@ namespace Reusable.Translucent
 {
     public static class EmbeddedFileControllerExtensions
     {
-        public static IResourceCollection AddEmbeddedFiles<T>(this IResourceCollection controllers, params string[] basePaths)
+        public static IResourceCollection AddEmbeddedFile<T>(this IResourceCollection controllers, string? basePath = default, IImmutableContainer? properties = default)
         {
-            foreach (var basePath in basePaths)
-            {
-                controllers.Add(new EmbeddedFileController<T>(basePath));
-            }
-
-            return controllers;
+            return controllers.Add(new EmbeddedFileController<T>(basePath, properties));
         }
 
-        public static IResourceCollection AddEmbeddedFiles(this IResourceCollection controllers, Type assemblyProvider, params string[] basePaths)
+        public static IResourceCollection AddEmbeddedFile(this IResourceCollection controllers, Type assemblyProvider, string? basePath = default, IImmutableContainer? properties = default)
         {
-            foreach (var basePath in basePaths)
-            {
-                controllers.Add(new EmbeddedFileController(assemblyProvider.Assembly, basePath));
-            }
-
-            return controllers;
+            return controllers.Add(new EmbeddedFileController(assemblyProvider.Assembly, basePath, properties));
         }
 
-        public static IResourceCollection AddPhysicalFiles(this IResourceCollection controllers, string? basePath = default, IImmutableContainer? properties = default)
+        public static IResourceCollection AddPhysicalFile(this IResourceCollection controllers, string? basePath = default, IImmutableContainer? properties = default)
         {
             return controllers.Add(new PhysicalFileController(basePath, properties));
         }

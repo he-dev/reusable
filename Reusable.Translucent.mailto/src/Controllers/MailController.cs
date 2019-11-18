@@ -9,8 +9,7 @@ namespace Reusable.Translucent.Controllers
 {
     public abstract class MailController : ResourceController
     {
-        protected MailController(IImmutableContainer metadata)
-            : base(metadata.UpdateItem(Schemes, s => s.Add(UriSchemes.Known.MailTo))) { }
+        protected MailController(IImmutableContainer? properties) : base(new SoftString[] { UriSchemes.Known.MailTo }, default, properties) { }
 
         protected async Task<string> ReadBodyAsync(Stream value, IImmutableContainer metadata)
         {
@@ -23,7 +22,7 @@ namespace Reusable.Translucent.Controllers
         #region Properties
 
         private static readonly From<MailController> This;
-        
+
         public static Selector<string> From = This.Select(() => From);
 
         public static Selector<IList<string>> To = This.Select(() => To);
@@ -46,7 +45,5 @@ namespace Reusable.Translucent.Controllers
     [UseType, UseMember]
     [PlainSelectorFormatter]
     [Rename(nameof(MailRequestMetadata))]
-    public class MailRequestMetadata : SelectorBuilder<MailRequestMetadata>
-    {
-    }
+    public class MailRequestMetadata : SelectorBuilder<MailRequestMetadata> { }
 }

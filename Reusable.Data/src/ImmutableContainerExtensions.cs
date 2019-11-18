@@ -17,6 +17,11 @@ namespace Reusable.Data
 
         #region Helpers
 
+        public static bool ContainsKey<T>(this IImmutableContainer container, Selector<T> selector)
+        {
+            return container.ContainsKey(selector.ToString());
+        }
+
         [DebuggerStepThrough]
         [MustUseReturnValue]
         public static T GetItem<T>(this IImmutableContainer container, Selector<T> selector)
@@ -77,10 +82,20 @@ namespace Reusable.Data
         {
             return container.SetItem(key.ToString(), value(container));
         }
-
-        public static IImmutableContainer Union(this IImmutableContainer first, IImmutableContainer second)
+        
+        public static IImmutableContainer SetItem<T>(this IImmutableContainer container, Selector<IImmutableList<T>> key, params T[] items)
         {
-            return second.Aggregate(first, (current, next) => current.SetItem(next.Key, next.Value));
+            return container.SetItem(key.ToString(), ImmutableList.CreateRange(items));
+        }
+        
+        public static IImmutableContainer SetItem<T>(this IImmutableContainer container, Selector<IImmutableSet<T>> key, params T[] items)
+        {
+            return container.SetItem(key.ToString(), ImmutableHashSet.CreateRange(items));
+        }
+
+        public static IImmutableContainer Union(this IImmutableContainer first, IImmutableContainer? second)
+        {
+            return (second ?? ImmutableContainer.Empty).Aggregate(first, (current, next) => current.SetItem(next.Key, next.Value));
         }
 
         #endregion

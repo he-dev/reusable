@@ -19,35 +19,29 @@ namespace Reusable.Translucent.Controllers
         IImmutableContainer Properties { get; }
     }
 
-    //public delegate Task<Response> InvokeDelegate(Request request);
-
     [UseType, UseMember]
     [PlainSelectorFormatter]
     [DebuggerDisplay(DebuggerDisplayString.DefaultNoQuotes)]
     public abstract class ResourceController : IResourceController
     {
-        protected ResourceController([NotNull] IImmutableContainer properties)
-        {
-            if (properties == null) throw new ArgumentNullException(nameof(properties));
-
-            if (properties.GetItemOrDefault(Schemes) is var schemes && (schemes is null || !schemes.Any()))
-            {
-                throw new ArgumentException
-                (
-                    paramName: nameof(properties),
-                    message: $"{GetType().ToPrettyString()} must specify at least one scheme."
-                );
-            }
-
-            Properties = properties.UpdateItem(Tags, tags => tags.Add(GetType().ToPrettyString().ToSoftString()));
-        }
+//        protected ResourceController(IImmutableContainer? properties)
+//        {
+//            properties ??= ImmutableContainer.Empty;
+//
+//            if (!properties.TryGetItem(Schemes, out var schemes) || schemes is null || !schemes.Any())
+//            {
+//                throw new ArgumentException(paramName: nameof(properties), message: $"{GetType().ToPrettyString()} must specify at least one scheme.");
+//            }
+//
+//            Properties = properties;
+//        }
 
         protected ResourceController(IEnumerable<SoftString> schemes, string? baseUri, IImmutableContainer? properties = default)
         {
             Properties =
                 properties
                     .ThisOrEmpty()
-                    .SetItem(Schemes, ImmutableHashSet<SoftString>.Empty.Union(schemes))
+                    .SetItem(Schemes, schemes.ToArray())
                     .SetItem(BaseUri, baseUri is {} ? new UriString(baseUri) : default);
         }
 
@@ -82,7 +76,7 @@ namespace Reusable.Translucent.Controllers
         private static readonly From<ResourceController>? This;
 
         public static Selector<SoftString?> Id { get; } = This.Select(() => Id);
-        
+
         public static Selector<UriString?> BaseUri { get; } = This.Select(() => BaseUri);
 
         public static Selector<IImmutableSet<SoftString>> Schemes { get; } = This.Select(() => Schemes);

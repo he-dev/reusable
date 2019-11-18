@@ -54,7 +54,7 @@ namespace Reusable.Translucent.Middleware
     // ReSharper disable once ClassWithVirtualMembersNeverInherited.Global
     public class TestController : ResourceController
     {
-        public TestController([NotNull] IImmutableContainer properties) : base(properties) { }
+        public TestController(IImmutableContainer? properties = default) : base(new SoftString[] { "s" }, default, properties) { }
 
         [ResourceGet]
         public virtual Task<Response> Get(Request request) => default;
@@ -96,7 +96,5 @@ namespace Reusable.Translucent.Middleware
 
             return _resourceRepository.InvokeAsync(request);
         }
-
-        public void Dispose() => _resourceRepository.Dispose();
     }
 }

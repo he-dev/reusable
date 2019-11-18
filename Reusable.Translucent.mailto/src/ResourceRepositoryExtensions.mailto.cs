@@ -1,21 +1,23 @@
 using System.Threading.Tasks;
+using JetBrains.Annotations;
 using Reusable.Data;
 using Reusable.Translucent.Controllers;
 using Reusable.Translucent.Models;
 
 namespace Reusable.Translucent
 {
-    public static class ResourceSquidExtensions
+    [PublicAPI]
+    public static class ResourceRepositoryExtensions
     {
         public static async Task<Response> SendEmailAsync
         (
             this IResourceRepository resourceRepository,
             IEmail<IEmailSubject, IEmailBody> email,
-            IImmutableContainer context = default
+            IImmutableContainer? metadata = default
         )
         {
-            context =
-                context
+            metadata =
+                metadata
                     .ThisOrEmpty()
                     .SetItem(MailController.From, email.From)
                     .SetItem(MailController.To, email.To)
@@ -24,15 +26,10 @@ namespace Reusable.Translucent
                     .SetItem(MailController.Attachments, email.Attachments)
                     .SetItem(MailController.From, email.From)
                     .SetItem(MailController.IsHtml, email.IsHtml)
-                    .SetItem(MailController.IsHighPriority, email.IsHighPriority);
+                    .SetItem(MailController.IsHighPriority, email.IsHighPriority)
+                    .SetItem(ResourceController.Schemes, UriSchemes.Known.MailTo);
 
-            return
-                await resourceRepository.InvokeAsync(new Request.Post($"{UriSchemes.Known.MailTo}:dummy@email.com")
-                {
-                    Body = email.Body.Value,
-                    Metadata = context,
-                    //CreateBodyStreamCallback = () => ResourceHelper.SerializeTextAsync(email.Body.Value, email.Body.Encoding)
-                });
+            return await resourceRepository.PostAsync($"{UriSchemes.Known.MailTo}:dummy@email.com", email.Body.Value, metadata);
         }
     }
 }

@@ -82,6 +82,8 @@ namespace Reusable.Translucent
         public static readonly Selector<Encoding> Encoding = This.Select(() => Encoding);
         
         public static readonly Selector<CancellationToken> CancellationToken = This.Select(() => CancellationToken);
+        
+        public static readonly Selector<object> HandledBy = This.Select(() => HandledBy);
 
         #endregion
     }

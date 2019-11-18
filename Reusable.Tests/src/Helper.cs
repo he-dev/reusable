@@ -14,23 +14,16 @@ namespace Reusable
     {
         public static readonly string ConnectionString = "Data Source=(local);Initial Catalog=TestDb;Integrated Security=SSPI;";
 
-        public static readonly IResourceRepository Resources = 
-            ResourceRepositoryBuilder
-                .Empty
-                .UseSetup<TestResourceSetup>()
-                .Build(ImmutableServiceProvider.Empty.Add<IMemoryCache>(new MemoryCache(new MemoryCacheOptions())));
+        public static readonly IResourceRepository Resources = new ResourceRepository<TestResourceSetup>(ImmutableServiceProvider.Empty.Add<IMemoryCache>(new MemoryCache(new MemoryCacheOptions())));
 
         private class TestResourceSetup
         {
             public void ConfigureResources(IResourceCollection resources)
             {
-                resources.AddEmbeddedFiles<TestHelper>
-                (
-                    @"Reusable/res/IOnymous",
-                    @"Reusable/res/Flexo",
-                    @"Reusable/res/Utilities/JsonNet",
-                    @"Reusable/sql"
-                );
+                resources.AddEmbeddedFile<TestHelper>(@"Reusable/res/IOnymous");
+                resources.AddEmbeddedFile<TestHelper>(@"Reusable/res/Flexo");
+                resources.AddEmbeddedFile<TestHelper>(@"Reusable/res/Utilities/JsonNet");
+                resources.AddEmbeddedFile<TestHelper>(@"Reusable/sql");
                 resources.AddAppConfig();
                 resources.AddSqlServer(
                     ConnectionString,

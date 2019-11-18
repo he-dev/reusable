@@ -1,38 +1,25 @@
 using System;
-using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
-using Reusable.Translucent.Controllers;
-
+using JetBrains.Annotations;
 
 namespace Reusable.Translucent
 {
-    public interface IResourceRepository : IDisposable
+    [PublicAPI]
+    public interface IResourceRepository
     {
         Task<Response> InvokeAsync(Request request);
     }
 
-    public class ResourceRepository : IResourceRepository
+    [PublicAPI]
+    public class ResourceRepository<TSetup> : IResourceRepository where TSetup : new()
     {
         private readonly RequestDelegate<ResourceContext> _requestDelegate;
 
-        public ResourceRepository(RequestDelegate<ResourceContext> requestDelegate)
+        public ResourceRepository(IServiceProvider serviceProvider)
         {
-            _requestDelegate = requestDelegate;
+            _requestDelegate = ResourceRepositoryBuilder.Empty.UseSetup<TSetup>().Build(serviceProvider);
         }
-
-        public static IResourceRepository Create(ConfigureResourcesDelegate configureResources, ConfigurePipelineDelegate<ResourceContext>? configurePipeline = default)
-        {
-            return
-                ResourceRepositoryBuilder
-                    .Empty
-                    .UseSetup<QuickSetup<ResourceContext>>()
-                    .Build(
-                        ImmutableServiceProvider
-                            .Empty
-                            .Add(configureResources)
-                            .Add(configurePipeline));
-        }
-
+        
         public async Task<Response> InvokeAsync(Request request)
         {
             var context = new ResourceContext
@@ -44,12 +31,17 @@ namespace Reusable.Translucent
 
             return context.Response;
         }
-
-        public void Dispose() { }
     }
 
+    public static class ResourceRepository
+    {
+        public static IResourceRepository Create(ConfigureResourcesDelegate configureResources, ConfigurePipelineDelegate<ResourceContext>? configurePipeline = default)
+        {
+            return new ResourceRepository<QuickSetup<ResourceContext>>(ImmutableServiceProvider.Empty.Add(configureResources).Add(configurePipeline));
+        }
+    }
 
-    [SuppressMessage("ReSharper", "MemberCanBeMadeStatic.Global")]
+    [PublicAPI]
     public class QuickSetup<T>
     {
         public void ConfigureResources(IResourceCollection resources, ConfigureResourcesDelegate configure)

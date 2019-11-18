@@ -10,57 +10,36 @@ namespace Reusable.Translucent
     {
         // file:///
 
-        public static async Task<Response> GetFileAsync(this IResourceRepository resourceRepository, string path, IImmutableContainer properties = default)
+        public static Task<Response> GetFileAsync(this IResourceRepository resources, string path, IImmutableContainer? metadata = default)
         {
-            return await resourceRepository.InvokeAsync(new Request.Get(CreateUri(path))
-            {
-                Metadata = properties.ThisOrEmpty()
-            });
+            return resources.GetAsync(CreateUri(path), default, metadata.ThisOrEmpty().SetItem(ResourceController.Schemes, UriSchemes.Known.File));
         }
 
-        public static async Task<string> ReadTextFileAsync(this IResourceRepository resourceRepository, string path, IImmutableContainer metadata = default)
+        public static async Task<string> ReadTextFileAsync(this IResourceRepository resourceRepository, string path, IImmutableContainer? metadata = default)
         {
-            using (var file = await resourceRepository.GetFileAsync(path, metadata))
-            {
-                return await file.DeserializeTextAsync();
-            }
+            using var file = await resourceRepository.GetFileAsync(path, metadata);
+            return await file.DeserializeTextAsync();
         }
 
-        public static string ReadTextFile(this IResourceRepository resourceRepository, string path, IImmutableContainer metadata = default)
+        public static string ReadTextFile(this IResourceRepository resources, string path, IImmutableContainer? metadata = default)
         {
-            //return resourceRepository.ReadTextFileAsync(path, metadata).GetAwaiter().GetResult();
-            
-            using (var file = resourceRepository.GetFileAsync(path, metadata).GetAwaiter().GetResult())
-            {
-                return file.DeserializeTextAsync().GetAwaiter().GetResult();
-            }
+            using var file = resources.GetFileAsync(path, metadata).GetAwaiter().GetResult();
+            return file.DeserializeTextAsync().GetAwaiter().GetResult();
         }
 
-        public static async Task WriteTextFileAsync(this IResourceRepository resourceRepository, string path, string value, IImmutableContainer properties = default)
+        public static async Task WriteTextFileAsync(this IResourceRepository resources, string path, string value, IImmutableContainer? metadata = default)
         {
-            using (await resourceRepository.InvokeAsync(new Request.Put(CreateUri(path))
-            {
-                Body = value,
-                Metadata = properties.ThisOrEmpty()
-            })) { }
+            using (await resources.PutAsync(CreateUri(path), value, metadata.ThisOrEmpty().SetItem(ResourceController.Schemes, UriSchemes.Known.File))) { }
         }
 
-        public static async Task WriteFileAsync(this IResourceRepository resourceRepository, string path, CreateBodyStreamDelegate createBodyStream, IImmutableContainer context = default)
+        public static async Task WriteFileAsync(this IResourceRepository resources, string path, CreateBodyStreamDelegate createBodyStream, IImmutableContainer? metadata = default)
         {
-            using (await resourceRepository.InvokeAsync(new Request.Put(CreateUri(path))
-            {
-                Body = createBodyStream,
-                Metadata = context.ThisOrEmpty()
-            })) { }
+            using (await resources.PutAsync(CreateUri(path), createBodyStream, metadata.ThisOrEmpty().SetItem(ResourceController.Schemes, UriSchemes.Known.File))) { }
         }
 
-        public static async Task DeleteFileAsync(this IResourceRepository resourceRepository, string path, IImmutableContainer metadata = default)
+        public static async Task DeleteFileAsync(this IResourceRepository resources, string path, IImmutableContainer metadata = default)
         {
-            await resourceRepository.InvokeAsync(new Request.Delete(CreateUri(path))
-            {
-                //ContentType = MimeType.Plain
-                Metadata = metadata.ThisOrEmpty()
-            });
+            using (await resources.DeleteAsync(CreateUri(path), default, metadata.ThisOrEmpty().SetItem(ResourceController.Schemes, UriSchemes.Known.File))) { }
         }
 
         private static UriString CreateUri(string path)

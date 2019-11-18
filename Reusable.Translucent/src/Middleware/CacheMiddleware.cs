@@ -20,6 +20,7 @@ namespace Reusable.Translucent.Middleware
 
         public async Task InvokeAsync(ResourceContext context)
         {
+            // Only GET requests are cacheable.
             if (!context.Request.Method.Equals(RequestMethod.Get))
             {
                 await _next(context);
@@ -27,7 +28,7 @@ namespace Reusable.Translucent.Middleware
             }
 
             // Only requests with non-zero MaxAge are cacheable.
-            if (context.Request.Metadata.GetItemOrDefault(Resource.MaxAge, TimeSpan.Zero) is var maxAge && maxAge == TimeSpan.Zero)
+            if (context.Request.Metadata.GetItemOrDefault(Resource.MaxAge) is var maxAge && maxAge == TimeSpan.Zero)
             {
                 await _next(context);
                 return;

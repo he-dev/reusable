@@ -59,7 +59,7 @@ namespace Reusable.Translucent
             }
         }
 
-        public IResourceRepository Build(IServiceProvider serviceProvider)
+        public RequestDelegate<ResourceContext> Build(IServiceProvider serviceProvider)
         {
             var resources = new ResourceCollection();
             var pipelineBuilder = new PipelineBuilder<ResourceContext>(new ImmutableServiceProvider(parent: serviceProvider).Add<IResourceCollection>(resources));
@@ -75,7 +75,7 @@ namespace Reusable.Translucent
             // This is the default middleware that is always the last one.
             pipelineBuilder.UseMiddleware<ControllerMiddleware>();
 
-            return new ResourceRepository(pipelineBuilder.Build());
+            return pipelineBuilder.Build();
         }
 
         private static void InvokeSetupMethod<T>(object setup, MethodInfo configureMethod, IServiceProvider services)

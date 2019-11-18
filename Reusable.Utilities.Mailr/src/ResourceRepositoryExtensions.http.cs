@@ -8,7 +8,7 @@ using Reusable.Translucent.Formatting;
 
 namespace Reusable.Utilities.Mailr
 {
-    public static class ResourceSquidExtensions
+    public static class ResourceRepositoryExtensions
     {
         public static async Task<string> SendEmailAsync
         (
@@ -19,7 +19,7 @@ namespace Reusable.Utilities.Mailr
             string controllerTag = "Mailr"
         )
         {
-            var properties =
+            var metadata =
                 ImmutableContainer
                     .Empty
                     .SetItem(HttpRequest.ConfigureHeaders, headers =>
@@ -31,18 +31,11 @@ namespace Reusable.Utilities.Mailr
                     .SetItem(HttpRequest.ContentType, "application/json")
                     .SetItem(HttpResponse.Formatters, new[] { new TextMediaTypeFormatter() })
                     .SetItem(HttpResponse.ContentType, "application/json")
+                    .SetItem(ResourceController.Schemes, UriSchemes.Known.Http, UriSchemes.Known.Https)
                     .UpdateItem(ResourceController.Tags, tags => tags.Add(controllerTag.ToSoftString()));
 
-            var response = await resourceRepository.InvokeAsync(new Request.Post(uri)
-            {
-                Metadata = properties,
-                Body = email
-            });
-
-            using (response)
-            {
-                return await response.DeserializeTextAsync();
-            }
+            using var response = await resourceRepository.PostAsync(uri, email, metadata);
+            return await response.DeserializeTextAsync();
         }
     }
 }

@@ -11,11 +11,10 @@ namespace Reusable.Translucent.Controllers
         public static readonly string Scheme = "config";
 
         public static readonly string ResourceNameQueryKey = "name";
-        
-        protected ConfigController(IImmutableContainer properties)
-            : base(properties.UpdateItem(Schemes, s => s.Add(Scheme))) { }
 
-        protected string GetResourceName(UriString uriString)
+        protected ConfigController(IImmutableContainer? properties) : base(new SoftString[] { Scheme }, default, properties) { }
+
+        protected static string GetResourceName(UriString uriString)
         {
             // config:settings?name=ESCAPED
             return Uri.UnescapeDataString(uriString.Query[ResourceNameQueryKey].ToString());
@@ -40,7 +39,7 @@ namespace Reusable.Translucent.Controllers
         #region Properties
 
         private static readonly From<ConfigController> This;
-        
+
         #endregion
     }
 }

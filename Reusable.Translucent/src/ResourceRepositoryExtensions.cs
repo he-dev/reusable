@@ -5,28 +5,24 @@ namespace Reusable.Translucent
 {
     public static class ResourceRepositoryExtensions
     {
-        public static Task<Response> CreateAsync(this IResourceRepository resourceRepository, UriString uri, object body, IImmutableContainer? context = default)
+        public static Task<Response> GetAsync(this IResourceRepository resources, UriString uri, object? body = default, IImmutableContainer? metadata = default)
         {
-            return resourceRepository.InvokeAsync(new Request.Get(uri)
-            {
-                Body = body,
-                Metadata = context.ThisOrEmpty(),
-            });
+            return resources.InvokeAsync(new Request.Get(uri) { Body = body, Metadata = metadata.ThisOrEmpty() });
         }
 
-//        public static Task<Response> ReadAsync(this IResourceRepository resourceRepository, Request request)
-//        {
-//            return default;
-//        }
-//
-//        public static Task<Response> UpdateAsync(this IResourceRepository resourceRepository, Request request)
-//        {
-//            return default;
-//        }
-//
-//        public static Task<Response> DeleteAsync(this IResourceRepository resourceRepository, Request request)
-//        {
-//            return default;
-//        }
+        public static Task<Response> PutAsync(this IResourceRepository resources, UriString uri, object? body = default, IImmutableContainer? metadata = default)
+        {
+            return resources.InvokeAsync(new Request.Put(uri) { Body = body, Metadata = metadata.ThisOrEmpty() });
+        }
+
+        public static Task<Response> PostAsync(this IResourceRepository resources, UriString uri, object? body = default, IImmutableContainer? metadata = default)
+        {
+            return resources.InvokeAsync(new Request.Post(uri) { Body = body, Metadata = metadata.ThisOrEmpty() });
+        }
+
+        public static Task<Response> DeleteAsync(this IResourceRepository resources, UriString uri, object? body = default, IImmutableContainer? metadata = default)
+        {
+            return resources.InvokeAsync(new Request.Delete(uri) { Body = body, Metadata = metadata.ThisOrEmpty() });
+        }
     }
 }

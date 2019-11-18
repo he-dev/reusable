@@ -13,7 +13,13 @@ namespace Reusable.Translucent
 {
     public static class ConfigRequestBuilder
     {
-        public static Request CreateRequest(Option<RequestMethod> method, Selector selector, object value = default, IImmutableContainer metadata = default, TimeSpan maxAge = default)
+        public static Request CreateRequest
+        (
+            Option<RequestMethod> method,
+            Selector selector,
+            object? value = default,
+            IImmutableContainer? metadata = default
+        )
         {
             var resources =
                 from m in selector.Member.Path()
@@ -33,19 +39,19 @@ namespace Reusable.Translucent
             {
                 Uri = uri,
                 Method = method,
+                Body = value,
                 Metadata =
                     ImmutableContainer
                         .Empty
                         .SetItem(Resource.Type, selector.DataType)
-                        .SetItem(Resource.MaxAge, maxAge)
+                        .SetItem(ResourceController.Schemes, ConfigController.Scheme)
                         .UpdateItem(ResourceController.Tags, x => resource is null ? x : x.Add(resource.Controller.ToSoftString()))
-                        .Union(metadata ?? ImmutableContainer.Empty),
-                Body = value
+                        .Union(metadata)
             };
         }
     }
 
-    public class ConfigRequest : Request
+    public abstract class ConfigRequest : Request
     {
         #region Properties
 
