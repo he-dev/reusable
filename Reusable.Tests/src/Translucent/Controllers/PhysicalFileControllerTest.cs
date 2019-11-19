@@ -7,7 +7,7 @@ namespace Reusable.Translucent.Controllers
 {
     public class PhysicalFileControllerTest
     {
-        private static readonly IResourceRepository Resources = ResourceRepository.Create(c => c.AddPhysicalFile());
+        private static readonly IResourceRepository Resources = ResourceRepository.Create((c, _) => c.AddPhysicalFile());
 
         [Fact]
         public async Task Can_handle_file_methods()
@@ -26,7 +26,6 @@ namespace Reusable.Translucent.Controllers
                 var value = await file.DeserializeTextAsync();
                 Assert.Equal("Hi!", value);
             }
-
 
             await Resources.DeleteFileAsync(tempFileName);
             using (var file = await Resources.GetFileAsync(tempFileName))

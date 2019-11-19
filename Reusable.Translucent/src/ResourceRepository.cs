@@ -44,18 +44,18 @@ namespace Reusable.Translucent
     [PublicAPI]
     public class QuickSetup<T>
     {
-        public void ConfigureResources(IResourceCollection resources, ConfigureResourcesDelegate configure)
+        public void ConfigureResources(IResourceCollection resources, IServiceProvider serviceProvider, ConfigureResourcesDelegate configure)
         {
-            configure(resources);
+            configure(resources, serviceProvider);
         }
 
-        public void ConfigurePipeline(IPipelineBuilder<T> repository, ConfigurePipelineDelegate<T>? configure)
+        public void ConfigurePipeline(IPipelineBuilder<T> repository, IServiceProvider serviceProvider, ConfigurePipelineDelegate<T>? configure)
         {
-            configure?.Invoke(repository);
+            configure?.Invoke(repository, serviceProvider);
         }
     }
 
-    public delegate void ConfigureResourcesDelegate(IResourceCollection resource);
+    public delegate void ConfigureResourcesDelegate(IResourceCollection resource, IServiceProvider serviceProvider);
 
-    public delegate void ConfigurePipelineDelegate<out T>(IPipelineBuilder<T> pipelineController);
+    public delegate void ConfigurePipelineDelegate<out T>(IPipelineBuilder<T> pipelineController, IServiceProvider serviceProvider);
 }

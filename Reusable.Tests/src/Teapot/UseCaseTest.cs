@@ -21,7 +21,7 @@ namespace Reusable.Teapot
         {
             _teapot = teapotServer.GetServer(BaseUri);
             //_http = HttpProvider.FromBaseUri($"{BaseUri}/api");
-            _resources = ResourceRepository.Create(c => c.AddHttp($"{BaseUri}/api"));
+            _resources = ResourceRepository.Create((c, _) => c.AddHttp($"{BaseUri}/api"));
         }
 
         [Fact]

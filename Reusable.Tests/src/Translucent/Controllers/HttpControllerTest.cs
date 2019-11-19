@@ -19,7 +19,7 @@ namespace Reusable.Translucent.Controllers
         {
             _serverContext = teapotServerFixture.GetServer("http://localhost:30002").BeginScope();
 
-            _resources = ResourceRepository.Create(c => c.AddHttp("http://localhost:30002/api", ImmutableContainer.Empty.UpdateItem(ResourceController.Tags, tags => tags.Add("Mailr"))));
+            _resources = ResourceRepository.Create((c, _) => c.AddHttp("http://localhost:30002/api", ImmutableContainer.Empty.UpdateItem(ResourceController.Tags, tags => tags.Add("Mailr"))));
         }
 
         [Fact]
