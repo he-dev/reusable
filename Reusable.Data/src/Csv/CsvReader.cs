@@ -45,7 +45,7 @@ namespace Reusable.Csv
         {
             if (_isEndOfStream)
             {
-                return Task.FromResult((IList<string>)null); ;
+                return Task.FromResult((IList<string>)default); ;
             }
 
             _isEndOfLine = false;

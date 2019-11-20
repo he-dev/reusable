@@ -28,7 +28,7 @@ namespace Reusable.Exceptionize
         /// </summary>
         /// <returns></returns>
         [NotNull, ContractAnnotation("factory: null => halt")]
-        public static Exception CreateDynamicException([NotNull] this IDynamicExceptionFactory factory, string message, Exception innerException = null, [CallerMemberName] string memberName = null)
+        public static Exception CreateDynamicException([NotNull] this IDynamicExceptionFactory factory, string message, Exception? innerException = null, [CallerMemberName] string? memberName = null)
         {
             if (factory == null) throw new ArgumentNullException(nameof(factory));
 
@@ -37,10 +37,10 @@ namespace Reusable.Exceptionize
 
         public static Exception ToDynamicException(this (string Name, string Message) template)
         {
-            return DynamicException.Create(template.Name, template.Message, null);
+            return DynamicException.Create(template.Name, template.Message);
         }
 
-        public static Exception ToDynamicException(this (string Name, string Message, Exception InnerException) template)
+        public static Exception ToDynamicException(this (string Name, string? Message, Exception? InnerException) template)
         {
             return DynamicException.Create(template.Name, template.Message, template.InnerException);
         }

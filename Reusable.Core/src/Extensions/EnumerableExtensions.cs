@@ -31,21 +31,6 @@ namespace System.Linq.Custom
             Func<TFirst, TSecond, TResult> resultSelector
         )
         {
-            if (first == null)
-            {
-                throw new ArgumentNullException(nameof(first));
-            }
-
-            if (second == null)
-            {
-                throw new ArgumentNullException(nameof(second));
-            }
-
-            if (resultSelector == null)
-            {
-                throw new ArgumentNullException(nameof(resultSelector));
-            }
-
             using (var enumeratorFirst = first.GetEnumerator())
             using (var enumeratorSecond = second.GetEnumerator())
             {
@@ -53,9 +38,11 @@ namespace System.Linq.Custom
                 var isEndOfSecond = !enumeratorSecond.MoveNext();
                 while (!isEndOfFirst || !isEndOfSecond)
                 {
-                    yield return resultSelector(
-                        isEndOfFirst ? default(TFirst) : enumeratorFirst.Current,
-                        isEndOfSecond ? default(TSecond) : enumeratorSecond.Current);
+                    yield return resultSelector
+                    (
+                        isEndOfFirst ? default : enumeratorFirst.Current,
+                        isEndOfSecond ? default : enumeratorSecond.Current
+                    );
 
                     isEndOfFirst = !enumeratorFirst.MoveNext();
                     isEndOfSecond = !enumeratorSecond.MoveNext();
@@ -123,11 +110,6 @@ namespace System.Linq.Custom
         [NotNull, ItemCanBeNull, ContractAnnotation("values: null => halt")]
         public static IEnumerable<T> Loop<T>(this IEnumerable<T> values, int startAt = 0)
         {
-            if (values == null)
-            {
-                throw new ArgumentNullException(nameof(values));
-            }
-
             if (startAt < 0)
             {
                 throw new ArgumentOutOfRangeException(paramName: nameof(startAt), message: $"{nameof(startAt)} must be >= 0");

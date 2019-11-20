@@ -7,12 +7,12 @@ namespace Reusable.Translucent
 {
     public static class HttpControllerExtensions
     {
-        public static IResourceCollection AddHttp(this IResourceCollection controllers, string baseUri, IImmutableContainer properties = default)
+        public static IResourceCollection AddHttp(this IResourceCollection controllers, string baseUri, IImmutableContainer? properties = default)
         {
             return controllers.Add(HttpController.FromBaseUri(baseUri, properties));
         }
 
-        public static IResourceCollection AddHttp(this IResourceCollection controllers, HttpClient httpClient, IImmutableContainer properties = default)
+        public static IResourceCollection AddHttp(this IResourceCollection controllers, HttpClient httpClient, IImmutableContainer? properties = default)
         {
             return controllers.Add(new HttpController(httpClient, properties));
         }

@@ -21,23 +21,23 @@ namespace Reusable.Translucent.Controllers
 
         #region Properties
 
-        private static readonly From<MailController> This;
+        private static readonly From<MailController>? This;
 
-        public static Selector<string> From = This.Select(() => From);
+        public static readonly Selector<string> From = This.Select(() => From);
 
-        public static Selector<IList<string>> To = This.Select(() => To);
+        public static readonly Selector<IList<string>> To = This.Select(() => To);
 
-        public static Selector<IList<string>> CC = This.Select(() => CC);
+        public static readonly Selector<IList<string>> CC = This.Select(() => CC);
 
-        public static Selector<string> Subject = This.Select(() => Subject);
+        public static readonly Selector<string> Subject = This.Select(() => Subject);
 
-        public static Selector<IDictionary<string, byte[]>> Attachments = This.Select(() => Attachments);
+        public static readonly Selector<IDictionary<string, byte[]>> Attachments = This.Select(() => Attachments);
 
         //public static Selector<Encoding> BodyEncoding = This.Select(() => BodyEncoding);
 
-        public static Selector<bool> IsHtml = This.Select(() => IsHtml);
+        public static readonly Selector<bool> IsHtml = This.Select(() => IsHtml);
 
-        public static Selector<bool> IsHighPriority = This.Select(() => IsHighPriority);
+        public static readonly Selector<bool> IsHighPriority = This.Select(() => IsHighPriority);
 
         #endregion
     }

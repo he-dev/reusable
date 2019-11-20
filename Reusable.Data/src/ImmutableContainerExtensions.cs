@@ -38,14 +38,14 @@ namespace Reusable.Data
 
         [DebuggerStepThrough]
         [MustUseReturnValue]
-        public static IImmutableList<T> GetItemOrDefault<T>(this IImmutableContainer container, Selector<IImmutableList<T>> selector, IImmutableList<T> defaultValue = default)
+        public static IImmutableList<T> GetItemOrDefault<T>(this IImmutableContainer container, Selector<IImmutableList<T>> selector, IImmutableList<T>? defaultValue = default)
         {
             return container.TryGetItem(selector, out var item) ? item : defaultValue ?? ImmutableList<T>.Empty;
         }
 
         [DebuggerStepThrough]
         [MustUseReturnValue]
-        public static IImmutableSet<T> GetItemOrDefault<T>(this IImmutableContainer container, Selector<IImmutableSet<T>> selector, IImmutableSet<T> defaultValue = default)
+        public static IImmutableSet<T> GetItemOrDefault<T>(this IImmutableContainer container, Selector<IImmutableSet<T>> selector, IImmutableSet<T>? defaultValue = default)
         {
             return container.TryGetItem(selector, out var item) ? item : defaultValue ?? ImmutableHashSet<T>.Empty;
         }
@@ -61,26 +61,26 @@ namespace Reusable.Data
                 }
             }
 
-            value = default;
+            value = default!;
             return false;
         }
 
         public static IImmutableContainer SetItem<T>(this IImmutableContainer container, Selector<T> key, T value)
         {
-            return container.SetItem(key.ToString(), value);
+            return container.SetItem(key.ToString(), value!);
         }
 
         public static IImmutableContainer SetItem<T>(this IImmutableContainer container, Selector<T> key, T value, Func<IImmutableContainer, T, bool> predicate)
         {
             return
                 predicate(container, value)
-                    ? container.SetItem(key.ToString(), value)
+                    ? container.SetItem(key.ToString(), value!)
                     : container;
         }
 
         public static IImmutableContainer SetItem<T>(this IImmutableContainer container, Selector<T> key, Func<IImmutableContainer, T> value)
         {
-            return container.SetItem(key.ToString(), value(container));
+            return container.SetItem(key.ToString(), value(container)!);
         }
         
         public static IImmutableContainer SetItem<T>(this IImmutableContainer container, Selector<IImmutableList<T>> key, params T[] items)
@@ -110,7 +110,7 @@ namespace Reusable.Data
             return container.SetItem(key, update(container.GetItemOrDefault(key, ImmutableList<T>.Empty)));
         }
 
-        public static IImmutableContainer UpdateItem<T>(this IImmutableContainer container, Selector<IImmutableSet<T>> key, Func<IImmutableSet<T>, IImmutableSet<T>> update, IEqualityComparer<T> comparer = default)
+        public static IImmutableContainer UpdateItem<T>(this IImmutableContainer container, Selector<IImmutableSet<T>> key, Func<IImmutableSet<T>, IImmutableSet<T>> update, IEqualityComparer<T>? comparer = default)
         {
             return container.SetItem(key, update(container.GetItemOrDefault(key, ImmutableHashSet.Create(comparer ?? EqualityComparer<T>.Default))));
         }
@@ -120,7 +120,7 @@ namespace Reusable.Data
             this IImmutableContainer container,
             Selector<IImmutableDictionary<TKey, TValue>> key,
             Func<IImmutableDictionary<TKey, TValue>, IImmutableDictionary<TKey, TValue>> update,
-            IEqualityComparer<TKey> comparer = default
+            IEqualityComparer<TKey>? comparer = default
         )
         {
             return container.SetItem(key, update(container.GetItemOrDefault(key, ImmutableDictionary.Create<TKey, TValue>(comparer ?? EqualityComparer<TKey>.Default))));

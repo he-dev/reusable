@@ -37,7 +37,7 @@ namespace Reusable.Translucent
             using (await resources.PutAsync(CreateUri(path), createBodyStream, metadata.ThisOrEmpty().SetItem(ResourceController.Schemes, UriSchemes.Known.File))) { }
         }
 
-        public static async Task DeleteFileAsync(this IResourceRepository resources, string path, IImmutableContainer metadata = default)
+        public static async Task DeleteFileAsync(this IResourceRepository resources, string path, IImmutableContainer? metadata = default)
         {
             using (await resources.DeleteAsync(CreateUri(path), default, metadata.ThisOrEmpty().SetItem(ResourceController.Schemes, UriSchemes.Known.File))) { }
         }

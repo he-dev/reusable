@@ -61,7 +61,7 @@ namespace Reusable.Translucent.Controllers
 
         #region Properties
 
-        private static readonly From<PhysicalFileController> This;
+        private static readonly From<PhysicalFileController>? This;
 
         public static Selector<string> BasePath { get; } = This.Select(() => BasePath);
 

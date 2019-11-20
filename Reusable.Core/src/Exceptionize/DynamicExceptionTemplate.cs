@@ -17,7 +17,7 @@ namespace Reusable.Exceptionize
     {
         public abstract string Message { get; }
 
-        public Exception InnerException { get; set; }
+        public Exception? InnerException { get; set; }
 
         [NotNull, ContractAnnotation("template: null => halt")]
         public static implicit operator Exception([NotNull] DynamicExceptionTemplate template)

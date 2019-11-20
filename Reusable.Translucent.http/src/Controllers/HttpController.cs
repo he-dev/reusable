@@ -48,7 +48,7 @@ namespace Reusable.Translucent.Controllers
         /// <summary>
         /// Create a HttpProvider that doesn't use a proxy for requests.
         /// </summary>
-        public static HttpController FromBaseUri(string baseUri, IImmutableContainer properties = default)
+        public static HttpController FromBaseUri(string baseUri, IImmutableContainer? properties = default)
         {
             return new HttpController(new HttpClient(new HttpClientHandler { UseProxy = false })
             {
@@ -75,7 +75,7 @@ namespace Reusable.Translucent.Controllers
             return OK(response, request.Metadata.SetItem(HttpRequest.ContentType, contentType));
         }
 
-        private async Task<(Stream Content, string ContentType)> InvokeAsync(UriString uri, HttpMethod method, object body, IImmutableContainer context)
+        private async Task<(Stream Content, string? ContentType)> InvokeAsync(UriString uri, HttpMethod method, object? body, IImmutableContainer context)
         {
             using (var request = new HttpRequestMessage(method, uri))
             using (var content = (body is null ? Stream.Null : Serializer.Serialize(body)))
@@ -136,7 +136,7 @@ namespace Reusable.Translucent.Controllers
     {
         #region Properties
 
-        private static readonly From<HttpRequest> This;
+        private static readonly From<HttpRequest>? This;
 
         public static Selector<Action<HttpRequestHeaders>> ConfigureHeaders { get; } = This.Select(() => ConfigureHeaders);
 
@@ -153,7 +153,7 @@ namespace Reusable.Translucent.Controllers
     {
         #region Properties
 
-        private static readonly From<HttpResponse> This;
+        private static readonly From<HttpResponse>? This;
 
         public static Selector<IEnumerable<MediaTypeFormatter>> Formatters { get; } = This.Select(() => Formatters);
 

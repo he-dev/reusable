@@ -24,7 +24,7 @@ namespace Reusable.Flexo
                 .SetEqualityComparer<string>(nameof(SoftString), SoftString.Comparer);
         //.WithRegexComparer();
 
-        private static readonly From<ExecutionContext> This = From<ExecutionContext>.This;
+        private static readonly From<ExecutionContext> This = From<ExecutionContext>.This!;
 
         /// <summary>
         /// Gets or sets extension value.

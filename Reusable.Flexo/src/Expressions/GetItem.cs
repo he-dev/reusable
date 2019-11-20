@@ -66,7 +66,7 @@ namespace Reusable.Flexo
             }
         }
 
-        private object? GetMemberValue(object obj, string memberName)
+        private object? GetMemberValue(object? obj, string memberName)
         {
             if (obj is null)
             {

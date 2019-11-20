@@ -72,9 +72,9 @@ namespace Reusable.Quickey
     {
         public abstract SelectorTokenType TokenType { get; }
 
-        public string Prefix { get; set; }
+        public string? Prefix { get; set; }
 
-        public string Suffix { get; set; }
+        public string? Suffix { get; set; }
 
         protected string Filter(string name, MemberInfo member)
         {
@@ -107,9 +107,9 @@ namespace Reusable.Quickey
 
     public class UseNamespaceAttribute : SelectorTokenFactoryAttribute, IConstantSelectorTokenFactory
     {
-        private readonly string _name;
+        private readonly string? _name;
 
-        public UseNamespaceAttribute(string name = default)
+        public UseNamespaceAttribute(string? name = default)
         {
             _name = name;
             Suffix = "+";
@@ -125,9 +125,9 @@ namespace Reusable.Quickey
 
     public class UseTypeAttribute : SelectorTokenFactoryAttribute, IConstantSelectorTokenFactory
     {
-        private readonly string _name;
+        private readonly string? _name;
 
-        public UseTypeAttribute(string name = default)
+        public UseTypeAttribute(string? name = default)
         {
             _name = name;
             Suffix = ".";
@@ -144,9 +144,9 @@ namespace Reusable.Quickey
 
     public class UseMemberAttribute : SelectorTokenFactoryAttribute, IConstantSelectorTokenFactory
     {
-        private readonly string _name;
+        private readonly string? _name;
 
-        public UseMemberAttribute(string name = default)
+        public UseMemberAttribute(string? name = default)
         {
             _name = name;
         }

@@ -14,7 +14,7 @@ namespace Reusable.Extensions
         public static bool IsNotNull<T>([CanBeNull] this T value) => !IsNull(value);
 
         [ContractAnnotation("value: null => true")]
-        public static bool IsNullOrEmpty([CanBeNull] this string value) => string.IsNullOrEmpty(value);
+        public static bool IsNullOrEmpty(this string? value) => string.IsNullOrEmpty(value);
 
         [ContractAnnotation("value: null => false; notnull => true")]
         public static bool IsNotNullOrEmpty(this string? value) => !IsNullOrEmpty(value);
@@ -32,7 +32,7 @@ namespace Reusable.Extensions
 
         public static TResult IIf<TValue, TResult>(this TValue value, Func<TValue, bool> predicate, Func<TValue, TResult> ifTrue)
         {
-            return value.IIf(predicate, ifTrue, x => default(TResult));
+            return value.IIf(predicate, ifTrue, x => default!);
         }
 
         public static TResult IIf<TValue, TResult>(this TValue value, Func<TValue, bool> predicate, Func<TResult> ifTrue, Func<TResult> ifFalse)
@@ -42,7 +42,7 @@ namespace Reusable.Extensions
 
         public static TResult IIf<TValue, TResult>(this TValue value, Func<TValue, bool> predicate, Func<TResult> ifTrue)
         {
-            return value.IIf(predicate, x => ifTrue(), x => default(TResult));
+            return value.IIf(predicate, x => ifTrue(), x => default!);
         }
 
         public static TResult IIf<TValue, TResult>(this TValue value, Func<TValue, bool> predicate, TResult ifTrue, TResult ifFalse)
@@ -52,7 +52,7 @@ namespace Reusable.Extensions
 
         public static TResult IIf<TValue, TResult>(this TValue value, Func<TValue, bool> predicate, TResult ifTrue)
         {
-            return value.IIf(predicate, x => ifTrue, x => default(TResult));
+            return value.IIf(predicate, x => ifTrue, x => default!);
         }
 
         public static void IIf<TValue>(this TValue value, Func<TValue, bool> predicate, Action<TValue> ifTrue, Action<TValue> ifFalse)

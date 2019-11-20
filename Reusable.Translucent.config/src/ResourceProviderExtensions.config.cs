@@ -16,14 +16,14 @@ namespace Reusable.Translucent
     [PublicAPI]
     public static class ResourceProviderExtensions
     {
-        public static async Task<object> ReadSettingAsync(this IResourceRepository resourceRepository, Selector selector, TimeSpan maxAge = default)
+        public static async Task<object?> ReadSettingAsync(this IResourceRepository resourceRepository, Selector selector, TimeSpan maxAge = default)
         {
             using var request = ConfigRequestBuilder.CreateRequest(RequestMethod.Get, selector, metadata: ImmutableContainer.Empty.SetItem(Resource.MaxAge, maxAge));
             using var response = await resourceRepository.InvokeAsync(request);
             return response.Body;
         }
 
-        public static async Task WriteSettingAsync(this IResourceRepository resourceRepository, Selector selector, object newValue)
+        public static async Task WriteSettingAsync(this IResourceRepository resourceRepository, Selector selector, object? newValue)
         {
             using var request = ConfigRequestBuilder.CreateRequest(RequestMethod.Put, selector, newValue);
             await resourceRepository.InvokeAsync(request);
@@ -47,20 +47,20 @@ namespace Reusable.Translucent
 
         public static async Task<T> ReadSettingAsync<T>(this IResourceRepository resourceRepository, Selector<T> selector, TimeSpan maxAge = default)
         {
-            return (T)await resourceRepository.ReadSettingAsync((Selector)selector, maxAge);
+            return (T)await resourceRepository.ReadSettingAsync((Selector)selector, maxAge)!;
         }
 
         public static T ReadSetting<T>(this IResourceRepository resourceRepository, Selector<T> selector, TimeSpan maxAge = default)
         {
-            return (T)resourceRepository.ReadSettingAsync((Selector)selector, maxAge).GetAwaiter().GetResult();
+            return (T)resourceRepository.ReadSettingAsync((Selector)selector, maxAge).GetAwaiter().GetResult()!;
         }
 
-        public static async Task<T> ReadSettingAsync<T>(this IResourceRepository resourceRepository, Expression<Func<T>> selector, string index = default, TimeSpan maxAge = default)
+        public static async Task<T> ReadSettingAsync<T>(this IResourceRepository resourceRepository, Expression<Func<T>> selector, string? index = default, TimeSpan maxAge = default)
         {
-            return (T)await resourceRepository.ReadSettingAsync(CreateSelector<T>(selector, index), maxAge);
+            return (T)await resourceRepository.ReadSettingAsync(CreateSelector<T>(selector, index), maxAge)!;
         }
 
-        public static T ReadSetting<T>(this IResourceRepository resourceRepository, [NotNull] Expression<Func<T>> selector, string index = default, TimeSpan maxAge = default)
+        public static T ReadSetting<T>(this IResourceRepository resourceRepository, [NotNull] Expression<Func<T>> selector, string? index = default, TimeSpan maxAge = default)
         {
             return ReadSettingAsync(resourceRepository, selector, index, maxAge).GetAwaiter().GetResult();
         }
@@ -69,12 +69,12 @@ namespace Reusable.Translucent
 
         #region Setters
 
-        public static async Task WriteSettingAsync<TValue>(this IResourceRepository resourceRepository, Expression<Func<TValue>> selector, TValue newValue, string index = default)
+        public static async Task WriteSettingAsync<TValue>(this IResourceRepository resourceRepository, Expression<Func<TValue>> selector, TValue newValue, string? index = default)
         {
             await resourceRepository.WriteSettingAsync(CreateSelector<TValue>(selector, index), newValue);
         }
 
-        public static void WriteSetting<T>(this IResourceRepository resourceRepository, [NotNull] Expression<Func<T>> selector, [CanBeNull] T newValue, string index = default)
+        public static void WriteSetting<T>(this IResourceRepository resourceRepository, [NotNull] Expression<Func<T>> selector, [CanBeNull] T newValue, string? index = default)
         {
             resourceRepository.WriteSettingAsync(selector, newValue, index).GetAwaiter().GetResult();
         }

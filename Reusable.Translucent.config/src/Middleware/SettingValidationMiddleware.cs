@@ -37,7 +37,7 @@ namespace Reusable.Translucent.Middleware
             }
         }
 
-        private static void Validate(UriString uri, object obj, IEnumerable<ValidationAttribute>? validations)
+        private static void Validate(UriString uri, object? obj, IEnumerable<ValidationAttribute>? validations)
         {
             if (!uri.Scheme.Equals(ConfigController.Scheme))
             {

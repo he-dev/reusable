@@ -52,13 +52,4 @@ namespace Reusable.Translucent
             };
         }
     }
-
-    public abstract class ConfigRequest : Request
-    {
-        #region Properties
-
-        private static readonly From<ConfigRequest> This;
-
-        #endregion
-    }
 }

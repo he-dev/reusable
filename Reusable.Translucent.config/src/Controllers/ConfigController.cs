@@ -1,8 +1,5 @@
 using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
 using Reusable.Data;
-using Reusable.OneTo1;
 using Reusable.Quickey;
 
 namespace Reusable.Translucent.Controllers
@@ -44,16 +41,5 @@ namespace Reusable.Translucent.Controllers
         private static readonly From<ConfigController> This;
 
         #endregion
-    }
-
-    [UseType, UseMember]
-    [PlainSelectorFormatter]
-    public abstract class Setting
-    {
-        private static readonly From<Setting> This;
-        
-        public static Selector<ITypeConverter> Converter { get; } = This.Select(() => Converter);
-        
-        public static Selector<IEnumerable<ValidationAttribute>> Validations { get; } = This.Select(() => Validations);
     }
 }

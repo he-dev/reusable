@@ -36,7 +36,7 @@ namespace Reusable.Collections
         {
             if (equals == null) throw new ArgumentNullException(nameof(equals));
             
-            return Create(equals, obj => obj.GetHashCode());
+            return Create(equals, obj => obj?.GetHashCode() ?? 0);
         }
 
         [NotNull]

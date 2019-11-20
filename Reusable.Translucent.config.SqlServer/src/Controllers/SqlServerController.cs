@@ -78,7 +78,7 @@ namespace Reusable.Translucent.Controllers
 
         #region Properties
 
-        private static readonly From<SqlServerController> This;
+        private static readonly From<SqlServerController>? This;
 
         public static Selector<string> ConnectionString { get; } = This.Select(() => ConnectionString);
         public static Selector<SqlFourPartName> TableName { get; } = This.Select(() => TableName);

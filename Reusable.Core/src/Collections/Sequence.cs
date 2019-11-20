@@ -39,7 +39,7 @@ namespace Reusable.Collections
             {
                 while (e.MoveNext())
                 {
-                    yield return default;
+                    yield return default!;
                 }
             }
         }
@@ -57,9 +57,9 @@ namespace Reusable.Collections
 
     public class InfiniteDefaultEnumerator<T> : IEnumerator<T>
     {
-        public T Current => default;
+        public T Current => default!;
 
-        object IEnumerator.Current => Current;
+        object IEnumerator.Current => Current!;
 
         public bool MoveNext() => true;
 

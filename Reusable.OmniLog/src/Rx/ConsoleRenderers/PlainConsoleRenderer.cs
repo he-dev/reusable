@@ -30,7 +30,7 @@ namespace Reusable.OmniLog.Rx.ConsoleRenderers
                 }
                 else
                 {
-                    value = default;
+                    value = default!;
                     return false;
                 }
             }, FormatProvider));
