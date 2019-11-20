@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using Reusable.Data;
 using Reusable.OneTo1;
 using Reusable.Quickey;
@@ -12,7 +14,8 @@ namespace Reusable.Translucent.Controllers
 
         public static readonly string ResourceNameQueryKey = "name";
 
-        protected ConfigController(IImmutableContainer? properties) : base(new SoftString[] { Scheme }, default, properties) { }
+        protected ConfigController(IImmutableContainer? properties = default)
+            : base(new SoftString[] { Scheme }, default, properties.ThisOrEmpty()) { }
 
         protected static string GetResourceName(UriString uriString)
         {
@@ -21,7 +24,7 @@ namespace Reusable.Translucent.Controllers
         }
 
         // ReSharper disable once InconsistentNaming
-        protected Response OK(Request request, string body, string actualName)
+        protected Response OK(Request request, object body, string actualName)
         {
             return new Response
             {
@@ -30,7 +33,7 @@ namespace Reusable.Translucent.Controllers
                 Metadata =
                     ImmutableContainer
                         .Empty
-                        .SetItem(Resource.Converter, Properties.GetItem(Resource.Converter))
+                        //.SetItem(Resource.Converter, Properties.GetItem(Resource.Converter))
                         .SetItem(Response.ActualName, actualName)
                         .Union(request.Metadata.Copy<Resource>())
             };
@@ -41,5 +44,16 @@ namespace Reusable.Translucent.Controllers
         private static readonly From<ConfigController> This;
 
         #endregion
+    }
+
+    [UseType, UseMember]
+    [PlainSelectorFormatter]
+    public abstract class Setting
+    {
+        private static readonly From<Setting> This;
+        
+        public static Selector<ITypeConverter> Converter { get; } = This.Select(() => Converter);
+        
+        public static Selector<IEnumerable<ValidationAttribute>> Validations { get; } = This.Select(() => Validations);
     }
 }

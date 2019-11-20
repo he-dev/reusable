@@ -19,7 +19,7 @@
         <EmbeddedResource Include="res\Utilities\JsonNet\PrettyType0.json" />
         <EmbeddedResource Include="res\Utilities\JsonNet\PrettyType1.json" />
         <EmbeddedResource Include="res\Utilities\JsonNet\PrettyType2.json" />
-        <EmbeddedResource Include="sql\IOnymous\Config\seed-test-data.sql" />
+        <EmbeddedResource Include="sql\Translucent\Config\seed-test-data.sql" />
         <None Remove="res\IOnymous\test.txt" />
         <EmbeddedResource Include="res\Flexo\ExpressionObject.json" />
         <EmbeddedResource Include="res\IOnymous\Http\Mailr\HtmlTable.json" />

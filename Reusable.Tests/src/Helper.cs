@@ -53,10 +53,9 @@ namespace Reusable
 
             public void ConfigurePipeline(IPipelineBuilder<ResourceContext> pipeline)
             {
-                //repository.UseMiddleware<SettingFormatValidationMiddleware>();
                 pipeline.UseMiddleware<CacheMiddleware>();
-                pipeline.UseMiddleware<SettingExistsValidationMiddleware>();
-                pipeline.UseMiddleware<SettingConverterMiddleware>();
+                pipeline.UseMiddleware<SettingValidationMiddleware>();
+                pipeline.UseMiddleware<ResourceExistsValidationMiddleware>();
             }
         }
     }

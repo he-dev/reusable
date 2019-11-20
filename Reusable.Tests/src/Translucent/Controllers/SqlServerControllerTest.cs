@@ -1,9 +1,11 @@
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Data.SqlClient;
 using System.Threading.Tasks;
 using Dapper;
 using Reusable.Data.Repositories;
+using Reusable.Exceptionize;
 using Reusable.Quickey;
 using Xunit;
 
@@ -16,7 +18,7 @@ namespace Reusable.Translucent.Controllers
             var connectionString = ConnectionStringRepository.Default.GetConnectionString(TestHelper.ConnectionString);
             using (var conn = new SqlConnection(connectionString))
             {
-                await conn.ExecuteAsync(TestHelper.Resources.ReadTextFile(@"IOnymous/Config/seed-test-data.sql"));
+                await conn.ExecuteAsync(TestHelper.Resources.ReadTextFile(@"Translucent/Config/seed-test-data.sql"));
             }
         }
 
@@ -36,6 +38,8 @@ namespace Reusable.Translucent.Controllers
             var listOfInt32b = testDto.ListOfInt32; // fallback
             Assert.Equal(new[] { 11, 12 }, listOfInt32a); // fallback
             Assert.Same(listOfInt32a, listOfInt32b);
+
+            var validationException = Assert.ThrowsAny<DynamicException>(() => testDto.Color);
         }
 
         [Fact]
@@ -75,5 +79,7 @@ namespace Reusable.Translucent.Controllers
         public DateTime DateTime => _resources.ReadSetting(() => DateTime);
         public TimeSpan TimeSpan => _resources.ReadSetting(() => TimeSpan);
         public List<int> ListOfInt32 => _resources.ReadSetting(() => ListOfInt32, maxAge: TimeSpan.FromSeconds(7));
+        [RegularExpression("Red|Blue")]
+        public string Color => _resources.ReadSetting(() => Color);
     }
 }

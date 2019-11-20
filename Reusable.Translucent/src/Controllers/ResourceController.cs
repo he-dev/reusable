@@ -24,18 +24,6 @@ namespace Reusable.Translucent.Controllers
     [DebuggerDisplay(DebuggerDisplayString.DefaultNoQuotes)]
     public abstract class ResourceController : IResourceController
     {
-//        protected ResourceController(IImmutableContainer? properties)
-//        {
-//            properties ??= ImmutableContainer.Empty;
-//
-//            if (!properties.TryGetItem(Schemes, out var schemes) || schemes is null || !schemes.Any())
-//            {
-//                throw new ArgumentException(paramName: nameof(properties), message: $"{GetType().ToPrettyString()} must specify at least one scheme.");
-//            }
-//
-//            Properties = properties;
-//        }
-
         protected ResourceController(IEnumerable<SoftString> schemes, string? baseUri, IImmutableContainer? properties = default)
         {
             Properties =
@@ -81,6 +69,7 @@ namespace Reusable.Translucent.Controllers
 
         public static Selector<IImmutableSet<SoftString>> Schemes { get; } = This.Select(() => Schemes);
 
+        [Obsolete("Use Id")]
         public static Selector<IImmutableSet<SoftString>> Tags { get; } = This.Select(() => Tags);
 
         #endregion
@@ -93,6 +82,7 @@ namespace Reusable.Translucent.Controllers
             return container.UpdateItem(ResourceController.Schemes, x => x.Add(scheme));
         }
 
+        [Obsolete("Use Id")]
         public static IImmutableContainer AddTag(this IImmutableContainer container, SoftString tag)
         {
             return container.UpdateItem(ResourceController.Tags, x => x.Add(tag));

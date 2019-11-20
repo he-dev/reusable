@@ -30,8 +30,8 @@ namespace Reusable.OneTo1
     public abstract class TypeConverter : ITypeConverter
     {
         public static TypeConverter Empty => new CompositeConverter();
-
-        //public static string DefaultFormat { get; } = default;
+        
+        public static TypeConverter PassThru { get; } = new _PassThru();
 
         public static IFormatProvider DefaultFormatProvider { get; } = CultureInfo.InvariantCulture;
 
@@ -104,7 +104,7 @@ namespace Reusable.OneTo1
 
         #endregion
         
-        private class NullConverter : TypeConverter
+        private class _PassThru : TypeConverter
         {
             public override Type FromType => typeof(object);
 

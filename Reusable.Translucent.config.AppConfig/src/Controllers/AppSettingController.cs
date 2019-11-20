@@ -11,7 +11,8 @@ namespace Reusable.Translucent.Controllers
 {
     public class AppSettingController : ConfigController
     {
-        public AppSettingController() : base(ImmutableContainer.Empty.SetItem(Resource.Converter, new EchoConverter())) { }
+        public AppSettingController(IImmutableContainer? properties = default)
+            : base(properties.ThisOrEmpty().SetItemWhenNotExists(Setting.Converter, TypeConverter.PassThru)) { }
 
         [ResourceGet]
         public Task<Response> GetSettingAsync(Request request)
@@ -34,7 +35,7 @@ namespace Reusable.Translucent.Controllers
             var exeConfig = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
             var actualKey = FindActualKey(exeConfig, settingIdentifier) ?? settingIdentifier;
             var element = exeConfig.AppSettings.Settings[actualKey];
-            var value = Properties.GetItem(Resource.Converter).Convert(request.Body, typeof(string));
+            var value = Properties.GetItem(Setting.Converter).Convert(request.Body, typeof(string));
 
             if (element is null)
             {
@@ -62,8 +63,6 @@ namespace Reusable.Translucent.Controllers
         }
 
         #region Properties
-
-        
 
         #endregion
     }

@@ -43,7 +43,8 @@ from
      (15, 'TestDto.Decimal', '10.3', 'test', '1'),
      (16, 'TestDto.DateTime', '1894-06-30', 'test', '1'),
      (17, 'TestDto.TimeSpan', '01:15:00', 'test', '1'),
-     (18, 'TestDto.ListOfInt32', '[11, 12]', 'else', '1')
+     (18, 'TestDto.ListOfInt32', '[11, 12]', 'else', '1'),
+     (19, 'TestDto.Color', 'White', 'else', '1')
     ) v ([_id], [_name], [_value], [_env], [_ver]);
 
 -- -- insert new data

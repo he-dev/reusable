@@ -28,8 +28,6 @@ namespace Reusable.Translucent
         /// </summary>
         public static Selector<TimeSpan> MaxAge { get; } = Select(() => MaxAge);
 
-        public static Selector<ITypeConverter> Converter { get; } = Select(() => Converter);
-
         public static Selector<Type> Type { get; } = Select(() => Type);
 
         #endregion

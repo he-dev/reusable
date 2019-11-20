@@ -6,6 +6,7 @@
     <RootNamespace>Reusable.Translucent</RootNamespace>
     <Configurations>Debug;Release;Debug.csproj</Configurations>
     <Platforms>AnyCPU;x64</Platforms>
+    <Nullable>enable</Nullable>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">

@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Reflection;
 using Reusable.Data;
@@ -46,6 +47,7 @@ namespace Reusable.Translucent
                         .SetItem(Resource.Type, selector.DataType)
                         .SetItem(ResourceController.Schemes, ConfigController.Scheme)
                         .UpdateItem(ResourceController.Tags, x => resource is null ? x : x.Add(resource.Controller.ToSoftString()))
+                        .SetItem(Setting.Validations, selector.Member.GetCustomAttributes<ValidationAttribute>())
                         .Union(metadata)
             };
         }

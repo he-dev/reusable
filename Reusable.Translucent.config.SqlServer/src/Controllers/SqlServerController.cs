@@ -14,13 +14,12 @@ namespace Reusable.Translucent.Controllers
 
         public const string DefaultTable = "Setting";
 
-        public SqlServerController(string connectionString, IImmutableContainer properties)
-            : base(
-                properties
-                    .ThisOrEmpty()
-                    .SetItem(ConnectionString, connectionString)
-                    .SetItemWhenNotExists(Resource.Converter, new JsonSettingConverter())
-                    .SetItemWhenNotExists(TableName, (DefaultSchema, DefaultTable))
+        public SqlServerController(string connectionString, IImmutableContainer? properties = default)
+            : base(properties
+                .ThisOrEmpty()
+                .SetItem(ConnectionString, connectionString)
+                .SetItemWhenNotExists(Setting.Converter, new JsonSettingConverter())
+                .SetItemWhenNotExists(TableName, (DefaultSchema, DefaultTable))
             ) { }
 
         [ResourceGet]
@@ -31,24 +30,25 @@ namespace Reusable.Translucent.Controllers
             var connectionString = Properties.GetItem(ConnectionString);
             return await SqlHelper.ExecuteAsync(connectionString, async (connection, token) =>
             {
-                using (var command = connection.CreateSelectCommand(
+                using var command = connection.CreateSelectCommand
+                (
                     Properties.GetItem(TableName),
                     settingIdentifier,
                     Properties.GetItemOrDefault(ColumnMappings),
                     Properties.GetItemOrDefault(Where),
                     Properties.GetItemOrDefault(Fallback)
-                ))
-                using (var settingReader = command.ExecuteReader())
+                );
+                using var settingReader = command.ExecuteReader();
+
+                if (await settingReader.ReadAsync(token))
                 {
-                    if (await settingReader.ReadAsync(token))
-                    {
-                        var value = settingReader[Properties.GetItem(ColumnMappings).MapOrDefault(SqlServerColumn.Value)];
-                        return OK(request, (string)value, settingIdentifier);
-                    }
-                    else
-                    {
-                        return NotFound();
-                    }
+                    var value = settingReader[Properties.GetItem(ColumnMappings).MapOrDefault(SqlServerColumn.Value)];
+                    value = Properties.GetItem(Setting.Converter).Convert(value, request.Metadata.GetItem(Resource.Type));
+                    return OK(request, value, settingIdentifier);
+                }
+                else
+                {
+                    return NotFound();
                 }
             }, request.Metadata.GetItemOrDefault(Request.CancellationToken));
         }
@@ -57,20 +57,20 @@ namespace Reusable.Translucent.Controllers
         public async Task<Response> SetSettingAsync(Request request)
         {
             var settingIdentifier = GetResourceName(request.Uri);
-            var value = Properties.GetItem(Resource.Converter).Convert(request.Body, typeof(string));
+            var value = Properties.GetItem(Setting.Converter).Convert(request.Body, typeof(string));
 
             var connectionString = Properties.GetItem(ConnectionString);
             await SqlHelper.ExecuteAsync(connectionString, async (connection, token) =>
             {
-                using (var cmd = connection.CreateUpdateCommand(
+                using var cmd = connection.CreateUpdateCommand
+                (
                     Properties.GetItem(TableName),
                     settingIdentifier,
                     Properties.GetItemOrDefault(ColumnMappings),
                     Properties.GetItemOrDefault(Where),
-                    value))
-                {
-                    await cmd.ExecuteNonQueryAsync(token);
-                }
+                    value
+                );
+                await cmd.ExecuteNonQueryAsync(token);
             }, request.Metadata.GetItemOrDefault(Request.CancellationToken));
 
             return OK();
