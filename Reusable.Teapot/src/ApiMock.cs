@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.WebUtilities;
 using Reusable.Data;
 using Reusable.Exceptionize;
 using Reusable.Translucent;
+using HttpRequest = Microsoft.AspNetCore.Http.HttpRequest;
 
 namespace Reusable.Teapot
 {

@@ -20,35 +20,29 @@ namespace Reusable
         {
             public void ConfigureResources(IResourceCollection resources)
             {
-                resources.AddEmbeddedFile<TestHelper>(@"Reusable/res/IOnymous");
-                resources.AddEmbeddedFile<TestHelper>(@"Reusable/res/Flexo");
-                resources.AddEmbeddedFile<TestHelper>(@"Reusable/res/Utilities/JsonNet");
-                resources.AddEmbeddedFile<TestHelper>(@"Reusable/sql");
+                resources.AddEmbeddedFile<TestHelper>(default, @"Reusable/res/IOnymous");
+                resources.AddEmbeddedFile<TestHelper>(default, @"Reusable/res/Flexo");
+                resources.AddEmbeddedFile<TestHelper>(default, @"Reusable/res/Utilities/JsonNet");
+                resources.AddEmbeddedFile<TestHelper>(default, @"Reusable/sql");
                 resources.AddAppConfig();
-                resources.AddSqlServer(
-                    ConnectionString,
-                    ImmutableContainer
-                        .Empty
-                        .SetItem(
-                            SqlServerController.TableName,
-                            ("reusable", "TestConfig"))
-                        .SetItem(
-                            SqlServerController.ColumnMappings,
-                            ImmutableDictionary<SqlServerColumn, SoftString>
-                                .Empty
-                                .Add(SqlServerColumn.Name, "_name")
-                                .Add(SqlServerColumn.Value, "_value"))
-                        .SetItem(
-                            SqlServerController.Where,
-                            ImmutableDictionary<string, object>
-                                .Empty
-                                .Add("_env", "test")
-                                .Add("_ver", "1"))
-                        .SetItem(
-                            SqlServerController.Fallback,
-                            ImmutableDictionary<string, object>
-                                .Empty
-                                .Add("_env", "else")));
+                resources.AddSqlServer(default, ConnectionString, sql =>
+                {
+                    sql.TableName = ("reusable", "TestConfig");
+                    sql.ColumnMappings =
+                        ImmutableDictionary<SqlServerColumn, SoftString>
+                            .Empty
+                            .Add(SqlServerColumn.Name, "_name")
+                            .Add(SqlServerColumn.Value, "_value");
+                    sql.Where =
+                        ImmutableDictionary<string, object>
+                            .Empty
+                            .Add("_env", "test")
+                            .Add("_ver", "1");
+                    sql.Fallback =
+                        ImmutableDictionary<string, object>
+                            .Empty
+                            .Add("_env", "else");
+                });
             }
 
             public void ConfigurePipeline(IPipelineBuilder<ResourceContext> pipeline)

@@ -8,7 +8,7 @@ namespace Reusable.Translucent
 {
     public static class EmbeddedFileControllerExtensions
     {
-        public static IResourceCollection AddEmbeddedFile<T>(this IResourceCollection controllers, string? id = default, string? basePath = default)
+        public static IResourceCollection AddEmbeddedFile<T>(this IResourceCollection controllers, string? id, string? basePath = default)
         {
             return controllers.Add(new EmbeddedFileController<T>(id, basePath));
         }
@@ -18,12 +18,12 @@ namespace Reusable.Translucent
             return controllers.Add(new EmbeddedFileController(id, assemblyProvider.Assembly, basePath));
         }
 
-        public static IResourceCollection AddPhysicalFile(this IResourceCollection controllers, string? id = default, string? basePath = default)
+        public static IResourceCollection AddPhysicalFile(this IResourceCollection controllers, string? id, string? basePath = default)
         {
             return controllers.Add(new PhysicalFileController(id, basePath));
         }
 
-        public static IResourceCollection UseInMemoryFiles<T>(this IResourceCollection controllers, string? id = default, params string[] basePaths)
+        public static IResourceCollection UseInMemoryFiles<T>(this IResourceCollection controllers, string? id, params string[] basePaths)
         {
             foreach (var basePath in basePaths)
             {

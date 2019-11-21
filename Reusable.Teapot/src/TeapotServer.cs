@@ -16,6 +16,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Primitives;
 using Reusable.Translucent;
+using HttpRequest = Microsoft.AspNetCore.Http.HttpRequest;
 
 namespace Reusable.Teapot
 {

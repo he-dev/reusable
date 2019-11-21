@@ -11,6 +11,7 @@ using Reusable.Exceptionize;
 using Reusable.Extensions;
 using Reusable.Translucent;
 using HttpContext = Microsoft.AspNetCore.Http.HttpContext;
+using HttpRequest = Microsoft.AspNetCore.Http.HttpRequest;
 
 namespace Reusable.Teapot
 {
