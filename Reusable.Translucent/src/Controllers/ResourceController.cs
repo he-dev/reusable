@@ -1,13 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.Immutable;
 using System.Diagnostics;
-using System.Linq;
-using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Reusable.Data;
 using Reusable.Diagnostics;
-using Reusable.Extensions;
 using Reusable.Quickey;
 
 namespace Reusable.Translucent.Controllers
@@ -15,8 +11,15 @@ namespace Reusable.Translucent.Controllers
     [PublicAPI]
     public interface IResourceController : IDisposable
     {
-        [NotNull]
-        IImmutableContainer Properties { get; }
+        SoftString? Id { get; }
+
+        UriString? BaseUri { get; }
+
+        ISet<SoftString> Schemes { get; }
+
+        ISet<SoftString> Tags { get; }
+
+        bool SupportsRelativeUri { get; }
     }
 
     [UseType, UseMember]
@@ -24,13 +27,11 @@ namespace Reusable.Translucent.Controllers
     [DebuggerDisplay(DebuggerDisplayString.DefaultNoQuotes)]
     public abstract class ResourceController : IResourceController
     {
-        protected ResourceController(IEnumerable<SoftString> schemes, string? baseUri, IImmutableContainer? properties = default)
+        protected ResourceController(string? id, string? basePath, params SoftString[] schemes)
         {
-            Properties =
-                properties
-                    .ThisOrEmpty()
-                    .SetItem(Schemes, schemes.ToArray())
-                    .SetItem(BaseUri, baseUri is {} ? new UriString(baseUri) : default);
+            Id = id;
+            BaseUri = basePath is {} uri ? new UriString(uri) : default;
+            Schemes = new HashSet<SoftString>(schemes);
         }
 
         private string DebuggerDisplay => this.ToDebuggerDisplayString(builder =>
@@ -41,7 +42,15 @@ namespace Reusable.Translucent.Controllers
             //builder.DisplayValue(x => x.Schemes);
         });
 
-        public virtual IImmutableContainer Properties { get; }
+        public SoftString? Id { get; }
+
+        public UriString? BaseUri { get; }
+
+        public ISet<SoftString> Schemes { get; }
+
+        public ISet<SoftString> Tags { get; set; }
+        
+        public bool SupportsRelativeUri => BaseUri is {};
 
         // ReSharper disable once InconsistentNaming
         protected static Response OK(object? body = default, IImmutableContainer? metadata = default) => new Response
@@ -58,37 +67,7 @@ namespace Reusable.Translucent.Controllers
 
         // Can be overriden when derived.
         public virtual void Dispose() { }
-
-        #region Properties
-
-        private static readonly From<ResourceController>? This;
-
-        public static Selector<SoftString?> Id { get; } = This.Select(() => Id);
-
-        public static Selector<UriString?> BaseUri { get; } = This.Select(() => BaseUri);
-
-        public static Selector<IImmutableSet<SoftString>> Schemes { get; } = This.Select(() => Schemes);
-
-        [Obsolete("Use Id")]
-        public static Selector<IImmutableSet<SoftString>> Tags { get; } = This.Select(() => Tags);
-
-        #endregion
     }
-
-    public static class ImmutableContainerExtensions
-    {
-        public static IImmutableContainer AddScheme(this IImmutableContainer container, SoftString scheme)
-        {
-            return container.UpdateItem(ResourceController.Schemes, x => x.Add(scheme));
-        }
-
-        [Obsolete("Use Id")]
-        public static IImmutableContainer AddTag(this IImmutableContainer container, SoftString tag)
-        {
-            return container.UpdateItem(ResourceController.Tags, x => x.Add(tag));
-        }
-    }
-
 
     public static class ElementOrder
     {

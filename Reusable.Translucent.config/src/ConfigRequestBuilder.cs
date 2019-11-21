@@ -1,11 +1,8 @@
 using System;
-using System.Collections.Generic;
-using System.Collections.Immutable;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Reflection;
 using Reusable.Data;
-using Reusable.Extensions;
 using Reusable.Quickey;
 using Reusable.Translucent.Annotations;
 using Reusable.Translucent.Controllers;
@@ -19,7 +16,7 @@ namespace Reusable.Translucent
             Option<RequestMethod> method,
             Selector selector,
             object? value = default,
-            IImmutableContainer? metadata = default
+            Action<ConfigRequest>? requestAction = default
         )
         {
             var resources =
@@ -36,20 +33,18 @@ namespace Reusable.Translucent
                 query: new (string Key, string Value)[] { (ConfigController.ResourceNameQueryKey, selector.ToString()) }
             );
 
-            return new Request
+            var request = new ConfigRequest
             {
                 Uri = uri,
                 Method = method,
                 Body = value,
-                Metadata =
-                    ImmutableContainer
-                        .Empty
-                        .SetItem(Resource.Type, selector.DataType)
-                        .SetItem(ResourceController.Schemes, ConfigController.Scheme)
-                        .UpdateItem(ResourceController.Tags, x => resource is null ? x : x.Add(resource.Controller.ToSoftString()))
-                        .SetItem(Setting.Validations, selector.Member.GetCustomAttributes<ValidationAttribute>())
-                        .Union(metadata)
+                SettingType = selector.DataType,
+                ValidationAttributes = selector.Member.GetCustomAttributes<ValidationAttribute>()
             };
+            
+            requestAction?.Invoke(request);
+
+            return request;
         }
     }
 }

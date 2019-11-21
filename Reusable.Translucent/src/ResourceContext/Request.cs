@@ -1,8 +1,12 @@
 using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using System.Threading;
 using JetBrains.Annotations;
 using Reusable.Data;
+using Reusable.Extensions;
 using Reusable.Quickey;
 
 namespace Reusable.Translucent
@@ -11,16 +15,34 @@ namespace Reusable.Translucent
     [PlainSelectorFormatter]
     public class Request : IDisposable
     {
-        [NotNull]
         public UriString Uri { get; set; } // = new UriString($"{UriSchemes.Custom.IOnymous}:///");
 
-        [NotNull]
         public Option<RequestMethod> Method { get; set; } = RequestMethod.None;
 
-        [NotNull]
-        public IImmutableContainer Metadata { get; set; } = ImmutableContainer.Empty;
-
         public object? Body { get; set; }
+
+        #region Options
+
+        public string? ControllerId { get; set; }
+
+        public ISet<SoftString>? ControllerTags { get; set; }
+
+        public bool Required { get; set; } = true;
+
+        public TimeSpan MaxAge { get; set; }
+
+        public Encoding Encoding { get; set; } = Encoding.UTF8;
+
+        public CancellationToken CancellationToken { get; set; }
+
+        #endregion
+
+        public static T Create<T>(Option<RequestMethod> method, UriString uri, object? body = default, Action<T>? requestAction = default) where T : Request, new()
+        {
+            var request = new T { Method = method, Uri = uri, Body = body };
+            requestAction?.Invoke(request);
+            return request;
+        }
 
         public void Dispose()
         {
@@ -66,25 +88,14 @@ namespace Reusable.Translucent
         }
 
         #endregion
+    }
 
-        #region Properties
-
-        private static readonly From<Request> This;
-
-        //public static readonly Selector<MimeType> Accept = This.Select(() => Accept);
-        
-        public static readonly Selector<bool> IsOptional = This.Select(() => IsOptional);
-
-        //public static readonly Selector<TimeSpan> CacheTimeout = This.Select(() => CacheTimeout);
-        
-        //public static readonly Selector<bool> IsExternallyOwned = This.Select(() => IsExternallyOwned);
-
-        public static readonly Selector<Encoding> Encoding = This.Select(() => Encoding);
-        
-        public static readonly Selector<CancellationToken> CancellationToken = This.Select(() => CancellationToken);
-        
-        public static readonly Selector<object> HandledBy = This.Select(() => HandledBy);
-
-        #endregion
+    [AttributeUsage(AttributeTargets.Class)]
+    public class SchemeAttribute : Attribute, IEnumerable<SoftString>
+    {
+        private readonly IEnumerable<string> _schemes;
+        public SchemeAttribute(params string[] schemes) => _schemes = schemes.AsEnumerable();
+        public IEnumerator<SoftString> GetEnumerator() => _schemes.Select(s => s.ToSoftString()).GetEnumerator();
+        IEnumerator IEnumerable.GetEnumerator() => _schemes.GetEnumerator();
     }
 }

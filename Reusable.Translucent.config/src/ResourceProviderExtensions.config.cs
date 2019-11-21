@@ -18,7 +18,7 @@ namespace Reusable.Translucent
     {
         public static async Task<object?> ReadSettingAsync(this IResourceRepository resourceRepository, Selector selector, TimeSpan maxAge = default)
         {
-            using var request = ConfigRequestBuilder.CreateRequest(RequestMethod.Get, selector, metadata: ImmutableContainer.Empty.SetItem(Resource.MaxAge, maxAge));
+            using var request = ConfigRequestBuilder.CreateRequest(RequestMethod.Get, selector, default, r => r.MaxAge = maxAge);
             using var response = await resourceRepository.InvokeAsync(request);
             return response.Body;
         }

@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using Reusable.Data;
 using Reusable.Translucent.Controllers;
 
@@ -12,25 +13,25 @@ namespace Reusable.Translucent
         public static IEnumerable<IResourceController> FilterByControllerTags(this IEnumerable<IResourceController> controllers, Request request)
         {
             // The request doesn't specify any tags.
-            if (!request.Metadata.GetItemOrDefault(ResourceController.Tags).Any())
+            if (!request.ControllerTags.Any())
             {
                 return controllers;
             }
 
             return
                 from p in controllers
-                let providerTags = p.Properties.GetItemOrDefault(ResourceController.Tags)
-                where providerTags.Overlaps(request.Metadata.GetItemOrDefault(ResourceController.Tags))
+                let providerTags = p.Tags
+                where providerTags.Overlaps(request.ControllerTags)
                 select p;
         }
 
         public static IEnumerable<IResourceController> FilterByControllerId(this IEnumerable<IResourceController> controllers, Request request)
         {
-            if (request.Metadata.TryGetItem(ResourceController.Id, out var id))
+            if (request.ControllerId is {})
             {
                 return
                     from c in controllers
-                    where c.Properties.GetItemOrDefault(ResourceController.Id)?.Equals(id) == true
+                    where c.Id?.Equals(request.ControllerId) == true
                     select c;
             }
 
@@ -40,11 +41,11 @@ namespace Reusable.Translucent
         public static IEnumerable<IResourceController> FilterByUriScheme(this IEnumerable<IResourceController> controllers, Request request)
         {
             // There is nothing to filter by as the request uses a relative Uri.
-            var schemes = request.Uri.IsAbsolute ? new[] { request.Uri.Scheme } : request.Metadata.GetItem(ResourceController.Schemes).AsEnumerable(); 
+            var schemes = request.Uri.IsAbsolute ? new[] { request.Uri.Scheme }.AsEnumerable() : request.GetType().GetCustomAttribute<SchemeAttribute>();
 
             return
                 from c in controllers
-                where c.Properties.GetItem(ResourceController.Schemes).Overlaps(schemes)
+                where c.Schemes.Overlaps(schemes)
                 select c;
         }
 
@@ -57,7 +58,7 @@ namespace Reusable.Translucent
 
             return
                 from c in controllers
-                where c.SupportsRelativeUri()
+                where c.SupportsRelativeUri
                 select c;
         }
     }

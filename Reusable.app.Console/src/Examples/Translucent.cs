@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Reusable.Data;
 using Reusable.Diagnostics;
+using Reusable.Extensions;
 using Reusable.MarkupBuilder.Html;
 using Reusable.OmniLog;
 using Reusable.OmniLog.Abstractions;
@@ -29,12 +30,6 @@ namespace Reusable
         {
             var resources = ResourceRepository.Create((c, _) => c.AddSmtp());
 
-            var context =
-                ImmutableContainer
-                    .Empty
-                    .SetItem(SmtpRequest.Host, "localhost")
-                    .SetItem(SmtpRequest.Port, 25);
-
             await resources.SendEmailAsync(new Email<EmailSubject, EmailBody>
             {
                 From = "console@test.com",
@@ -44,17 +39,20 @@ namespace Reusable
                 Body = new EmailBody { Value = "<p>I'm fine!</p>" },
                 IsHtml = true,
                 Attachments = new Dictionary<string, byte[]>()
-            }, context);
+            }, smtp =>
+            {
+                smtp.Host = "localhost";
+                smtp.Port = 25;
+            });
         }
 
         public static async Task SendEmailViaMailr()
         {
-            var resources = ResourceRepository.Create((c, _) => c.AddHttp("http://localhost:7000/api", ImmutableContainer.Empty.UpdateItem(ResourceController.Tags, x => x.Add("Mailr"))));
+            var resources = ResourceRepository.Create((c, _) => c.AddHttp(default, "http://localhost:7000/api", http => http.Tags.Add("Mailr")));
 
             await resources.SendEmailAsync
             (
                 "v1.0/mailr/messages/plaintext",
-                new UserAgent("Console", "v12"),
                 new Email.Html
                 {
                     From = "console@test.com",
@@ -64,7 +62,8 @@ namespace Reusable
                     Body = "<p>I'm great!</p>",
                     IsHtml = true,
                     Attachments = new Dictionary<string, byte[]>()
-                }
+                },
+                http => { http.ConfigureHeaders = http.ConfigureHeaders.Then(headers => headers.UserAgent("Console", "v16")); }
             );
         }
     }

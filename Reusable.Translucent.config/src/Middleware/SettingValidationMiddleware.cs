@@ -24,16 +24,18 @@ namespace Reusable.Translucent.Middleware
 
         public async Task InvokeAsync(ResourceContext context)
         {
-            if (context.Request.Method.In(RequestMethod.Post, RequestMethod.Put))
+            var configRequest = context.Request as ConfigRequest;
+            
+            if (context.Request.Method.In(RequestMethod.Post, RequestMethod.Put) && configRequest is {})
             {
-                Validate(context.Request.Uri, context.Request.Body, context.Request.Metadata.GetItemOrDefault(Setting.Validations));
+                Validate(context.Request.Uri, context.Request.Body, configRequest.ValidationAttributes);
             }
 
             await _next(context);
 
-            if (context.Request.Method == RequestMethod.Get)
+            if (context.Request.Method == RequestMethod.Get && configRequest is {})
             {
-                Validate(context.Request.Uri, context.Response.Body, context.Request.Metadata.GetItemOrDefault(Setting.Validations));
+                Validate(context.Request.Uri, context.Response.Body, configRequest.ValidationAttributes);
             }
         }
 

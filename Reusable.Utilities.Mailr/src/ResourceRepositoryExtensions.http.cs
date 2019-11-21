@@ -1,10 +1,8 @@
+using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
-using Reusable.Data;
-using Reusable.Extensions;
 using Reusable.Utilities.Mailr.Models;
 using Reusable.Translucent;
-using Reusable.Translucent.Controllers;
-using Reusable.Translucent.Formatting;
 
 namespace Reusable.Utilities.Mailr
 {
@@ -14,27 +12,16 @@ namespace Reusable.Utilities.Mailr
         (
             this IResourceRepository resourceRepository,
             UriString uri,
-            UserAgent userAgent,
             Email email,
-            string controllerTag = "Mailr"
+            Action<HttpRequest>? requestAction = default
         )
         {
-            var metadata =
-                ImmutableContainer
-                    .Empty
-                    .SetItem(HttpRequest.ConfigureHeaders, headers =>
-                    {
-                        headers
-                            .UserAgent(userAgent.ProductName, userAgent.ProductVersion)
-                            .AcceptHtml();
-                    })
-                    .SetItem(HttpRequest.ContentType, "application/json")
-                    .SetItem(HttpResponse.Formatters, new[] { new TextMediaTypeFormatter() })
-                    .SetItem(HttpResponse.ContentType, "application/json")
-                    .SetItem(ResourceController.Schemes, UriSchemes.Known.Http, UriSchemes.Known.Https)
-                    .UpdateItem(ResourceController.Tags, tags => tags.Add(controllerTag.ToSoftString()));
-
-            using var response = await resourceRepository.PostAsync(uri, email, metadata);
+            using var response = await resourceRepository.HttpInvokeAsync(RequestMethod.Post, uri, email, request =>
+            {
+                request.ControllerTags = new HashSet<SoftString> { "Mailr" };
+                request.ConfigureHeaders = headers => headers.AcceptHtml();
+                requestAction?.Invoke(request);
+            });
             return await response.DeserializeTextAsync();
         }
     }

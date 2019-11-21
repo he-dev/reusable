@@ -13,6 +13,8 @@ namespace Reusable.Translucent
 
         public object? Body { get; set; }
 
+        public bool Cached { get; set; }
+
         public IImmutableContainer Metadata { get; set; } = ImmutableContainer.Empty;
 
         // ReSharper disable once InconsistentNaming
@@ -22,7 +24,7 @@ namespace Reusable.Translucent
 
         public void Dispose()
         {
-            if (Body is Stream stream && Metadata?.GetItemOrDefault(Resource.MaxAge, TimeSpan.Zero) is var maxAge && maxAge == TimeSpan.Zero)
+            if (Body is Stream stream && !Cached)
             {
                 stream.Dispose();
             }
@@ -36,7 +38,7 @@ namespace Reusable.Translucent
 
         public static readonly Selector<DateTime> ModifiedOn = This.Select(() => ModifiedOn);
 
-        public static readonly Selector<string> ActualName = This.Select(() => ActualName);
+        //public static readonly Selector<string> ActualName = This.Select(() => ActualName);
 
         #endregion
     }

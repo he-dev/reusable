@@ -35,7 +35,7 @@ namespace Reusable.Translucent.Middleware
                     {
                         requestUri,
                         statusCode = context.Response.StatusCode,
-                        isOptional = context.Request.Metadata.GetItemOrDefault(Request.IsOptional),
+                        required = context.Request.Required,
                         //exists = context.Response?.Exists()
                     }, "Resource"));
                 }

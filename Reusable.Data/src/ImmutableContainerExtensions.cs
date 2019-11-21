@@ -83,6 +83,11 @@ namespace Reusable.Data
             return container.SetItem(key.ToString(), value(container)!);
         }
         
+        public static IImmutableContainer SetItem<T>(this IImmutableContainer container, Selector<IEnumerable<T>> key, params T[] items)
+        {
+            return container.SetItem(key.ToString(), items);
+        }
+        
         public static IImmutableContainer SetItem<T>(this IImmutableContainer container, Selector<IImmutableList<T>> key, params T[] items)
         {
             return container.SetItem(key.ToString(), ImmutableList.CreateRange(items));

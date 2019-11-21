@@ -17,10 +17,5 @@ namespace Reusable.Translucent
         {
             return builder.UseControllers(controllers.AsEnumerable());
         }
-        
-        public static bool SupportsRelativeUri(this IResourceController resourceController)
-        {
-            return resourceController.Properties.GetItemOrDefault(ResourceController.BaseUri) is {};
-        }
     }
 }

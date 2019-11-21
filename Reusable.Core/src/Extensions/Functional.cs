@@ -46,5 +46,20 @@ namespace Reusable.Extensions
         /// Returns the same value.
         /// </summary>
         public static T Echo<T>(this T value) => value;
+
+        public static Action<T> Then<T>(this Action<T> first, Action<T> second)
+        {
+            return x =>
+            {
+                first(x);
+                second(x);
+            };
+        }
+
+        public static T Configure<T>(this T obj, Action<T>? configure)
+        {
+            configure?.Invoke(obj);
+            return obj;
+        }
     }
 }

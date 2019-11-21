@@ -11,8 +11,7 @@ namespace Reusable.Translucent.Controllers
 {
     public class AppSettingController : ConfigController
     {
-        public AppSettingController(IImmutableContainer? properties = default)
-            : base(properties.ThisOrEmpty().SetItemWhenNotExists(Setting.Converter, TypeConverter.PassThru)) { }
+        public AppSettingController(string? id) : base(id) { }
 
         [ResourceGet]
         public Task<Response> GetSettingAsync(Request request)
@@ -35,7 +34,7 @@ namespace Reusable.Translucent.Controllers
             var exeConfig = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
             var actualKey = FindActualKey(exeConfig, settingIdentifier) ?? settingIdentifier;
             var element = exeConfig.AppSettings.Settings[actualKey];
-            var value = Properties.GetItem(Setting.Converter).Convert(request.Body, typeof(string));
+            var value = Converter.Convert(request.Body, typeof(string));
 
             if (element is null)
             {

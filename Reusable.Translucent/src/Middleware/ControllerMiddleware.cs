@@ -60,7 +60,7 @@ namespace Reusable.Translucent.Middleware
                         {
                             _cache.Set(providerKey, controller);
                             context.Response = response;
-                            response.Metadata = response.Metadata.SetItem(Request.HandledBy, controller);
+                            //response.Metadata = response.Metadata.SetItem(Request.HandledBy, controller);
                             break;
                         }
                     }

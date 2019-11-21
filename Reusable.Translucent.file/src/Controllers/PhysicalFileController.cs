@@ -10,8 +10,12 @@ namespace Reusable.Translucent.Controllers
     [PublicAPI]
     public class PhysicalFileController : ResourceController
     {
-        public PhysicalFileController(string? basePath = default, IImmutableContainer? properties = default)
-            : base(new SoftString[] { UriSchemes.Known.File }, basePath, properties) { }
+        public PhysicalFileController(string? id, string? basePath = default) : base(id, basePath, UriSchemes.Known.File)
+        {
+            BasePath = basePath;
+        }
+
+        public string BasePath { get; }
         
         [ResourceGet]
         public Task<Response> GetFileAsync(Request request)
@@ -54,18 +58,10 @@ namespace Reusable.Translucent.Controllers
             return
                 Path.IsPathRooted(path)
                     ? path
-                    : Properties.TryGetItem(BasePath, out var basePath)
+                    : BasePath is {} basePath
                         ? Path.Combine(basePath, path)
                         : path;
         }
-
-        #region Properties
-
-        private static readonly From<PhysicalFileController>? This;
-
-        public static Selector<string> BasePath { get; } = This.Select(() => BasePath);
-
-        #endregion
     }
 
     //[UseType, UseMember]

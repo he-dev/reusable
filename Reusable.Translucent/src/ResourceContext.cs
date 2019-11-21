@@ -26,9 +26,9 @@ namespace Reusable.Translucent
         /// <summary>
         /// Specifies the maximum amount of time a resource will be considered fresh.
         /// </summary>
-        public static Selector<TimeSpan> MaxAge { get; } = Select(() => MaxAge);
+        //public static Selector<TimeSpan> MaxAge { get; } = Select(() => MaxAge);
 
-        public static Selector<Type> Type { get; } = Select(() => Type);
+        //public static Selector<Type> Type { get; } = Select(() => Type);
 
         #endregion
     }

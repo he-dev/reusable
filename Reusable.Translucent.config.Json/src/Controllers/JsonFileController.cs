@@ -10,14 +10,15 @@ namespace Reusable.Translucent.Controllers
     {
         private readonly IConfiguration _configuration;
 
-        public JsonFileController(string basePath, string fileName, IImmutableContainer? properties = default)
-            : base(properties.ThisOrEmpty().SetItemWhenNotExists(Setting.Converter, new JsonSettingConverter()))
+        public JsonFileController(string? id, string basePath, string fileName) : base(id)
         {
             _configuration =
                 new ConfigurationBuilder()
                     .SetBasePath(basePath)
                     .AddJsonFile(fileName)
                     .Build();
+
+            Converter = new JsonSettingConverter();
         }
 
         [ResourceGet]

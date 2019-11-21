@@ -3,6 +3,7 @@ using System.IO;
 using System.Linq;
 using System.Net.Mime;
 using System.Threading.Tasks;
+using JetBrains.Annotations;
 using MailKit.Net.Smtp;
 using MimeKit;
 using MimeKit.Text;
@@ -15,16 +16,18 @@ namespace Reusable.Translucent.Controllers
 {
     public class SmtpController : MailController
     {
-        public SmtpController(IImmutableContainer properties = default) : base(properties.ThisOrEmpty()) { }
+        public SmtpController(string? id = default) : base(id) { }
 
         [ResourcePost]
         public async Task<Response> SendEmailAsync(Request request)
         {
+            var smtp = (SmtpRequest)request;
+            
             var message = new MimeMessage();
-            message.From.Add(new MailboxAddress(request.Metadata.GetItemOrDefault(From)));
-            message.To.AddRange(request.Metadata.GetItemOrDefault(To).Where(Conditional.IsNotNullOrEmpty).Select(x => new MailboxAddress(x)));
-            message.Cc.AddRange(request.Metadata.GetItemOrDefault(CC, Enumerable.Empty<string>().ToList()).Where(Conditional.IsNotNullOrEmpty).Select(x => new MailboxAddress(x)));
-            message.Subject = request.Metadata.GetItemOrDefault(Subject);
+            message.From.Add(new MailboxAddress(smtp.From));
+            message.To.AddRange(smtp.To.Where(Conditional.IsNotNullOrEmpty).Select(x => new MailboxAddress(x)));
+            message.Cc.AddRange(smtp.CC.Where(Conditional.IsNotNullOrEmpty).Select(x => new MailboxAddress(x)));
+            message.Subject = smtp.Subject;
             var multipart = new Multipart("mixed");
             //            {
             //                new TextPart(request.Properties.GetItemOrDefault(From<IMailMeta>.Select(x => x.IsHtml)) ? TextFormat.Html : TextFormat.Plain)
@@ -35,13 +38,13 @@ namespace Reusable.Translucent.Controllers
 
             using (var body = await request.CreateBodyStreamAsync())
             {
-                multipart.Add(new TextPart(request.Metadata.GetItemOrDefault(IsHtml) ? TextFormat.Html : TextFormat.Plain)
+                multipart.Add(new TextPart(smtp.IsHtml ? TextFormat.Html : TextFormat.Plain)
                 {
-                    Text = await ReadBodyAsync(body, request.Metadata)
+                    Text = await ReadBodyAsync(body, (MailToRequest)request)
                 });
             }
 
-            foreach (var attachment in request.Metadata.GetItemOrDefault(Attachments, new Dictionary<string, byte[]>()).Where(i => i.Key.IsNotNullOrEmpty() && i.Value.IsNotNull()))
+            foreach (var attachment in smtp.Attachments.Where(i => i.Key.IsNotNullOrEmpty() && i.Value is {}))
             {
                 var attachmentPart = new MimePart(MediaTypeNames.Application.Octet)
                 {
@@ -59,9 +62,9 @@ namespace Reusable.Translucent.Controllers
             {
                 await smtpClient.ConnectAsync
                 (
-                    request.Metadata.GetItemOrDefault(SmtpRequest.Host),
-                    request.Metadata.GetItemOrDefault(SmtpRequest.Port),
-                    request.Metadata.GetItemOrDefault(SmtpRequest.UseSsl, false)
+                    smtp.Host,
+                    smtp.Port,
+                    smtp.UseSsl
                 );
                 await smtpClient.SendAsync(message);
             }
@@ -70,18 +73,11 @@ namespace Reusable.Translucent.Controllers
         }
     }
 
-    public class SmtpRequest : Request
+    [PublicAPI]
+    public class SmtpRequest : MailToRequest
     {
-        #region Properties
-
-        private static readonly From<ResourceController> This;
-
-        public static Selector<string> Host { get; } = This.Select(() => Host);
-
-        public static Selector<int> Port { get; } = This.Select(() => Port);
-
-        public static Selector<bool> UseSsl { get; } = This.Select(() => UseSsl);
-
-        #endregion
+        public string Host { get; set; }
+        public int Port { get; set; }
+        public bool UseSsl { get; set; }
     }
 }

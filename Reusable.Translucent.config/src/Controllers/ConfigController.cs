@@ -1,5 +1,6 @@
 using System;
 using Reusable.Data;
+using Reusable.OneTo1;
 using Reusable.Quickey;
 
 namespace Reusable.Translucent.Controllers
@@ -11,8 +12,9 @@ namespace Reusable.Translucent.Controllers
 
         public static readonly string ResourceNameQueryKey = "name";
 
-        protected ConfigController(IImmutableContainer? properties = default)
-            : base(new SoftString[] { Scheme }, default, properties.ThisOrEmpty()) { }
+        protected ConfigController(string id) : base(id, Scheme) { }
+
+        public ITypeConverter Converter { get; set; } = TypeConverter.PassThru;
 
         protected static string GetResourceName(UriString uriString)
         {
@@ -26,20 +28,8 @@ namespace Reusable.Translucent.Controllers
             return new Response
             {
                 StatusCode = ResourceStatusCode.OK,
-                Body = body,
-                Metadata =
-                    ImmutableContainer
-                        .Empty
-                        //.SetItem(Resource.Converter, Properties.GetItem(Resource.Converter))
-                        .SetItem(Response.ActualName, actualName)
-                        .Union(request.Metadata.Copy<Resource>())
+                Body = body
             };
         }
-
-        #region Properties
-
-        private static readonly From<ConfigController> This;
-
-        #endregion
     }
 }

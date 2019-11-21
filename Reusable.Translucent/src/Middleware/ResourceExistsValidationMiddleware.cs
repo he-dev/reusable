@@ -19,17 +19,10 @@ namespace Reusable.Translucent.Middleware
         {
             await _next(context);
 
-            if (context.Response.Exists())
+            if (!context.Response.Exists() && context.Request.Required)
             {
-                return;
+                throw DynamicException.Create("ResourceNotFound", $"Could not find resource '{context.Request.Uri}'.");
             }
-            
-            if (context.Request.Metadata.GetItemOrDefault(Request.IsOptional))
-            {
-                return;
-            }
-
-            throw DynamicException.Create("ResourceNotFound", $"Could not find resource '{context.Request.Uri}'.");
         }
     }
 }

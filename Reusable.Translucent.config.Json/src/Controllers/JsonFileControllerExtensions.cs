@@ -1,3 +1,4 @@
+using System;
 using Reusable.Translucent.Controllers;
 
 // ReSharper disable once CheckNamespace
@@ -5,9 +6,11 @@ namespace Reusable.Translucent
 {
     public static class JsonFileControllerExtensions
     {
-        public static IResourceCollection AddJsonFile(this IResourceCollection controllers, string basePath, string fileName)
+        public static IResourceCollection AddJsonFile(this IResourceCollection controllers, string? id, string basePath, string fileName, Action<JsonFileController>? controllerAction = default)
         {
-            return controllers.Add(new JsonFileController(basePath, fileName));
+            var controller = new JsonFileController(id, basePath, fileName);
+            controllerAction?.Invoke(controller);
+            return controllers.Add(controller);
         }
     }
 }

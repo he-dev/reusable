@@ -20,16 +20,7 @@ namespace Reusable.Translucent.Controllers
     {
         private readonly HttpClient _client;
 
-        public HttpController(HttpClient httpClient, IImmutableContainer? properties = default)
-            : base(
-                new SoftString[]
-                {
-                    UriSchemes.Known.Http,
-                    UriSchemes.Known.Https
-                },
-                httpClient.BaseAddress.ToString(),
-                properties
-            )
+        public HttpController(string? id, HttpClient httpClient) : base(id, UriSchemes.Known.Http, UriSchemes.Known.Https)
         {
             _client = httpClient;
             _client.DefaultRequestHeaders.Clear();
@@ -44,16 +35,18 @@ namespace Reusable.Translucent.Controllers
                 new StringEnumConverter()
             }
         };
+        
+        public Action<HttpRequestHeaders>? ConfigureHeaders { get; set; }
 
         /// <summary>
         /// Create a HttpProvider that doesn't use a proxy for requests.
         /// </summary>
-        public static HttpController FromBaseUri(string baseUri, IImmutableContainer? properties = default)
+        public static HttpController FromBaseUri(string? id, string baseUri)
         {
-            return new HttpController(new HttpClient(new HttpClientHandler { UseProxy = false })
+            return new HttpController(id, new HttpClient(new HttpClientHandler { UseProxy = false })
             {
                 BaseAddress = new Uri(baseUri)
-            }, properties);
+            });
         }
 
         [ResourceGet]
@@ -68,32 +61,29 @@ namespace Reusable.Translucent.Controllers
         [ResourceDelete]
         public async Task<Response> DeleteAsync(Request request) => await InvokeAsync(HttpMethod.Delete, request);
 
-        public async Task<Response> InvokeAsync(HttpMethod httpMethod, Request request)
-        {
-            var uri = Properties.GetItemOrDefault(BaseUri) is var baseUri && baseUri is {} ? baseUri + request.Uri : request.Uri;
-            var (response, contentType) = await InvokeAsync(uri, httpMethod, request.Body, request.Metadata);
-            return OK(response, request.Metadata.SetItem(HttpRequest.ContentType, contentType));
-        }
+        public async Task<Response> InvokeAsync(HttpMethod httpMethod, Request request) => await InvokeAsync(httpMethod, (HttpRequest)request);
 
-        private async Task<(Stream Content, string? ContentType)> InvokeAsync(UriString uri, HttpMethod method, object? body, IImmutableContainer context)
+        private async Task<Response> InvokeAsync(HttpMethod method, HttpRequest request)
         {
-            using (var request = new HttpRequestMessage(method, uri))
-            using (var content = (body is null ? Stream.Null : Serializer.Serialize(body)))
+            var uri = BaseUri is {} baseUri && baseUri is {} ? baseUri + request.Uri : request.Uri;
+            using (var message = new HttpRequestMessage(method, uri))
+            using (var content = (request.Body is {} body ? Serializer.Serialize(body) : Stream.Null))
             {
                 if (content != Stream.Null)
                 {
-                    request.Content = new StreamContent(content.Rewind());
-                    request.Content.Headers.ContentType = new MediaTypeHeaderValue(context.GetItem(HttpRequest.ContentType));
+                    message.Content = new StreamContent(content.Rewind());
+                    message.Content.Headers.ContentType = new MediaTypeHeaderValue(request.ContentType);
                 }
 
-                Properties.GetItemOrDefault(HttpRequest.ConfigureHeaders, _ => { })(request.Headers);
-                context.GetItemOrDefault(HttpRequest.ConfigureHeaders)(request.Headers);
-                using (var response = await _client.SendAsync(request, HttpCompletionOption.ResponseContentRead, context.GetItemOrDefault(Request.CancellationToken)).ConfigureAwait(false))
+                ConfigureHeaders?.Invoke(message.Headers);
+                request.ConfigureHeaders?.Invoke(message.Headers);
+                using (var response = await _client.SendAsync(message, HttpCompletionOption.ResponseContentRead, request.CancellationToken).ConfigureAwait(false))
                 {
                     var responseContentCopy = new MemoryStream();
 
                     if (response.Content.Headers.ContentLength > 0)
                     {
+                        //response.Content.ReadAsAsync()
                         await response.Content.CopyToAsync(responseContentCopy);
                     }
 
@@ -109,7 +99,11 @@ namespace Reusable.Translucent.Controllers
 
                     if (classOfStatusCode is null)
                     {
-                        return (responseContentCopy, response.Content.Headers.ContentType?.MediaType);
+                        return new Response
+                        {
+                            StatusCode = ResourceStatusCode.OK,
+                            //OK(responseContentCopy, response.Content.Headers.ContentType?.MediaType);
+                        };
                     }
 
                     using (var responseReader = new StreamReader(responseContentCopy.Rewind()))
@@ -130,22 +124,22 @@ namespace Reusable.Translucent.Controllers
         }
     }
 
-    // [UseType, UseMember]
-    // [PlainSelectorFormatter]
-    public class HttpRequest : Request // SelectorBuilder<HttpRequestMetadata>
-    {
-        #region Properties
-
-        private static readonly From<HttpRequest>? This;
-
-        public static Selector<Action<HttpRequestHeaders>> ConfigureHeaders { get; } = This.Select(() => ConfigureHeaders);
-
-        public static Selector<MediaTypeFormatter> RequestFormatter { get; } = This.Select(() => RequestFormatter);
-
-        public static Selector<string> ContentType { get; } = This.Select(() => ContentType);
-
-        #endregion
-    }
+//    // [UseType, UseMember]
+//    // [PlainSelectorFormatter]
+//    public class HttpRequest : Request // SelectorBuilder<HttpRequestMetadata>
+//    {
+//        #region Properties
+//
+//        private static readonly From<HttpRequest>? This;
+//
+//        public static Selector<Action<HttpRequestHeaders>> ConfigureHeaders { get; } = This.Select(() => ConfigureHeaders);
+//
+//        public static Selector<MediaTypeFormatter> RequestFormatter { get; } = This.Select(() => RequestFormatter);
+//
+//        public static Selector<string> ContentType { get; } = This.Select(() => ContentType);
+//
+//        #endregion
+//    }
 
     // [UseType, UseMember]
     // [PlainSelectorFormatter]
@@ -155,11 +149,11 @@ namespace Reusable.Translucent.Controllers
 
         private static readonly From<HttpResponse>? This;
 
-        public static Selector<IEnumerable<MediaTypeFormatter>> Formatters { get; } = This.Select(() => Formatters);
+        //public static Selector<IEnumerable<MediaTypeFormatter>> Formatters { get; } = This.Select(() => Formatters);
 
-        public static Selector<Type> ResponseType { get; } = This.Select(() => ResponseType);
+        //public static Selector<Type> ResponseType { get; } = This.Select(() => ResponseType);
 
-        public static Selector<string> ContentType { get; } = This.Select(() => ContentType);
+        //public static Selector<string> ContentType { get; } = This.Select(() => ContentType);
 
         #endregion
     }

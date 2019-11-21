@@ -60,8 +60,8 @@ namespace Reusable.Teapot
                             headers.UserAgent("Teapot", "1.0");
                             headers.AcceptJson();
                         })
-                        .SetItem(HttpRequest.ContentType, "application/json")
-                        .SetItem(HttpResponse.ContentType, "application/json"),
+                        .SetItem(HttpRequest.ContentType, "application/json"),
+                        //.SetItem(HttpResponse.ContentType, "application/json"),
                     Body = new { Greeting = "Hallo" },
                     //CreateBodyStreamCallback = b => ResourceHelper.SerializeAsJsonAsync(b)
                 };

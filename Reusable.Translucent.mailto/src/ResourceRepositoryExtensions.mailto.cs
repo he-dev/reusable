@@ -1,3 +1,5 @@
+using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Reusable.Data;
@@ -13,23 +15,34 @@ namespace Reusable.Translucent
         (
             this IResourceRepository resourceRepository,
             IEmail<IEmailSubject, IEmailBody> email,
-            IImmutableContainer? metadata = default
+            Action<SmtpRequest>? requestAction = default
         )
         {
-            metadata =
-                metadata
-                    .ThisOrEmpty()
-                    .SetItem(MailController.From, email.From)
-                    .SetItem(MailController.To, email.To)
-                    .SetItem(MailController.CC, email.CC)
-                    .SetItem(MailController.Subject, email.Subject.Value)
-                    .SetItem(MailController.Attachments, email.Attachments)
-                    .SetItem(MailController.From, email.From)
-                    .SetItem(MailController.IsHtml, email.IsHtml)
-                    .SetItem(MailController.IsHighPriority, email.IsHighPriority)
-                    .SetItem(ResourceController.Schemes, UriSchemes.Known.MailTo);
-
-            return await resourceRepository.PostAsync($"{UriSchemes.Known.MailTo}:dummy@email.com", email.Body.Value, metadata);
+            return await resourceRepository.PostAsync<SmtpRequest>($"{UriSchemes.Known.MailTo}:dummy@email.com", email.Body.Value, request =>
+            {
+                request.From = email.From;
+                request.To = email.To;
+                request.CC = email.CC;
+                request.Subject = email.Subject.Value;
+                request.Attachments = email.Attachments;
+                request.From = email.From;
+                request.IsHtml = email.IsHtml;
+                request.IsHighPriority = email.IsHighPriority;
+                requestAction?.Invoke(request);
+            });
         }
+    }
+
+    [PublicAPI]
+    [Scheme("mailto")]
+    public abstract class MailToRequest : Request
+    {
+        public string From { get; set; }
+        public List<string> To { get; set; } = new List<string>();
+        public List<string> CC { get; set; } = new List<string>();
+        public string Subject { get; set; }
+        public Dictionary<string, byte[]> Attachments { get; set; } = new Dictionary<string, byte[]>();
+        public bool IsHtml { get; set; }
+        public bool IsHighPriority { get; set; }
     }
 }

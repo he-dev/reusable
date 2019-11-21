@@ -28,7 +28,7 @@ namespace Reusable.Translucent.Middleware
             }
 
             // Only requests with non-zero MaxAge are cacheable.
-            if (context.Request.Metadata.GetItemOrDefault(Resource.MaxAge) is var maxAge && maxAge == TimeSpan.Zero)
+            if (context.Request.MaxAge == TimeSpan.Zero)
             {
                 await _next(context);
                 return;
@@ -42,7 +42,7 @@ namespace Reusable.Translucent.Middleware
             else
             {
                 await _next(context);
-                _memoryCache.Set(key, context.Response, maxAge);
+                _memoryCache.Set(key, context.Response, context.Request.MaxAge);
             }
         }
     }
