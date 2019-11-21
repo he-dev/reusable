@@ -20,7 +20,7 @@ namespace Reusable.Translucent.Controllers
     {
         private readonly HttpClient _client;
 
-        public HttpController(string? id, HttpClient httpClient) : base(id, UriSchemes.Known.Http, UriSchemes.Known.Https)
+        public HttpController(string? id, HttpClient httpClient) : base(id, httpClient.BaseAddress.ToString(), UriSchemes.Known.Http, UriSchemes.Known.Https)
         {
             _client = httpClient;
             _client.DefaultRequestHeaders.Clear();

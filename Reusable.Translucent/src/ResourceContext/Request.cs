@@ -25,7 +25,7 @@ namespace Reusable.Translucent
 
         public string? ControllerId { get; set; }
 
-        public ISet<SoftString>? ControllerTags { get; set; }
+        public ISet<SoftString> ControllerTags { get; set; } = new HashSet<SoftString>();
 
         public bool Required { get; set; } = true;
 

@@ -87,6 +87,7 @@
         <Compile Remove="src\Translucent\RelativeProviderTest.cs" />
         <Compile Remove="src\Translucent\ResourceProviderTest.cs" />
         <Compile Remove="src\Translucent\SmtpProviderTest.cs" />
+        <Compile Remove="src\Translucent\Middleware\ControllerMiddlewareTest.cs" />
         <Compile Remove="src\Flexo\ExpressionTest.cs" />
         <Compile Remove="src\Flexo\ExpressionSerializerTest.cs" />
         <Compile Remove="src\OmniLog\LoggerNodeTest.cs" />

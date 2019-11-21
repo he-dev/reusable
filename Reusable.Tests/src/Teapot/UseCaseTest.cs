@@ -1,6 +1,7 @@
 ﻿using System.Net.Http;
 using System.Threading.Tasks;
 using Reusable.Data;
+using Reusable.Extensions;
 using Reusable.Translucent;
 using Reusable.Translucent.Controllers;
 using Reusable.Utilities.XUnit.Fixtures;
@@ -21,7 +22,7 @@ namespace Reusable.Teapot
         {
             _teapot = teapotServer.GetServer(BaseUri);
             //_http = HttpProvider.FromBaseUri($"{BaseUri}/api");
-            _resources = ResourceRepository.Create((c, _) => c.AddHttp($"{BaseUri}/api"));
+            _resources = ResourceRepository.Create((c, _) => c.AddHttp(default, $"{BaseUri}/api"));
         }
 
         [Fact]
@@ -50,23 +51,17 @@ namespace Reusable.Teapot
                 // conflicting 'response' variables
                 //{
                 // Request made by the application somewhere deep down the rabbit hole
-                var request = new Request.Post("test?param=true")
-                {
-                    Metadata = ImmutableContainer
-                        .Empty
-                        .SetItem(HttpRequest.ConfigureHeaders, headers =>
-                        {
-                            headers.ApiVersion("1.0");
-                            headers.UserAgent("Teapot", "1.0");
-                            headers.AcceptJson();
-                        })
-                        .SetItem(HttpRequest.ContentType, "application/json"),
-                        //.SetItem(HttpResponse.ContentType, "application/json"),
-                    Body = new { Greeting = "Hallo" },
-                    //CreateBodyStreamCallback = b => ResourceHelper.SerializeAsJsonAsync(b)
-                };
 
-                var response = await _resources.InvokeAsync(request);
+                var response = await _resources.HttpInvokeAsync(RequestMethod.Post, "test?param=true", new { Greeting = "Hallo" }, http =>
+                {
+                    http.ConfigureHeaders = http.ConfigureHeaders.Then(headers =>
+                    {
+                        headers.ApiVersion("1.0");
+                        headers.UserAgent("Teapot", "1.0");
+                        headers.AcceptJson();
+                    });
+                    http.ContentType = "application/json";
+                });
 
                 Assert.True(response.Exists());
                 //var original = await response.DeserializeJsonAsync<object>();

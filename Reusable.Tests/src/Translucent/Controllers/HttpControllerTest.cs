@@ -1,6 +1,7 @@
 using System;
 using System.Threading.Tasks;
 using Reusable.Data;
+using Reusable.Extensions;
 using Reusable.Teapot;
 using Reusable.Utilities.Mailr;
 using Reusable.Utilities.Mailr.Models;
@@ -19,7 +20,7 @@ namespace Reusable.Translucent.Controllers
         {
             _serverContext = teapotServerFixture.GetServer("http://localhost:30002").BeginScope();
 
-            _resources = ResourceRepository.Create((c, _) => c.AddHttp("http://localhost:30002/api", ImmutableContainer.Empty.UpdateItem(ResourceController.Tags, tags => tags.Add("Mailr"))));
+            _resources = ResourceRepository.Create((c, _) => c.AddHttp(default, "http://localhost:30002/api", http => http.Tags.Add("Mailr")));
         }
 
         [Fact]
@@ -52,7 +53,11 @@ namespace Reusable.Translucent.Controllers
                 Body = new { Greeting = "Hallo Mailr!" }
             };
 
-            var response = await _resources.SendEmailAsync("mailr/messages/test", new UserAgent("xunit", "1.0"), email, "Mailr");
+            var response = await _resources.SendEmailAsync("mailr/messages/test", email, http =>
+            {
+                http.ConfigureHeaders = http.ConfigureHeaders.Then(headers => headers.UserAgent("xunit", "1.0"));
+                http.ControllerTags.Add("Mailr");
+            });
 
             _serverContext.Assert();
             Assert.Equal("OK!", response);

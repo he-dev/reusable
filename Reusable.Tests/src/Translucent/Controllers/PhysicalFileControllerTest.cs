@@ -7,7 +7,7 @@ namespace Reusable.Translucent.Controllers
 {
     public class PhysicalFileControllerTest
     {
-        private static readonly IResourceRepository Resources = ResourceRepository.Create((c, _) => c.AddPhysicalFile());
+        private static readonly IResourceRepository Resources = ResourceRepository.Create((c, _) => c.AddPhysicalFile(default));
 
         [Fact]
         public async Task Can_handle_file_methods()

@@ -41,7 +41,7 @@ namespace Reusable.Translucent
         public static IEnumerable<IResourceController> FilterByUriScheme(this IEnumerable<IResourceController> controllers, Request request)
         {
             // There is nothing to filter by as the request uses a relative Uri.
-            var schemes = request.Uri.IsAbsolute ? new[] { request.Uri.Scheme }.AsEnumerable() : request.GetType().GetCustomAttribute<SchemeAttribute>();
+            var schemes = request.Uri.IsAbsolute ? new[] { request.Uri.Scheme }.AsEnumerable() : request.GetType().GetCustomAttribute<SchemeAttribute>() ?? Enumerable.Empty<SoftString>();
 
             return
                 from c in controllers

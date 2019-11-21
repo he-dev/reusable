@@ -46,10 +46,10 @@ namespace Reusable.Translucent.Controllers
 
         public UriString? BaseUri { get; }
 
-        public ISet<SoftString> Schemes { get; }
+        public ISet<SoftString> Schemes { get; } 
 
-        public ISet<SoftString> Tags { get; set; }
-        
+        public ISet<SoftString> Tags { get; set; } = new HashSet<SoftString>();
+
         public bool SupportsRelativeUri => BaseUri is {};
 
         // ReSharper disable once InconsistentNaming

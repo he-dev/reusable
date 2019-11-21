@@ -12,7 +12,7 @@ namespace Reusable.Translucent.Controllers
 
         public static readonly string ResourceNameQueryKey = "name";
 
-        protected ConfigController(string id) : base(id, Scheme) { }
+        protected ConfigController(string id) : base(id, default, Scheme) { }
 
         public ITypeConverter Converter { get; set; } = TypeConverter.PassThru;
 
