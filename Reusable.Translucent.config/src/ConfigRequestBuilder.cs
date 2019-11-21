@@ -39,9 +39,14 @@ namespace Reusable.Translucent
                 Method = method,
                 Body = value,
                 SettingType = selector.DataType,
-                ValidationAttributes = selector.Member.GetCustomAttributes<ValidationAttribute>()
+                ValidationAttributes = selector.Member.GetCustomAttributes<ValidationAttribute>(),
             };
-            
+
+            if (resource?.Controller is {} controller)
+            {
+                request.ControllerTags.Add(controller);
+            }
+
             requestAction?.Invoke(request);
 
             return request;

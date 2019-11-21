@@ -15,7 +15,7 @@ namespace Reusable.Translucent
 
         public static IResourceCollection AddEmbeddedFile(this IResourceCollection controllers, string? id, Type assemblyProvider, string? basePath = default)
         {
-            return controllers.Add(new EmbeddedFileController(id, assemblyProvider.Assembly, basePath));
+            return controllers.Add(new EmbeddedFileController(id, basePath, assemblyProvider.Assembly));
         }
 
         public static IResourceCollection AddPhysicalFile(this IResourceCollection controllers, string? id, string? basePath = default)

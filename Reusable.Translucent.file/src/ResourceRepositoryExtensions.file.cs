@@ -55,5 +55,6 @@ namespace Reusable.Translucent
         private static bool IsUnc(string value) => value.StartsWith("//");
     }
 
+    [Scheme("file")]
     public class FileRequest : Request { }
 }

@@ -13,7 +13,7 @@ namespace Reusable.Translucent.Controllers
     {
         private readonly Assembly _assembly;
 
-        public EmbeddedFileController(string? id, Assembly assembly, string basePath) : base(id, basePath, UriSchemes.Known.File)
+        public EmbeddedFileController(string id, string basePath, Assembly assembly) : base(id, basePath, UriSchemes.Known.File)
         {
             _assembly = assembly;
         }
@@ -38,10 +38,10 @@ namespace Reusable.Translucent.Controllers
 
     public class EmbeddedFileController<T> : EmbeddedFileController
     {
-        public static IResourceController Default { get; } = new EmbeddedFileController(default, typeof(T).Assembly, typeof(T).Namespace);
+        public EmbeddedFileController(string? id, string? baseUri = default) : base(id, baseUri ?? typeof(T).Namespace, typeof(T).Assembly) { }
 
-        public static IResourceController Create(string? id, string basePath) => new EmbeddedFileController(id, typeof(T).Assembly, basePath);
+        public static IResourceController Default { get; } = new EmbeddedFileController(default, typeof(T).Namespace, typeof(T).Assembly);
 
-        public EmbeddedFileController(string? id, string? baseUri = default) : base(id, typeof(T).Assembly, baseUri ?? typeof(T).Namespace) { }
+        public static IResourceController Create(string? id, string basePath) => new EmbeddedFileController(id, basePath, typeof(T).Assembly);
     }
 }
