@@ -10,6 +10,8 @@ namespace Reusable.Translucent
 
     public class ResourceCollection : List<IResourceController>, IResourceCollection
     {
+        public ResourceCollection(params IResourceController[] controllers) : base(controllers) { }
+
         public IResourceCollection Add<T>(T controller) where T : IResourceController
         {
             base.Add(controller);

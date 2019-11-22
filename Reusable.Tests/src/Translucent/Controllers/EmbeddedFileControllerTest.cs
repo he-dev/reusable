@@ -1,18 +1,18 @@
 using System.Threading.Tasks;
+using Reusable.Translucent.Middleware;
 using Xunit;
 
-namespace Reusable.IOnymous
+namespace Reusable.Translucent.Controllers
 {
-    public class EmbeddedFileProviderTest
+    public class EmbeddedFileControllerTest
     {
         [Fact]
         public async Task Can_get_embedded_file()
         {
-            //var provider = new EmbeddedFileProvider(typeof(EmbeddedFileProviderTest).Assembly, "Reusable");
+            var c = new EmbeddedFileController(default, "Reusable", typeof(EmbeddedFileControllerTest).Assembly);
+            using var file = await c.GetFileAsync(Request.CreateGet<FileRequest>(@"res\translucent\test.txt"));
 
-            var file = await TestHelper.Resources.GetFileAsync(@"ionymous\test.txt", MimeType.Plain);
-
-            Assert.True(file.Exists);
+            Assert.True(file.Exists());
             Assert.Equal("Hallo!", await file.DeserializeTextAsync());
         }
 
