@@ -1,7 +1,5 @@
 using System;
 using System.Threading.Tasks;
-using Reusable.Data;
-using Reusable.Extensions;
 using Reusable.Teapot;
 using Reusable.Utilities.Mailr;
 using Reusable.Utilities.Mailr.Models;
@@ -10,29 +8,24 @@ using Xunit;
 
 namespace Reusable.Translucent.Controllers
 {
-    public class HttpControllerTest : IDisposable, IClassFixture<TeapotServerFixture>
+    public class HttpControllerTest : IClassFixture<TeapotServerFixture>
     {
-        private readonly ITeapotServerContext _serverContext;
-
-        private readonly IResourceRepository _resources;
-
-        public HttpControllerTest(TeapotServerFixture teapotServerFixture)
-        {
-            _serverContext = teapotServerFixture.GetServer("http://localhost:30002").BeginScope();
-
-            _resources = ResourceRepository.Create((c, _) => c.AddHttp(default, "http://localhost:30002/api", http => http.Tags.Add("Mailr")));
-        }
+        private readonly TeapotServerFixture _teapotServerFixture;
+        
+        public HttpControllerTest(TeapotServerFixture teapotServerFixture) => _teapotServerFixture = teapotServerFixture;
 
         [Fact]
         public async Task Can_send_email_and_receive_html()
         {
-            _serverContext
+            using var serverContext = _teapotServerFixture.GetServer("http://localhost:30002").BeginScope();
+            
+            serverContext
                 .MockPost("/api/mailr/messages/test", request =>
                 {
                     request
                         .AcceptsHtml()
-                        .AsUserAgent("xunit", "1.0")
-                        .WithContentTypeJson(content =>
+                        .UserAgentIs("xunit", "1.0")
+                        .ContentTypeIsJsonWhere(content =>
                         {
                             content
                                 .HasProperty("$.To")
@@ -53,19 +46,15 @@ namespace Reusable.Translucent.Controllers
                 Body = new { Greeting = "Hallo Mailr!" }
             };
 
-            var response = await _resources.SendEmailAsync("mailr/messages/test", email, http =>
+            var resources = ResourceRepository.Create((c, _) => c.AddHttp(default, "http://localhost:30002/api", http => http.Tags.Add("Mailr")));
+            var response = await resources.SendEmailAsync("mailr/messages/test", email, http =>
             {
                 http.HeaderActions.Add(headers => headers.UserAgent("xunit", "1.0"));
                 http.ControllerTags.Add("Mailr");
             });
 
-            _serverContext.Assert();
+            serverContext.Assert();
             Assert.Equal("OK!", response);
-        }
-
-        public void Dispose()
-        {
-            _serverContext.Dispose();
         }
     }
 

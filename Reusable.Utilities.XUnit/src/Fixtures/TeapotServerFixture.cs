@@ -10,17 +10,9 @@ namespace Reusable.Utilities.XUnit.Fixtures
     {
         private readonly ConcurrentDictionary<string, TeapotServer> _servers;
 
-        public TeapotServerFixture()
-        {
-            _servers = new ConcurrentDictionary<string, TeapotServer>();
-        }
+        public TeapotServerFixture() => _servers = new ConcurrentDictionary<string, TeapotServer>();
 
-        public TeapotServer GetServer([NotNull] string url)
-        {
-            if (url == null) throw new ArgumentNullException(nameof(url));
-            
-            return _servers.GetOrAdd(url, u => new TeapotServer(u));
-        }
+        public TeapotServer GetServer(string url) => _servers.GetOrAdd(url, u => new TeapotServer(u));
 
         public void Dispose()
         {

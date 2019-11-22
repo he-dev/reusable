@@ -1,5 +1,3 @@
-using System.Collections.Immutable;
-using Reusable.Beaver;
 using Xunit;
 
 namespace Reusable.Data

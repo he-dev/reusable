@@ -1,8 +1,6 @@
 using System.Linq;
-using Reusable.Data;
 using Reusable.Quickey;
 using Reusable.Translucent.Annotations;
-using Reusable.Translucent.Controllers;
 using Xunit;
 
 namespace Reusable.Translucent.config

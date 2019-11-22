@@ -1,5 +1,4 @@
 ﻿using System;
-using Reusable.Beaver;
 using Xunit;
 
 // ReSharper disable once CheckNamespace

@@ -16,7 +16,7 @@ namespace Reusable.Translucent.Middleware
 
         public async Task InvokeAsync(ResourceContext context)
         {
-            if (context.Request.Uri.Scheme.Equals("file"))
+            if (context.Request is FileRequest)
             {
                 context.Request.Uri = Resolve(context.Request);
             }

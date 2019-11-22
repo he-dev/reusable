@@ -6,7 +6,6 @@ using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
 using JetBrains.Annotations;
-using Reusable.Extensions;
 using Xunit;
 
 namespace Reusable.Experimental.TokenizerV3

@@ -4,12 +4,10 @@ using System.Collections.Generic;
 using System.Linq;
 using Autofac;
 using JetBrains.Annotations;
-using Reusable.Extensions;
 using Reusable.Flexo.Abstractions;
 using Reusable.OmniLog;
 using Reusable.Translucent;
 using Reusable.Utilities.JsonNet.DependencyInjection;
-using Xunit.Abstractions;
 
 namespace Reusable.Flexo
 {

@@ -66,7 +66,7 @@ namespace Reusable.Teapot
 
         public static IRequestBuilder WithContentType(this IRequestBuilder builder, string mediaType) => builder.WithHeader("Content-Type", mediaType);
 
-        public static IRequestBuilder WithContentTypeJson(this IRequestBuilder builder, Action<ContentSection<JToken>> contentAssert)
+        public static IRequestBuilder ContentTypeIsJsonWhere(this IRequestBuilder builder, Action<ContentSection<JToken>> contentAssert)
         {
             return builder.Add(request =>
             {
@@ -75,7 +75,7 @@ namespace Reusable.Teapot
             }, false);
         }
 
-        public static IRequestBuilder AsUserAgent(this IRequestBuilder builder, string product, string version) => builder.WithHeader("User-Agent", $"{product}/{version}");
+        public static IRequestBuilder UserAgentIs(this IRequestBuilder builder, string product, string version) => builder.WithHeader("User-Agent", $"{product}/{version}");
 
         public static IRequestBuilder Accepts(this IRequestBuilder builder, string mediaType) => builder.WithHeader("Accept", mediaType);
 

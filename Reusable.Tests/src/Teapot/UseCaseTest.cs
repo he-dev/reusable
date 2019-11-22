@@ -1,9 +1,6 @@
 ﻿using System.Net.Http;
 using System.Threading.Tasks;
-using Reusable.Data;
-using Reusable.Extensions;
 using Reusable.Translucent;
-using Reusable.Translucent.Controllers;
 using Reusable.Utilities.XUnit.Fixtures;
 using Xunit;
 
@@ -35,10 +32,10 @@ namespace Reusable.Teapot
                     .ArrangeRequest(builder =>
                     {
                         builder
-                            .AsUserAgent("Teapot", "1.0")
+                            .UserAgentIs("Teapot", "1.0")
                             .AcceptsJson()
                             .WithApiVersion("1.0")
-                            .WithContentTypeJson(content => { content.HasProperty("$.Greeting"); })
+                            .ContentTypeIsJsonWhere(content => { content.HasProperty("$.Greeting"); })
                             .Occurs(1);
                     })
                     .ArrangeResponse(builder =>

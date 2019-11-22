@@ -1,5 +1,4 @@
 using System.Threading.Tasks;
-using Reusable.Translucent.Middleware;
 using Xunit;
 
 namespace Reusable.Translucent.Controllers

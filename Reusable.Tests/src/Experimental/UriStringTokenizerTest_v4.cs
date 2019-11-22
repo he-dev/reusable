@@ -2,12 +2,10 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
-using System.Linq.Custom;
 using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
 using JetBrains.Annotations;
-using Reusable.Extensions;
 using Xunit;
 
 namespace Reusable.Experimental.TokenizerV4
