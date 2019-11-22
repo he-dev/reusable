@@ -53,7 +53,7 @@ namespace Reusable.Commander
                                 switch (!Escapables.Contains(c))
                                 {
                                     case true:
-                                        // Eat escape-char becasue it doesn't escape any valid char.
+                                        // Eat escape-char because it doesn't escape any valid char.
                                         token.Append("\\");
                                         break;
                                 }
