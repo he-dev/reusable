@@ -12,7 +12,7 @@ namespace Reusable.Flexo.Abstractions
 
         public static IExpression Create(string id, Func<IImmutableContainer, TResult> invokeAsValue)
         {
-            return new Lambda(id, invokeAsValue);
+            return new Lambda(id!, invokeAsValue);
         }
 
         protected override IConstant ComputeConstant(IImmutableContainer context)
@@ -22,7 +22,7 @@ namespace Reusable.Flexo.Abstractions
 
         protected virtual Constant<TResult> ComputeConstantGeneric(IImmutableContainer context)
         {
-            return Constant.FromValue(Id, ComputeValue(context), context);
+            return Constant.FromValue(Id.ToString(), ComputeValue(context), context);
         }
 
         protected virtual TResult ComputeValue(IImmutableContainer context)

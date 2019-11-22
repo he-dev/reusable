@@ -151,7 +151,7 @@ namespace Reusable.OmniLog
         {
             logger.Log(log =>
             {
-                log.Add<Copy>(context.Name, context);
+                log.Add<Copy>(context.Name!, context);
                 log.Add<Log>(LogEntry.Names.CallerMemberName, callerMemberName);
                 log.Add<Log>(LogEntry.Names.CallerLineNumber, callerLineNumber);
                 log.Add<Log>(LogEntry.Names.CallerFilePath, Path.GetFileName(callerFilePath));

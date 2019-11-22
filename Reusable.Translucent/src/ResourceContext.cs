@@ -5,9 +5,9 @@ namespace Reusable.Translucent
 {
     public class ResourceContext
     {
-        public Request Request { get; set; }
+        public Request Request { get; set; } = default!;
 
-        public Response Response { get; set; }
+        public Response Response { get; set; } = default!;
     }
 
     public delegate Task<Stream> CreateBodyStreamDelegate();

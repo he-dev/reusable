@@ -13,7 +13,7 @@ namespace Reusable.Translucent
 
         //public MediaTypeFormatter? RequestFormatter { get; set; }
 
-        public string ContentType { get; set; }
+        public string ContentType { get; set; } = default!;
 
         public class Json : HttpRequest
         {

@@ -211,10 +211,10 @@ namespace Reusable.IO
     {
         public static void Deconstruct
         (
-            [CanBeNull] this IDirectoryTreeNode directoryTreeNode,
-            [CanBeNull] out string directoryName,
-            [CanBeNull] out IEnumerable<string> directoryNames,
-            [CanBeNull] out IEnumerable<string> fileNames
+            this IDirectoryTreeNode? directoryTreeNode,
+            out string? directoryName,
+            out IEnumerable<string>? directoryNames,
+            out IEnumerable<string>? fileNames
         )
         {
             directoryName = directoryTreeNode?.DirectoryName;

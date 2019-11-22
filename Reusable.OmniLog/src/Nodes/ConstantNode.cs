@@ -14,7 +14,7 @@ namespace Reusable.OmniLog.Nodes
         {
             foreach (var (key, value) in Values.Select(x => (x.Key, x.Value)))
             {
-                request.Add<Log>(key, value);
+                request.Add<Log>(key!, value);
             }
 
             invokeNext(request);

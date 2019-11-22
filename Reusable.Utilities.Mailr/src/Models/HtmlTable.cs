@@ -60,11 +60,11 @@ namespace Reusable.Utilities.Mailr.Models
 
     public class HtmlTableColumn
     {
-        public SoftString Name { get; internal set; }
+        public SoftString? Name { get; internal set; }
 
         public int Ordinal { get; internal set; }
 
-        public Type Type { get; internal set; }
+        public Type? Type { get; internal set; }
 
         internal static HtmlTableColumn Create<T>(SoftString name) => new HtmlTableColumn
         {

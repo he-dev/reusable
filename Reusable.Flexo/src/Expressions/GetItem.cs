@@ -41,7 +41,7 @@ namespace Reusable.Flexo
                 // Since scopes can be nested, we need to search for the path in all of them until there's a hit.
                 var query =
                     from item in context.FindItems<object>(itemKey)
-                    let obj = names.Skip(1).Aggregate(item, GetMemberValue)
+                    let obj = names.Skip(1).Aggregate<string, object?>(item, GetMemberValue)
                     where obj is { }
                     select obj;
 

@@ -9,7 +9,7 @@ namespace Reusable.OmniLog.Nodes
     // Reroutes items from one property to the other: Meta#Dump --> Snapshot#Dump 
     public class RenameNode : LoggerNode
     {
-        public Dictionary<string, string> Mappings { get; set; } = new Dictionary<string, string>();
+        public Dictionary<SoftString, string> Mappings { get; set; } = new Dictionary<SoftString, string>();
 
         protected override void invoke(LogEntry request)
         {
@@ -17,8 +17,8 @@ namespace Reusable.OmniLog.Nodes
             {
                 if (request.TryGetProperty<Log>(key, out var property))
                 {
-                    request.Add<Delete>(key, default);
-                    request.Add<Log>(value, property.Value);
+                    request.Add<Delete>(key!, default);
+                    request.Add<Log>(value!, property.Value);
                 }
             }
 

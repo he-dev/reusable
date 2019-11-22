@@ -7,6 +7,6 @@ namespace Reusable.Translucent.Annotations
     [AttributeUsage(AttributeTargets.Class | AttributeTargets.Interface | AttributeTargets.Property)]
     public class SettingAttribute : Attribute
     {
-        public string Controller { get; set; }
+        public string? Controller { get; set; }
     }
 }

@@ -28,14 +28,8 @@ namespace Reusable.Flexo.Json
             {
                 _index = 0;
                 var jToken = JObject.Load(reader);
-                var typeName = (string?)jToken.SelectToken("$.$type");
-
-                if (typeName is null)
-                {
-                    throw DynamicException.Create("TypePropertyNotFound", $"Could not find '$type' property on '{jToken}'.");
-                }
-
-                var actualType = Type.GetType(typeName);
+                var typeName = (string?)jToken.SelectToken("$.$type") ?? throw DynamicException.Create("TypePropertyNotFound", $"Could not find '$type' property on '{jToken}'.");
+                var actualType = Type.GetType(typeName) ?? throw DynamicException.Create("TypeNotFound", $"Could not find type '{typeName}'.");
                 return jToken.ToObject(actualType, serializer);
             }
             else
@@ -50,7 +44,7 @@ namespace Reusable.Flexo.Json
             }
         }
 
-        private static string GetParentName(JContainer jContainer)
+        private static string GetParentName(JContainer? jContainer)
         {
             return jContainer switch
             {
@@ -66,7 +60,7 @@ namespace Reusable.Flexo.Json
             {
                 double d => (IConstant)new Double(name, d),
                 bool b => (IConstant)Constant.FromValue(name, b),
-                {} x => (IConstant)Activator.CreateInstance(MakeGenericConstant(x), name.ToSoftString(), x, default),
+                {} x => (IConstant)Activator.CreateInstance(MakeGenericConstant(x), name, x, default),
                 _ => throw new InvalidOperationException($"{name} must not be null.")
             };
 

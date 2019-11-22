@@ -30,17 +30,17 @@ namespace Reusable.Translucent.Models
         where TSubject : IEmailSubject
         where TBody : IEmailBody
     {
-        public string From { get; set; }
+        public string From { get; set; } = default!;
 
         public List<string> To { get; set; } = new List<string>();
 
         public List<string> CC { get; set; } = new List<string>();
 
-        public TSubject Subject { get; set; }
+        public TSubject Subject { get; set; } = default!;
 
         public Dictionary<string, byte[]> Attachments { get; set; } = new Dictionary<string, byte[]>();
 
-        public TBody Body { get; set; }
+        public TBody Body { get; set; } = default!;
 
         public bool IsHtml { get; set; }
 

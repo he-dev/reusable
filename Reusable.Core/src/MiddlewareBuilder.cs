@@ -28,7 +28,7 @@ namespace Reusable
 
         public RequestDelegate<TContext> Build<TContext>()
         {
-            var previous = default(object);
+            var previous = default(object?);
             while (_middleware.Any())
             {
                 var current = _middleware.Pop();
@@ -57,7 +57,7 @@ namespace Reusable
 
 
         // Using this helper to "catch" the "previous" middleware before it goes out of scope and is overwritten by the loop.
-        private RequestDelegate<TContext> CreateNext<TContext>(object middleware)
+        private RequestDelegate<TContext> CreateNext<TContext>(object? middleware)
         {
             // This is the last last middleware and there is nowhere to go from here.
             if (middleware is null)

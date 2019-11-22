@@ -99,12 +99,12 @@ namespace System.Linq.Custom
 
         public static IEnumerable<string> QuoteAllWith<T>(this IEnumerable<T> values, string quotationMark)
         {
-            return values.Select(x => x?.ToString().QuoteWith(quotationMark));
+            return values.Select(x => (x?.ToString() ?? string.Empty).QuoteWith(quotationMark));
         }
 
         public static IEnumerable<string> QuoteAllWith<T>(this IEnumerable<T> values, char quotationMark)
         {
-            return values.Select(x => x?.ToString().QuoteWith(quotationMark));
+            return values.Select(x => (x?.ToString() ?? string.Empty).QuoteWith(quotationMark));
         }
 
         [NotNull, ItemCanBeNull, ContractAnnotation("values: null => halt")]
@@ -212,7 +212,7 @@ namespace System.Linq.Custom
             return x => filters.Any(f => f(x));
         }
 
-        public static T SingleOrThrow<T>([NotNull] this IEnumerable<T> source, Func<Exception> onEmpty = null, Func<Exception> onMany = null)
+        public static T SingleOrThrow<T>([NotNull] this IEnumerable<T> source, Func<Exception>? onEmpty = null, Func<Exception>? onMany = null)
         {
             //return source.SingleOrThrow(_ => true, onEmpty, onMultiple);
 
@@ -307,18 +307,13 @@ namespace System.Linq.Custom
 
         public static bool In<T>([CanBeNull] this T value, [NotNull] IEnumerable<T> others, [NotNull] IEqualityComparer<T> comparer)
         {
-            if (others == null) throw new ArgumentNullException(nameof(others));
-            if (comparer == null) throw new ArgumentNullException(nameof(comparer));
-
             return others.Contains(value, comparer);
         }
 
         [NotNull, ItemCanBeNull]
-        public static IEnumerable<T> Shuffle<T>([NotNull, ItemCanBeNull] this IEnumerable<T> source, [CanBeNull] Random random = null)
+        public static IEnumerable<T> Shuffle<T>([ItemCanBeNull] this IEnumerable<T> source, Random? random = null)
         {
-            if (source == null) throw new ArgumentNullException(nameof(source));
-
-            random = random ?? new Random((int)DateTime.UtcNow.Ticks);
+            random ??= new Random((int)DateTime.UtcNow.Ticks);
 
             // https://stackoverflow.com/a/1287572/235671
             // https://stackoverflow.com/a/1665080/235671

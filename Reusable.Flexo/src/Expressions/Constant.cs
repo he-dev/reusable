@@ -25,9 +25,9 @@ namespace Reusable.Flexo
 
     public class Constant<TValue> : Expression<TValue>, IConstant, IConstant<TValue>, IEquatable<Constant<TValue>>
     {
-        public Constant(SoftString id, TValue value, IImmutableContainer? context = default) : base(default)
+        public Constant(string id, TValue value, IImmutableContainer? context = default) : base(default)
         {
-            Id = id;
+            Id = id!;
             Value = value;
             Context = context;
         }
@@ -41,7 +41,7 @@ namespace Reusable.Flexo
 
         protected override Constant<TValue> ComputeConstantGeneric(IImmutableContainer context)
         {
-            return (Id, Value, context);
+            return (Id.ToString(), Value, context);
         }
 
         public void Deconstruct(out SoftString name, out TValue value, out IImmutableContainer? context)
@@ -53,9 +53,9 @@ namespace Reusable.Flexo
 
         public override string ToString() => $"{Id}: '{Value}'";
 
-        public static implicit operator Constant<TValue>((SoftString Id, TValue Value) t) => new Constant<TValue>(t.Id, t.Value);
+        public static implicit operator Constant<TValue>((string Id, TValue Value) t) => new Constant<TValue>(t.Id, t.Value);
 
-        public static implicit operator Constant<TValue>((SoftString Id, TValue Value, IImmutableContainer Context) t) => new Constant<TValue>(t.Id, t.Value, t.Context);
+        public static implicit operator Constant<TValue>((string Id, TValue Value, IImmutableContainer Context) t) => new Constant<TValue>(t.Id, t.Value, t.Context);
 
         public static implicit operator TValue(Constant<TValue> constant) => constant.Value;
 
@@ -88,7 +88,7 @@ namespace Reusable.Flexo
         private static volatile int _counter;
 
         [NotNull]
-        public static Constant<TValue> FromValue<TValue>(SoftString name, TValue value, IImmutableContainer? context = default)
+        public static Constant<TValue> FromValue<TValue>(string name, TValue value, IImmutableContainer? context = default)
         {
             return new Constant<TValue>(name, value, context);
         }
@@ -111,7 +111,7 @@ namespace Reusable.Flexo
             return values.Select((x, i) => FromValue($"{x?.ToString()}[{i}]"));
         }
 
-        public static Constant<IEnumerable<IExpression>> FromEnumerable(SoftString name, IEnumerable<object> values, IImmutableContainer? context = default)
+        public static Constant<IEnumerable<IExpression>> FromEnumerable(string name, IEnumerable<object> values, IImmutableContainer? context = default)
         {
             return FromValue(name, values.Select((x, i) => x is IConstant constant ? constant : FromValue($"{name}.Items[{i}]", x)).ToList().Cast<IExpression>(), context);
         }

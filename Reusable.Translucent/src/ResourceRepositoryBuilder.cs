@@ -11,9 +11,9 @@ namespace Reusable.Translucent
 {
     public class ResourceRepositoryBuilder
     {
-        private object? _setup;
-        private MethodInfo? _configureResourcesMethod;
-        private MethodInfo? _configurePipelineMethod;
+        private object _setup;
+        private MethodInfo _configureResourcesMethod;
+        private MethodInfo _configurePipelineMethod;
 
         public static ResourceRepositoryBuilder Empty => new ResourceRepositoryBuilder();
 

@@ -10,9 +10,9 @@ namespace Reusable.Extensions
 {
     public static class StringExtensions
     {
-        public static string NullIfEmpty(this string value) => string.IsNullOrEmpty(value) ? null : value;
+        public static string? NullIfEmpty(this string? value) => string.IsNullOrEmpty(value) ? null : value;
 
-        public static string NullIfWhitespace(this string value) => string.IsNullOrWhiteSpace(value) ? null : value;        
+        public static string? NullIfWhitespace(this string? value) => string.IsNullOrWhiteSpace(value) ? null : value;
 
         public static bool IsInteger(this string value) => int.TryParse(value, out var x);
 
@@ -24,7 +24,7 @@ namespace Reusable.Extensions
         public static string QuoteWith(this string value, char quotationMark)
         {
             return value.QuoteWith(quotationMark.ToString());
-        }       
+        }
 
         public static string EncloseWith(this string value, string left, string right, int padding = 0)
         {
@@ -44,17 +44,17 @@ namespace Reusable.Extensions
 
         public static string Stringify<T>(this T obj)
         {
-            return obj?.ToString().QuoteWith("'");
+            return obj?.ToString().QuoteWith("'") ?? string.Empty;
         }
-        
+
         [ContractAnnotation("text: null => halt")]
         public static string CapitalizeFirstLetter([NotNull] this string text)
         {
             if (text == null) throw new ArgumentNullException(nameof(text));
-            
+
             return Regex.Replace(text, "^[a-z]", m => m.Value.ToUpper());
         }
-        
+
         public static IEnumerable<string> SplitByLineBreaks([NotNull] this string text, bool ignoreEmptyEntries = true)
         {
             if (text == null) throw new ArgumentNullException(nameof(text));
@@ -70,11 +70,11 @@ namespace Reusable.Extensions
             return value.IndexOf(other, comparisonType) >= 0;
         }
 
-        [CanBeNull, ContractAnnotation("value: null => null; value: notnull => notnull")]
-        public static SoftString ToSoftString(this string value) => value is null ? null : SoftString.Create(value);
+        [ContractAnnotation("value: null => null; notnull => notnull")]
+        public static SoftString? ToSoftString(this string? value) => value is {} ? SoftString.Create(value) : default;
 
         [NotNull, ContractAnnotation("value: null => halt; encoding: null => halt")]
-        public static StreamReader ToStreamReader([NotNull] this string value, [NotNull] Encoding encoding)
+        public static StreamReader ToStreamReader(this string value, [NotNull] Encoding encoding)
         {
             if (value == null) throw new ArgumentNullException(nameof(value));
             if (encoding == null) throw new ArgumentNullException(nameof(encoding));
@@ -89,12 +89,10 @@ namespace Reusable.Extensions
 
             return value.ToStreamReader(Encoding.UTF8);
         }
-        
-        [NotNull, ContractAnnotation("value: null => halt; value: notnull => notnull")]
-        public static Stream ToStream([NotNull] this string value, Encoding encoding = default)
-        {
-            if (value == null) throw new ArgumentNullException(nameof(value));
 
+        [NotNull, ContractAnnotation("value: null => halt; value: notnull => notnull")]
+        public static Stream ToStream(this string value, Encoding? encoding = default)
+        {
             return new MemoryStream((encoding ?? Encoding.UTF8).GetBytes(value));
         }
     }

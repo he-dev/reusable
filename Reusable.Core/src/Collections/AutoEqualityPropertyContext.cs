@@ -5,12 +5,12 @@ namespace Reusable.Collections
 {
     internal class AutoEqualityPropertyContext
     {
-        public PropertyInfo Property { get; set; }
+        public PropertyInfo Property { get; set; } = default!;
 
-        public AutoEqualityPropertyAttribute Attribute { get; set; }
+        public AutoEqualityPropertyAttribute Attribute { get; set; } = default!;
 
-        public Expression LeftParameter { get; set; }
+        public Expression LeftParameter { get; set; } = default!;
 
-        public Expression RightParameter { get; set; }
+        public Expression RightParameter { get; set; } = default!;
     }
 }

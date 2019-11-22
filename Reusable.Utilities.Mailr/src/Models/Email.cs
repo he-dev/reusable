@@ -7,7 +7,7 @@ namespace Reusable.Utilities.Mailr.Models
     [PublicAPI]
     public class Email
     {
-        public string From { get; set; }
+        public string From { get; set; } = default!;
 
         public List<string> To { get; set; } = new List<string>();
 
@@ -15,18 +15,18 @@ namespace Reusable.Utilities.Mailr.Models
 
         public bool IsHighPriority { get; set; }
 
-        public string Subject { get; set; }
+        public string Subject { get; set; } = default!;
 
-        public Dictionary<string, byte[]> Attachments { get; set; }
+        public Dictionary<string, byte[]> Attachments { get; set; } = new Dictionary<string, byte[]>();
 
-        public object Body { get; set; }
+        public object Body { get; set; } = default!;
 
         public bool IsHtml { get; set; }
 
-        public string Theme { get; set; }
+        public string Theme { get; set; } = default!;
 
         public bool CanSend { get; set; } = true;
-        
+
         public class Html : Email
         {
             public Html()

@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Text.RegularExpressions;
 using JetBrains.Annotations;
+using Reusable.Extensions;
 
 namespace Reusable
 {
@@ -36,9 +37,9 @@ namespace Reusable
         [NotNull]
         public static SoftString Create(string value) => new SoftString(value);
 
-        public bool StartsWith(string value) => _value.StartsWith((string)(SoftString)value, StringComparison.OrdinalIgnoreCase);
+        public bool StartsWith(string value) => _value.StartsWith(value.ToSoftString()!.ToString(), StringComparison.OrdinalIgnoreCase);
 
-        public bool EndsWith(string value) => _value.EndsWith((string)(SoftString)value, StringComparison.OrdinalIgnoreCase);
+        public bool EndsWith(string value) => _value.EndsWith(value.ToSoftString()!.ToString(), StringComparison.OrdinalIgnoreCase);
 
         public bool IsMatch([RegexPattern] string pattern, RegexOptions options = RegexOptions.None)
         {

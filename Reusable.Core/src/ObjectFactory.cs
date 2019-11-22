@@ -12,7 +12,7 @@ namespace Reusable
     {
         private static readonly ConcurrentDictionary<Type, Type> TypeCache = new ConcurrentDictionary<Type, Type>();
 
-        public static T CreateInstance<T>(Action<T> initializeAction = null)
+        public static T CreateInstance<T>(Action<T>? initializeAction = null)
         {
             if (!typeof(T).IsInterface) throw new ArgumentException($"Type {typeof(T).Name} must be an interface.");
             var newType = TypeCache.GetOrAdd(typeof(T), t => BuildType(typeof(T)));

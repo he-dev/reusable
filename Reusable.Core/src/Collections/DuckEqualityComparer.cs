@@ -101,7 +101,7 @@ namespace Reusable.Collections
 
         public DuckEqualityComparerBuilder<TX, TY> Compare<T>(Expression<Func<TX, T>> getValueX, Expression<Func<TY, T>> getValueY, IEqualityComparer<T> comparer = null)
         {
-            comparer = comparer ?? EqualityComparer<T>.Default;
+            comparer ??= EqualityComparer<T>.Default;
 
             // comparer.Equals(getValueX(x), getValueY(y));
             var equalsFunc = (Expression<Func<T, T, bool>>)((x, y) => comparer.Equals(x, y));

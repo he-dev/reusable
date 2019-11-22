@@ -74,7 +74,7 @@ namespace Reusable.Translucent.Controllers
     [PublicAPI]
     public class SmtpRequest : MailToRequest
     {
-        public string Host { get; set; }
+        public string Host { get; set; } = default!;
         public int Port { get; set; }
         public bool UseSsl { get; set; }
     }

@@ -18,7 +18,7 @@ namespace Reusable.OmniLog.Abstractions
 
     public abstract class Computable : IComputable
     {
-        protected Computable(string name) => Name = name;
+        protected Computable(string name) => Name = name!;
 
         private string DebuggerDisplay() => this.ToDebuggerDisplayString(b => { b.DisplayScalar(x => x.Name); });
 
@@ -30,11 +30,11 @@ namespace Reusable.OmniLog.Abstractions
 
         #region IEquatable
 
-        public bool Equals(IComputable? other) => AutoEquality<IComputable>.Comparer.Equals(this, other);
+        public bool Equals(IComputable? other) => AutoEquality<IComputable?>.Comparer.Equals(this, other);
 
         public override bool Equals(object? obj) => Equals(obj as IComputable);
 
-        public override int GetHashCode() => AutoEquality<IComputable>.Comparer.GetHashCode(this);
+        public override int GetHashCode() => AutoEquality<IComputable?>.Comparer.GetHashCode(this);
 
         #endregion
     }

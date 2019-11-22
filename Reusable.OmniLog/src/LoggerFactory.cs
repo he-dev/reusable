@@ -15,7 +15,7 @@ namespace Reusable.OmniLog
 
         #region ILoggerFactory
 
-        public ILogger CreateLogger(string name) => _loggers.GetOrAdd(name, n => (ILogger)CreatePipeline(n.ToString()));
+        public ILogger CreateLogger(string name) => _loggers.GetOrAdd(name!, n => (ILogger)CreatePipeline(n.ToString()));
 
         private ILoggerNode CreatePipeline(string loggerName)
         {

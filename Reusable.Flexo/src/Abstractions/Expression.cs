@@ -109,7 +109,7 @@ namespace Reusable.Flexo.Abstractions
         protected Expression(ILogger? logger)
         {
             //Logger = logger ?? EmptyLogger.Instance;
-            _name = $"{GetType().ToPrettyString()}-{++_counter}";
+            _name = $"{GetType().ToPrettyString()}-{++_counter}"!;
         }
 
         //[NotNull]

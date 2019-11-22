@@ -51,11 +51,7 @@ namespace Reusable.Utilities.JsonNet.Converters
                     case JsonToken.StartObject:
                     {
                         var typeToken = JToken.ReadFrom(reader);
-
-                        var typeName =
-                            typeToken.SelectToken("$.$t").Value<string>()
-                            ?? throw DynamicException.Create("TypeNameNotFound", $"Type name is missing at '{reader.Path}'.");
-
+                        var typeName = typeToken.SelectToken("$.$t")?.Value<string>() ?? throw DynamicException.Create("TypeNameNotFound", $"Type name is missing at '{reader.Path}'.");
                         var obj = serializer.Deserialize(typeToken.CreateReader(), Types[typeName]);
                         collection.Add(obj);
                     }

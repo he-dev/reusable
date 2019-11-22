@@ -85,7 +85,7 @@ namespace Reusable.Translucent.Middleware
                 controller
                     .GetType()
                     .GetMethods(BindingFlags.Instance | BindingFlags.Public)
-                    .Where(m => m.GetCustomAttribute<ResourceActionAttribute>()?.Method == request.Method);
+                    .Where(m => m.GetCustomAttribute<ResourceActionAttribute>()?.Method.Equals(request.Method) == true);
 
             var method = methods.SingleOrThrow
             (

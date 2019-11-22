@@ -9,7 +9,7 @@ using Reusable.Exceptionize;
 
 namespace Reusable.Extensions
 {
-    public delegate bool TryGetValueCallback(string name, out object value);
+    public delegate bool TryGetValueCallback(string name, out object? value);
 
 //    public interface IKeyedValueProvider<in TKey, TValue>
 //    {
@@ -107,22 +107,14 @@ namespace Reusable.Extensions
 //        }
 
         [Pure]
-        [CanBeNull, ContractAnnotation("text: null => null; args: null => stop")]
-        public static string Format(this string text, [NotNull] object args, [NotNull] IEqualityComparer<string> comparer, [NotNull] IFormatProvider formatProvider)
+        [ContractAnnotation("text: null => null; args: null => stop")]
+        public static string Format(this string text, object args, IEqualityComparer<string> comparer, IFormatProvider formatProvider)
         {
             if (string.IsNullOrWhiteSpace(text))
             {
                 return text;
             }
-
-            if (args == null)
-            {
-                throw new ArgumentNullException(nameof(args));
-            }
-
-            if (comparer == null) throw new ArgumentNullException(nameof(comparer));
-            if (formatProvider == null) throw new ArgumentNullException(nameof(formatProvider));
-
+            
             var properties =
                 args
                     .GetType()
@@ -139,7 +131,7 @@ namespace Reusable.Extensions
                 }
                 else
                 {
-                    value = null;
+                    value = default!;
                     return false;
                 }
             }, formatProvider);

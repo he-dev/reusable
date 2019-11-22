@@ -6,14 +6,14 @@ namespace Reusable.Translucent.Models
     [PublicAPI]
     public interface IEmailBody
     {
-        string Value { get; }
+        string? Value { get; }
 
         Encoding Encoding { get; }
     }
 
     public class EmailBody : IEmailBody
     {
-        public string Value { get; set; }
+        public string? Value { get; set; }
 
         public Encoding Encoding { get; set; } = Encoding.UTF8;
 

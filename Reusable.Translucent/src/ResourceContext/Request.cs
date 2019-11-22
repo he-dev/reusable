@@ -8,7 +8,7 @@ namespace Reusable.Translucent
 {
     public class Request : IDisposable
     {
-        public UriString Uri { get; set; } // = new UriString($"{UriSchemes.Custom.IOnymous}:///");
+        public UriString Uri { get; set; } = default!;// = new UriString($"{UriSchemes.Custom.IOnymous}:///");
 
         public Option<RequestMethod> Method { get; set; } = RequestMethod.None;
 

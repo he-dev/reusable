@@ -15,7 +15,7 @@ namespace Reusable.Flexo
 
         public static IImmutableContainer SetDefaultComparer(this IImmutableContainer context)
         {
-            return context.UpdateItem(Comparers, x => x.SetItem(nameof(Default), Comparer<object>.Default));
+            return context.UpdateItem(Comparers, x => x.SetItem(nameof(Default)!, Comparer<object>.Default));
         }
 
 //        public static IImmutableContainer AddComparer<T>(this IImmutableContainer context, string name, IComparer<T> comparer)
@@ -25,7 +25,7 @@ namespace Reusable.Flexo
 
         public static IImmutableContainer SetEqualityComparer<T>(this IImmutableContainer context, string name, IEqualityComparer<T> comparer)
         {
-            return context.UpdateItem(EqualityComparers, x => x.SetItem(name, EqualityComparerFactory<object>.Create
+            return context.UpdateItem(EqualityComparers, x => x.SetItem(name!, EqualityComparerFactory<object>.Create
             (
                 equals: (left, right) => comparer.Equals((T)left, (T)right),
                 getHashCode: (obj) => comparer.GetHashCode((T)obj)

@@ -17,21 +17,21 @@ namespace Reusable.Utilities.JsonNet
         public static readonly IImmutableDictionary<SoftString, Type> BuiltInTypes =
             ImmutableDictionary
                 .Create<SoftString, Type>()
-                .Add("bool", typeof(Boolean))
-                .Add("byte", typeof(Byte))
-                .Add("sbyte", typeof(SByte))
-                .Add("char", typeof(Char))
-                .Add("decimal", typeof(Decimal))
-                .Add("double", typeof(Double))
-                .Add("float", typeof(Single))
-                .Add("int", typeof(Int32))
-                .Add("uint", typeof(UInt32))
-                .Add("long", typeof(Int64))
-                .Add("ulong", typeof(UInt64))
-                .Add("object", typeof(Object))
-                .Add("short", typeof(Int16))
-                .Add("ushort", typeof(UInt16))
-                .Add("string", typeof(String));
+                .Add("bool"!, typeof(Boolean))
+                .Add("byte"!, typeof(Byte))
+                .Add("sbyte"!, typeof(SByte))
+                .Add("char"!, typeof(Char))
+                .Add("decimal"!, typeof(Decimal))
+                .Add("double"!, typeof(Double))
+                .Add("float"!, typeof(Single))
+                .Add("int"!, typeof(Int32))
+                .Add("uint"!, typeof(UInt32))
+                .Add("long"!, typeof(Int64))
+                .Add("ulong"!, typeof(UInt64))
+                .Add("object"!, typeof(Object))
+                .Add("short"!, typeof(Int16))
+                .Add("ushort"!, typeof(UInt16))
+                .Add("string"!, typeof(String));
 
         public static IImmutableDictionary<SoftString, Type> From(IEnumerable<Assembly> assemblies)
         {
@@ -56,7 +56,7 @@ namespace Reusable.Utilities.JsonNet
                         ? new[] { (prettyName, type) }
                         : ns.Select(n => (prettyName: $"{n}.{prettyName}", type));                                
 
-            return items.SelectMany(x => x).ToImmutableDictionary(t => t.prettyName.ToSoftString(), t => t.type);
+            return items.SelectMany(x => x).ToImmutableDictionary(t => t.prettyName.ToSoftString()!, t => t.type);
         }
 
         public static IImmutableDictionary<SoftString, Type> From(params Type[] types)

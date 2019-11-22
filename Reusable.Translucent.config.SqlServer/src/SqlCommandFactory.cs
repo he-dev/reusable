@@ -15,9 +15,9 @@ namespace Reusable.Translucent
             this SqlConnection connection,
             SqlFourPartName tableName,
             string name,
-            IImmutableDictionary<SqlServerColumn, SoftString>? columnMappings,
-            IImmutableDictionary<string, object>? where,
-            IImmutableDictionary<string, object>? fallback)
+            IImmutableDictionary<SqlServerColumn, SoftString> columnMappings,
+            IImmutableDictionary<string, object> where,
+            IImmutableDictionary<string, object> fallback)
         {
             where ??= ImmutableDictionary<string, object>.Empty;
 
@@ -112,8 +112,8 @@ namespace Reusable.Translucent
             this SqlConnection connection,
             SqlFourPartName tableName,
             string name,
-            IImmutableDictionary<SqlServerColumn, SoftString>? columnMappings,
-            IImmutableDictionary<string, object>? where,
+            IImmutableDictionary<SqlServerColumn, SoftString> columnMappings,
+            IImmutableDictionary<string, object> where,
             object? value)
         {
             where ??= ImmutableDictionary<string, object>.Empty;

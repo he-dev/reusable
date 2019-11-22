@@ -59,26 +59,26 @@ namespace Reusable.OmniLog.SemanticExtensions
             [nameof(Network)] = LogLevel.Trace,
         };
 
-        public static ILogEntryBuilder<ILogEntryLayer> Business(this ILogEntryBuilder<Abstraction> builder) => builder.CreateLayerWithCallerName();
+        public static ILogEntryBuilder<ILogEntryLayer> Business(this ILogEntryBuilder<Abstraction>? builder) => builder.CreateLayerWithCallerName();
 
-        public static ILogEntryBuilder<ILogEntryLayer> Service(this ILogEntryBuilder<Abstraction> builder) => builder.CreateLayerWithCallerName();
+        public static ILogEntryBuilder<ILogEntryLayer> Service(this ILogEntryBuilder<Abstraction>? builder) => builder.CreateLayerWithCallerName();
 
-        public static ILogEntryBuilder<ILogEntryLayer> Presentation(this ILogEntryBuilder<Abstraction> builder) => builder.CreateLayerWithCallerName();
+        public static ILogEntryBuilder<ILogEntryLayer> Presentation(this ILogEntryBuilder<Abstraction>? builder) => builder.CreateLayerWithCallerName();
 
-        public static ILogEntryBuilder<ILogEntryLayer> IO(this ILogEntryBuilder<Abstraction> builder) => builder.CreateLayerWithCallerName();
+        public static ILogEntryBuilder<ILogEntryLayer> IO(this ILogEntryBuilder<Abstraction>? builder) => builder.CreateLayerWithCallerName();
 
-        public static ILogEntryBuilder<ILogEntryLayer> Database(this ILogEntryBuilder<Abstraction> builder) => builder.CreateLayerWithCallerName();
+        public static ILogEntryBuilder<ILogEntryLayer> Database(this ILogEntryBuilder<Abstraction>? builder) => builder.CreateLayerWithCallerName();
 
-        public static ILogEntryBuilder<ILogEntryLayer> Network(this ILogEntryBuilder<Abstraction> builder) => builder.CreateLayerWithCallerName();
+        public static ILogEntryBuilder<ILogEntryLayer> Network(this ILogEntryBuilder<Abstraction>? builder) => builder.CreateLayerWithCallerName();
     }
 
     public static class AbstractionLayerBuilder
     {
-        public static ILogEntryBuilder<ILogEntryLayer> CreateLayerWithCallerName(this ILogEntryBuilder<Abstraction> builder, [CallerMemberName] string? name = null)
+        public static ILogEntryBuilder<ILogEntryLayer> CreateLayerWithCallerName(this ILogEntryBuilder<Abstraction>? builder, [CallerMemberName] string? name = null)
         {
             var abstractionProperty = typeof(ILogEntryLayer).GetCustomAttribute<AbstractionPropertyAttribute>().ToString();
             var abstractionLevel = AbstractionLayers.Levels[name!];
-            return new LogEntryBuilder<ILogEntryLayer>(LogEntry.Empty(), nameof(Abstraction)).Update(l => l.Add<Log>(abstractionProperty, name).Level(abstractionLevel));
+            return new LogEntryBuilder<ILogEntryLayer>(LogEntry.Empty(), nameof(Abstraction)).Update(l => l.Add<Log>(abstractionProperty!, name).Level(abstractionLevel));
         }
     }
 

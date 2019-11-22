@@ -23,7 +23,7 @@ namespace Reusable.OmniLog.Rx.ConsoleRenderers
         {
             Console.WriteLine(Template.Format((string name, out object? value) =>
             {
-                if (logEntry.TryGetProperty<Log>(name, out var property))
+                if (logEntry.TryGetProperty<Log>(name!, out var property))
                 {
                     value = property.Value;
                     return true;

@@ -45,9 +45,11 @@ namespace Reusable.Flexo
 
         public static IEqualityComparer<object> FindEqualityComparer(this IImmutableContainer context, string? name = default)
         {
+            name ??= "Default";
+            
             foreach (var current in context.Scopes())
             {
-                if (current.GetItemOrDefault(EqualityComparers, ImmutableDictionary<SoftString, IEqualityComparer<object>>.Empty).TryGetValue(name ?? "Default", out var comparer))
+                if (current.GetItemOrDefault(EqualityComparers, ImmutableDictionary<SoftString, IEqualityComparer<object>>.Empty).TryGetValue(name!, out var comparer))
                 {
                     return comparer;
                 }
@@ -56,11 +58,13 @@ namespace Reusable.Flexo
             throw DynamicException.Create("EqualityComparerNotFound", $"There is no equality-comparer with the name '{name}'.");
         }
 
-        public static IComparer<object> FindComparer(this IImmutableContainer context, string? name)
+        public static IComparer<object> FindComparer(this IImmutableContainer context, string? name = default)
         {
+            name ??= "Default";
+            
             foreach (var current in context.Scopes())
             {
-                if (current.GetItemOrDefault(Comparers, ImmutableDictionary<SoftString, IComparer<object>>.Empty).TryGetValue(name ?? "Default", out var comparer))
+                if (current.GetItemOrDefault(Comparers, ImmutableDictionary<SoftString, IComparer<object>>.Empty).TryGetValue(name!, out var comparer))
                 {
                     return comparer;
                 }

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
+using Reusable.Extensions;
 
 namespace Reusable
 {
@@ -9,12 +10,12 @@ namespace Reusable
         public override int GetHashCode() => Comparer.GetHashCode(this);
 
         [DebuggerStepThrough]
-        public override bool Equals(object obj) => obj is SoftString softString && Equals(softString);
+        public override bool Equals(object? obj) => obj is SoftString softString && Equals(softString);
 
         [DebuggerStepThrough]
-        public bool Equals(SoftString other) => Comparer.Equals(this, other);
+        public bool Equals(SoftString? other) => Comparer.Equals(this, other);
 
         [DebuggerStepThrough]
-        public bool Equals(string other) => Equals((SoftString)other);
+        public bool Equals(string? other) => Equals(other.ToSoftString());
     }
 }

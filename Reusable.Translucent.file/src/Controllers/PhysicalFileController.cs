@@ -10,13 +10,9 @@ namespace Reusable.Translucent.Controllers
     [Handles(typeof(FileRequest))]
     public class PhysicalFileController : ResourceController
     {
-        public PhysicalFileController(string? id, string? basePath = default) : base(id, basePath, UriSchemes.Known.File)
-        {
-            BasePath = basePath;
-        }
+        public PhysicalFileController(string? id, string? basePath = default) : base(id, basePath, UriSchemes.Known.File) { }
 
-        public string BasePath { get; }
-        
+
         [ResourceGet]
         public Task<Response> GetFileAsync(Request request)
         {
@@ -58,7 +54,7 @@ namespace Reusable.Translucent.Controllers
             return
                 Path.IsPathRooted(path)
                     ? path
-                    : BasePath is {} basePath
+                    : BaseUri is {} basePath
                         ? Path.Combine(basePath, path)
                         : path;
         }

@@ -49,7 +49,7 @@ namespace Reusable.OmniLog
 
         private NLog.ILogger GetLogger(string name)
         {
-            return _cache.GetOrAdd(name, n => NLog.LogManager.GetLogger(name));
+            return _cache.GetOrAdd(name!, n => NLog.LogManager.GetLogger(name));
         }
 
         public static NLogRx Create() => new NLogRx();

@@ -112,7 +112,7 @@ namespace Reusable.Translucent
                 return context =>
                 {
                     var parameterValues =
-                        from p in invokeMethod.GetParameters().Skip(1) // TContext is always there.
+                        from p in invokeMethod!.GetParameters().Skip(1) // TContext is always there.
                         select _services.Resolve(p.ParameterType); // Resolve other Invoke(Async) parameters.
 
                     // Call the actual invoke with its parameters.

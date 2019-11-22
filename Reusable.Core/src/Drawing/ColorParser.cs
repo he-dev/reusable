@@ -42,9 +42,9 @@ namespace Reusable.Drawing
 
         // Removes all spaces from a string.
         [ContractAnnotation("value: null => null; notnull => notnull")]
-        protected static string Minify([CanBeNull] string value)
+        protected static string? Minify(string? value)
         {
-            return value == null ? null : Regex.Replace(value, @"\s", string.Empty);
+            return value is {} ? Regex.Replace(value, @"\s", string.Empty) : default;
         }
     }
 

@@ -21,7 +21,7 @@ namespace Reusable.OmniLog
         {
             var nodes = new[] { new TestNode(1), new TestNode(2), new TestNode(3) };
             var last = nodes.Aggregate<ILoggerNode>((current, next) => current.AddAfter(next));
-            
+
             Assert.Same(last, nodes.Last());
         }
 
@@ -144,13 +144,13 @@ namespace Reusable.OmniLog
             using (lf)
             {
                 var logger = lf.CreateLogger("test");
-                logger.Log(l => l.Message("Hallo!").Snapshot<Log>(new { Greeting = "Hi!" }));
+                logger.Log(l => l.Message("Hallo!").Snapshot<Explode>(new { Greeting = "Hi!" }));
             }
 
             Assert.Equal(1, rx.Count());
             Assert.Equal("Hallo!", rx.First().GetPropertyOrDefault<Log>("Message").Value);
             Assert.Equal("Greeting", rx.First().GetPropertyOrDefault<Log>(LogEntry.Names.SnapshotName).Value);
-            Assert.Equal("Hi!", rx.First().GetPropertyOrDefault<Log>(LogEntry.Names.Snapshot).Value);
+            Assert.Equal("\"Hi!\"", rx.First().GetPropertyOrDefault<Log>(LogEntry.Names.Snapshot).Value);
             //Assert.Equal("{\"Greeting\":\"Hi!\"}", rx.First()["Snapshot"]);
         }
 
@@ -199,33 +199,16 @@ namespace Reusable.OmniLog
             {
                 Nodes =
                 {
-                    new ScalarNode
-                    {
-                        Functions =
-                        {
-                            new Timestamp(new[] { timestamp })
-                        }
-                    },
+                    new ScalarNode { Functions = { new Timestamp(new[] { timestamp }) } },
                     new LambdaNode(),
                     new OneToManyNode(),
-                    // new LoggerForward
-                    // {
-                    //     Routes =
-                    //     {
-                    //         ["Variable"] = "Identifier",
-                    //         ["Dump"] = "Snapshot"
-                    //     }
-                    // },
-                    new EchoNode
-                    {
-                        Rx = { rx },
-                    }
+                    new EchoNode { Rx = { rx }, }
                 },
             };
             using (lf)
             {
                 var logger = lf.CreateLogger("test");
-                logger.Log(l => l.Snapshot<Log>(new Person { FirstName = "John", LastName = "Doe" }));
+                logger.Log(l => l.Snapshot<Explode>(new Person { FirstName = "John", LastName = "Doe" }));
             }
 
             Assert.Equal(2, rx.Count());
@@ -271,7 +254,7 @@ namespace Reusable.OmniLog
             using (lf)
             {
                 var logger = lf.CreateLogger("test");
-                logger.Log(l => l.Snapshot<Explode>(new Person { FirstName = "John", LastName = "Doe" }));
+                logger.Log(l => l.Snapshot<Log>(new Person { FirstName = "John", LastName = "Doe" }));
             }
 
             Assert.Equal(1, rx.Count());
