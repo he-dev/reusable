@@ -9,7 +9,7 @@ namespace Reusable.Translucent
     {
         public static IResourceCollection AddSqlServer(this IResourceCollection controllers, string? id,  string connectionString, Action<SqlServerController>? configure = default)
         {
-            return controllers.Add(new SqlServerController(id, connectionString).Configure(configure));
+            return controllers.Add(new SqlServerController(id, connectionString).Pipe(configure));
         }
     }
 }

@@ -1,13 +1,13 @@
 ﻿using System.IO;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
-using Reusable.Data;
 using Reusable.Extensions;
-using Reusable.Quickey;
+using Reusable.Translucent.Annotations;
 
 namespace Reusable.Translucent.Controllers
 {
     [PublicAPI]
+    [Handles(typeof(FileRequest))]
     public class PhysicalFileController : ResourceController
     {
         public PhysicalFileController(string? id, string? basePath = default) : base(id, basePath, UriSchemes.Known.File)
@@ -24,8 +24,8 @@ namespace Reusable.Translucent.Controllers
 
             return
                 File.Exists(path)
-                    ? OK(File.OpenRead(path)).ToTask()
-                    : NotFound().ToTask();
+                    ? OK<FileResponse>(File.OpenRead(path)).ToTask()
+                    : NotFound<FileResponse>().ToTask();
         }
 
         [ResourcePut]
@@ -40,7 +40,7 @@ namespace Reusable.Translucent.Controllers
                 await fileStream.FlushAsync();
             }
 
-            return OK();
+            return OK<FileResponse>();
         }
 
         [ResourceDelete]
@@ -48,7 +48,7 @@ namespace Reusable.Translucent.Controllers
         {
             var path = CreatePath(request.Uri);
             File.Delete(path);
-            return OK().ToTask();
+            return OK<FileResponse>().ToTask();
         }
 
         private string CreatePath(UriString uri)

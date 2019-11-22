@@ -13,21 +13,6 @@ namespace Reusable.Translucent
     /// </summary>
     public static class ResourceHelper
     {
-        internal static string ExtractMethodName(string memberName)
-        {
-            return Regex.Match(memberName, @"^(?<method>\w+)Async").Groups["method"].Value;
-        }
-
-        /// <summary>
-        /// Formats exception message: {ResourceProvider} cannot {METHOD} '{uri}' because {reason}.
-        /// </summary>
-        internal static string FormatMessage<T>(string memberName, UriString uri, string reason)
-        {
-            return $"{typeof(T).ToPrettyString()} cannot {ExtractMethodName(memberName).ToUpper()} '{uri}' because {reason}.";
-        }     
-
-        // --------
-
         public static Task<Stream> SerializeTextAsync(string value, Encoding? encoding = null)
         {
             encoding ??= Encoding.UTF8;

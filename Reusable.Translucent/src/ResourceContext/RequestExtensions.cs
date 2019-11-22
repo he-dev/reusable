@@ -11,14 +11,14 @@ namespace Reusable.Translucent
         [ItemNotNull]
         public static Task<Stream> CreateBodyStreamAsync(this Request request)
         {
-            switch (request.Body)
+            return request.Body switch
             {
-                case null: return Stream.Null.ToTask();
-                case Stream stream: return stream.ToTask();
-                case string text: return text.ToStream().ToTask();
-                case CreateBodyStreamDelegate createBodyStream: return createBodyStream();
-                default: throw new ArgumentOutOfRangeException($"Body of type '{request.Body.GetType().ToPrettyString()}' is not supported.");
-            }
+                null => Stream.Null.ToTask(),
+                Stream stream => stream.ToTask(),
+                string text => text.ToStream().ToTask(),
+                CreateBodyStreamDelegate createBodyStream => createBodyStream(),
+                _ => throw new ArgumentOutOfRangeException($"Body of type '{request.Body.GetType().ToPrettyString()}' is not supported.")
+            };
         }
     }
 }

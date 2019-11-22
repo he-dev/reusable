@@ -1,13 +1,13 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
-using Reusable.Data;
 using Reusable.Extensions;
+using Reusable.Translucent.Annotations;
 
 namespace Reusable.Translucent.Controllers
 {
+    [Handles(typeof(FileRequest))]
     public class InMemoryFileController : ResourceController, IEnumerable<KeyValuePair<UriString, object>>
     {
         private readonly IDictionary<UriString, object> _items = new Dictionary<UriString, object>();
@@ -19,8 +19,8 @@ namespace Reusable.Translucent.Controllers
         {
             return
                 _items.TryGetValue(request.Uri, out var obj)
-                    ? OK(obj).ToTask()
-                    : NotFound().ToTask();
+                    ? OK<FileResponse>(obj).ToTask()
+                    : NotFound<FileResponse>().ToTask();
         }
 
         [ResourcePut]
@@ -28,7 +28,7 @@ namespace Reusable.Translucent.Controllers
         {
             _items[request.Uri.ToString()] = request.Body;
 
-            return OK().ToTask();
+            return OK<FileResponse>().ToTask();
         }
 
         [ResourceDelete]
@@ -36,8 +36,8 @@ namespace Reusable.Translucent.Controllers
         {
             return
                 _items.Remove(request.Uri)
-                    ? OK().ToTask()
-                    : NotFound().ToTask();
+                    ? OK<FileResponse>().ToTask()
+                    : NotFound<FileResponse>().ToTask();
         }
 
         #region Collection initilizers

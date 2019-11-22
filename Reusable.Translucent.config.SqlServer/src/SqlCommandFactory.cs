@@ -4,7 +4,6 @@ using System.Data;
 using System.Data.SqlClient;
 using System.Linq;
 using System.Text;
-using JetBrains.Annotations;
 using Reusable.Utilities.SqlClient;
 
 namespace Reusable.Translucent
@@ -13,14 +12,14 @@ namespace Reusable.Translucent
     {
         public static SqlCommand CreateSelectCommand
         (
-            [NotNull] this SqlConnection connection,
-            [NotNull] SqlFourPartName tableName,
-            [NotNull] string name,
-            [CanBeNull] IImmutableDictionary<SqlServerColumn, SoftString> columnMappings,
-            [CanBeNull] IImmutableDictionary<string, object> where,
-            [CanBeNull] IImmutableDictionary<string, object> fallback)
+            this SqlConnection connection,
+            SqlFourPartName tableName,
+            string name,
+            IImmutableDictionary<SqlServerColumn, SoftString>? columnMappings,
+            IImmutableDictionary<string, object>? where,
+            IImmutableDictionary<string, object>? fallback)
         {
-            where = where ?? ImmutableDictionary<string, object>.Empty;
+            where ??= ImmutableDictionary<string, object>.Empty;
 
             var sql = new StringBuilder();
 
@@ -110,14 +109,14 @@ namespace Reusable.Translucent
 
         public static SqlCommand CreateUpdateCommand
         (
-            [NotNull] this SqlConnection connection,
-            [NotNull] SqlFourPartName tableName,
-            [NotNull] string name,
-            [CanBeNull] IImmutableDictionary<SqlServerColumn, SoftString> columnMappings,
-            [CanBeNull] IImmutableDictionary<string, object> @where,
-            [CanBeNull] object value)
+            this SqlConnection connection,
+            SqlFourPartName tableName,
+            string name,
+            IImmutableDictionary<SqlServerColumn, SoftString>? columnMappings,
+            IImmutableDictionary<string, object>? where,
+            object? value)
         {
-            where = where ?? ImmutableDictionary<string, object>.Empty;
+            where ??= ImmutableDictionary<string, object>.Empty;
 
             /*
              

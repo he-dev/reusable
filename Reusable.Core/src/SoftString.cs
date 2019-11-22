@@ -7,6 +7,9 @@ using JetBrains.Annotations;
 
 namespace Reusable
 {
+    /// <summary>
+    /// This special string class represents a string that is trimmed and implements case-insensitive comparison.
+    /// </summary>
     [Serializable]
     public partial class SoftString : IEnumerable<char>
     {
@@ -15,21 +18,13 @@ namespace Reusable
         private readonly string _value;
 
         [DebuggerStepThrough]
-        public SoftString([NotNull] string value)
-        {
-            if (value == null) throw new ArgumentNullException(nameof(value));
-            _value = value.Trim();
-        }
+        public SoftString(string value) => _value = value.Trim();
 
-        public SoftString() : this(string.Empty)
-        {
-        }
+        public SoftString() : this(string.Empty) { }
 
         [DebuggerStepThrough]
         public SoftString(char value)
-            : this(value.ToString())
-        {
-        }
+            : this(value.ToString()) { }
 
         [NotNull]
         public static SoftString Empty { get; } = new SoftString();
@@ -39,16 +34,14 @@ namespace Reusable
         public int Length => _value.Length;
 
         [NotNull]
-        public static SoftString Create([NotNull] string value) => new SoftString(value);
+        public static SoftString Create(string value) => new SoftString(value);
 
         public bool StartsWith(string value) => _value.StartsWith((string)(SoftString)value, StringComparison.OrdinalIgnoreCase);
 
         public bool EndsWith(string value) => _value.EndsWith((string)(SoftString)value, StringComparison.OrdinalIgnoreCase);
 
-        public bool IsMatch([NotNull, RegexPattern] string pattern, RegexOptions options = RegexOptions.None)
+        public bool IsMatch([RegexPattern] string pattern, RegexOptions options = RegexOptions.None)
         {
-            if (pattern == null) throw new ArgumentNullException(nameof(pattern));
-
             return Regex.IsMatch(ToString(), pattern, options | RegexOptions.IgnoreCase);
         }
 
@@ -62,8 +55,8 @@ namespace Reusable
 
         #endregion
 
-        public static bool IsNullOrEmpty([CanBeNull] SoftString value) => string.IsNullOrEmpty(value?._value);
+        public static bool IsNullOrEmpty(SoftString? value) => string.IsNullOrEmpty(value?._value);
 
-        public static bool IsNullOrWhiteSpace([CanBeNull] SoftString value) => string.IsNullOrWhiteSpace(value?._value);
+        public static bool IsNullOrWhiteSpace(SoftString? value) => string.IsNullOrWhiteSpace(value?._value);
     }
 }

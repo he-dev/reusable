@@ -63,7 +63,7 @@ namespace Reusable
                     IsHtml = true,
                     Attachments = new Dictionary<string, byte[]>()
                 },
-                http => { http.ConfigureHeaders = http.ConfigureHeaders.Then(headers => headers.UserAgent("Console", "v16")); }
+                http => { http.HeaderActions.Add(headers => headers.UserAgent("Console", "v16")); }
             );
         }
     }

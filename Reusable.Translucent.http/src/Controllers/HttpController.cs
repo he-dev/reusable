@@ -1,21 +1,22 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Net.Http;
-using System.Net.Http.Formatting;
 using System.Net.Http.Headers;
 using System.Threading.Tasks;
+using JetBrains.Annotations;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
-using Reusable.Data;
-using Reusable.Exceptionize;
 using Reusable.Extensions;
-using Reusable.Quickey;
+using Reusable.Translucent.Annotations;
 using Reusable.Utilities.JsonNet.Converters;
 using Reusable.Utilities.JsonNet.Extensions;
 
 namespace Reusable.Translucent.Controllers
 {
+    [PublicAPI]
+    [Handles(typeof(HttpRequest))]
     public class HttpController : ResourceController
     {
         private readonly HttpClient _client;
@@ -35,8 +36,8 @@ namespace Reusable.Translucent.Controllers
                 new StringEnumConverter()
             }
         };
-        
-        public Action<HttpRequestHeaders>? ConfigureHeaders { get; set; }
+
+        public List<Action<HttpRequestHeaders>> HeaderActions { get; set; } = new List<Action<HttpRequestHeaders>>();
 
         /// <summary>
         /// Create a HttpProvider that doesn't use a proxy for requests.
@@ -66,95 +67,39 @@ namespace Reusable.Translucent.Controllers
         private async Task<Response> InvokeAsync(HttpMethod method, HttpRequest request)
         {
             var uri = BaseUri is {} baseUri && baseUri is {} ? baseUri + request.Uri : request.Uri;
-            using (var message = new HttpRequestMessage(method, uri))
+            using (var requestMessage = new HttpRequestMessage(method, uri))
             using (var content = (request.Body is {} body ? Serializer.Serialize(body) : Stream.Null))
             {
                 if (content != Stream.Null)
                 {
-                    message.Content = new StreamContent(content.Rewind());
-                    message.Content.Headers.ContentType = new MediaTypeHeaderValue(request.ContentType);
+                    requestMessage.Content = new StreamContent(content.Rewind());
+                    requestMessage.Content.Headers.ContentType = new MediaTypeHeaderValue(request.ContentType);
                 }
 
-                ConfigureHeaders?.Invoke(message.Headers);
-                request.ConfigureHeaders?.Invoke(message.Headers);
-                using (var response = await _client.SendAsync(message, HttpCompletionOption.ResponseContentRead, request.CancellationToken).ConfigureAwait(false))
+                foreach (var headerAction in HeaderActions.Concat(request.HeaderActions))
+                {
+                    headerAction(requestMessage.Headers);
+                }
+
+                using (var responseMessage = await _client.SendAsync(requestMessage, HttpCompletionOption.ResponseContentRead, request.CancellationToken).ConfigureAwait(false))
                 {
                     var responseContentCopy = new MemoryStream();
 
-                    if (response.Content.Headers.ContentLength > 0)
+                    if (responseMessage.Content.Headers.ContentLength > 0)
                     {
-                        //response.Content.ReadAsAsync()
-                        await response.Content.CopyToAsync(responseContentCopy);
+                        await responseMessage.Content.CopyToAsync(responseContentCopy);
                     }
 
-                    var clientErrorClass = new Range<int>(400, 499);
-                    var serverErrorClass = new Range<int>(500, 599);
-
-                    var classOfStatusCode =
-                        clientErrorClass.ContainsInclusive((int)response.StatusCode)
-                            ? "Client"
-                            : serverErrorClass.ContainsInclusive((int)response.StatusCode)
-                                ? "Server"
-                                : null;
-
-                    if (classOfStatusCode is null)
+                    switch (responseMessage.StatusCode.Class())
                     {
-                        return new Response
-                        {
-                            StatusCode = ResourceStatusCode.OK,
-                            //OK(responseContentCopy, response.Content.Headers.ContentType?.MediaType);
-                        };
-                    }
-
-                    using (var responseReader = new StreamReader(responseContentCopy.Rewind()))
-                    {
-                        throw DynamicException.Create
-                        (
-                            classOfStatusCode,
-                            $"StatusCode: {(int)response.StatusCode} ({response.StatusCode}){Environment.NewLine}{await responseReader.ReadToEndAsync()}"
-                        );
+                        case HttpStatusCodeClass.Informational:
+                        case HttpStatusCodeClass.Success: return OK<HttpResponse>(responseContentCopy, response => response.ContentType = responseMessage.Content.Headers.ContentType?.MediaType);
+                        default: return NotFound<HttpResponse>(responseContentCopy, response => response.HttpStatusCode = (int)responseMessage.StatusCode);
                     }
                 }
             }
         }
 
-        public override void Dispose()
-        {
-            _client.Dispose();
-        }
-    }
-
-//    // [UseType, UseMember]
-//    // [PlainSelectorFormatter]
-//    public class HttpRequest : Request // SelectorBuilder<HttpRequestMetadata>
-//    {
-//        #region Properties
-//
-//        private static readonly From<HttpRequest>? This;
-//
-//        public static Selector<Action<HttpRequestHeaders>> ConfigureHeaders { get; } = This.Select(() => ConfigureHeaders);
-//
-//        public static Selector<MediaTypeFormatter> RequestFormatter { get; } = This.Select(() => RequestFormatter);
-//
-//        public static Selector<string> ContentType { get; } = This.Select(() => ContentType);
-//
-//        #endregion
-//    }
-
-    // [UseType, UseMember]
-    // [PlainSelectorFormatter]
-    public class HttpResponse : Response // SelectorBuilder<HttpRequestMetadata>
-    {
-        #region Properties
-
-        private static readonly From<HttpResponse>? This;
-
-        //public static Selector<IEnumerable<MediaTypeFormatter>> Formatters { get; } = This.Select(() => Formatters);
-
-        //public static Selector<Type> ResponseType { get; } = This.Select(() => ResponseType);
-
-        //public static Selector<string> ContentType { get; } = This.Select(() => ContentType);
-
-        #endregion
+        public override void Dispose() => _client.Dispose();
     }
 }

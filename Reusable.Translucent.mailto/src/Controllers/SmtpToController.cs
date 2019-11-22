@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net.Mime;
@@ -7,22 +6,21 @@ using JetBrains.Annotations;
 using MailKit.Net.Smtp;
 using MimeKit;
 using MimeKit.Text;
-using Reusable.Data;
 using Reusable.Extensions;
-using Reusable.Quickey;
+using Reusable.Translucent.Annotations;
 using ContentDisposition = MimeKit.ContentDisposition;
 
 namespace Reusable.Translucent.Controllers
 {
-    public class SmtpController : MailController
+    public class SmtpToController : MailToController
     {
-        public SmtpController(string? id = default) : base(id) { }
+        public SmtpToController(string? id = default) : base(id) { }
 
         [ResourcePost]
         public async Task<Response> SendEmailAsync(Request request)
         {
             var smtp = (SmtpRequest)request;
-            
+
             var message = new MimeMessage();
             message.From.Add(new MailboxAddress(smtp.From));
             message.To.AddRange(smtp.To.Where(Conditional.IsNotNullOrEmpty).Select(x => new MailboxAddress(x)));
@@ -69,7 +67,7 @@ namespace Reusable.Translucent.Controllers
                 await smtpClient.SendAsync(message);
             }
 
-            return OK();
+            return OK<SmtpResponse>();
         }
     }
 
@@ -80,4 +78,6 @@ namespace Reusable.Translucent.Controllers
         public int Port { get; set; }
         public bool UseSsl { get; set; }
     }
+
+    public class SmtpResponse : Response { }
 }

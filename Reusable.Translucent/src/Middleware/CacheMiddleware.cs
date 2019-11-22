@@ -2,14 +2,17 @@ using System;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.Extensions.Caching.Memory;
-using Reusable.Data;
 
 namespace Reusable.Translucent.Middleware
 {
+    /// <summary>
+    /// Allows to cache resources for GET requests by specifying the MaxAge in the request.
+    /// </summary>
     [UsedImplicitly]
     public class CacheMiddleware
     {
         private readonly RequestDelegate<ResourceContext> _next;
+        
         private readonly IMemoryCache _memoryCache;
 
         public CacheMiddleware(RequestDelegate<ResourceContext> next, IMemoryCache memoryCache)

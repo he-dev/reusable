@@ -1,11 +1,12 @@
 using System;
-using Reusable.Data;
 using Reusable.OneTo1;
-using Reusable.Quickey;
 
 namespace Reusable.Translucent.Controllers
 {
-    // Uses "Config" as name because controllers are named after their scheme. 
+    /// <summary>
+    /// This is the base class for controllers handling the 'config' scheme.
+    /// </summary>
+    [Handles(typeof(ConfigRequest))]
     public abstract class ConfigController : ResourceController
     {
         public static readonly string Scheme = "config";
@@ -20,16 +21,6 @@ namespace Reusable.Translucent.Controllers
         {
             // config:settings?name=ESCAPED
             return Uri.UnescapeDataString(uriString.Query[ResourceNameQueryKey].ToString());
-        }
-
-        // ReSharper disable once InconsistentNaming
-        protected Response OK(Request request, object body, string actualName)
-        {
-            return new Response
-            {
-                StatusCode = ResourceStatusCode.OK,
-                Body = body
-            };
         }
     }
 }

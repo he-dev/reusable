@@ -1,6 +1,4 @@
 using System;
-using System.Collections.Generic;
-using Reusable.Data;
 using Reusable.Translucent.Controllers;
 
 // ReSharper disable once CheckNamespace
@@ -23,14 +21,9 @@ namespace Reusable.Translucent
             return controllers.Add(new PhysicalFileController(id, basePath));
         }
 
-        public static IResourceCollection UseInMemoryFiles<T>(this IResourceCollection controllers, string? id, params string[] basePaths)
+        public static IResourceCollection UseInMemoryFile(this IResourceCollection controllers, string? id)
         {
-            foreach (var basePath in basePaths)
-            {
-                controllers.Add(new EmbeddedFileController<T>(id, basePath));
-            }
-
-            return controllers;
+            return controllers.Add(new InMemoryFileController(id));
         }
     }
 }

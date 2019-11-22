@@ -22,20 +22,12 @@ namespace Reusable.Translucent.Formatting
 
         public override async Task<object> ReadFromStreamAsync(Type type, Stream readStream, HttpContent content, IFormatterLogger formatterLogger, CancellationToken cancellationToken)
         {
-            using (var streamReader = new StreamReader(readStream))
-            {
-                return await streamReader.ReadToEndAsync();
-            }
+            using var streamReader = new StreamReader(readStream);
+            return await streamReader.ReadToEndAsync();
         }
 
-        public override bool CanReadType(Type type)
-        {
-            return type == typeof(string);
-        }
+        public override bool CanReadType(Type type) => type == typeof(string);
 
-        public override bool CanWriteType(Type type)
-        {
-            return false;
-        }
+        public override bool CanWriteType(Type type) => false;
     }
 }

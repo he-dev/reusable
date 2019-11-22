@@ -2,10 +2,9 @@ using System.Configuration;
 using System.Linq;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
-using Reusable.Data;
 using Reusable.Extensions;
 using Reusable.OneTo1;
-using Reusable.OneTo1.Converters;
+using Reusable.Translucent.Annotations;
 
 namespace Reusable.Translucent.Controllers
 {
@@ -22,9 +21,9 @@ namespace Reusable.Translucent.Controllers
             var element = exeConfig.AppSettings.Settings[actualKey];
 
             return
-                element is null
-                    ? NotFound().ToTask()
-                    : OK(request, element.Value, settingIdentifier).ToTask();
+                element is {}
+                    ? OK<ConfigResponse>(element.Value).ToTask()
+                    : NotFound<ConfigResponse>().ToTask();
         }
 
         [ResourcePut]
@@ -47,7 +46,7 @@ namespace Reusable.Translucent.Controllers
 
             exeConfig.Save(ConfigurationSaveMode.Minimal);
 
-            return OK().ToTask();
+            return OK<ConfigResponse>().ToTask();
         }
 
         [CanBeNull]
@@ -60,9 +59,5 @@ namespace Reusable.Translucent.Controllers
                     .AllKeys
                     .FirstOrDefault(k => SoftString.Comparer.Equals(k, key));
         }
-
-        #region Properties
-
-        #endregion
     }
 }

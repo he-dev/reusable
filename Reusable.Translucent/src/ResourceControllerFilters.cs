@@ -1,7 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using Reusable.Data;
 using Reusable.Translucent.Controllers;
 
 namespace Reusable.Translucent
@@ -10,6 +9,19 @@ namespace Reusable.Translucent
 
     public static class ResourceControllerFilters
     {
+        public static IEnumerable<IResourceController> FilterByControllerId(this IEnumerable<IResourceController> controllers, Request request)
+        {
+            if (request.ControllerId is {})
+            {
+                return
+                    from c in controllers
+                    where c.Id?.Equals(request.ControllerId) == true
+                    select c;
+            }
+
+            return controllers;
+        }
+        
         public static IEnumerable<IResourceController> FilterByControllerTags(this IEnumerable<IResourceController> controllers, Request request)
         {
             // The request doesn't specify any tags.
@@ -25,27 +37,11 @@ namespace Reusable.Translucent
                 select p;
         }
 
-        public static IEnumerable<IResourceController> FilterByControllerId(this IEnumerable<IResourceController> controllers, Request request)
+        public static IEnumerable<IResourceController> FilterByRequest(this IEnumerable<IResourceController> controllers, Request request)
         {
-            if (request.ControllerId is {})
-            {
-                return
-                    from c in controllers
-                    where c.Id?.Equals(request.ControllerId) == true
-                    select c;
-            }
-
-            return controllers;
-        }
-
-        public static IEnumerable<IResourceController> FilterByUriScheme(this IEnumerable<IResourceController> controllers, Request request)
-        {
-            // There is nothing to filter by as the request uses a relative Uri.
-            var schemes = request.Uri.IsAbsolute ? new[] { request.Uri.Scheme }.AsEnumerable() : request.GetType().GetCustomAttribute<SchemeAttribute>() ?? Enumerable.Empty<SoftString>();
-
             return
                 from c in controllers
-                where c.Schemes.Overlaps(schemes)
+                where c.GetType().GetCustomAttribute<HandlesAttribute>().Type.IsInstanceOfType(request)
                 select c;
         }
 

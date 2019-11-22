@@ -38,7 +38,7 @@ namespace Reusable.Translucent.Models
 
         public TSubject Subject { get; set; }
 
-        public Dictionary<string, byte[]> Attachments { get; set; }
+        public Dictionary<string, byte[]> Attachments { get; set; } = new Dictionary<string, byte[]>();
 
         public TBody Body { get; set; }
 

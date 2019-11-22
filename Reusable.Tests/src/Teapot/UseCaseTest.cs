@@ -52,13 +52,12 @@ namespace Reusable.Teapot
                 //{
                 // Request made by the application somewhere deep down the rabbit hole
 
-                var response = await _resources.HttpInvokeAsync(RequestMethod.Post, "test?param=true", new { Greeting = "Hallo" }, http =>
+                var response = await _resources.PostAsync<HttpRequest.Json>("test?param=true", new { Greeting = "Hallo" }, http =>
                 {
-                    http.ConfigureHeaders = http.ConfigureHeaders.Then(headers =>
+                    http.HeaderActions.Add(headers =>
                     {
                         headers.ApiVersion("1.0");
                         headers.UserAgent("Teapot", "1.0");
-                        headers.AcceptJson();
                     });
                     http.ContentType = "application/json";
                 });

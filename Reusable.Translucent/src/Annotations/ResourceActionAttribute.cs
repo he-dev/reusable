@@ -1,7 +1,7 @@
 using System;
 using Reusable.Data;
 
-namespace Reusable.Translucent
+namespace Reusable.Translucent.Annotations
 {
     public abstract class ResourceActionAttribute : Attribute
     {

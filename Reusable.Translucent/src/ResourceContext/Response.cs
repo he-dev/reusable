@@ -1,21 +1,24 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
-using Reusable.Data;
-using Reusable.Quickey;
 
 namespace Reusable.Translucent
 {
-    [UseType, UseMember]
-    [PlainSelectorFormatter]
     public class Response : IDisposable
     {
         public ResourceStatusCode StatusCode { get; set; }
 
         public object? Body { get; set; }
 
+        /// <summary>
+        /// True if Body was retrieved from cache.
+        /// </summary>
         public bool Cached { get; set; }
 
-        public IImmutableContainer Metadata { get; set; } = ImmutableContainer.Empty;
+        /// <summary>
+        /// Gets or sets the controllers that handled this request. In case of a GET request there might be more than one. In case of a success the last controller is the owner of this response.
+        /// </summary>
+        public List<object> HandledBy { get; } = new List<object>();
 
         // ReSharper disable once InconsistentNaming
         public static Response OK() => new Response { StatusCode = ResourceStatusCode.OK };
@@ -29,18 +32,6 @@ namespace Reusable.Translucent
                 stream.Dispose();
             }
         }
-
-        #region Properties
-
-        private static readonly From<Response> This;
-
-        public static readonly Selector<DateTime> CreateOn = This.Select(() => CreateOn);
-
-        public static readonly Selector<DateTime> ModifiedOn = This.Select(() => ModifiedOn);
-
-        //public static readonly Selector<string> ActualName = This.Select(() => ActualName);
-
-        #endregion
     }
 
     public enum ResourceStatusCode

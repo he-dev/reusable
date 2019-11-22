@@ -1,41 +1,42 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <!--<TargetFramework>net47</TargetFramework>-->
-    <TargetFrameworks>netcoreapp2.2;net47</TargetFrameworks>
-    <Configurations>Debug;Release</Configurations>
-    <Platforms>AnyCPU;x64</Platforms>
-    <Nullable>enable</Nullable>
-  </PropertyGroup>
+    <PropertyGroup>
+        <!--<TargetFramework>net47</TargetFramework>-->
+        <TargetFrameworks>netcoreapp2.2;net47</TargetFrameworks>
+        <Configurations>Debug;Release</Configurations>
+        <Platforms>AnyCPU;x64</Platforms>
+        <Nullable>enable</Nullable>
+    </PropertyGroup>
 
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <LangVersion>latest</LangVersion>
-  </PropertyGroup>
+    <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+        <LangVersion>latest</LangVersion>
+    </PropertyGroup>
 
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-    <LangVersion>latest</LangVersion>
-  </PropertyGroup>
-  
-  <ItemGroup>
-    <PackageReference Include="JetBrains.Annotations" Version="2019.1.3" />
-    <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="2.2.0" />
-    <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
-    <PackageReference Include="System.Collections.Immutable" Version="1.6.0" />
-  </ItemGroup>
+    <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+        <LangVersion>latest</LangVersion>
+    </PropertyGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\Reusable.Core\Reusable.Core.csproj" />
-    <ProjectReference Include="..\Reusable.Data\Reusable.Data.csproj" />
-    <ProjectReference Include="..\Reusable.Flawless\Reusable.Flawless.csproj" />
-    <ProjectReference Include="..\Reusable.Quickey\Reusable.Quickey.csproj" />
-    <ProjectReference Include="..\Reusable.Utilities.Autofac\Reusable.Utilities.Autofac.csproj" />
-    <ProjectReference Include="..\Reusable.Utilities.JsonNet\Reusable.Utilities.JsonNet.csproj" />
-  </ItemGroup>
+    <ItemGroup>
+        <PackageReference Include="JetBrains.Annotations" Version="2019.1.3"/>
+        <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="2.2.0"/>
+        <PackageReference Include="Newtonsoft.Json" Version="12.0.3"/>
+        <PackageReference Include="System.Collections.Immutable" Version="1.6.0"/>
+    </ItemGroup>
 
-  <ItemGroup>
-    <Reference Include="System.ComponentModel.DataAnnotations" />
-    <Reference Include="System.Configuration" />
-    <Reference Include="System.Runtime.Extensions" />
-  </ItemGroup>
+    <ItemGroup>
+        <ProjectReference Include="..\Reusable.Core\Reusable.Core.csproj"/>
+        <ProjectReference Include="..\Reusable.Data\Reusable.Data.csproj"/>
+        <ProjectReference Include="..\Reusable.Flawless\Reusable.Flawless.csproj"/>
+        <ProjectReference Include="..\Reusable.Utilities.Autofac\Reusable.Utilities.Autofac.csproj"/>
+        <ProjectReference Include="..\Reusable.Utilities.JsonNet\Reusable.Utilities.JsonNet.csproj"/>
+    </ItemGroup>
 
+    <ItemGroup>
+        <Reference Include="System.ComponentModel.DataAnnotations"/>
+        <Reference Include="System.Configuration"/>
+        <Reference Include="System.Runtime.Extensions"/>
+    </ItemGroup>
+    <ItemGroup>
+        <Compile Remove="src\ResourceHelper.cs"/>
+    </ItemGroup>
 </Project>

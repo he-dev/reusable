@@ -6,20 +6,22 @@ using System.Reflection;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.Extensions.Caching.Memory;
-using Reusable.Data;
-using Reusable.Exceptionize;
 using Reusable.Extensions;
+using Reusable.Translucent.Annotations;
 using Reusable.Translucent.Controllers;
 
 namespace Reusable.Translucent.Middleware
 {
+    /// <summary>
+    /// Handles requests and determines which resource-controller to use to get a resources. Controllers determined with a GET requests are cached.
+    /// </summary>
     [UsedImplicitly]
-    public class ControllerMiddleware
+    public class ResourceMiddleware
     {
         private static readonly IEnumerable<ResourceControllerFilterCallback> Filters = new ResourceControllerFilterCallback[]
         {
             ResourceControllerFilters.FilterByControllerId,
-            ResourceControllerFilters.FilterByUriScheme,
+            ResourceControllerFilters.FilterByRequest,
             ResourceControllerFilters.FilterByControllerTags,
             ResourceControllerFilters.FilterByUriPath,
         };
@@ -28,7 +30,7 @@ namespace Reusable.Translucent.Middleware
         private readonly RequestDelegate<ResourceContext> _next;
         private readonly IMemoryCache _cache;
 
-        public ControllerMiddleware(RequestDelegate<ResourceContext> next, IResourceCollection controllers)
+        public ResourceMiddleware(RequestDelegate<ResourceContext> next, IResourceCollection controllers)
         {
             _next = next;
             _controllers = controllers.ToImmutableList();
@@ -56,11 +58,14 @@ namespace Reusable.Translucent.Middleware
                     context.Response = Response.NotFound();
                     foreach (var controller in controllers)
                     {
+                        context.Response.HandledBy.Add(controller);
+                        
                         if (await InvokeMethodAsync(controller, context.Request) is var response && response.Exists())
                         {
-                            _cache.Set(providerKey, controller);
+                            response.HandledBy.AddRange(context.Response.HandledBy);
                             context.Response = response;
-                            //response.Metadata = response.Metadata.SetItem(Request.HandledBy, controller);
+                            
+                            _cache.Set(providerKey, controller);
                             break;
                         }
                     }

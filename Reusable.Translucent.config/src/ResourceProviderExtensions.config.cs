@@ -4,12 +4,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
-using Reusable.Data;
-using Reusable.Exceptionize;
-using Reusable.Extensions;
-using Reusable.OneTo1;
 using Reusable.Quickey;
-using Reusable.Translucent.Controllers;
 
 namespace Reusable.Translucent
 {
@@ -28,20 +23,6 @@ namespace Reusable.Translucent
             using var request = ConfigRequestBuilder.CreateRequest(RequestMethod.Put, selector, newValue);
             await resourceRepository.InvokeAsync(request);
         }
-
-        #region Helpers
-
-        private static object Validate(object value, IEnumerable<ValidationAttribute> validations, UriString uri)
-        {
-            foreach (var validation in validations)
-            {
-                validation.Validate(value, uri);
-            }
-
-            return value;
-        }
-
-        #endregion
 
         #region Getters
 
@@ -84,9 +65,9 @@ namespace Reusable.Translucent
         private static Selector CreateSelector<T>(LambdaExpression selector, string? index)
         {
             return
-                index is null
-                    ? new Selector<T>(selector)
-                    : new Selector<T>(selector).Index(index);
+                index is {}
+                    ? new Selector<T>(selector).Index(index)
+                    : new Selector<T>(selector);
         }
     }
 }

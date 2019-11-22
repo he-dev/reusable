@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
-using Reusable.Data;
 using Reusable.Translucent.Controllers;
 using Reusable.Translucent.Models;
 
@@ -18,7 +17,7 @@ namespace Reusable.Translucent
             Action<SmtpRequest>? requestAction = default
         )
         {
-            return await resourceRepository.PostAsync<SmtpRequest>($"{UriSchemes.Known.MailTo}:dummy@email.com", email.Body.Value, request =>
+            return await resourceRepository.PostAsync<SmtpRequest>($"{UriSchemes.Known.MailTo}:john.doe@email.com", email.Body.Value, request =>
             {
                 request.From = email.From;
                 request.To = email.To;
@@ -34,7 +33,6 @@ namespace Reusable.Translucent
     }
 
     [PublicAPI]
-    [Scheme("mailto")]
     public abstract class MailToRequest : Request
     {
         public string From { get; set; }

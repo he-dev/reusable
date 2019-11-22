@@ -5,13 +5,15 @@ using System.Linq;
 using System.Linq.Custom;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
-using Reusable.Data;
 using Reusable.Exceptionize;
 using Reusable.Extensions;
 using Reusable.Translucent.Controllers;
 
 namespace Reusable.Translucent.Middleware
 {
+    /// <summary>
+    /// Validates settings on their way in/out using their validation attributes.
+    /// </summary>
     [UsedImplicitly]
     public class SettingValidationMiddleware
     {

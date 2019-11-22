@@ -1,9 +1,8 @@
 ﻿using System.Collections.Immutable;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
-using Reusable.Data;
 using Reusable.OneTo1;
-using Reusable.Quickey;
+using Reusable.Translucent.Annotations;
 using Reusable.Translucent.Converters;
 using Reusable.Utilities.SqlClient;
 
@@ -48,11 +47,11 @@ namespace Reusable.Translucent.Controllers
                 {
                     var value = settingReader[ColumnMappings.MapOrDefault(SqlServerColumn.Value)];
                     value = Converter.Convert(value, configRequest.SettingType);
-                    return OK(request, value, settingIdentifier);
+                    return OK<ConfigResponse>(value);
                 }
                 else
                 {
-                    return NotFound();
+                    return NotFound<ConfigResponse>();
                 }
             }, request.CancellationToken);
         }
@@ -69,7 +68,7 @@ namespace Reusable.Translucent.Controllers
                 await cmd.ExecuteNonQueryAsync(token);
             }, request.CancellationToken);
 
-            return OK();
+            return OK<ConfigResponse>();
         }
     }
 }

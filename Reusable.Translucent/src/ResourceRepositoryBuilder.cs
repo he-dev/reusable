@@ -73,7 +73,7 @@ namespace Reusable.Translucent
             InvokeSetupMethod<IPipelineBuilder<ResourceContext>>(_setup, _configurePipelineMethod, serviceProvider);
 
             // This is the default middleware that is always the last one.
-            pipelineBuilder.UseMiddleware<ControllerMiddleware>();
+            pipelineBuilder.UseMiddleware<ResourceMiddleware>();
 
             return pipelineBuilder.Build();
         }

@@ -115,7 +115,7 @@ namespace Reusable.OmniLog.Nodes
 
         public static ILoggerScope WithScope(this ILoggerScope scope, Action<ScopeNode.Item> scopeAction)
         {
-            return scope.Do(s => scopeAction(s.Scope() ?? throw new InvalidOperationException("Cannot use scope right now because there is none.")));
+            return scope.Pipe(s => scopeAction(s.Scope() ?? throw new InvalidOperationException("Cannot use scope right now because there is none.")));
         }
     }
 }

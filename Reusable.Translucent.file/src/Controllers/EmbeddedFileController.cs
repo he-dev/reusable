@@ -1,14 +1,12 @@
-﻿using System;
-using System.Linq;
+﻿using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
-using JetBrains.Annotations;
-using Reusable.Data;
 using Reusable.Extensions;
-using Reusable.Quickey;
+using Reusable.Translucent.Annotations;
 
 namespace Reusable.Translucent.Controllers
 {
+    [Handles(typeof(FileRequest))]
     public class EmbeddedFileController : ResourceController
     {
         private readonly Assembly _assembly;
@@ -30,9 +28,9 @@ namespace Reusable.Translucent.Controllers
             var actualName = _assembly.GetManifestResourceNames().FirstOrDefault(name => SoftString.Comparer.Equals(name, fullName));
 
             return
-                actualName is null
-                    ? NotFound().ToTask()
-                    : OK(_assembly.GetManifestResourceStream(actualName)).ToTask();
+                actualName is {}
+                    ? OK<FileResponse>(_assembly.GetManifestResourceStream(actualName)).ToTask()
+                    : NotFound<FileResponse>().ToTask();
         }
     }
 

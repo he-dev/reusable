@@ -1,11 +1,14 @@
 using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
-using Reusable.Data;
 using Reusable.Extensions;
+using Reusable.Translucent.Annotations;
 using Reusable.Translucent.Converters;
 
 namespace Reusable.Translucent.Controllers
 {
+    /// <summary>
+    /// This controller read the new json file from the Microsoft.Extensions.Configuration namespace.
+    /// </summary>
     public class JsonFileController : ConfigController
     {
         private readonly IConfiguration _configuration;
@@ -28,9 +31,9 @@ namespace Reusable.Translucent.Controllers
             var data = _configuration[settingIdentifier];
 
             return
-                data is null
-                    ? NotFound().ToTask()
-                    : OK(request, data, settingIdentifier).ToTask();
+                data is {}
+                    ? OK<ConfigResponse>(data).ToTask()
+                    : NotFound<ConfigResponse>().ToTask();
         }
     }
 }

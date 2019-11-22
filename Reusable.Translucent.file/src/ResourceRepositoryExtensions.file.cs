@@ -1,13 +1,10 @@
 using System;
 using System.IO;
-using System.Text;
 using System.Threading.Tasks;
-using Reusable.Data;
-using Reusable.Translucent.Controllers;
 
 namespace Reusable.Translucent
 {
-    public static class FileResourceHelper
+    public static class ResourceRepositoryExtensions
     {
         // file:///
 
@@ -54,7 +51,8 @@ namespace Reusable.Translucent
         // https://www.pcmag.com/encyclopedia/term/53398/unc
         private static bool IsUnc(string value) => value.StartsWith("//");
     }
-
-    [Scheme("file")]
+    
     public class FileRequest : Request { }
+
+    public class FileResponse : Response { }
 }

@@ -55,7 +55,7 @@ namespace Reusable.Translucent.Controllers
 
             var response = await _resources.SendEmailAsync("mailr/messages/test", email, http =>
             {
-                http.ConfigureHeaders = http.ConfigureHeaders.Then(headers => headers.UserAgent("xunit", "1.0"));
+                http.HeaderActions.Add(headers => headers.UserAgent("xunit", "1.0"));
                 http.ControllerTags.Add("Mailr");
             });
 
