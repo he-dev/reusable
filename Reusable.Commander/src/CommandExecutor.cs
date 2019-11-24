@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Custom;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Threading.Tasks.Dataflow;
@@ -15,39 +17,33 @@ namespace Reusable.Commander
 {
     public interface ICommandExecutor
     {
-        //Task ExecuteAsync<TContext>([CanBeNull] string commandLineString, TContext context, CancellationToken cancellationToken = default);
-
         // You moved ICommandFactory from the the ctor to here because it causes a circular-dependency exception there.
-        Task ExecuteAsync<TContext>
-        (
-            [CanBeNull] string commandLineString,
-            [CanBeNull] TContext context,
-            [NotNull] ICommandFactory commandFactory,
-            CancellationToken cancellationToken = default
-        );
+        Task ExecuteAsync<TContext>(string commandLineString, TContext context = default, CancellationToken cancellationToken = default);
     }
 
     [UsedImplicitly]
     public class CommandExecutor : ICommandExecutor
     {
-        //private const bool Async = true;
-
         private readonly ILogger _logger;
-
         private readonly ICommandLineParser _commandLineParser;
-
+        private readonly ICommandFactory _commandFactory;
+        private readonly ICommandParameterBinder _commandParameterBinder;
 
         public CommandExecutor
         (
-            [NotNull] ILogger<CommandExecutor> logger,
-            [NotNull] ICommandLineParser commandLineParser
+            ILogger<CommandExecutor> logger,
+            ICommandLineParser commandLineParser,
+            ICommandFactory commandFactory,
+            ICommandParameterBinder commandParameterBinder
         )
         {
-            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-            _commandLineParser = commandLineParser ?? throw new ArgumentNullException(nameof(commandLineParser));
+            _logger = logger;
+            _commandLineParser = commandLineParser;
+            _commandFactory = commandFactory;
+            _commandParameterBinder = commandParameterBinder;
         }
 
-        public async Task ExecuteAsync<TContext>(string commandLineString, TContext context, ICommandFactory commandFactory, CancellationToken cancellationToken)
+        public async Task ExecuteAsync<TContext>(string commandLineString, TContext context = default, CancellationToken cancellationToken = default)
         {
             if (commandLineString.IsNullOrEmpty())
             {
@@ -58,9 +54,8 @@ namespace Reusable.Commander
 
             var executables =
                 from t in commandLines.Select((commandLine, index) => (commandLine, index))
-                let commandNameArgument = t.commandLine[NameSet.Command]
-                let commandName = new NameSet((commandNameArgument.Single(), Name.Options.CommandLine))
-                let command = commandFactory.CreateCommand(commandName)
+                let arg0 = t.commandLine.Where(a => a.Name.Equals(MultiName.Command)).SingleOrThrow(onEmpty: ("CommandNameNotFound", $"Command line {t.index} does not contain command-name."))
+                let command = _commandFactory.CreateCommand(arg0.Name.Single())
                 select
                 (
                     t.index,
@@ -68,7 +63,7 @@ namespace Reusable.Commander
                     t.commandLine
                 );
 
-            var async = executables.ToLookup(e => new CommandLineBase(e.commandLine).Async);
+            var async = executables.ToLookup(e => _commandParameterBinder.Bind<CommandParameter>(e.commandLine).Async);
 
             _logger.Log(Abstraction.Layer.Service().Counter(new { CommandCount = async.Count, SequentialCommandCount = async[false].Count(), AsyncCommandCount = async[true].Count() }));
 
@@ -84,7 +79,10 @@ namespace Reusable.Commander
                         break;
                     }
 
-                    var task = executable.command.ExecuteAsync(executable.commandLine, context, cts.Token);
+                    var commandParameterType = executable.command.GetType().GetGenericArguments().First();
+                    var bindMethod = typeof(ICommandParameterBinder).GetMethod(nameof(ICommandParameterBinder.Bind))!.MakeGenericMethod(commandParameterType ?? typeof(object));
+                    var parameter = bindMethod.Invoke(_commandParameterBinder, new object[] { context, executable.commandLine });
+                    var task = executable.command.ExecuteAsync(parameter, cts.Token);
                     var continuation = task.ContinueWith(t =>
                     {
                         exceptions.Add(t.Exception);
@@ -105,11 +103,14 @@ namespace Reusable.Commander
             using (var cts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken))
             {
                 // Now execute async commands.
-                var actionBlock = new ActionBlock<(int index, ICommand command, CommandLineDictionary commandLine)>
+                var actionBlock = new ActionBlock<(int index, ICommand command, List<CommandLineArgument> commandLine)>
                 (
                     async executable =>
                     {
-                        var task = executable.command.ExecuteAsync(executable.commandLine, context, cts.Token);
+                        var commandParameterType = executable.command.GetType().GetGenericArguments().First();
+                        var bindMethod = typeof(ICommandParameterBinder).GetMethod(nameof(ICommandParameterBinder.Bind))!.MakeGenericMethod(commandParameterType ?? typeof(object));
+                        var parameter = bindMethod.Invoke(_commandParameterBinder, new object[] { context, executable.commandLine });
+                        var task = executable.command.ExecuteAsync(parameter, cts.Token);
                         var continuation = task.ContinueWith(t => exceptions.Add(t.Exception), TaskContinuationOptions.OnlyOnFaulted);
                         try
                         {

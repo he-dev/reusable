@@ -12,81 +12,26 @@ namespace Reusable.Commander
 {
     public static class CommandHelper
     {
-        private static readonly ConcurrentDictionary<Type, NameSet> CommandNameCache = new ConcurrentDictionary<Type, NameSet>();
-
-        private static readonly ConcurrentDictionary<PropertyInfo, NameSet> ParameterNameCache = new ConcurrentDictionary<PropertyInfo, NameSet>();
-
-        [NotNull]
-        public static NameSet GetCommandId([NotNull] Type commandType)
+        private static readonly ConcurrentDictionary<MemberInfo, MultiName> NameCache = new ConcurrentDictionary<MemberInfo, MultiName>();
+        
+        public static MultiName GetMultiName(MemberInfo member)
         {
-            if (commandType == null) throw new ArgumentNullException(nameof(commandType));
-
-            if (!typeof(ICommand).IsAssignableFrom(commandType))
-            {
-                throw new ArgumentException(
-                    paramName: nameof(commandType),
-                    message: $"'{nameof(commandType)}' needs to be derived from '{nameof(System.Windows.Input.ICommand)}'");
-            }
-
-            return CommandNameCache.GetOrAdd(commandType, t =>
-            {
-                //var category = t.GetCustomAttribute<CategoryAttribute>()?.Category;
-
-                return new NameSet(GetCommandNames(t).Distinct());
-
-                // return new Identifier(
-                //     category is null
-                //         ? names
-                //         : names.SelectMany(name => new[] {name, SoftString.Create($"{category}.{name}")})
-                // );
-            });
+            return NameCache.GetOrAdd(member, t => new MultiName(GetMemberNames(t)));
         }
 
-        private static IEnumerable<Name> GetCommandNames(Type commandType)
+        private static IEnumerable<string> GetMemberNames(MemberInfo commandType)
         {
-            yield return new Name(GetDefaultCommandName(commandType), Name.Options.Default);
-            foreach (var name in commandType.GetCustomAttribute<TagsAttribute>() ?? Enumerable.Empty<string>())
+            yield return GetDefaultMemberName(commandType);
+            foreach (var name in commandType.GetCustomAttribute<AliasAttribute>() ?? Enumerable.Empty<string>())
             {
-                yield return new Name(name, Name.Options.Tag);
+                yield return name;
             }
         }
 
-        private static SoftString GetDefaultCommandName(Type commandType)
+        private static string GetDefaultMemberName(MemberInfo commandType)
         {
+            // todo - make this clean-up optional
             return Regex.Replace(commandType.Name, "C(omman|m)d$", string.Empty, RegexOptions.IgnoreCase);
-        }
-
-        [NotNull]
-        public static NameSet GetCommandParameterId([NotNull] PropertyInfo property)
-        {
-            if (property == null) throw new ArgumentNullException(nameof(property));
-
-            return ParameterNameCache.GetOrAdd(property, p =>
-            {
-                var names = GetParameterNames(p);
-                return new NameSet(names);
-            });
-        }
-
-        public static IEnumerable<Name> GetParameterNames(MemberInfo property)
-        {
-            // Always use the property name as default.
-            yield return new Name(property.Name, Name.Options.Default);
-
-            // Then get alias if any.
-            foreach (var alias in property.GetCustomAttribute<TagsAttribute>() ?? Enumerable.Empty<string>())
-            {
-                yield return new Name(alias, Name.Options.Tag);
-            }
-        }
-
-        public static IEnumerable<CommandArgumentMetadata> GetCommandArgumentMetadata(this Type commandArgumentGroupType)
-        {
-            return
-                commandArgumentGroupType
-                    .GetProperties(BindingFlags.Instance | BindingFlags.Public)
-                    .Where(p => !p.IsDefined(typeof(NotMappedAttribute)))
-                    .Select(CommandArgumentMetadata.Create);
         }
 
         public static Type GetCommandArgumentGroupType(this Type commandType)

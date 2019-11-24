@@ -3,6 +3,7 @@
   <PropertyGroup>
     <!--<TargetFramework>net47</TargetFramework>-->
     <TargetFrameworks>netcoreapp2.2;net47</TargetFrameworks>
+    <Nullable>enable</Nullable>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">

@@ -19,16 +19,16 @@ namespace Reusable.Commander
         public void Can_parse_single_command()
         {
             var commandLine = Parser.Parse("foo").ToList().Single();
-            Assert.Equal("foo", commandLine[NameSet.Command]?.Single());
+            Assert.Equal("foo", commandLine[NameCollection.Command]?.Single());
         }
 
         [Fact]
         public void Can_parse_command_with_mixed_parameters()
         {
             var commandLine = Parser.Parse("foo qux -bar baz").ToList().Single();
-            Assert.Equal("foo", commandLine[NameSet.Command]?.Single());
-            Assert.Equal("qux", commandLine[NameSet.FromPosition(1)]?.Single());
-            Assert.Equal("baz", commandLine[NameSet.FromName("bar")]?.Single());
+            Assert.Equal("foo", commandLine[NameCollection.Command]?.Single());
+            Assert.Equal("qux", commandLine[NameCollection.FromPosition(1)]?.Single());
+            Assert.Equal("baz", commandLine[NameCollection.FromName("bar")]?.Single());
         }
 
         [Fact]
@@ -36,8 +36,8 @@ namespace Reusable.Commander
         {
             var commandLines = Parser.Parse("foo.bar -baz -qux quux baar | bar.baz -foo").ToList();
             Assert.Equal(2, commandLines.Count);
-            Assert.Equal("foo.bar", commandLines[0][NameSet.Command].Single());
-            Assert.Equal("bar.baz", commandLines[1][NameSet.Command].Single());
+            Assert.Equal("foo.bar", commandLines[0][NameCollection.Command].Single());
+            Assert.Equal("bar.baz", commandLines[1][NameCollection.Command].Single());
         }
     }
 }

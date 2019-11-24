@@ -19,21 +19,9 @@ using t = Reusable.Commander.ConsoleTemplates;
 namespace Reusable.Commander.Commands
 {
     [PublicAPI]
-    public class HelpCommandLine : CommandLineBase
-    {
-        public HelpCommandLine(CommandLineDictionary arguments) : base(arguments) { }
-
-        [CanBeNull]
-        [Description("Display command usage.")]
-        [Tags("cmd")]
-        [Position(1)]
-        public string Command => GetArgument(() => Command);
-    }
-
-    [PublicAPI]
     [Tags("h", "?")]
     [Description("Display help.")]
-    public class Help : Command<HelpCommandLine>
+    public class Help : Command<Help.Parameter>
     {
         private static readonly int IndentWidth = 4;
 
@@ -41,30 +29,29 @@ namespace Reusable.Commander.Commands
 
         private readonly IList<Type> _commandTypes;
 
-        public Help(ILogger<Help> logger, TypeList<ICommand> commands)
-            : base(logger)
+        public Help(ILogger<Help> logger, TypeList<ICommand> commands) : base(logger)
         {
             _commandTypes = commands;
         }
 
         public ConsoleStyle Style { get; set; }
 
-        protected override Task ExecuteAsync(HelpCommandLine commandLine, object context, CancellationToken cancellationToken)
+        protected override Task ExecuteAsync(Parameter? parameter, CancellationToken cancellationToken)
         {
-            var commandSelected = commandLine.Command.IsNotNullOrEmpty();
+            var commandSelected = parameter.Command.IsNotNullOrEmpty();
             if (commandSelected)
             {
-                RenderParameterList(commandLine);
+                RenderParameterList(parameter);
             }
             else
             {
-                RenderCommandList(commandLine);
+                RenderCommandList(parameter);
             }
 
             return Task.CompletedTask;
         }
 
-        protected virtual void RenderCommandList(HelpCommandLine parameter)
+        protected virtual void RenderCommandList(Parameter parameter)
         {
             // Headers
             var captions = new[] { "Command", "Description" }.Pad(ColumnWidths);
@@ -78,23 +65,23 @@ namespace Reusable.Commander.Commands
             var userExecutableCommands =
                 from commandType in _commandTypes
                 where !commandType.IsDefined(typeof(InternalAttribute))
-                orderby CommandHelper.GetCommandId(commandType).Default.Value
+                orderby CommandHelper.GetMultiName(commandType).First()
                 select commandType;
 
             foreach (var commandType in userExecutableCommands)
             {
-                var defaultId = CommandHelper.GetCommandId(commandType).Default.ToString();
-                var aliases = string.Join("|", CommandHelper.GetCommandId(commandType).Tags.Select(x => x.ToString()));
+                var defaultId = CommandHelper.GetMultiName(commandType).First();
+                var aliases = string.Join("|", CommandHelper.GetMultiName(commandType).Skip(1).Select(x => x.ToString()));
                 var description = commandType.GetCustomAttribute<DescriptionAttribute>()?.Description ?? "N/A";
                 var row = new[] { $"{defaultId} ({(aliases.Length > 0 ? aliases : "-")})", description }.Pad(ColumnWidths);
                 Logger.WriteLine(Style, new t.Indent(1), new t.Help.TableRow { Cells = row });
             }
         }
 
-        protected virtual void RenderParameterList(HelpCommandLine commandLine)
+        protected virtual void RenderParameterList(Parameter commandLine)
         {
-            var commandId = new NameSet(new Name(commandLine.Command));
-            var commandType = _commandTypes.SingleOrDefault(t => CommandHelper.GetCommandId(t) == commandId);
+            var commandId = new NameCollection(new Name2(commandLine.Command));
+            var commandType = _commandTypes.SingleOrDefault(t => CommandHelper.GetMultiName(t) == commandId);
             if (commandType is null)
             {
                 throw DynamicException.Create
@@ -126,6 +113,18 @@ namespace Reusable.Commander.Commands
                 var row = new[] { $"{defaultId} ({(aliases.Length > 0 ? aliases : "-")})", description }.Pad(ColumnWidths);
                 Logger.WriteLine(Style, new t.Indent(1), new t.Help.TableRow { Cells = row });
             }
+        }
+
+        [PublicAPI]
+        public class Parameter : CommandParameter
+        {
+            [Description("Display command usage.")]
+            [Alias("cmd")]
+            [Position(1)]
+            public string? Command { get; set; }
+            
+            [Service]
+            public TypeList<ICommand> Commands { get; set; }
         }
     }
 

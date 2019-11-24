@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
@@ -13,24 +14,25 @@ namespace Reusable.Commander
     /// This class represents a single command-line argument with all its values.
     /// </summary>
     [DebuggerDisplay(DebuggerDisplayString.DefaultNoQuotes)]
-    public class CommandArgument : List<string>, IEquatable<CommandArgument>, IFormattable
+    public class CommandLineArgument : List<string>, IEquatable<CommandLineArgument>, IFormattable
     {
         public const string DefaultFormat = "-:";
 
-        internal CommandArgument(NameSet name, IEnumerable<string> values) : base(values)
-        {
-            Name = name;
-        }
+        internal CommandLineArgument(MultiName name, IEnumerable<string> values) : base(values) => Name = name;
+
+        internal CommandLineArgument(MultiName name, params string[] values) : this(name, values.AsEnumerable()) { }
+
+        public static CommandLineArgument NotFound => new CommandLineArgument(MultiName.Empty, Enumerable.Empty<string>());
 
         private string DebuggerDisplay => ToString();
 
-        public NameSet Name { get; }
+        public MultiName Name { get; }
 
         #region IEquatable
 
-        public bool Equals(CommandArgument other) => Name?.Equals(other.Name) == true;
+        public bool Equals(CommandLineArgument? other) => Name.Equals(other?.Name);
 
-        public override bool Equals(object obj) => obj is CommandArgument parameter && Equals(parameter);
+        public override bool Equals(object obj) => obj is CommandLineArgument parameter && Equals(parameter);
 
         public override int GetHashCode() => Name.GetHashCode();
 
@@ -70,9 +72,12 @@ namespace Reusable.Commander
 
         public override string ToString() => ToString(DefaultFormat, CultureInfo.InvariantCulture);
 
-        public static implicit operator string(CommandArgument commandArgument) => commandArgument?.ToString();
+        public static implicit operator string(CommandLineArgument commandLineArgument) => commandLineArgument?.ToString();
+
+        public static implicit operator bool(CommandLineArgument arg) => arg.Name.Any();
     }
     
+
 //    public class CommandArgumentComparer : IComparer<CommandArgument>
 //    {
 //        public int Compare(CommandArgument x, CommandArgument y)

@@ -16,39 +16,39 @@ namespace Reusable.Commander
         [Fact]
         public async Task CanExecuteCommandByAnyName()
         {
-            var counters = new ConcurrentDictionary<NameSet, int>();
+            var counters = new ConcurrentDictionary<NameCollection, int>();
 
             var commands =
                 ImmutableList<CommandModule>
                     .Empty
-                    .Add(new NameSet("a", "b"), ExecuteHelper.Count<TestCommandLine>(counters));
+                    .Add(new NameCollection("a", "b"), ExecuteHelper.Count<TestCommandLine>(counters));
 
             using (var context = Helper.CreateContext(commands))
             {
                 await context.Executor.ExecuteAsync<object>("a", default, context.CommandFactory);
                 await context.Executor.ExecuteAsync<object>("b", default, context.CommandFactory);
 
-                Assert.Equal(2, counters[NameSet.FromName("a")]);
+                Assert.Equal(2, counters[NameCollection.FromName("a")]);
             }
         }
 
         [Fact]
         public async Task CanExecuteMultipleCommands()
         {
-            var counters = new ConcurrentDictionary<NameSet, int>();
+            var counters = new ConcurrentDictionary<NameCollection, int>();
 
             var commands =
                 ImmutableList<CommandModule>
                     .Empty
-                    .Add(new NameSet("a"), ExecuteHelper.Count<TestCommandLine>(counters))
-                    .Add(new NameSet("b"), ExecuteHelper.Count<TestCommandLine>(counters));
+                    .Add(new NameCollection("a"), ExecuteHelper.Count<TestCommandLine>(counters))
+                    .Add(new NameCollection("b"), ExecuteHelper.Count<TestCommandLine>(counters));
 
             using (var context = Helper.CreateContext(commands))
             {
                 await context.Executor.ExecuteAsync<object>("a|b", default, context.CommandFactory);
 
-                Assert.Equal(1, counters[NameSet.FromName("a")]);
-                Assert.Equal(1, counters[NameSet.FromName("b")]);
+                Assert.Equal(1, counters[NameCollection.FromName("a")]);
+                Assert.Equal(1, counters[NameCollection.FromName("b")]);
             }
         }
 
@@ -118,8 +118,8 @@ namespace Reusable.Commander
         [Fact]
         public async Task Uses_default_values_when_specified()
         {
-            var values = new Dictionary<NameSet, object>();
-            var commands = ImmutableList<CommandModule>.Empty.Add(new NameSet("test"), new ExecuteCallback<TestCommandLine, object>((id, commandLine, context, token) =>
+            var values = new Dictionary<NameCollection, object>();
+            var commands = ImmutableList<CommandModule>.Empty.Add(new NameCollection("test"), new ExecuteDelegate<TestCommandLine, object>((id, commandLine, context, token) =>
             {
                 values[nameof(TestCommandLine.Bool)] = commandLine.Bool;
                 values[nameof(TestCommandLine.BoolWithDefaultValue)] = commandLine.BoolWithDefaultValue;
@@ -148,8 +148,8 @@ namespace Reusable.Commander
         [Fact]
         public async Task Can_parse_supported_types()
         {
-            var values = new Dictionary<NameSet, object>();
-            var commands = ImmutableList<CommandModule>.Empty.Add(new NameSet("test"), new ExecuteCallback<TestCommandLine, object>((id, commandLine, context, token) =>
+            var values = new Dictionary<NameCollection, object>();
+            var commands = ImmutableList<CommandModule>.Empty.Add(new NameCollection("test"), new ExecuteDelegate<TestCommandLine, object>((id, commandLine, context, token) =>
             {
                 values[nameof(TestCommandLine.Bool)] = commandLine.Bool;
                 values[nameof(TestCommandLine.String)] = commandLine.String;
@@ -174,8 +174,8 @@ namespace Reusable.Commander
         [Fact]
         public async Task Throws_AggregateException_for_faulted_commands()
         {
-            var values = new Dictionary<NameSet, object>();
-            var commands = ImmutableList<CommandModule>.Empty.Add(new NameSet("test"), new ExecuteCallback<TestCommandLine, object>((id, commandLine, context, token) => { throw new Exception("Blub!"); }));
+            var values = new Dictionary<NameCollection, object>();
+            var commands = ImmutableList<CommandModule>.Empty.Add(new NameCollection("test"), new ExecuteDelegate<TestCommandLine, object>((id, commandLine, context, token) => { throw new Exception("Blub!"); }));
 
             using (var context = Helper.CreateContext(commands))
             {
@@ -269,9 +269,9 @@ namespace Reusable.Commander
         //     ExecuteAssert<Bag2>(bag => { Assert.Equal("baz", bag.Property04); });
         // }
 
-        internal class TestCommandLine : CommandLineBase
+        internal class TestCommandLine : CommandParameter
         {
-            public TestCommandLine(CommandLineDictionary arguments) : base(arguments) { }
+            public TestCommandLine(CommandLineArgumentCollection commandLineArguments) : base(commandLineArguments) { }
 
             public bool Bool => GetArgument(() => Bool);
 

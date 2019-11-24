@@ -1,4 +1,6 @@
 using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.Collections.Immutable;
 using Autofac;
 using JetBrains.Annotations;
@@ -7,14 +9,11 @@ using Reusable.Commander.Utilities;
 namespace Reusable.Commander.DependencyInjection
 {
     [PublicAPI]
-    public class CommanderModule : Autofac.Module
+    public class CommanderModule : Autofac.Module, IEnumerable<Action<ContainerBuilder>>
     {
-        [NotNull] private readonly IImmutableList<CommandModule> _commandModules;
+        private readonly List<Action<ContainerBuilder>> _registrationActions = new List<Action<ContainerBuilder>>();
 
-        public CommanderModule([NotNull] IImmutableList<CommandModule> commandModules)
-        {
-            _commandModules = commandModules ?? throw new ArgumentNullException(nameof(commandModules));
-        }
+        public void Add(Action<ContainerBuilder> registrationAction) => _registrationActions.Add(registrationAction);
 
         protected override void Load(ContainerBuilder builder)
         {
@@ -34,14 +33,18 @@ namespace Reusable.Commander.DependencyInjection
             builder
                 .RegisterType<CommandExecutor>()
                 .As<ICommandExecutor>();
-            
-            foreach (var commandModule in _commandModules)
+
+            foreach (var registrationAction in this)
             {
-               builder.RegisterModule(commandModule);
+                registrationAction(builder);
             }
 
             builder
                 .RegisterSource(new TypeListSource());
         }
+
+        public IEnumerator<Action<ContainerBuilder>> GetEnumerator() => _registrationActions.GetEnumerator();
+
+        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
     }
 }

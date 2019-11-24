@@ -4,7 +4,7 @@ using Reusable.Extensions;
 
 namespace Reusable
 {
-    public class SoftStringComparer : IEqualityComparer<SoftString?>, IEqualityComparer<string?>, IComparer<SoftString?>
+    public class SoftStringComparer : IEqualityComparer<SoftString?>, IEqualityComparer<string?>, IComparer<SoftString?>, IComparer<string?>
     {
         private static readonly StringComparer Comparer = StringComparer.OrdinalIgnoreCase;
 
@@ -25,9 +25,8 @@ namespace Reusable
 
         public int GetHashCode(string? obj) => GetHashCode(obj.ToSoftString());
 
-        public int Compare(SoftString? x, SoftString? y)
-        {
-            return Comparer.Compare(x?.ToString(), y?.ToString());
-        }
+        public int Compare(SoftString? x, SoftString? y) => Compare(x?.ToString(), y?.ToString());
+
+        public int Compare(string? x, string? y) => Comparer.Compare(x, y);
     }
 }

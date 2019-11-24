@@ -61,7 +61,7 @@ namespace Reusable.Commander.Integration
         //     };
         // }
 
-        internal static ExecuteCallback<TCommandLine, object> Count<TCommandLine>(ConcurrentDictionary<NameSet, int> counters) where TCommandLine : ICommandLine
+        internal static ExecuteDelegate<TCommandLine, object> Count<TCommandLine>(ConcurrentDictionary<NameCollection, int> counters) where TCommandLine : ICommandLine
         {
             return (id, commandLine, context, cancellationToken) =>
             {
@@ -70,7 +70,7 @@ namespace Reusable.Commander.Integration
             };
         }
 
-        internal static ExecuteCallback<TCommandLine, object> Noop<TCommandLine>() where TCommandLine : ICommandLine
+        internal static ExecuteDelegate<TCommandLine, object> Noop<TCommandLine>() where TCommandLine : ICommandLine
         {
             return (name, commandLine, context, cancellationToken) => Task.CompletedTask;
         }

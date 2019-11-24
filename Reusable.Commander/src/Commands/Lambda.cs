@@ -6,38 +6,17 @@ using Reusable.OmniLog.Abstractions;
 
 namespace Reusable.Commander.Commands
 {
-    public delegate Task ExecuteCallback<in TCommandLine, in TContext>
-    (
-        NameSet commandId,
-        TCommandLine parameters,
-        TContext context,
-        CancellationToken cancellationToken = default
-    ) where TCommandLine : ICommandLine;
+    public delegate Task ExecuteDelegate<in TParameter>(MultiName name, TParameter? parameter, CancellationToken cancellationToken = default) where TParameter : class, new();
 
-    public class Lambda<TCommandLine, TContext> : Command<TCommandLine, TContext> where TCommandLine : class, ICommandLine
+    public class Lambda<TParameter> : Command<TParameter> where TParameter : class, new()
     {
-        private readonly ExecuteCallback<TCommandLine, TContext> _execute;
+        private readonly ExecuteDelegate<TParameter> _execute;
 
-        public delegate Lambda<T, TContext> Factory<T>([NotNull] NameSet id, [NotNull] ExecuteCallback<TCommandLine, TContext> execute) where T : class, ICommandLine, new();
+        public Lambda(ILogger<Lambda<TParameter>> logger, MultiName name, ExecuteDelegate<TParameter> execute) : base(logger, name) => _execute = execute;
 
-        public Lambda
-        (
-            ILogger<Lambda<TCommandLine, TContext>> logger,
-            [NotNull] NameSet id,
-            [NotNull] ExecuteCallback<TCommandLine, TContext> execute
-        )
-            : base(logger)
+        protected override Task ExecuteAsync(TParameter? parameter, CancellationToken cancellationToken)
         {
-            Name = id;
-            _execute = execute ?? throw new ArgumentNullException(nameof(execute));
-        }
-
-        [NotNull]
-        public override NameSet Name { get; }
-
-        protected override Task ExecuteAsync(TCommandLine commandLine, TContext context, CancellationToken cancellationToken)
-        {
-            return _execute(Name, commandLine, context, cancellationToken);
+            return _execute(Name, parameter, cancellationToken);
         }
     }
 }
