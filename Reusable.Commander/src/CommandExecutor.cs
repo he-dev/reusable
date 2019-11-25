@@ -79,7 +79,7 @@ namespace Reusable.Commander
                         break;
                     }
 
-                    var commandParameterType = executable.command.GetType().GetGenericArguments().First();
+                    var commandParameterType = executable.command.GetType().GetCommandParameterType();
                     var bindMethod = typeof(ICommandParameterBinder).GetMethod(nameof(ICommandParameterBinder.Bind))!.MakeGenericMethod(commandParameterType ?? typeof(object));
                     var parameter = bindMethod.Invoke(_commandParameterBinder, new object[] { context, executable.commandLine });
                     var task = executable.command.ExecuteAsync(parameter, cts.Token);
@@ -107,7 +107,7 @@ namespace Reusable.Commander
                 (
                     async executable =>
                     {
-                        var commandParameterType = executable.command.GetType().GetGenericArguments().First();
+                        var commandParameterType = executable.command.GetType().GetCommandParameterType();
                         var bindMethod = typeof(ICommandParameterBinder).GetMethod(nameof(ICommandParameterBinder.Bind))!.MakeGenericMethod(commandParameterType ?? typeof(object));
                         var parameter = bindMethod.Invoke(_commandParameterBinder, new object[] { context, executable.commandLine });
                         var task = executable.command.ExecuteAsync(parameter, cts.Token);

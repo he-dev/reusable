@@ -18,7 +18,7 @@ namespace Reusable.Commander
         {
             var counters = new ConcurrentDictionary<NameCollection, int>();
 
-            var commands =
+            var command =
                 ImmutableList<CommandModule>
                     .Empty
                     .Add(new NameCollection("a", "b"), ExecuteHelper.Count<TestCommandLine>(counters));

@@ -27,12 +27,7 @@ namespace Reusable.Commander.Commands
 
         private static readonly int[] ColumnWidths = { 27, 50 };
 
-        private readonly IList<Type> _commandTypes;
-
-        public Help(ILogger<Help> logger, TypeList<ICommand> commands) : base(logger)
-        {
-            _commandTypes = commands;
-        }
+        public Help(ILogger<Help> logger) : base(logger) { }
 
         public ConsoleStyle Style { get; set; }
 
@@ -63,7 +58,7 @@ namespace Reusable.Commander.Commands
 
             // Commands
             var userExecutableCommands =
-                from commandType in _commandTypes
+                from commandType in parameter.Commands
                 where !commandType.IsDefined(typeof(InternalAttribute))
                 orderby CommandHelper.GetMultiName(commandType).First()
                 select commandType;
@@ -78,16 +73,15 @@ namespace Reusable.Commander.Commands
             }
         }
 
-        protected virtual void RenderParameterList(Parameter commandLine)
+        protected virtual void RenderParameterList(Parameter parameter)
         {
-            var commandId = new NameCollection(new Name2(commandLine.Command));
-            var commandType = _commandTypes.SingleOrDefault(t => CommandHelper.GetMultiName(t) == commandId);
+            var commandType = parameter.Commands.SingleOrDefault(t => CommandHelper.GetMultiName(t).Equals(parameter.Command));
             if (commandType is null)
             {
                 throw DynamicException.Create
                 (
                     $"CommandNotFound",
-                    $"Could not find a command with the name '{commandLine.Command}'"
+                    $"Could not find a command with the name '{parameter.Command}'"
                 );
             }
 
@@ -99,17 +93,17 @@ namespace Reusable.Commander.Commands
             var separators = captions.Select(c => new string('-', c.Trim().Length)).Pad(ColumnWidths);
             Logger.WriteLine(Style, new t.Indent(1), new t.Help.TableRow { Cells = separators });
 
-            var bagType = commandType.GetCommandArgumentGroupType();
-            var commandArguments =
-                from commandArgument in bagType.GetCommandArgumentMetadata()
-                orderby commandArgument.Name.Default.Value
+            var bagType = commandType.GetCommandParameterType();
+            var commandParameterProperties =
+                from commandArgument in bagType.GetCommandParameterType().GetParameterProperties()
+                orderby commandArgument.Name.First()
                 select commandArgument;
 
-            foreach (var commandArgument in commandArguments)
+            foreach (var commandParameterProperty in commandParameterProperties)
             {
-                var defaultId = commandArgument.Name.Default.ToString();
-                var aliases = string.Join("|", commandArgument.Name.Tags.Select(x => x.ToString()));
-                var description = commandArgument.Description ?? "N/A";
+                var defaultId = commandParameterProperty.Name.First();
+                var aliases = string.Join("|", commandParameterProperty.Name.Skip(1).Select(x => x.ToString()));
+                var description = commandParameterProperty.GetCustomAttribute<DescriptionAttribute>()?.Description ?? "N/A";
                 var row = new[] { $"{defaultId} ({(aliases.Length > 0 ? aliases : "-")})", description }.Pad(ColumnWidths);
                 Logger.WriteLine(Style, new t.Indent(1), new t.Help.TableRow { Cells = row });
             }
@@ -122,7 +116,7 @@ namespace Reusable.Commander.Commands
             [Alias("cmd")]
             [Position(1)]
             public string? Command { get; set; }
-            
+
             [Service]
             public TypeList<ICommand> Commands { get; set; }
         }

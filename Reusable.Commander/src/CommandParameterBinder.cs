@@ -63,7 +63,6 @@ namespace Reusable.Commander
 
                     property.SetValue(parameter, obj);
                 }
-
                 else
                 {
                     if (property.GetCustomAttribute<RequiredAttribute>() is {})
@@ -75,7 +74,7 @@ namespace Reusable.Commander
                     {
                         property.SetValue(parameter, context);
                     }
-                    
+
                     if (property.GetCustomAttribute<ServiceAttribute>() is {} service)
                     {
                         property.SetValue(parameter, _scope.Resolve(service.ServiceType ?? property.PropertyType));
