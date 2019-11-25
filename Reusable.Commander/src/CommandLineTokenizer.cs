@@ -9,8 +9,7 @@ namespace Reusable.Commander
 {
     public interface ICommandLineTokenizer
     {
-        [NotNull, ItemNotNull]
-        IEnumerable<string> Tokenize([CanBeNull] string text);
+        IEnumerable<string> Tokenize(string? text);
     }
 
     public class CommandLineTokenizer : ICommandLineTokenizer
@@ -18,7 +17,7 @@ namespace Reusable.Commander
         public static readonly IImmutableSet<char> Separators = new[] { ' ', '|', ',', ':', '=' }.ToImmutableHashSet();
         public static readonly IImmutableSet<char> Escapables = new[] { '\\', '"' }.Concat(Separators).ToImmutableHashSet();
 
-        public IEnumerable<string> Tokenize(string text)
+        public IEnumerable<string> Tokenize(string? text)
         {
             if (text.IsNullOrEmpty())
             {

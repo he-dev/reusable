@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
+using System.Linq.Custom;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
@@ -8,7 +9,6 @@ using JetBrains.Annotations;
 using Reusable.Commander.Annotations;
 using Reusable.Commander.Utilities;
 using Reusable.Data.Annotations;
-using Reusable.Exceptionize;
 using Reusable.Extensions;
 using Reusable.OmniLog;
 using Reusable.OmniLog.Abstractions;
@@ -18,7 +18,8 @@ using t = Reusable.Commander.ConsoleTemplates;
 namespace Reusable.Commander.Commands
 {
     [PublicAPI]
-    [Tags("h", "?")]
+    [UsedImplicitly]
+    [Alias("h", "?")]
     [Description("Display help.")]
     public class Help : Command<Help.Parameter>
     {
@@ -59,13 +60,13 @@ namespace Reusable.Commander.Commands
             var userExecutableCommands =
                 from commandType in parameter.Commands
                 where !commandType.IsDefined(typeof(InternalAttribute))
-                orderby CommandHelper.GetMultiName(commandType).First()
+                orderby commandType.GetMultiName().First()
                 select commandType;
 
             foreach (var commandType in userExecutableCommands)
             {
-                var defaultId = CommandHelper.GetMultiName(commandType).First();
-                var aliases = string.Join("|", CommandHelper.GetMultiName(commandType).Skip(1).Select(x => x.ToString()));
+                var defaultId = commandType.GetMultiName().First();
+                var aliases = string.Join("|", commandType.GetMultiName().Skip(1).Select(x => x.ToString()));
                 var description = commandType.GetCustomAttribute<DescriptionAttribute>()?.Description ?? "N/A";
                 var row = new[] { $"{defaultId} ({(aliases.Length > 0 ? aliases : "-")})", description }.Pad(ColumnWidths);
                 Logger.WriteLine(Style, new t.Indent(1), new t.Help.TableRow { Cells = row });
@@ -74,34 +75,30 @@ namespace Reusable.Commander.Commands
 
         protected virtual void RenderParameterList(Parameter parameter)
         {
-            var commandType = parameter.Commands.SingleOrDefault(t => CommandHelper.GetMultiName(t).Equals(parameter.Command));
-            if (commandType is null)
-            {
-                throw DynamicException.Create
-                (
-                    $"CommandNotFound",
-                    $"Could not find a command with the name '{parameter.Command}'"
-                );
-            }
+            var commandType =
+                parameter
+                    .Commands
+                    .Where(t => t.GetMultiName().Equals(parameter.Command))
+                    .SingleOrThrow(onEmpty: ($"CommandNotFound", $"Could not find a command with the name '{parameter.Command}'"));
 
             // Headers
-            var captions = new[] { "Option", "Description" }.Pad(ColumnWidths);
+            var captions = new[] { "Option", "Description" }.Pad(ColumnWidths).ToList();
             Logger.WriteLine(Style, new t.Indent(1), new t.Help.TableRow { Cells = captions });
 
             // Separators
             var separators = captions.Select(c => new string('-', c.Trim().Length)).Pad(ColumnWidths);
             Logger.WriteLine(Style, new t.Indent(1), new t.Help.TableRow { Cells = separators });
 
-            var bagType = commandType.GetCommandParameterType();
             var commandParameterProperties =
-                from commandArgument in bagType.GetCommandParameterType().GetParameterProperties()
+                from commandArgument in commandType.GetCommandParameterType().GetParameterProperties()
                 orderby commandArgument.Name.First()
                 select commandArgument;
 
             foreach (var commandParameterProperty in commandParameterProperties)
             {
-                var defaultId = commandParameterProperty.Name.First();
-                var aliases = string.Join("|", commandParameterProperty.Name.Skip(1).Select(x => x.ToString()));
+                var name = commandParameterProperty.GetMultiName();
+                var defaultId = name.First();
+                var aliases = name.Skip(1).OrderByDescending(a => a.Length).Join("|");
                 var description = commandParameterProperty.GetCustomAttribute<DescriptionAttribute>()?.Description ?? "N/A";
                 var row = new[] { $"{defaultId} ({(aliases.Length > 0 ? aliases : "-")})", description }.Pad(ColumnWidths);
                 Logger.WriteLine(Style, new t.Indent(1), new t.Help.TableRow { Cells = row });

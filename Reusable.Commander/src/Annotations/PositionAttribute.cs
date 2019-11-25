@@ -7,12 +7,10 @@ namespace Reusable.Commander.Annotations
     [AttributeUsage(AttributeTargets.Property, AllowMultiple = false)]
     public class PositionAttribute : Attribute
     {
-        private const int CommandNameIndex = 0;
-        private const int FirstArgumentIndex = 1;
-
         public PositionAttribute(int position)
         {
-            //if (position < FirstArgumentIndex) throw new ArgumentOutOfRangeException($"{nameof(position)} must be > {CommandNameIndex}.");
+            if (position < 1) throw new ArgumentOutOfRangeException(paramName: nameof(position), message: $"Command argument position must be greater than zero.");
+            
             Value = position;
         }
 
@@ -20,16 +18,4 @@ namespace Reusable.Commander.Annotations
 
         public static implicit operator int(PositionAttribute attribute) => attribute.Value;
     }
-
-//    [UsedImplicitly]
-//    [AttributeUsage(AttributeTargets.Property, AllowMultiple = false)]
-//    public class GroupAttribute : Attribute
-//    {
-//        public GroupAttribute(int index)
-//        {
-//            Index = index;
-//        }
-//        
-//        public int Index { get; }
-//    }
 }

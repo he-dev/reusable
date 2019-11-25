@@ -14,8 +14,6 @@ namespace Reusable.Commander
     {
         private readonly ILifetimeScope _scope;
 
-        // You used IIndex<,> here before but it didn't work with decorated commands.
-        // You tested it in LINQPad with "Autofac and decorators".
         public CommandFactory(ILifetimeScope scope) => _scope = scope;
 
         public ICommand CreateCommand(string commandName)

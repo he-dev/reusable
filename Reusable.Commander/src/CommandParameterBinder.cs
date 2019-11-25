@@ -3,11 +3,13 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
+using System.Linq.Custom;
 using System.Reflection;
 using Autofac;
 using JetBrains.Annotations;
 using Reusable.Commander.Annotations;
 using Reusable.Exceptionize;
+using Reusable.Extensions;
 using Reusable.OneTo1;
 using Reusable.Reflection;
 
@@ -56,7 +58,13 @@ namespace Reusable.Commander
                             ? converter.Convert(deserialize, property.PropertyType)
                             : property.PropertyType == typeof(bool);
 
-                    // todo - add validation-attribute
+                    if (property.GetCustomAttributes<ValidationAttribute>() is var validations)
+                    {
+                        foreach (var validation in validations)
+                        {
+                            validation.Validate(obj, property.GetMultiName().Join(", ").EncloseWith("[]"));
+                        }
+                    }
 
                     property.SetValue(parameter, obj);
                 }
@@ -65,11 +73,6 @@ namespace Reusable.Commander
                     if (property.GetCustomAttribute<RequiredAttribute>() is {})
                     {
                         throw DynamicException.Create("ArgumentNotFound", $"Could not bind required parameter '{argName.First()}' because there was no such argument in the command-line.");
-                    }
-                    
-                    if (property.GetCustomAttribute<PositionAttribute>() is {} p)
-                    {
-                        throw DynamicException.Create("ArgumentNotFound", $"Could not bind positional parameter '{argName.First()}' at {p.Value} because there was no such argument in the command-line.");
                     }
 
                     if (property.GetCustomAttribute<ContextAttribute>() is {})

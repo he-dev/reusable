@@ -8,8 +8,5 @@ namespace Reusable.Commander.Annotations
     /// </summary>
     [UsedImplicitly]
     [AttributeUsage(AttributeTargets.Class | AttributeTargets.Property, AllowMultiple = false)]
-    public class InternalAttribute : Attribute
-    {
-        
-    }
+    public class InternalAttribute : Attribute { }
 }

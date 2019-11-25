@@ -24,6 +24,7 @@ namespace Reusable.Commander
                 .Add<StringToColorConverter>()
                 .Add<StringToBooleanConverter>()
                 .Add<StringToDateTimeConverter>()
+                .Add<StringToTimeSpanConverter>()
                 .Add<StringToEnumConverter>()
                 .Add<EnumerableToListConverter>();
     }
