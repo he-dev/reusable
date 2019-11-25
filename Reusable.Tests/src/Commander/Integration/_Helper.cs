@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Threading.Tasks;
 using Autofac;
@@ -13,7 +14,7 @@ namespace Reusable.Commander.Integration
 {
     internal static class Helper
     {
-        public static TestContext CreateContext(IImmutableList<CommandModule> commandRegistrations)
+        public static TestContext CreateContext(IEnumerable<RegisterCommandDelegate> commandRegistrations)
         {
             var container = InitializeContainer(commandRegistrations);
             var scope = container.BeginLifetimeScope();
@@ -25,7 +26,7 @@ namespace Reusable.Commander.Integration
             }));
         }
 
-        private static IContainer InitializeContainer(IImmutableList<CommandModule> commandRegistrations)
+        private static IContainer InitializeContainer(IEnumerable<RegisterCommandDelegate> commandRegistrations)
         {
             var builder = new ContainerBuilder();
 

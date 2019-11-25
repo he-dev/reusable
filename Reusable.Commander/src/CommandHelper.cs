@@ -5,7 +5,6 @@ using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Reflection;
 using System.Text.RegularExpressions;
-using JetBrains.Annotations;
 using Reusable.Commander.Annotations;
 using Reusable.Data.Annotations;
 using Reusable.Extensions;
@@ -38,13 +37,24 @@ namespace Reusable.Commander
 
         public static Type GetCommandParameterType(this Type commandType)
         {
-            if (typeof(ICommand).IsAssignableFrom(commandType)) throw new ArgumentException($"'{nameof(commandType)}' must by of type '{typeof(ICommand).ToPrettyString()}'.");
+            if (commandType.IsAssignableFrom(typeof(ICommand))) throw new ArgumentException($"'{nameof(commandType)}' must by of type '{typeof(ICommand).ToPrettyString()}'.");
 
-            return
-                commandType
-                    .GetGenericArguments()
-                    .SingleOrDefault() ?? typeof(object);
+            do
+            {
+                if (commandType.IsGenericType && commandType.GetGenericTypeDefinition() == typeof(Command<>))
+                {
+                    return commandType.GetGenericArguments().Single();
+                }
+                else
+                {
+                    commandType = commandType.BaseType;
+                }
+            } while (commandType is {});
+
+            return typeof(object);
         }
+
+        public static Type ParameterType(this ICommand command) => command.GetType().GetCommandParameterType();
         
         public static IEnumerable<PropertyInfo> GetParameterProperties(this Type parameterType)
         {

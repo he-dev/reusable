@@ -3,9 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Custom;
-using JetBrains.Annotations;
-using Reusable.Collections;
-using Reusable.Data;
+using Reusable.Extensions;
 
 
 namespace Reusable.Commander
@@ -26,13 +24,15 @@ namespace Reusable.Commander
 
         #region IEquatable<MultiName>
 
-        public bool Equals(MultiName? other) => _names.Intersect(other?._names ?? Enumerable.Empty<string>()).Any();
+        public bool Equals(MultiName? other) => _names.Intersect(other?._names ?? Enumerable.Empty<string>(), SoftString.Comparer).Any();
 
         public override bool Equals(object? obj) => Equals(obj as MultiName);
 
         public override int GetHashCode() => 0;
 
         #endregion
+
+        public override string ToString() => _names.Join(", ").EncloseWith("[]");
 
         #region IEnumerable<string>
 

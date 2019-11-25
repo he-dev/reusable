@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using Autofac.Core;
 using Autofac.Core.Activators.Delegate;
-using Autofac.Core.Activators.Reflection;
 using Autofac.Core.Lifetime;
 using Autofac.Core.Registration;
 
@@ -24,13 +23,20 @@ namespace Reusable.Commander.Utilities
                     id: Guid.NewGuid(),
                     activator: new DelegateActivator(swt.ServiceType, (context, p) =>
                     {
+//                        var types =
+//                            context
+//                                .ComponentRegistry
+//                                .RegistrationsFor(new TypedService(baseType))
+//                                .Select(r => r.Activator)
+//                                .OfType<ReflectionActivator>()
+//                                .Select(activator => activator.LimitType);
                         var types =
-                            context
-                                .ComponentRegistry
-                                .RegistrationsFor(new TypedService(baseType))
-                                .Select(r => r.Activator)
-                                .OfType<ReflectionActivator>()
-                                .Select(activator => activator.LimitType);
+                            from r in context.ComponentRegistry.Registrations
+                            from s in r.Services
+                            let ts = s as TypedService
+                            where ts is {} && baseType.IsAssignableFrom(ts.ServiceType)
+                            select ts.ServiceType;
+                        
                         var typeListCtor = typeof(TypeList<>).MakeGenericType(baseType).GetConstructor(new[] { typeof(IEnumerable<Type>) });
                         return typeListCtor.Invoke(new object[] { types });
                     }),

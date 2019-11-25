@@ -1,16 +1,13 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
-using System.Linq.Expressions;
 using System.Reflection;
 using Autofac;
 using JetBrains.Annotations;
 using Reusable.Commander.Annotations;
 using Reusable.Exceptionize;
-using Reusable.Extensions;
 using Reusable.OneTo1;
 using Reusable.Reflection;
 
@@ -18,7 +15,7 @@ namespace Reusable.Commander
 {
     public interface ICommandParameterBinder
     {
-        T Bind<T>(ICollection<CommandLineArgument> args, object? context = default) where T : new();
+        T Bind<T>(List<CommandLineArgument> args, object? context = default) where T : CommandParameter, new();
     }
 
     [UsedImplicitly]
@@ -28,7 +25,7 @@ namespace Reusable.Commander
 
         public CommandParameterBinder(ILifetimeScope scope) => _scope = scope;
 
-        public T Bind<T>(ICollection<CommandLineArgument> args, object? context = default) where T : new()
+        public T Bind<T>(List<CommandLineArgument> args, object? context = default) where T : CommandParameter, new()
         {
             var parameter = new T();
 
@@ -36,11 +33,11 @@ namespace Reusable.Commander
 
             foreach (var property in properties)
             {
-                var argName = CommandHelper.GetMultiName(property);
+                var argName = property.GetMultiName();
                 var arg =
                     property.GetCustomAttribute<PositionAttribute>() is var position && position is {}
-                        ? args.Single(MultiName.Command) is var a && a && a.Count >= position.Value ? new CommandLineArgument($"#{position}", a.ElementAt(position)) : a
-                        : args.Single(argName);
+                        ? args.SingleOrNotFound(MultiName.Command) is var a && a && a.Count > position.Value ? new CommandLineArgument($"#{position}", a.ElementAt(position)) : CommandLineArgument.NotFound
+                        : args.SingleOrNotFound(argName);
 
                 if (arg)
                 {
@@ -69,6 +66,11 @@ namespace Reusable.Commander
                     {
                         throw DynamicException.Create("ArgumentNotFound", $"Could not bind required parameter '{argName.First()}' because there was no such argument in the command-line.");
                     }
+                    
+                    if (property.GetCustomAttribute<PositionAttribute>() is {} p)
+                    {
+                        throw DynamicException.Create("ArgumentNotFound", $"Could not bind positional parameter '{argName.First()}' at {p.Value} because there was no such argument in the command-line.");
+                    }
 
                     if (property.GetCustomAttribute<ContextAttribute>() is {})
                     {
@@ -88,7 +90,7 @@ namespace Reusable.Commander
 
     internal static class CommandParameterBinderExtensions
     {
-        public static CommandLineArgument Single(this IEnumerable<CommandLineArgument> args, MultiName name)
+        public static CommandLineArgument SingleOrNotFound(this IEnumerable<CommandLineArgument> args, MultiName name)
         {
             return args.SingleOrDefault(a => a.Name.Equals(name)) ?? CommandLineArgument.NotFound;
         }

@@ -1,12 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Custom;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
-using Reusable.Commander.DependencyInjection;
 using Reusable.Extensions;
 using Reusable.OmniLog;
 using Reusable.OmniLog.Abstractions;
@@ -61,7 +59,7 @@ namespace Reusable.Commander
 
                 return builder =>
                 {
-                    var registration = builder.RegisterType<T>().As<ICommand>();
+                    var registration = builder.RegisterType<T>();
                     configure?.Invoke(registration);
                     return typeof(T).GetMultiName();
                 };

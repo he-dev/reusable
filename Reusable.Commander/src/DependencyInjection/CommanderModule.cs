@@ -1,7 +1,6 @@
-using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Collections.Immutable;
+using System.Linq;
 using System.Linq.Custom;
 using Autofac;
 using JetBrains.Annotations;
@@ -13,8 +12,13 @@ namespace Reusable.Commander.DependencyInjection
     [PublicAPI]
     public class CommanderModule : Autofac.Module, IEnumerable<RegisterCommandDelegate>
     {
-        private readonly List<RegisterCommandDelegate> _registrationActions = new List<RegisterCommandDelegate>();
+        private readonly List<RegisterCommandDelegate> _registrationActions;
 
+        public CommanderModule(IEnumerable<RegisterCommandDelegate>? commandRegistrations = default)
+        {
+            _registrationActions = new List<RegisterCommandDelegate>(commandRegistrations ?? Enumerable.Empty<RegisterCommandDelegate>());
+        }
+        
         public void Add(RegisterCommandDelegate registrationAction)
         {
             _registrationActions.Add(registrationAction);

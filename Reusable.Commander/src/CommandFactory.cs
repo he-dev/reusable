@@ -1,10 +1,7 @@
-using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Custom;
 using Autofac;
 using Reusable.Commander.Utilities;
-using Reusable.Exceptionize;
 
 namespace Reusable.Commander
 {
@@ -23,7 +20,12 @@ namespace Reusable.Commander
 
         public ICommand CreateCommand(string commandName)
         {
-            var commandType = _scope.Resolve<TypeList<ICommand>>().SingleOrThrow(onEmpty: ("CommandNotFound", $"Could not find command '{commandName}'."));
+            var commandTypes =
+                from t in _scope.Resolve<TypeList<ICommand>>()
+                let name = t.GetMultiName()
+                where name.Equals(commandName)
+                select t;
+            var commandType = commandTypes.SingleOrThrow(onEmpty: ("CommandNotFound", $"Could not find command '{commandName}'."));
             return _scope.Resolve(commandType) as ICommand;
         }
     }
