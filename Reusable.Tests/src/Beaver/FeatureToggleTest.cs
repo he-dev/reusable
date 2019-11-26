@@ -19,15 +19,15 @@ namespace Reusable.Beaver
             featureToggle.Options[TestFeatures.Greeting] = Feature.Options.Enabled;
 
             Assert.True(await featureToggle.IIf(TestFeatures.Greeting, () => true.ToTask(), () => false.ToTask()));
-            Assert.True(await featureToggle.ExecuteAsync(TestFeatures.Greeting, () => true.ToTask()));
+            Assert.True(await featureToggle.IIf(TestFeatures.Greeting, () => true.ToTask()));
 
-            Assert.True(featureToggle.Execute(TestFeatures.Greeting, () => true, () => false));
-            Assert.True(featureToggle.Execute(TestFeatures.Greeting, () => true));
+            Assert.True(featureToggle.IIf(TestFeatures.Greeting, () => true, () => false));
+            Assert.True(featureToggle.IIf(TestFeatures.Greeting, () => true));
 
 
             var executed = false;
 
-            await featureToggle.ExecuteAsync(TestFeatures.Greeting, () =>
+            await featureToggle.IIf(TestFeatures.Greeting, () =>
             {
                 executed = true;
                 return Task.CompletedTask;
@@ -37,7 +37,7 @@ namespace Reusable.Beaver
 
             executed = false;
 
-            featureToggle.Execute(TestFeatures.Greeting, () => { executed = true; });
+            featureToggle.IIf(TestFeatures.Greeting, () => { executed = true; });
 
             Assert.True(executed);
         }
@@ -50,11 +50,11 @@ namespace Reusable.Beaver
 
             Assert.True(await featureToggle.IIf(TestFeatures.Greeting, () => false.ToTask(), () => true.ToTask()));
 
-            Assert.True(featureToggle.Execute(TestFeatures.Greeting, () => false, () => true));
+            Assert.True(featureToggle.IIf(TestFeatures.Greeting, () => false, () => true));
 
             var executed = false;
 
-            await featureToggle.ExecuteAsync(TestFeatures.Greeting, () =>
+            await featureToggle.IIf(TestFeatures.Greeting, () =>
             {
                 executed = false;
                 return Task.CompletedTask;
@@ -68,7 +68,7 @@ namespace Reusable.Beaver
 
             executed = false;
 
-            featureToggle.Execute(TestFeatures.Greeting, () => { executed = false; }, () => { executed = true; });
+            featureToggle.IIf(TestFeatures.Greeting, () => { executed = false; }, () => { executed = true; });
 
             Assert.True(executed);
         }
@@ -97,9 +97,9 @@ namespace Reusable.Beaver
             features.Options.Batch(names, Feature.Options.Enabled, Batch.Options.Remove);
             features.Options.SaveChanges();
 
-            Assert.True(features.Switch(DemoFeatures.Greeting, true, false));
-            Assert.True(features.Switch(DemoFeatures.ReadFile, false, true));
-            Assert.True(features.Switch(DatabaseFeatures.Commit, false, true));
+            Assert.True(features.IIf(DemoFeatures.Greeting, true, false));
+            Assert.True(features.IIf(DemoFeatures.ReadFile, false, true));
+            Assert.True(features.IIf(DatabaseFeatures.Commit, false, true));
         }
 
         [Fact]
@@ -109,10 +109,10 @@ namespace Reusable.Beaver
             var features = new FeatureToggle(options).DecorateWith<IFeatureToggle>(instance => new FeatureToggler(instance));
             Assert.False(features.IsEnabled("test")); // it disabled by default
             features.Update("test", f => f.Set(Feature.Options.Toggle).Set(Feature.Options.ToggleOnce)); // activate feature-toggler
-            Assert.True(features.Switch("test", false, true)); // it's still disabled and will now switch
+            Assert.True(features.IIf("test", false, true)); // it's still disabled and will now switch
             Assert.True(features.IsEnabled("test")); // now it should be enabled
-            Assert.True(features.Switch("test", true, false));
-            Assert.True(features.Switch("test", true, false));
+            Assert.True(features.IIf("test", true, false));
+            Assert.True(features.IIf("test", true, false));
             Assert.True(features.IsEnabled("test")); // now it should be still be enabled because it was a one-time-switch
         }
 

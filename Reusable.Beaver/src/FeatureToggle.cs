@@ -1,10 +1,11 @@
 using System;
 using System.Collections;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Collections.Immutable;
+using System.Linq;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
-using Reusable.Data;
+using Reusable.Extensions;
 using Reusable.OmniLog;
 using Reusable.OmniLog.Abstractions;
 using Reusable.OmniLog.Nodes;
@@ -15,144 +16,105 @@ namespace Reusable.Beaver
     [PublicAPI]
     public interface IFeatureToggle
     {
-        IFeatureOptionRepository Options { get; }
+        IFeaturePolicy this[Feature name] { get; }
 
-        IDictionary<FeatureIdentifier, IFeauturePolicy> Policies { get; }
+        void AddOrUpdate(IFeaturePolicy policy);
+
+        bool Remove(Feature name);
+
+        bool IsEnabled(Feature name, object? parameter = default);
 
         // ReSharper disable once InconsistentNaming - This name is by convention so.
-        Task<T> IIf<T>(FeatureIdentifier name, Func<Task<T>> ifEnabled, Func<Task<T>> ifDisabled);
+        Task<T> IIf<T>(Feature feature, Func<Task<T>> ifEnabled, Func<Task<T>>? ifDisabled = default);
     }
 
-    public class FeatureToggle : IFeatureToggle
+    public class FeatureToggle : IFeatureToggle, IEnumerable<IFeaturePolicy>
     {
-        public FeatureToggle(IFeatureOptionRepository options)
+        private readonly ILogger<FeatureToggle> _logger;
+        private readonly ConcurrentDictionary<Feature, IFeaturePolicy> _policies;
+
+        public FeatureToggle(ILogger<FeatureToggle> logger, IDictionary<Feature, IFeaturePolicy>? policies = default)
         {
-            Options = options;
+            _logger = logger;
+            _policies = new ConcurrentDictionary<Feature, IFeaturePolicy>(policies ?? Enumerable.Empty<KeyValuePair<Feature, IFeaturePolicy>>());
         }
 
-        public IFeatureOptionRepository Options { get; }
+        public IFeaturePolicy this[Feature name] => _policies.TryGetValue(name, out var policy) ? policy : new AlwaysOff(name);
 
-        public IDictionary<FeatureIdentifier, IFeauturePolicy> Policies { get; } = new Dictionary<FeatureIdentifier, IFeauturePolicy>();
+        public void AddOrUpdate(IFeaturePolicy policy)
+        {
+            if (this.IsLocked(policy.Name)) throw new InvalidOperationException($"Feature '{policy.Name}' is locked and cannot be updated.");
 
-        public Task<T> IIf<T>(FeatureIdentifier name, Func<Task<T>> ifEnabled, Func<Task<T>> ifDisabled)
+            _policies.AddOrUpdate(policy.Name, name => policy, (f, p) => policy);
+        }
+
+        public bool Remove(Feature name)
+        {
+            if (this.IsLocked(name)) throw new InvalidOperationException($"Feature '{name}' is locked and cannot be removed.");
+
+            return _policies.TryRemove(name, out _);
+        }
+
+        public bool IsEnabled(Feature name, object? parameter = default)
+        {
+            return _policies.TryGetValue(name, out var policy) && policy.IsEnabled(new Feature(name)
+            {
+                Toggle = this,
+                Parameter = parameter
+            });
+        }
+
+        public async Task<T> IIf<T>(Feature feature, Func<Task<T>> ifEnabled, Func<Task<T>>? ifDisabled = default)
         {
             // Not catching exceptions because the caller should handle them.
 
-            if (Policies.TryGetValue(name, out var policy))
+            var context = new Feature(feature)
             {
-                try
-                {
-                    return policy.IsEnabled(name, TODO) ? ifEnabled() : ifDisabled();
-                }
-                finally
-                {
-                    policy.Finally(name, this);
-                }
-            }
-            else
-            {
-                return ifDisabled();
-            }
-        }
-    }
+                Toggle = this,
+                Parameter = feature.Parameter,
+            };
 
-    public interface IFeauturePolicy
-    {
-        bool IsEnabled(FeatureIdentifier name, IFeatureToggle featureToggle, object context = default);
+            var policy = this[feature];
 
-        void Finally(FeatureIdentifier name, IFeatureToggle featureToggle);
-    }
-
-    public class Flag : IFeauturePolicy
-    {
-        public Flag(bool value) => Value = value;
-
-        public bool Value { get; }
-
-        public bool IsEnabled(FeatureIdentifier name, IFeatureToggle featureToggle, object context = default) => Value;
-
-        public void Finally(FeatureIdentifier name, IFeatureToggle featureToggle) { }
-    }
-    
-    public class Once : IFeauturePolicy
-    {
-        public bool IsEnabled(FeatureIdentifier name, IFeatureToggle featureToggle, object context = default) => true;
-
-        public void Finally(FeatureIdentifier name, IFeatureToggle featureToggle) => featureToggle.Policies.Remove(name);
-    }
-
-    public class FeatureToggler : IFeatureToggle
-    {
-        private readonly IFeatureToggle _featureToggle;
-
-        public FeatureToggler(IFeatureToggle featureToggle)
-        {
-            _featureToggle = featureToggle;
-        }
-
-        public IFeatureOptionRepository Options => _featureToggle.Options;
-
-        public Task<T> IIf<T>(FeatureIdentifier name, Func<Task<T>> ifEnabled, Func<Task<T>> ifDisabled)
-        {
+            using var scope = _logger.BeginScope().WithCorrelationHandle($"CollectFeatureTelemetry").UseStopwatch();
             try
             {
-                return _featureToggle.IIf(name, ifEnabled, ifDisabled);
-            }
-            finally
-            {
-                if (Options[name].Contains(Feature.Options.Toggle))
+                var isEnabled = policy.IsEnabled(context);
+                _logger.Log(Abstraction.Layer.Service().Subject(new { Feature = new { feature.Name, isEnabled, type = policy.GetType().ToPrettyString() } }));
+
+                if (isEnabled)
                 {
-                    this.Update(name, f => f.Toggle(Feature.Options.Enabled));
-
-                    if (Options[name].Contains(Feature.Options.ToggleOnce))
+                    try
                     {
-                        this.Update(name, f => f.Remove(Feature.Options.Toggle).Remove(Feature.Options.ToggleOnce));
-
-                        if (Options[name].Contains(Feature.Options.ToggleReset))
-                        {
-                            Options.Remove(name);
-                        }
-
-                        Options.SaveChanges(name);
+                        return await ifEnabled().ConfigureAwait(false);
+                    }
+                    finally
+                    {
+                        (policy as IFinalizable)?.FinallyMain(context);
+                    }
+                }
+                else
+                {
+                    try
+                    {
+                        return await (ifDisabled ?? (() => Task.FromResult<T>(default)))().ConfigureAwait(false);
+                    }
+                    finally
+                    {
+                        (policy as IFinalizable)?.FinallyFallback(context);
                     }
                 }
             }
-        }
-    }
-
-    public class FeatureTelemetry : IFeatureToggle
-    {
-        private readonly ILogger _logger;
-        private readonly IFeatureToggle _featureToggle;
-
-        public FeatureTelemetry(ILogger<FeatureTelemetry> logger, IFeatureToggle featureToggle)
-        {
-            _logger = logger;
-            _featureToggle = featureToggle;
-        }
-
-        public IFeatureOptionRepository Options => _featureToggle.Options;
-
-        public async Task<T> IIf<T>(FeatureIdentifier name, Func<Task<T>> ifEnabled, Func<Task<T>> ifDisabled)
-        {
-            if (Options[name].Contains(Feature.Options.Telemetry))
+            finally
             {
-                using (_logger.UseScope().WithCorrelationHandle("CollectFeatureTelemetry").UseStopwatch())
-                {
-                    _logger.Log(Abstraction.Layer.Service().Meta(new
-                    {
-                        Name = name.ToString(),
-                        Options = _featureToggle.Options[name].ToString(),
-                        IsDirty = _featureToggle.IsDirty(name)
-                    }, nameof(FeatureTelemetry)).Trace());
-
-                    return await _featureToggle.IIf(name, ifEnabled, ifDisabled);
-                }
-            }
-            else
-            {
-                return await _featureToggle.IIf(name, ifEnabled, ifDisabled);
+                (policy as IFinalizable)?.FinallyIIf(context);
+                _logger.Log(Abstraction.Layer.Service().Routine(nameof(IIf)).Completed());
             }
         }
+
+
+        public IEnumerator<IFeaturePolicy> GetEnumerator() => _policies.Values.GetEnumerator();
+
+        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
     }
 }

@@ -25,4 +25,7 @@
   <ItemGroup>
     <Reference Include="System.ComponentModel.DataAnnotations" />
   </ItemGroup>
+  <ItemGroup>
+    <Compile Remove="src/FeatureOptionRepository.cs" />
+  </ItemGroup>
 </Project>

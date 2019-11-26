@@ -13,31 +13,31 @@ namespace Reusable.Beaver
     {
         // Gets or sets feature options.
         [NotNull]
-        Option<Feature> this[FeatureIdentifier name] { get; set; }
+        Option<Feature> this[Feature name] { get; set; }
 
-        bool IsDirty(FeatureIdentifier name);
+        bool IsDirty(Feature name);
 
-        bool TryGetOption(FeatureIdentifier name, out Option<Feature> option);
+        bool TryGetOption(Feature name, out Option<Feature> option);
 
-        bool Remove(FeatureIdentifier name);
+        bool Remove(Feature name);
 
         // Saves current options as default.
-        void SaveChanges(FeatureIdentifier name = default);
+        void SaveChanges(Feature name = default);
     }
 
     public class FeatureOptionRepository : IFeatureOptionRepository
     {
-        private readonly Dictionary<FeatureIdentifier, Option<Feature>> _options;
-        private readonly HashSet<FeatureIdentifier> _dirty;
+        private readonly Dictionary<Feature, Option<Feature>> _options;
+        private readonly HashSet<Feature> _dirty;
         private readonly ReaderWriterLockSlim _lock = new ReaderWriterLockSlim(LockRecursionPolicy.SupportsRecursion);
 
         public FeatureOptionRepository()
         {
-            _options = new Dictionary<FeatureIdentifier, Option<Feature>>();
-            _dirty = new HashSet<FeatureIdentifier>();
+            _options = new Dictionary<Feature, Option<Feature>>();
+            _dirty = new HashSet<Feature>();
         }
 
-        public Option<Feature> this[FeatureIdentifier name]
+        public Option<Feature> this[Feature name]
         {
             get
             {
@@ -59,7 +59,7 @@ namespace Reusable.Beaver
             }
         }
 
-        public bool IsDirty(FeatureIdentifier name)
+        public bool IsDirty(Feature name)
         {
             using (_lock.Reader())
             {
@@ -67,7 +67,7 @@ namespace Reusable.Beaver
             }
         }
 
-        public bool TryGetOption(FeatureIdentifier name, out Option<Feature> option)
+        public bool TryGetOption(Feature name, out Option<Feature> option)
         {
             using (_lock.Reader())
             {
@@ -75,7 +75,7 @@ namespace Reusable.Beaver
             }
         }
 
-        public bool Remove(FeatureIdentifier name)
+        public bool Remove(Feature name)
         {
             using (_lock.Writer())
             {
@@ -84,7 +84,7 @@ namespace Reusable.Beaver
             }
         }
 
-        public void SaveChanges(FeatureIdentifier name = default)
+        public void SaveChanges(Feature name = default)
         {
             using (_lock.Writer())
             {
@@ -133,19 +133,19 @@ namespace Reusable.Beaver
 
         protected IFeatureOptionRepository Instance { get; }
 
-        public virtual Option<Feature> this[FeatureIdentifier name]
+        public virtual Option<Feature> this[Feature name]
         {
             get => Instance[name];
             set => Instance[name] = value;
         }
 
-        public bool IsDirty(FeatureIdentifier name) => Instance.IsDirty(name);
+        public bool IsDirty(Feature name) => Instance.IsDirty(name);
 
-        public bool TryGetOption(FeatureIdentifier name, out Option<Feature> option) => Instance.TryGetOption(name, out option);
+        public bool TryGetOption(Feature name, out Option<Feature> option) => Instance.TryGetOption(name, out option);
 
-        public bool Remove(FeatureIdentifier name) => Instance.Remove(name);
+        public bool Remove(Feature name) => Instance.Remove(name);
 
-        public virtual void SaveChanges(FeatureIdentifier name = default) => Instance.SaveChanges();
+        public virtual void SaveChanges(Feature name = default) => Instance.SaveChanges();
     }
 
     // Provides default feature-options if not already configured. 
@@ -158,7 +158,7 @@ namespace Reusable.Beaver
             _defaultOption = defaultOption;
         }
 
-        public override Option<Feature> this[FeatureIdentifier name]
+        public override Option<Feature> this[Feature name]
         {
             get => TryGetOption(name, out var option) ? option : _defaultOption;
             set => Instance[name] = value;
@@ -176,7 +176,7 @@ namespace Reusable.Beaver
     {
         public FeatureOptionLock(IFeatureOptionRepository options) : base(options) { }
 
-        public override Option<Feature> this[FeatureIdentifier name]
+        public override Option<Feature> this[Feature name]
         {
             get => Instance[name];
             set
