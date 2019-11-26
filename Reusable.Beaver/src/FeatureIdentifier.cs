@@ -8,23 +8,19 @@ namespace Reusable.Beaver
     [PublicAPI]
     public class FeatureIdentifier : IEquatable<FeatureIdentifier>, IEquatable<string>
     {
-        public FeatureIdentifier([NotNull] string name)
-        {
-            Name = name ?? throw new ArgumentNullException(nameof(name));
-        }
+        public FeatureIdentifier(string name) => Name = name;
 
-        [AutoEqualityProperty]
         public string Name { get; }
 
         public string Description { get; set; }
 
         public override string ToString() => Name;
 
-        public override int GetHashCode() => AutoEquality<FeatureIdentifier>.Comparer.GetHashCode(this);
+        public override int GetHashCode() => SoftString.Comparer.GetHashCode(this);
 
-        public override bool Equals(object obj) => obj is FeatureIdentifier fn && Equals(fn);
+        public override bool Equals(object obj) => Equals(obj as FeatureIdentifier);
 
-        public bool Equals(FeatureIdentifier featureIdentifier) => AutoEquality<FeatureIdentifier>.Comparer.Equals(this, featureIdentifier);
+        public bool Equals(FeatureIdentifier featureIdentifier) => SoftString.Comparer.Equals(this, featureIdentifier);
 
         public bool Equals(string name) => Equals(this, new FeatureIdentifier(name));
 

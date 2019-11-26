@@ -18,7 +18,7 @@ namespace Reusable.Beaver
             var featureToggle = new FeatureToggle(new FeatureOptionRepository());
             featureToggle.Options[TestFeatures.Greeting] = Feature.Options.Enabled;
 
-            Assert.True(await featureToggle.ExecuteAsync(TestFeatures.Greeting, () => true.ToTask(), () => false.ToTask()));
+            Assert.True(await featureToggle.IIf(TestFeatures.Greeting, () => true.ToTask(), () => false.ToTask()));
             Assert.True(await featureToggle.ExecuteAsync(TestFeatures.Greeting, () => true.ToTask()));
 
             Assert.True(featureToggle.Execute(TestFeatures.Greeting, () => true, () => false));
@@ -48,7 +48,7 @@ namespace Reusable.Beaver
             var featureToggle = new FeatureToggle(new FeatureOptionRepository());
             featureToggle.Options[TestFeatures.Greeting] = Option<Feature>.None;
 
-            Assert.True(await featureToggle.ExecuteAsync(TestFeatures.Greeting, () => false.ToTask(), () => true.ToTask()));
+            Assert.True(await featureToggle.IIf(TestFeatures.Greeting, () => false.ToTask(), () => true.ToTask()));
 
             Assert.True(featureToggle.Execute(TestFeatures.Greeting, () => false, () => true));
 

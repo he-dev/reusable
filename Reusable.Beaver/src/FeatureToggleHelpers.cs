@@ -42,12 +42,12 @@ namespace Reusable.Beaver
 
         public static async Task<T> ExecuteAsync<T>(this IFeatureToggle features, FeatureIdentifier name, Func<Task<T>> body)
         {
-            return await features.ExecuteAsync<T>(name, body, () => default(T).ToTask());
+            return await features.IIf<T>(name, body, () => default(T).ToTask());
         }
 
         public static async Task ExecuteAsync(this IFeatureToggle features, FeatureIdentifier name, Func<Task> body, Func<Task> fallback)
         {
-            await features.ExecuteAsync<object>
+            await features.IIf<object>
             (
                 name,
                 async () =>
@@ -72,7 +72,7 @@ namespace Reusable.Beaver
         {
             return
                 featureToggle
-                    .ExecuteAsync
+                    .IIf
                     (
                         name,
                         () => body().ToTask(),
@@ -86,7 +86,7 @@ namespace Reusable.Beaver
         {
             return
                 featureToggle
-                    .ExecuteAsync
+                    .IIf
                     (
                         name,
                         () => body().ToTask(),
@@ -99,7 +99,7 @@ namespace Reusable.Beaver
         public static void Execute(this IFeatureToggle featureToggle, FeatureIdentifier name, Action body, Action fallback)
         {
             featureToggle
-                .ExecuteAsync<object>
+                .IIf<object>
                 (
                     name,
                     () =>
