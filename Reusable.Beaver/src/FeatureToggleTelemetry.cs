@@ -31,23 +31,16 @@ namespace Reusable.Beaver
         {
             using (_logger.BeginScope().WithCorrelationHandle("CollectFeatureTelemetry").UseStopwatch())
             {
-                _logger.Log(Abstraction.Layer.Service().Subject(new { Feature = feature.Name }));
+                _logger.Log(Abstraction.Layer.Service().Subject(new { Feature = feature.Name }).Trace());
 
-                try
+                return (await _toggle.IIf(feature, ifEnabled, ifDisabled)).Pipe(r => _logger.Log(Abstraction.Layer.Service().Meta(new
                 {
-                    return (await _toggle.IIf(feature, ifEnabled, ifDisabled)).Pipe(r => _logger.Log(Abstraction.Layer.Service().Meta(new
+                    FeatureUsageInfo = new
                     {
-                        FeatureUsageInfo = new
-                        {
-                            action = r.ToString(),
-                            policy = r.Policy.GetType().ToPrettyString()
-                        }
-                    })));
-                }
-                finally
-                {
-                    _logger.Log(Abstraction.Layer.Service().Routine(nameof(IIf)).Completed());
-                }
+                        action = r.ToString(),
+                        policy = r.Policy.GetType().ToPrettyString()
+                    }
+                }).Trace()));
             }
         }
     }
