@@ -1,11 +1,9 @@
 using System;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
-using Reusable.Data;
 using Reusable.OmniLog;
 using Reusable.OmniLog.Abstractions;
 using Reusable.OmniLog.Nodes;
-//using Reusable.OmniLog.Nodes;
 using Reusable.OmniLog.SemanticExtensions;
 
 // ReSharper disable once CheckNamespace

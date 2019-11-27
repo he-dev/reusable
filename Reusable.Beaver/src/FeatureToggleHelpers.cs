@@ -8,27 +8,23 @@ namespace Reusable.Beaver
     [PublicAPI]
     public static class FeatureServiceHelpers
     {
-        public static bool IsEnabled(this IFeatureToggle toggle, Feature name, object? parameter = default)
-        {
-            return toggle[name].IsEnabled(new Feature(name)
-            {
-                Toggle = toggle,
-                Parameter = parameter
-            });
-        }
+        public static bool IsEnabled(this IFeatureToggle toggle, Feature feature) => toggle[feature].IsEnabled(new Feature(feature) { Toggle = toggle });
 
-        public static bool IsLocked(this IFeatureToggle toggle, Feature name)
-        {
-            return (toggle[name] as Lock) is {};
-        }
+        public static bool IsLocked(this IFeatureToggle toggle, Feature feature) => (toggle[feature] as Lock) is {};
 
-        #region Execute helpers
+        public static IFeatureToggle Enable(this IFeatureToggle toggle, Feature feature) => toggle.AddOrUpdate(new AlwaysOn(feature));
 
-        public static async Task IIf(this IFeatureToggle toggle, Feature name, Func<Task> body, Func<Task>? fallback = default)
+        public static IFeatureToggle Disable(this IFeatureToggle toggle, Feature feature) => toggle.AddOrUpdate(new AlwaysOff(feature));
+
+        public static IFeatureToggle Lock(this IFeatureToggle toggle, Feature feature) => toggle.AddOrUpdate(toggle[feature].Lock());
+
+        #region IIf helpers
+
+        public static async Task<FeatureActionResult<object>> IIf(this IFeatureToggle toggle, Feature feature, Func<Task> body, Func<Task>? fallback = default)
         {
-            await toggle.IIf<object>
+            return await toggle.IIf<object>
             (
-                name,
+                feature,
                 async () =>
                 {
                     await body();
@@ -42,13 +38,13 @@ namespace Reusable.Beaver
             );
         }
 
-        public static T IIf<T>(this IFeatureToggle toggle, Feature name, Func<T> body, Func<T>? fallback = default)
+        public static FeatureActionResult<T> IIf<T>(this IFeatureToggle toggle, Feature feature, Func<T> body, Func<T>? fallback = default)
         {
             return
                 toggle
                     .IIf
                     (
-                        name,
+                        feature,
                         () => body().ToTask(),
                         () => (fallback ?? (() => default))().ToTask()
                     )
@@ -56,30 +52,31 @@ namespace Reusable.Beaver
                     .GetResult();
         }
 
-        public static void IIf(this IFeatureToggle toggle, Feature name, Action body, Action? fallback = default)
+        public static FeatureActionResult<object> IIf(this IFeatureToggle toggle, Feature feature, Action body, Action? fallback = default)
         {
-            toggle
-                .IIf
-                (
-                    name,
-                    () =>
-                    {
-                        body();
-                        return default(object?).ToTask();
-                    },
-                    () =>
-                    {
-                        (fallback ?? (() => { }))();
-                        return default(object?).ToTask();
-                    }
-                )
-                .GetAwaiter()
-                .GetResult();
+            return
+                toggle
+                    .IIf
+                    (
+                        feature,
+                        () =>
+                        {
+                            body();
+                            return default(object?).ToTask();
+                        },
+                        () =>
+                        {
+                            (fallback ?? (() => { }))();
+                            return default(object?).ToTask();
+                        }
+                    )
+                    .GetAwaiter()
+                    .GetResult();
         }
 
-        public static T IIf<T>(this IFeatureToggle toggle, Feature name, T value, T fallback = default)
+        public static FeatureActionResult<T> IIf<T>(this IFeatureToggle toggle, Feature feature, T value, T fallback = default)
         {
-            return toggle.IIf(name, () => value, () => fallback);
+            return toggle.IIf(feature, () => value, () => fallback);
         }
 
         #endregion

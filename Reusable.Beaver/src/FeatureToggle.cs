@@ -5,11 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
-using Reusable.Extensions;
-using Reusable.OmniLog;
-using Reusable.OmniLog.Abstractions;
-using Reusable.OmniLog.Nodes;
-using Reusable.OmniLog.SemanticExtensions;
+using Reusable.Exceptionize;
 
 namespace Reusable.Beaver
 {
@@ -18,34 +14,45 @@ namespace Reusable.Beaver
     {
         IFeaturePolicy this[Feature name] { get; }
 
-        void AddOrUpdate(IFeaturePolicy policy);
+        IFeatureToggle AddOrUpdate(IFeaturePolicy policy);
 
         bool Remove(Feature name);
 
         bool IsEnabled(Feature name, object? parameter = default);
 
         // ReSharper disable once InconsistentNaming - This name is by convention so.
-        Task<T> IIf<T>(Feature feature, Func<Task<T>> ifEnabled, Func<Task<T>>? ifDisabled = default);
+        Task<FeatureActionResult<T>> IIf<T>(Feature feature, Func<Task<T>> ifEnabled, Func<Task<T>>? ifDisabled = default);
+    }
+
+    public class FeatureActionResult<T>
+    {
+        public IFeaturePolicy Policy { get; set; }
+        public T Value { get; set; }
+        public override string ToString() => GetType().Name;
+        public static implicit operator T(FeatureActionResult<T> telemetry) => telemetry.Value;
+
+        public class Main : FeatureActionResult<T> { }
+
+        public class Fallback : FeatureActionResult<T> { }
     }
 
     public class FeatureToggle : IFeatureToggle, IEnumerable<IFeaturePolicy>
     {
-        private readonly ILogger<FeatureToggle> _logger;
         private readonly ConcurrentDictionary<Feature, IFeaturePolicy> _policies;
 
-        public FeatureToggle(ILogger<FeatureToggle> logger, IDictionary<Feature, IFeaturePolicy>? policies = default)
+        public FeatureToggle(IDictionary<Feature, IFeaturePolicy> policies = default)
         {
-            _logger = logger;
             _policies = new ConcurrentDictionary<Feature, IFeaturePolicy>(policies ?? Enumerable.Empty<KeyValuePair<Feature, IFeaturePolicy>>());
         }
 
         public IFeaturePolicy this[Feature name] => _policies.TryGetValue(name, out var policy) ? policy : new AlwaysOff(name);
 
-        public void AddOrUpdate(IFeaturePolicy policy)
+        public IFeatureToggle AddOrUpdate(IFeaturePolicy policy)
         {
-            if (this.IsLocked(policy.Name)) throw new InvalidOperationException($"Feature '{policy.Name}' is locked and cannot be updated.");
+            if (this.IsLocked(policy.Feature)) throw new InvalidOperationException($"Feature '{policy.Feature}' is locked and cannot be updated.");
 
-            _policies.AddOrUpdate(policy.Name, name => policy, (f, p) => policy);
+            _policies.AddOrUpdate(policy.Feature, name => policy, (f, p) => policy);
+            return this;
         }
 
         public bool Remove(Feature name)
@@ -64,7 +71,7 @@ namespace Reusable.Beaver
             });
         }
 
-        public async Task<T> IIf<T>(Feature feature, Func<Task<T>> ifEnabled, Func<Task<T>>? ifDisabled = default)
+        public async Task<FeatureActionResult<T>> IIf<T>(Feature feature, Func<Task<T>> ifEnabled, Func<Task<T>>? ifDisabled = default)
         {
             // Not catching exceptions because the caller should handle them.
 
@@ -76,17 +83,21 @@ namespace Reusable.Beaver
 
             var policy = this[feature];
 
-            using var scope = _logger.BeginScope().WithCorrelationHandle($"CollectFeatureTelemetry").UseStopwatch();
             try
             {
-                var isEnabled = policy.IsEnabled(context);
-                _logger.Log(Abstraction.Layer.Service().Subject(new { Feature = new { feature.Name, isEnabled, type = policy.GetType().ToPrettyString() } }));
-
-                if (isEnabled)
+                if (policy.IsEnabled(context))
                 {
                     try
                     {
-                        return await ifEnabled().ConfigureAwait(false);
+                        return new FeatureActionResult<T>.Main
+                        {
+                            Policy = policy,
+                            Value = await ifEnabled().ConfigureAwait(false)
+                        };
+                    }
+                    catch (Exception inner)
+                    {
+                        throw DynamicException.Create("MainFeatureAction", $"An error occured while trying to use the 'Main' feature action for '{feature}'. See the inner exception for details.", inner);
                     }
                     finally
                     {
@@ -97,7 +108,15 @@ namespace Reusable.Beaver
                 {
                     try
                     {
-                        return await (ifDisabled ?? (() => Task.FromResult<T>(default)))().ConfigureAwait(false);
+                        return new FeatureActionResult<T>.Fallback
+                        {
+                            Policy = policy,
+                            Value = await (ifDisabled ?? (() => Task.FromResult<T>(default)))().ConfigureAwait(false)
+                        };
+                    }
+                    catch (Exception inner)
+                    {
+                        throw DynamicException.Create("FallbackFeatureAction", $"An error occured while trying to use the 'Fallback' feature action for '{feature}'. See the inner exception for details.", inner);
                     }
                     finally
                     {
@@ -108,7 +127,6 @@ namespace Reusable.Beaver
             finally
             {
                 (policy as IFinalizable)?.FinallyIIf(context);
-                _logger.Log(Abstraction.Layer.Service().Routine(nameof(IIf)).Completed());
             }
         }
 

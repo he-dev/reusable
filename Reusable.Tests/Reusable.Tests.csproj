@@ -87,6 +87,7 @@
         <Compile Remove="src\Flexo\ExpressionTest.cs" />
         <Compile Remove="src\Flexo\ExpressionSerializerTest.cs" />
         <Compile Remove="src\OmniLog\LoggerNodeTest.cs" />
+        <Compile Remove="src\Commander\**" />
     </ItemGroup>
     
 </Project>

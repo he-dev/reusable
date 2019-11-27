@@ -8,12 +8,13 @@ namespace Reusable.Beaver
     [PublicAPI]
     public class Feature : IEquatable<Feature>, IEquatable<string>
     {
-        public Feature(string name) => Name = name;
+        public Feature() => Tags = new HashSet<string>(SoftString.Comparer);
 
-        public Feature(Feature other)
+        public Feature(string name) : this() => Name = name;
+
+        public Feature(Feature other) : this(other.Name)
         {
-            Name = other.Name;
-            Tags = new HashSet<string>(other.Tags, SoftString.Comparer);
+            Tags.UnionWith(other.Tags);
             Description = other.Description;
             Telemetry = other.Telemetry;
             Parameter = other.Parameter;
@@ -22,7 +23,7 @@ namespace Reusable.Beaver
 
         public string Name { get; }
 
-        public ISet<string> Tags { get; } = new HashSet<string>(SoftString.Comparer);
+        public ISet<string> Tags { get; }
 
         public string? Description { get; set; }
 

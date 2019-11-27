@@ -1,11 +1,3 @@
-using System.Collections.Immutable;
-using System.Threading.Tasks;
-using Autofac;
-using Reusable.Beaver.Features;
-using Reusable.Data;
-using Reusable.Data.Annotations;
-using Reusable.Extensions;
-using Reusable.Quickey;
 using Xunit;
 
 namespace Reusable.Beaver
@@ -13,136 +5,27 @@ namespace Reusable.Beaver
     public class FeatureToggleTest
     {
         [Fact]
-        public async Task Can_execute_feature_body()
+        public void Invokes_main_when_enabled()
         {
-            var featureToggle = new FeatureToggle(new FeatureOptionRepository());
-            featureToggle.Options[TestFeatures.Greeting] = Feature.Options.Enabled;
+            var t = new FeatureToggle().AddOrUpdate(new AlwaysOn("test"));
+            var r = t.IIf("test", () => "a", () => "b");
 
-            Assert.True(await featureToggle.IIf(TestFeatures.Greeting, () => true.ToTask(), () => false.ToTask()));
-            Assert.True(await featureToggle.IIf(TestFeatures.Greeting, () => true.ToTask()));
-
-            Assert.True(featureToggle.IIf(TestFeatures.Greeting, () => true, () => false));
-            Assert.True(featureToggle.IIf(TestFeatures.Greeting, () => true));
-
-
-            var executed = false;
-
-            await featureToggle.IIf(TestFeatures.Greeting, () =>
-            {
-                executed = true;
-                return Task.CompletedTask;
-            });
-
-            Assert.True(executed);
-
-            executed = false;
-
-            featureToggle.IIf(TestFeatures.Greeting, () => { executed = true; });
-
-            Assert.True(executed);
+            Assert.Equal("a", r.Value);
+            Assert.Equal("Main", r.ToString());
+            Assert.Equal(nameof(AlwaysOn), r.Policy.GetType().Name);
+            Assert.Equal("test", r.Policy.Feature.Name);
         }
 
         [Fact]
-        public async Task Can_execute_feature_fallback()
+        public void Invokes_fallback_when_disabled()
         {
-            var featureToggle = new FeatureToggle(new FeatureOptionRepository());
-            featureToggle.Options[TestFeatures.Greeting] = Option<Feature>.None;
+            var t = new FeatureToggle().AddOrUpdate(new AlwaysOff("test"));
+            var r = t.IIf("test", () => "a", () => "b");
 
-            Assert.True(await featureToggle.IIf(TestFeatures.Greeting, () => false.ToTask(), () => true.ToTask()));
-
-            Assert.True(featureToggle.IIf(TestFeatures.Greeting, () => false, () => true));
-
-            var executed = false;
-
-            await featureToggle.IIf(TestFeatures.Greeting, () =>
-            {
-                executed = false;
-                return Task.CompletedTask;
-            }, () =>
-            {
-                executed = true;
-                return Task.CompletedTask;
-            });
-
-            Assert.True(executed);
-
-            executed = false;
-
-            featureToggle.IIf(TestFeatures.Greeting, () => { executed = false; }, () => { executed = true; });
-
-            Assert.True(executed);
-        }
-
-        [Fact]
-        public void Can_configure_features_by_tags()
-        {
-            var builder = new ContainerBuilder();
-
-            builder.RegisterType<FeatureOptionRepository>().As<IFeatureOptionRepository>();
-            builder.RegisterDecorator<IFeatureOptionRepository>((context, parameters, instance) => new FeatureOptionFallback.Enabled(instance));
-
-            var container = builder.Build();
-            var options = container.Resolve<IFeatureOptionRepository>();
-
-            var features = new FeatureToggle(options);
-
-            var names =
-                ImmutableList<Selector>
-                    .Empty
-                    .AddFrom<DemoFeatures>()
-                    .AddFrom<DatabaseFeatures>()
-                    .Where<TagsAttribute>("io")
-                    .Format();
-
-            features.Options.Batch(names, Feature.Options.Enabled, Batch.Options.Remove);
-            features.Options.SaveChanges();
-
-            Assert.True(features.IIf(DemoFeatures.Greeting, true, false));
-            Assert.True(features.IIf(DemoFeatures.ReadFile, false, true));
-            Assert.True(features.IIf(DatabaseFeatures.Commit, false, true));
-        }
-
-        [Fact]
-        public void Can_toggle_feature()
-        {
-            var options = new FeatureOptionRepository().DecorateWith<IFeatureOptionRepository>(instance => new FeatureOptionFallback(instance, Option<Feature>.None));
-            var features = new FeatureToggle(options).DecorateWith<IFeatureToggle>(instance => new FeatureToggler(instance));
-            Assert.False(features.IsEnabled("test")); // it disabled by default
-            features.Update("test", f => f.Set(Feature.Options.Toggle).Set(Feature.Options.ToggleOnce)); // activate feature-toggler
-            Assert.True(features.IIf("test", false, true)); // it's still disabled and will now switch
-            Assert.True(features.IsEnabled("test")); // now it should be enabled
-            Assert.True(features.IIf("test", true, false));
-            Assert.True(features.IIf("test", true, false));
-            Assert.True(features.IsEnabled("test")); // now it should be still be enabled because it was a one-time-switch
-        }
-
-        [UseType, UseMember]
-        [PlainSelectorFormatter]
-        private abstract class TestFeatures
-        {
-            public static Selector<object> Greeting { get; } = From<TestFeatures>.This.Select(() => Greeting);
-        }
-    }
-
-
-    namespace Features
-    {
-        [UseType, UseMember]
-        [PlainSelectorFormatter]
-        public class DemoFeatures : SelectorBuilder<DemoFeatures>
-        {
-            public static Selector<object> Greeting { get; } = Select(() => Greeting);
-
-            [Tags("io")]
-            public static Selector<object> ReadFile { get; } = Select(() => ReadFile);
-        }
-
-        [UseType, UseMember]
-        [PlainSelectorFormatter] // todo - comment out to trigger selector-formatter-not-found-exception
-        public class DatabaseFeatures : SelectorBuilder<DatabaseFeatures>
-        {
-            [Tags("io")]
-            public static Selector<object> Commit { get; } = Select(() => Commit);
+            Assert.Equal("b", r.Value);
+            Assert.Equal("Fallback", r.ToString());
+            Assert.Equal(nameof(AlwaysOff), r.Policy.GetType().Name);
+            Assert.Equal("test", r.Policy.Feature.Name);
         }
     }
 }
