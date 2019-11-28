@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using System.Reflection;
@@ -6,6 +7,7 @@ using System.Text.RegularExpressions;
 using Reusable.Data;
 using Reusable.Exceptionize;
 using Reusable.Extensions;
+using Reusable.Flexo.Abstractions;
 using Reusable.Quickey;
 using linq = System.Linq.Expressions;
 
@@ -13,11 +15,20 @@ namespace Reusable.Flexo
 {
     public static partial class ExpressionContext
     {
-        public static IEnumerable<T> FindItems<T>(this IImmutableContainer context, Selector<T> key)
+        public static IEnumerable<T> FindItems<T>(this IImmutableContainer context, string key, Func<T, bool> predicate)
         {
-            return context.FindItems<T>(key.ToString());
+            foreach (var current in context.Scopes())
+            {
+                if (current.TryGetItem(key, out var obj) && obj is T value && predicate(value))
+                {
+                    yield return value;
+                }
+            }
         }
-
+        
+        /// <summary>
+        /// Searches all contexts for items with the specified key and type.
+        /// </summary>
         public static IEnumerable<T> FindItems<T>(this IImmutableContainer context, string key)
         {
             foreach (var current in context.Scopes())
@@ -29,11 +40,14 @@ namespace Reusable.Flexo
             }
         }
 
-        public static T FindItem<T>(this IImmutableContainer context, Selector<T> key)
+        public static IEnumerable<T> FindItems<T>(this IImmutableContainer context, Selector<T> key)
         {
-            return context.FindItem<T>(key.ToString());
+            return context.FindItems<T>(key.ToString());
         }
         
+        /// <summary>
+        /// Searches for the first item with the specified key and type. Throws if now found.
+        /// </summary>
         public static T FindItem<T>(this IImmutableContainer context, string key)
         {
             return context.FindItems<T>(key).Take(1).ToList() switch
@@ -43,25 +57,35 @@ namespace Reusable.Flexo
             };
         }
 
-        public static IEqualityComparer<object> FindEqualityComparer(this IImmutableContainer context, string? name = default)
+        public static T FindItem<T>(this IImmutableContainer context, Selector<T> key)
         {
-            name ??= "Default";
-            
+            return context.FindItem<T>(key.ToString());
+        }
+
+        public static IEnumerable<TValue> FindItems<TKey, TValue>(this IImmutableContainer context, Selector<IDictionary<TKey, TValue>> mainKey, TKey subKey)
+        {
             foreach (var current in context.Scopes())
             {
-                if (current.GetItemOrDefault(EqualityComparers, ImmutableDictionary<SoftString, IEqualityComparer<object>>.Empty).TryGetValue(name!, out var comparer))
+                if (current.TryGetItem(mainKey, out var dictionary) && dictionary.TryGetValue(subKey, out var value))
                 {
-                    return comparer;
+                    yield return value;
                 }
             }
-
-            throw DynamicException.Create("EqualityComparerNotFound", $"There is no equality-comparer with the name '{name}'.");
+        }
+        
+        public static TValue FindItem<TKey, TValue>(this IImmutableContainer context, Selector<IDictionary<TKey, TValue>> mainKey, TKey subKey)
+        {
+            return context.FindItems(mainKey, subKey).Take(1).ToList() switch
+            {
+                {} items when items.Any() => items.Single(),
+                _ => throw DynamicException.Create("ItemNotFound", $"Could not find item '{mainKey}/{subKey}' in any context.")
+            };
         }
 
         public static IComparer<object> FindComparer(this IImmutableContainer context, string? name = default)
         {
             name ??= "Default";
-            
+
             foreach (var current in context.Scopes())
             {
                 if (current.GetItemOrDefault(Comparers, ImmutableDictionary<SoftString, IComparer<object>>.Empty).TryGetValue(name!, out var comparer))
@@ -71,6 +95,19 @@ namespace Reusable.Flexo
             }
 
             throw DynamicException.Create("ComparerNotFound", $"There is no comparer with the name '{name}'.");
+        }
+
+        public static IExpression FindPackage(this IImmutableContainer context, string packageId)
+        {
+            foreach (var getPackage in context.FindItems(GetPackageFunc))
+            {
+                if (getPackage(packageId) is {} package)
+                {
+                    return package;
+                }
+            }
+
+            throw DynamicException.Create("PackageNotFound", $"Could not find package '{packageId}'.");
         }
 
         public static (object Object, PropertyInfo Property, object Value) FindMember(this IImmutableContainer context, string path)

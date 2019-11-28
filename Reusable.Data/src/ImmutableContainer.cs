@@ -68,8 +68,7 @@ namespace Reusable.Data
 
     public interface IImmutableContainer : IEnumerable<(string Key, object Value)>
     {
-        [CanBeNull]
-        object this[string key] { get; }
+        object? this[string key] { get; }
 
         int Count { get; }
 
@@ -89,7 +88,7 @@ namespace Reusable.Data
     {
         private readonly IImmutableDictionary<string, object> _data;
 
-        public ImmutableContainer([NotNull] IImmutableDictionary<string, object> data) => _data = data ?? throw new ArgumentNullException(nameof(data));
+        public ImmutableContainer(IImmutableDictionary<string, object> data) => _data = data ?? throw new ArgumentNullException(nameof(data));
 
         [NotNull]
         public static IImmutableContainer Empty => new ImmutableContainer(ImmutableDictionary.Create<string, object>(SoftString.Comparer));

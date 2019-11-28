@@ -30,7 +30,7 @@ namespace Reusable.Flexo
             {
                 IConstant c => c.Value switch
                 {
-                    string s => context.FindEqualityComparer(s),
+                    string s => context.FindItem(ExpressionContext.EqualityComparers, s ?? "Default"),
                     _ => throw new ArgumentException(paramName: nameof(filter), message: $"'{filter.Id}' filter's '{nameof(IFilter.Matcher)}' must be a comparer-id.")
                 },
                 _ => throw new ArgumentException(paramName: nameof(filter), message: $"'{filter.Id}' filter must specify a '{nameof(IFilter.Matcher)}' as a comparer-id.")
@@ -41,7 +41,7 @@ namespace Reusable.Flexo
         {
             return filter.Matcher switch
             {
-                IConstant c => context.FindEqualityComparer().Equals(x.Value!, c.Value!),
+                IConstant c => context.FindItem(ExpressionContext.EqualityComparers, "Default").Equals(x.Value!, c.Value!),
                 {} p => p.Invoke(context.BeginScopeWithArg(x)).Value<bool>(),
                 _ => throw new ArgumentException(paramName: nameof(filter), message: $"'{filter.Id}' filter must specify a '{nameof(IFilter.Matcher)}' as a predicate.")
             };

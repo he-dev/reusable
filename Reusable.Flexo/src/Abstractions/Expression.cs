@@ -11,6 +11,8 @@ using Reusable.Utilities.JsonNet.Annotations;
 
 namespace Reusable.Flexo.Abstractions
 {
+    using static ExpressionContext;
+    
     public interface ISwitchable
     {
         [DefaultValue(true)]
@@ -112,9 +114,6 @@ namespace Reusable.Flexo.Abstractions
             _name = $"{GetType().ToPrettyString()}-{++_counter}"!;
         }
 
-        //[NotNull]
-        //protected ILogger Logger { get; }
-
         public SoftString Id
         {
             get => _name;
@@ -123,7 +122,7 @@ namespace Reusable.Flexo.Abstractions
 
         public string? Description { get; set; }
 
-        public ISet<SoftString>? Tags { get; set; }
+        public ISet<SoftString>? Tags { get; set; } = new HashSet<SoftString>();
 
         public bool Enabled { get; set; } = true;
 
@@ -137,9 +136,9 @@ namespace Reusable.Flexo.Abstractions
 
         public IConstant Invoke(IImmutableContainer context)
         {
-            var parentLog = context.GetInvokeLog();
+            var parentLog = context.FindItem(InvokeLog);
             var thisLog = this is IConstant ? parentLog : parentLog.Add(CreateInvokeLog());
-            var thisContext = context.SetInvokeLog(thisLog);
+            var thisContext = context.SetItem(InvokeLog, thisLog);
             var thisResult = ComputeConstant(thisContext);
 
             thisLog.Add(thisResult);

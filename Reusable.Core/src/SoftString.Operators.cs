@@ -10,7 +10,7 @@ namespace Reusable
 
         [DebuggerStepThrough]
         [ContractAnnotation("value: null => null; notnull => notnull")]
-        public static implicit operator SoftString?(string? value) => value is {} ? new SoftString(value) : default;
+        public static implicit operator SoftString(string value) => value is {} ? new SoftString(value) : default;
 
         [DebuggerStepThrough]
         public static implicit operator bool(SoftString? value) => !IsNullOrEmpty(value);

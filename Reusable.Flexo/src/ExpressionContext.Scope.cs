@@ -11,18 +11,13 @@ namespace Reusable.Flexo
     {
         public static IImmutableContainer BeginScope(this IImmutableContainer context, IImmutableContainer? scope = default)
         {
-            return (scope ?? ImmutableContainer.Empty).SetItem(ExpressionContext.Parent, context);
+            return (scope ?? ImmutableContainer.Empty).SetItem(Parent, context);
         }
 
         public static IImmutableContainer BeginScopeWithArg(this IImmutableContainer context, object arg)
         {
-            return context.BeginScope(ImmutableContainer.Empty.SetItem(ExpressionContext.Arg, arg));
+            return context.BeginScope().SetItem(Arg, arg);
         }
-
-//        public static IImmutableContainer BeginScopeWithItem(this IImmutableContainer context, object item)
-//        {
-//            return context.BeginScope(ImmutableContainer.Empty.SetItem(ExpressionContext.Item, item));
-//        }
 
         /// <summary>
         /// Enumerates expression scopes from last to first. 
@@ -32,7 +27,7 @@ namespace Reusable.Flexo
             do
             {
                 yield return context;
-                context = context.GetItemOrDefault(ExpressionContext.Parent);
+                context = context.GetItemOrDefault(Parent);
             } while (context.IsNotNull());
         }
     }

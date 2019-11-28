@@ -47,8 +47,7 @@ namespace Reusable.Flexo
             var scope =
                 ImmutableContainer
                     .Empty
-                    .SetPackages(packages)
-                    .SetTryGetPackageFunc(packageId => packages.Single(p => p.Id == packageId))
+                    .SetItem(ExpressionContext.GetPackageFunc, packageId => packages.Single(p => p.Id == packageId))
                     .SetItem("Product", new Product());
 
             var useCases = helper.ReadExpressionFile<List<ExpressionUseCase>>("ExpressionUseCases.json");
