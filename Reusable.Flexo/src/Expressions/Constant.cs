@@ -85,7 +85,7 @@ namespace Reusable.Flexo
     /// </summary>
     public static class Constant
     {
-        private static volatile int _counter;
+        //private static volatile int _counter;
 
         [NotNull]
         public static Constant<TValue> FromValue<TValue>(SoftString name, TValue value, IImmutableContainer? context = default)
@@ -96,7 +96,7 @@ namespace Reusable.Flexo
         [NotNull]
         internal static Constant<TValue> FromValue<TValue>(TValue value, IImmutableContainer? context = default)
         {
-            return FromValue($"{typeof(Constant<TValue>).ToPrettyString()}-{_counter++}", value, context);
+            return FromValue($"{typeof(Constant<TValue>).ToPrettyString()}", value, context);
         }
 
         [NotNull, ItemNotNull]
