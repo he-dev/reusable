@@ -1,6 +1,7 @@
 ﻿using System;
 using System.CodeDom;
 using System.CodeDom.Compiler;
+using System.Collections.Concurrent;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -15,13 +16,15 @@ namespace Reusable
     {
         [NotNull, ContractAnnotation("type: null => halt")]
         string Render([NotNull] Type type, bool includeNamespace = false);
-        
+
         [NotNull, ContractAnnotation("methodInfo: null => halt")]
         string Render([NotNull] MethodInfo methodInfo, bool includeNamespace = false);
     }
-    
+
     public class PrettyString : IPrettyString
     {
+        private readonly ConcurrentDictionary<Type, string> _prettyStrings = new ConcurrentDictionary<Type, string>();
+
         //public static string ToPrettyString<TException>(this TException exception, ExceptionOrder order = ExceptionOrder.Ascending, int indentWidth = 4) where TException : Exception
         //{
         //    var nodes = exception.SelectMany();
@@ -46,15 +49,16 @@ namespace Reusable
         public string Render(Type type, bool includeNamespace)
         {
             if (type == null) throw new ArgumentNullException(nameof(type));
-            
-            using (var codeDomProvider = CodeDomProvider.CreateProvider("C#"))
-            using (var stringWriter = new StringWriter())
+
+            return _prettyStrings.GetOrAdd(type, t =>
             {
+                using var codeDomProvider = CodeDomProvider.CreateProvider("C#");
+                using var stringWriter = new StringWriter();
                 var typeReferenceExpression = new CodeTypeReferenceExpression(type);
                 codeDomProvider.GenerateCodeFromExpression(typeReferenceExpression, stringWriter, new CodeGeneratorOptions());
                 var typeName = stringWriter.GetStringBuilder().ToString();
                 return includeNamespace ? typeName : RemoveNamespace(typeName);
-            }
+            });
         }
 
         public string Render(MethodInfo method, bool includeNamespace)
@@ -65,22 +69,22 @@ namespace Reusable
 
             // public/internal/protected/private [static] [abstract/virtual/override] retVal
 
-            var accessModifier = new(bool AccessModifier, string Name)[]
-            {
-                (method.IsPublic, "public"),
-                (method.IsAssembly, "internal"),
-                (method.IsPrivate, "private"),
-                (method.IsFamily, "protected"),
-            }
-            .First(x => x.AccessModifier).Name;
+            var accessModifier = new (bool AccessModifier, string Name)[]
+                {
+                    (method.IsPublic, "public"),
+                    (method.IsAssembly, "internal"),
+                    (method.IsPrivate, "private"),
+                    (method.IsFamily, "protected"),
+                }
+                .First(x => x.AccessModifier).Name;
 
-            var inheritanceModifier = new(bool InheritanceModifier, string Name)[]
-            {
-                (method.IsAbstract, "abstract"),
-                (method.IsVirtual, "virtual"),
-                (method.GetBaseDefinition() != method, "override"),
-            }
-            .FirstOrDefault(x => x.InheritanceModifier).Name;
+            var inheritanceModifier = new (bool InheritanceModifier, string Name)[]
+                {
+                    (method.IsAbstract, "abstract"),
+                    (method.IsVirtual, "virtual"),
+                    (method.GetBaseDefinition() != method, "override"),
+                }
+                .FirstOrDefault(x => x.InheritanceModifier).Name;
 
             var signature = new StringBuilder()
                 .Append(method.DeclaringType?.FullName)
@@ -103,7 +107,7 @@ namespace Reusable
             // https://regex101.com/r/WuNXIf/1
             return Regex.Replace(typeName, @"[a-z0-9_]+\.", string.Empty, RegexOptions.IgnoreCase);
         }
-    }    
+    }
 
     //public enum ExceptionOrder
     //{
