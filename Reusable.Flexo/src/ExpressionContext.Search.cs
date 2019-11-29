@@ -9,23 +9,11 @@ using Reusable.Exceptionize;
 using Reusable.Extensions;
 using Reusable.Flexo.Abstractions;
 using Reusable.Quickey;
-using linq = System.Linq.Expressions;
 
 namespace Reusable.Flexo
 {
     public static partial class ExpressionContext
     {
-        public static IEnumerable<T> FindItems<T>(this IImmutableContainer context, string key, Func<T, bool> predicate)
-        {
-            foreach (var current in context.Scopes())
-            {
-                if (current.TryGetItem(key, out var obj) && obj is T value && predicate(value))
-                {
-                    yield return value;
-                }
-            }
-        }
-        
         /// <summary>
         /// Searches all contexts for items with the specified key and type.
         /// </summary>
@@ -44,7 +32,7 @@ namespace Reusable.Flexo
         {
             return context.FindItems<T>(key.ToString());
         }
-        
+
         /// <summary>
         /// Searches for the first item with the specified key and type. Throws if now found.
         /// </summary>
@@ -61,53 +49,25 @@ namespace Reusable.Flexo
         {
             return context.FindItem<T>(key.ToString());
         }
-
-        public static IEnumerable<TValue> FindItems<TKey, TValue>(this IImmutableContainer context, Selector<IDictionary<TKey, TValue>> mainKey, TKey subKey)
-        {
-            foreach (var current in context.Scopes())
-            {
-                if (current.TryGetItem(mainKey, out var dictionary) && dictionary.TryGetValue(subKey, out var value))
-                {
-                    yield return value;
-                }
-            }
-        }
         
-        public static TValue FindItem<TKey, TValue>(this IImmutableContainer context, Selector<IDictionary<TKey, TValue>> mainKey, TKey subKey)
+        public static IEnumerable<Maybe<T>> FindItems<T>(this IImmutableContainer context, Selector<IContainer<T>> containerKey, string itemKey)
         {
-            return context.FindItems(mainKey, subKey).Take(1).ToList() switch
+            return
+                from scope in context.Scopes()
+                let container = scope.GetItemOrDefault(containerKey)
+                where container is {}
+                let item = container.GetItem(itemKey)
+                where item.HasValue
+                select item;
+        }
+
+        public static Maybe<T> FindItem<T>(this IImmutableContainer context, Selector<IContainer<T>> containerKey, string itemKey)
+        {
+            return context.FindItems(containerKey, itemKey).FirstOrDefault() switch
             {
-                {} items when items.Any() => items.Single(),
-                _ => throw DynamicException.Create("ItemNotFound", $"Could not find item '{mainKey}/{subKey}' in any context.")
+                {HasValue: true} item => item,
+                _ => throw DynamicException.Create("ItemNotFound", $"Could not find item '{containerKey}/{itemKey}' in any scope.")
             };
-        }
-
-        public static IComparer<object> FindComparer(this IImmutableContainer context, string? name = default)
-        {
-            name ??= "Default";
-
-            foreach (var current in context.Scopes())
-            {
-                if (current.GetItemOrDefault(Comparers, ImmutableDictionary<SoftString, IComparer<object>>.Empty).TryGetValue(name!, out var comparer))
-                {
-                    return comparer;
-                }
-            }
-
-            throw DynamicException.Create("ComparerNotFound", $"There is no comparer with the name '{name}'.");
-        }
-
-        public static IExpression FindPackage(this IImmutableContainer context, string packageId)
-        {
-            foreach (var getPackage in context.FindItems(GetPackageFunc))
-            {
-                if (getPackage(packageId) is {} package)
-                {
-                    return package;
-                }
-            }
-
-            throw DynamicException.Create("PackageNotFound", $"Could not find package '{packageId}'.");
         }
 
         public static (object Object, PropertyInfo Property, object Value) FindMember(this IImmutableContainer context, string path)

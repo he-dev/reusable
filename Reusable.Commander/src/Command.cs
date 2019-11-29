@@ -76,7 +76,7 @@ namespace Reusable.Commander
             MultiName name,
             ExecuteDelegate<TParameter> execute,
             Action<IRegistrationBuilder<Lambda<TParameter>, SimpleActivatorData, SingleRegistrationStyle>>? configure = default
-        ) where TParameter : class, new()
+        ) where TParameter : CommandParameter, new()
         {
             ValidateParameterPropertyNames(typeof(TParameter));
 

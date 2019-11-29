@@ -3,6 +3,7 @@ using System.Linq;
 using System.Text.Json.Serialization;
 using Reusable.Data;
 using Reusable.Flexo.Abstractions;
+using Reusable.Flexo.Containers;
 using Reusable.Flexo.Helpers;
 using Reusable.Utilities.XUnit.Annotations;
 using Xunit;
@@ -47,7 +48,7 @@ namespace Reusable.Flexo
             var scope =
                 ImmutableContainer
                     .Empty
-                    .SetItem(ExpressionContext.GetPackageFunc, packageId => packages.Single(p => p.Id == packageId))
+                    .SetItem(ExpressionContext.Packages, new PackageContainer(packageId => packages.Single(p => p.Id == packageId) as Package))
                     .SetItem("Product", new Product());
 
             var useCases = helper.ReadExpressionFile<List<ExpressionUseCase>>("ExpressionUseCases.json");

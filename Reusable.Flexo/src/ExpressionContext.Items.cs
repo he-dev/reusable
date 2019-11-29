@@ -15,6 +15,11 @@ namespace Reusable.Flexo
             update(item);
             return context;
         }
+        
+        public static string ToInvokeLogString(this IImmutableContainer context, RenderTreeNodeValueDelegate<IExpression, NodePlainView> template)
+        {
+            return context.FindItem(InvokeLog).Views(template).Render();
+        }
     }
 
     public static class EqualityComparerExtensions

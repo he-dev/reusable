@@ -21,6 +21,8 @@ namespace Reusable.Commander
         public static MultiName Command => new MultiName("Arg0");
 
         public static MultiName Anonymous => new MultiName("Arg1");
+        
+        public static MultiName Create(params string[] names) => new MultiName(names);
 
         #region IEquatable<MultiName>
 

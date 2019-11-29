@@ -24,11 +24,11 @@ namespace Reusable.Flexo
         /// </summary>
         public static IEnumerable<IImmutableContainer> Scopes(this IImmutableContainer context)
         {
-            do
+            while (context is {})
             {
                 yield return context;
                 context = context.GetItemOrDefault(Parent);
-            } while (context.IsNotNull());
+            }
         }
     }
 }

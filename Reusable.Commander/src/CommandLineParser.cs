@@ -48,7 +48,8 @@ namespace Reusable.Commander
                 }
             }
 
-            if (arguments.Any())
+            // The second part handles an empty command-line where there is not even a command name.
+            if (arguments.Any() && arguments.First().Any())
             {
                 yield return arguments;
             }

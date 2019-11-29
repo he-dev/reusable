@@ -4,28 +4,29 @@ using System.Threading;
 using Reusable.Data;
 using Reusable.Exceptionize;
 using Reusable.Flexo.Abstractions;
+using Reusable.Flexo.Containers;
 using Reusable.Quickey;
 
 namespace Reusable.Flexo
 {
-    [UseNamespace("Flexo"), UseMember]
+    [UseNamespace(Keywords.Flexo), UseMember]
     [PlainSelectorFormatter]
     public static partial class ExpressionContext
     {
         public static IImmutableContainer Default =>
             ImmutableContainer
                 .Empty
-                .SetItem(EqualityComparers, new Dictionary<SoftString, IEqualityComparer<object>>
+                .SetItem(Id, Keywords.Main)
+                .SetItem(EqualityComparers, new EqualityComparerContainer
                 {
-                    ["Default"] = EqualityComparer<object>.Default,
+                    [Keywords.Default] = EqualityComparer<object>.Default,
                     ["SoftString"] = SoftString.Comparer.Objectify<string>()
                 })
-                .SetItem(Comparers, new Dictionary<SoftString, IComparer<object>>
+                .SetItem(Comparers, new ComparerContainer
                 {
-                    ["Default"] = Comparer<object>.Default
+                    [Keywords.Default] = Comparer<object>.Default
                 })
-                .SetItem(InvokeLog, Node.Create((IExpression)Constant.FromValue<object>("ExpressionInvokeLog")))
-                .SetItem(GetPackageFunc, (string packageId) => default);
+                .SetItem(InvokeLog, Node.Create((IExpression)Constant.FromValue<object>("ExpressionInvokeLog")));
 
         private static readonly From<ExecutionContext> This = From<ExecutionContext>.This!;
 
@@ -35,30 +36,32 @@ namespace Reusable.Flexo
         public static readonly Selector<object> Arg = This.Select(() => Arg);
 
         /// <summary>
-        /// Gets or sets collection item.
+        /// Gets or sets scope id.
+        /// </summary>
+        public static readonly Selector<string> Id = This.Select(() => Id);
+
+        /// <summary>
+        /// Gets or sets the parent scope.
         /// </summary>
         public static readonly Selector<IImmutableContainer> Parent = This.Select(() => Parent);
+        
+        public static readonly Selector<IContainer<IEqualityComparer<object>>> EqualityComparers = This.Select(() => EqualityComparers);
 
-        public static readonly Selector<IDictionary<SoftString, IEqualityComparer<object>>> EqualityComparers = This.Select(() => EqualityComparers);
+        public static readonly Selector<IContainer<IComparer<object>>> Comparers = This.Select(() => Comparers);
 
-        public static readonly Selector<IDictionary<SoftString, IComparer<object>>> Comparers = This.Select(() => Comparers);
-
-        public static readonly Selector<GetPackageFunc> GetPackageFunc = This.Select(() => GetPackageFunc);
+        public static readonly Selector<IContainer<Package>> Packages = This.Select(() => Packages);
 
         public static readonly Selector<Node<IExpression>> InvokeLog = This.Select(() => InvokeLog);
 
         public static readonly Selector<CancellationToken> CancellationToken = This.Select(() => CancellationToken);
 
-        public static string ToInvokeLogString(this IImmutableContainer context, RenderTreeNodeValueDelegate<IExpression, NodePlainView> template)
-        {
-            return context.FindItem(InvokeLog).Views(template).Render();
-        }
 
-        public static IConstant InvokePackage(this IImmutableContainer context, string packageId)
-        {
-            return context.FindPackage(packageId).Invoke(context);
-        }
     }
-
-    public delegate IExpression? GetPackageFunc(string packageId);
+    
+    public static class Keywords
+    {
+        public const string Flexo = nameof(Flexo);
+        public const string Main = nameof(Main);
+        public const string Default = nameof(Default);
+    }
 }

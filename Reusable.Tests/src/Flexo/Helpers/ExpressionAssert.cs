@@ -17,14 +17,12 @@ namespace Reusable.Flexo.Helpers
         (
             TValue expected,
             IExpression expression,
-            IImmutableContainer? scope = default,
+            IImmutableContainer? context = default,
             ITestOutputHelper? output = default,
             bool throws = false,
             ISet<SoftString>? tags = default
         )
         {
-            var context = ExpressionContext.Default.BeginScope(scope ?? ImmutableContainer.Empty);
-
             if (throws)
             {
                 var ex = Assert.ThrowsAny<Exception>(() => expression.Invoke(context));

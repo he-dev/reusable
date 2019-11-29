@@ -163,4 +163,12 @@ namespace Reusable.Commander
             return command.ExecuteAsync(parameter, cancellationToken);
         }
     }
+
+    public static class CommandExecutorExtensions
+    {
+        public static Task ExecuteAsync<TContext>(this ICommandExecutor commandExecutor, IEnumerable<string> args, TContext context = default, CancellationToken cancellationToken = default)
+        {
+            return commandExecutor.ExecuteAsync(args.Join(" "), context, cancellationToken);
+        }
+    }
 }

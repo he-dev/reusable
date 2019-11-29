@@ -55,14 +55,13 @@ namespace Reusable.Flexo
         public IExpression Body { get; set; } = default!;
 
         [JsonProperty("Comparer")]
-        public string? ComparerName { get; set; } = "Default";
+        public string? ComparerName { get; set; }
 
         public bool Matches(IConstant value, IImmutableContainer context)
         {
             return When switch
             {
-                //IConstant constant => context.FindEqualityComparer(ComparerName).Equals(value.Value!, constant.Value!),
-                IConstant constant => context.FindItem(ExpressionContext.EqualityComparers, ComparerName).Equals(value.Value!, constant.Value!),
+                IConstant constant => context.FindItem(ExpressionContext.EqualityComparers, ComparerName ?? Keywords.Default).Value.Equals(value.Value!, constant.Value!),
                 {} expression => expression.Invoke(context).Value<bool>(),
                 _ => true // If not specified then use it as a default case.
             };

@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Linq;
 using JetBrains.Annotations;
 using Newtonsoft.Json;
 using Reusable.Data;
@@ -12,7 +13,7 @@ using Reusable.Utilities.JsonNet.Annotations;
 namespace Reusable.Flexo.Abstractions
 {
     using static ExpressionContext;
-    
+
     public interface ISwitchable
     {
         [DefaultValue(true)]
@@ -131,11 +132,15 @@ namespace Reusable.Flexo.Abstractions
 
         public static IConstant InvokePackage(string packageId, IImmutableContainer context)
         {
-            return context.InvokePackage(packageId);
+            return context.FindItem(Packages, packageId).Value.Invoke(context);
         }
 
         public IConstant Invoke(IImmutableContainer context)
         {
+            // This prevents exceptions in case of a forgotten main-scope.
+            var startsWithScopeMain = context.Scopes().Last().GetItemOrDefault(ExpressionContext.Id, string.Empty).Equals(Keywords.Main);
+            context = startsWithScopeMain ? context : Default.BeginScope(context);
+
             var parentLog = context.FindItem(InvokeLog);
             var thisLog = this is IConstant ? parentLog : parentLog.Add(CreateInvokeLog());
             var thisContext = context.SetItem(InvokeLog, thisLog);
@@ -163,7 +168,7 @@ namespace Reusable.Flexo.Abstractions
             {
                 throw DynamicException.Create
                 (
-                    $"PipeTypeMismatch",
+                    $"ExtensionTypeMismatch",
                     $"Extension '{extension.GetType().ToPrettyString()}<{extension.ExtendsType.ToPrettyString()}>' does not match the expression it is extending: '{arg.Value?.GetType().ToPrettyString()}'."
                 );
             }
@@ -172,12 +177,5 @@ namespace Reusable.Flexo.Abstractions
         private Node<IExpression> CreateInvokeLog() => Node.Create<IExpression>(this);
 
         protected abstract IConstant ComputeConstant(IImmutableContainer context);
-
-//        private class EmptyLogger : ILogger
-//        {
-//            public static EmptyLogger Instance { get; } = new EmptyLogger();
-//
-//            public void Log(LogEntry logEntry) { }
-//        }
     }
 }
