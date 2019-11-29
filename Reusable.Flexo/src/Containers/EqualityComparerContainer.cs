@@ -5,7 +5,7 @@ namespace Reusable.Flexo.Containers
 {
     public class EqualityComparerContainer : Dictionary<SoftString, IEqualityComparer<object>>, IContainer<IEqualityComparer<object>>
     {
-        public Option<IEqualityComparer<object>> GetItem(string key)
+        public Maybe<IEqualityComparer<object>> GetItem(string key)
         {
             return
                 TryGetValue(key, out var comparer)

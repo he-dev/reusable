@@ -1,5 +1,6 @@
 using System;
 using System.Diagnostics;
+using System.Linq;
 using Reusable.OmniLog.Abstractions;
 using Reusable.OmniLog.Abstractions.Data;
 using Reusable.OmniLog.Abstractions.Data.LogPropertyActions;
@@ -36,6 +37,6 @@ namespace Reusable.OmniLog.Nodes
         /// <summary>
         /// Gets the stopwatch in current scope.
         /// </summary>
-        public static StopwatchNode Stopwatch(this ILogger logger) => logger.Node<StopwatchNode>();
+        public static StopwatchNode? Stopwatch(this ScopeNode.Item scope) => scope.EnumerateNext().OfType<StopwatchNode>().FirstOrDefault();
     }
 }

@@ -13,7 +13,7 @@ namespace Reusable.Commander.Helpers
         private readonly ICommandExecutor _executor;
         private readonly IDisposable _disposer;
 
-        public TestProgram(ICommandExecutor executor, IDisposable disposer)
+        private TestProgram(ICommandExecutor executor, IDisposable disposer)
         {
             _executor = executor;
             _disposer = disposer;
