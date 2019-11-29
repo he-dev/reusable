@@ -86,7 +86,7 @@ namespace Reusable.OmniLog.SemanticExtensions.AspNetCore
             }
         }
 
-        private static Option<LogLevel> MapStatusCode(int statusCode)
+        private static Reusable.Data.Option<LogLevel> MapStatusCode(int statusCode)
         {
             return statusCode switch
             {

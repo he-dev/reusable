@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
+using System.Linq.Custom;
 using System.Reflection;
 using System.Text.RegularExpressions;
 using Reusable.Data;
@@ -38,36 +39,27 @@ namespace Reusable.Flexo
         /// </summary>
         public static T FindItem<T>(this IImmutableContainer context, string key)
         {
-            return context.FindItems<T>(key).Take(1).ToList() switch
-            {
-                {} items when items.Any() => items.Single(),
-                _ => throw DynamicException.Create("ItemNotFound", $"Could not find item {key} in any context.")
-            };
+            return context.FindItems<T>(key).FirstOrThrow(("ItemNotFound", $"Could not find item {key} in any context."));
         }
 
         public static T FindItem<T>(this IImmutableContainer context, Selector<T> key)
         {
             return context.FindItem<T>(key.ToString());
         }
-        
-        public static IEnumerable<Maybe<T>> FindItems<T>(this IImmutableContainer context, Selector<IContainer<T>> containerKey, string itemKey)
+
+        public static IEnumerable<T> FindItems<T>(this IImmutableContainer context, Selector<IContainer<T>> containerKey, string itemKey)
         {
             return
                 from scope in context.Scopes()
                 let container = scope.GetItemOrDefault(containerKey)
                 where container is {}
-                let item = container.GetItem(itemKey)
-                where item.HasValue
+                from item in container.GetItem(itemKey)
                 select item;
         }
 
-        public static Maybe<T> FindItem<T>(this IImmutableContainer context, Selector<IContainer<T>> containerKey, string itemKey)
+        public static T FindItem<T>(this IImmutableContainer context, Selector<IContainer<T>> containerKey, string itemKey)
         {
-            return context.FindItems(containerKey, itemKey).FirstOrDefault() switch
-            {
-                {HasValue: true} item => item,
-                _ => throw DynamicException.Create("ItemNotFound", $"Could not find item '{containerKey}/{itemKey}' in any scope.")
-            };
+            return context.FindItems(containerKey, itemKey).FirstOrThrow(("ItemNotFound", $"Could not find item '{containerKey}/{itemKey}' in any scope."));
         }
 
         public static (object Object, PropertyInfo Property, object Value) FindMember(this IImmutableContainer context, string path)

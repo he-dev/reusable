@@ -10,7 +10,7 @@ namespace Reusable.Translucent
     {
         public UriString Uri { get; set; } = default!;// = new UriString($"{UriSchemes.Custom.IOnymous}:///");
 
-        public Option<RequestMethod> Method { get; set; } = RequestMethod.None;
+        public Reusable.Data.Option<RequestMethod> Method { get; set; } = RequestMethod.None;
 
         /// <summary>
         /// Gets or sets the object that should be handled. Can be anything or a Stream.

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
@@ -12,6 +13,7 @@ using Reusable.Exceptionize;
 using Reusable.Extensions;
 using Reusable.OneTo1;
 using Reusable.Reflection;
+using TypeConverterAttribute = Reusable.OneTo1.TypeConverterAttribute;
 
 namespace Reusable.Commander
 {
@@ -41,13 +43,13 @@ namespace Reusable.Commander
                         ? args.SingleOrNotFound(MultiName.Command) is var a && a && a.Count > position.Value ? new CommandLineArgument($"#{position}", a.ElementAt(position)) : CommandLineArgument.NotFound
                         : args.SingleOrNotFound(argName);
 
+                var converter =
+                    property.GetCustomAttribute<TypeConverterAttribute>() is {} attr
+                        ? (ITypeConverter)Activator.CreateInstance(attr.ConverterType)
+                        : CommandArgumentConverter.Default;
+
                 if (arg)
                 {
-                    var converter =
-                        property.GetCustomAttribute<TypeConverterAttribute>() is {} attr
-                            ? (ITypeConverter)Activator.CreateInstance(attr.ConverterType)
-                            : CommandArgumentConverter.Default;
-
                     var deserialize =
                         property.PropertyType.IsEnumerableOfT(except: typeof(string))
                             ? arg.AsEnumerable() as object
@@ -83,6 +85,11 @@ namespace Reusable.Commander
                     if (property.GetCustomAttribute<ServiceAttribute>() is {} service)
                     {
                         property.SetValue(parameter, _scope.Resolve(service.ServiceType ?? property.PropertyType));
+                    }
+
+                    if (property.GetCustomAttribute<DefaultValueAttribute>() is {} defaultValue)
+                    {
+                        property.SetValue(parameter, converter.Convert(defaultValue.Value, property.PropertyType));
                     }
                 }
             }

@@ -13,7 +13,7 @@ namespace Reusable.Translucent
     {
         public static Request CreateRequest
         (
-            Option<RequestMethod> method,
+            Reusable.Data.Option<RequestMethod> method,
             Selector selector,
             object? value = default,
             Action<ConfigRequest>? requestAction = default

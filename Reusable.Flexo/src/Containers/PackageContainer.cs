@@ -10,12 +10,6 @@ namespace Reusable.Flexo.Containers
 
         public PackageContainer(GetPackageFunc getPackage) => _getPackage = getPackage;
 
-        public Maybe<Package> GetItem(string key)
-        {
-            return
-                _getPackage(key) is {} package
-                    ? (package, true, $"{nameof(PackageContainer)}.{key}")
-                    : (default, false, $"{nameof(PackageContainer)}.{key}");
-        }
+        public Option<Package> GetItem(string key) => (_getPackage(key), key);
     }
 }

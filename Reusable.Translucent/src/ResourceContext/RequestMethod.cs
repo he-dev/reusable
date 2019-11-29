@@ -4,10 +4,10 @@ namespace Reusable.Translucent
 {
     public abstract class RequestMethod
     {
-        public static readonly Option<RequestMethod> None = Option<RequestMethod>.None;
-        public static readonly Option<RequestMethod> Get = Option<RequestMethod>.CreateWithCallerName();
-        public static readonly Option<RequestMethod> Post = Option<RequestMethod>.CreateWithCallerName();
-        public static readonly Option<RequestMethod> Put = Option<RequestMethod>.CreateWithCallerName();
-        public static readonly Option<RequestMethod> Delete = Option<RequestMethod>.CreateWithCallerName();
+        public static readonly Reusable.Data.Option<RequestMethod> None = Reusable.Data.Option<RequestMethod>.None;
+        public static readonly Reusable.Data.Option<RequestMethod> Get = Reusable.Data.Option<RequestMethod>.CreateWithCallerName();
+        public static readonly Reusable.Data.Option<RequestMethod> Post = Reusable.Data.Option<RequestMethod>.CreateWithCallerName();
+        public static readonly Reusable.Data.Option<RequestMethod> Put = Reusable.Data.Option<RequestMethod>.CreateWithCallerName();
+        public static readonly Reusable.Data.Option<RequestMethod> Delete = Reusable.Data.Option<RequestMethod>.CreateWithCallerName();
     }
 }

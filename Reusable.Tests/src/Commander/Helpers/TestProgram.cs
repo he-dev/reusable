@@ -32,6 +32,8 @@ namespace Reusable.Commander.Helpers
         }
 
         public Task RunAsync(params string[] args) => _executor.ExecuteAsync<object>(args);
+        
+        public Task RunAsync<T>(IEnumerable<string> args, T context = default) => _executor.ExecuteAsync<object>(args, context);
 
         private static IContainer InitializeContainer(IEnumerable<RegisterCommandDelegate> commandRegistrations)
         {

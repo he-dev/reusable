@@ -220,8 +220,8 @@ namespace System.Linq.Custom
 
             var items = source.Take(2).ToList();
 
-            onEmpty ??= () => DynamicException.Create("Empty", $"{source.GetType().ToPrettyString()} does not contain any elements that match the specified predicate.");
-            onMany ??= () => DynamicException.Create("Many", $"{source.GetType().ToPrettyString()} contains more than one element that matches the specified predicate.");
+            onEmpty ??= () => DynamicException.Create("Empty", $"{source.GetType().ToPrettyString()} does not contain any elements.");
+            onMany ??= () => DynamicException.Create("Many", $"{source.GetType().ToPrettyString()} contains more than one element.");
 
             return items.Count switch
             {
@@ -235,9 +235,18 @@ namespace System.Linq.Custom
         {
             return source.SingleOrThrow
             (
-                onEmpty: () => DynamicException.Create(onEmpty.Name ?? "Empty", onEmpty.Message ?? $"{source.GetType().ToPrettyString()} does not contain any elements that match the specified predicate."),
-                onMany: () => DynamicException.Create(onMany.Name ?? "Many", onMany.Message ?? $"{source.GetType().ToPrettyString()} contains more than one element that matches the specified predicate.")
+                onEmpty: () => DynamicException.Create(onEmpty.Name ?? "Empty", onEmpty.Message ?? $"{source.GetType().ToPrettyString()} does not contain any elements."),
+                onMany: () => DynamicException.Create(onMany.Name ?? "Many", onMany.Message ?? $"{source.GetType().ToPrettyString()} contains more than one element.")
             );
+        }
+
+        public static T FirstOrThrow<T>(this IEnumerable<T> source, (string Exception, string Message) onEmpty = default)
+        {
+            return source.Take(1).ToList() switch
+            {
+                {} items when items.Any() => items.Single(),
+                _ => throw DynamicException.Create(onEmpty.Exception ?? "Empty", onEmpty.Message ?? $"{source.GetType().ToPrettyString()} does not contain any elements.")
+            };
         }
 
 //        public static T SingleOrThrow<T>([NotNull] this IEnumerable<T> source, Func<T, bool> predicate, Func<Exception> onEmpty = null, Func<Exception> onMany = null)

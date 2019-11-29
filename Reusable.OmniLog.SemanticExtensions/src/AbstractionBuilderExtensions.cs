@@ -49,7 +49,7 @@ namespace Reusable.OmniLog.SemanticExtensions
     [SuppressMessage("ReSharper", "InconsistentNaming")]
     public static class AbstractionLayers
     {
-        public static IDictionary<string, Option<LogLevel>> Levels { get; set; } = new Dictionary<string, Option<LogLevel>>(SoftString.Comparer)
+        public static IDictionary<string, Reusable.Data.Option<LogLevel>> Levels { get; set; } = new Dictionary<string, Reusable.Data.Option<LogLevel>>(SoftString.Comparer)
         {
             [nameof(Business)] = LogLevel.Information,
             [nameof(Service)] = LogLevel.Debug,

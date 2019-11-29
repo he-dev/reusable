@@ -5,12 +5,12 @@ namespace Reusable.Flexo.Containers
 {
     public class EqualityComparerContainer : Dictionary<SoftString, IEqualityComparer<object>>, IContainer<IEqualityComparer<object>>
     {
-        public Maybe<IEqualityComparer<object>> GetItem(string key)
+        public Option<IEqualityComparer<object>> GetItem(string key)
         {
-            return 
+            return
                 TryGetValue(key, out var comparer)
-                    ? (comparer, true, $"{nameof(EqualityComparerContainer)}.{key}")
-                    : (default, false, $"{nameof(EqualityComparerContainer)}.{key}");
+                    ? (comparer, key)
+                    : (default, key);
         }
     }
 }

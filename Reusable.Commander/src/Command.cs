@@ -60,7 +60,7 @@ namespace Reusable.Commander
 
                 return builder =>
                 {
-                    var registration = builder.RegisterType<T>();
+                    var registration = builder.RegisterType<T>().As<ICommand>();
                     configure?.Invoke(registration);
                     return typeof(T).GetMultiName();
                 };
@@ -86,6 +86,20 @@ namespace Reusable.Commander
                 configure?.Invoke(registration);
                 return name;
             };
+        }
+
+        public static RegisterCommandDelegate Registration<TParameter>
+        (
+            MultiName name,
+            Action<TParameter> execute,
+            Action<IRegistrationBuilder<Lambda<TParameter>, SimpleActivatorData, SingleRegistrationStyle>>? configure = default
+        ) where TParameter : CommandParameter, new()
+        {
+            return Registration(name, (n, p, t) =>
+            {
+                execute(p);
+                return Task.CompletedTask;
+            }, configure);
         }
 
         private static void ValidateParameter(Type parameterType)

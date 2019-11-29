@@ -5,9 +5,9 @@ namespace Reusable.Translucent.Annotations
 {
     public abstract class ResourceActionAttribute : Attribute
     {
-        protected ResourceActionAttribute(Option<RequestMethod> method) => Method = method;
+        protected ResourceActionAttribute(Reusable.Data.Option<RequestMethod> method) => Method = method;
 
-        public Option<RequestMethod> Method { get; }
+        public Reusable.Data.Option<RequestMethod> Method { get; }
     }
 
     public class ResourceGetAttribute : ResourceActionAttribute

@@ -132,7 +132,7 @@ namespace Reusable.Flexo.Abstractions
 
         public static IConstant InvokePackage(string packageId, IImmutableContainer context)
         {
-            return context.FindItem(Packages, packageId).Value.Invoke(context);
+            return context.FindItem(Packages, packageId).Invoke(context);
         }
 
         public IConstant Invoke(IImmutableContainer context)

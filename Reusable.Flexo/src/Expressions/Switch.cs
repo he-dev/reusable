@@ -61,7 +61,7 @@ namespace Reusable.Flexo
         {
             return When switch
             {
-                IConstant constant => context.FindItem(ExpressionContext.EqualityComparers, ComparerName ?? Keywords.Default).Value.Equals(value.Value!, constant.Value!),
+                IConstant constant => context.FindItem(ExpressionContext.EqualityComparers, ComparerName ?? Keywords.Default).Equals(value.Value!, constant.Value!),
                 {} expression => expression.Invoke(context).Value<bool>(),
                 _ => true // If not specified then use it as a default case.
             };

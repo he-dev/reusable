@@ -13,7 +13,7 @@ namespace Reusable.OmniLog
 
         public static LogEntry Timestamp(this LogEntry logEntry, DateTime value) => logEntry.Add<Log>(LogEntry.Names.Timestamp, value);
 
-        public static LogEntry Level(this LogEntry logEntry, Option<LogLevel> value) => logEntry.Add<Log>(LogEntry.Names.Level, value);
+        public static LogEntry Level(this LogEntry logEntry, Reusable.Data.Option<LogLevel> value) => logEntry.Add<Log>(LogEntry.Names.Level, value);
 
         public static LogEntry Exception(this LogEntry logEntry, Exception value) => logEntry.Add<Log>(LogEntry.Names.Exception, value);
 
