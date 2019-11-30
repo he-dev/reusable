@@ -14,12 +14,12 @@ namespace Reusable.Translucent
     public interface IPipelineBuilder<in TContext>
     {
         IPipelineBuilder<TContext> UseMiddleware(Type middlewareType, params object[] args);
-        
+
         IPipelineBuilder<TContext> UseMiddleware<T>(params object[] args);
 
         RequestDelegate<TContext> Build();
     }
-    
+
     [PublicAPI]
     public class PipelineBuilder<TContext> : IPipelineBuilder<TContext>
     {
@@ -32,8 +32,10 @@ namespace Reusable.Translucent
 
         public PipelineBuilder(IServiceProvider services) => _services = services;
 
-        public IPipelineBuilder<TContext> UseMiddleware(Type middlewareType, params object[] args)
+        public IPipelineBuilder<TContext> UseMiddleware(Type middlewareType, params object[]? args)
         {
+            args ??= new object[0];
+
             _pipeline.Push((middlewareType, GetConstructor(middlewareType), GetInvokeMethod(middlewareType), args));
             var last = _pipeline.Peek();
 
@@ -53,7 +55,7 @@ namespace Reusable.Translucent
             return this;
         }
 
-        public IPipelineBuilder<TContext> UseMiddleware<TMiddleware>(params object[] args) => UseMiddleware(typeof(TMiddleware), args);
+        public IPipelineBuilder<TContext> UseMiddleware<TMiddleware>(params object[]? args) => UseMiddleware(typeof(TMiddleware), args);
 
         public RequestDelegate<TContext> Build()
         {
@@ -76,7 +78,7 @@ namespace Reusable.Translucent
         private static object[] CreateConstructorParameters(ConstructorInfo ctor, RequestDelegate<TContext> nextCallback, object[] args, IServiceProvider services)
         {
             var parameterValues =
-                args.Any()
+                args?.Any() == true
                     ? args
                     // TContext is always there so we can skip it.
                     : ctor.GetParameters().Skip(1).Select(parameter => services.Resolve(parameter.ParameterType));

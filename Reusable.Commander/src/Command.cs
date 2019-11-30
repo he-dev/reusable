@@ -18,6 +18,12 @@ namespace Reusable.Commander
     public interface ICommand
     {
         MultiName Name { get; }
+        
+        /// <summary>
+        /// Gets the type of the parameter.
+        /// </summary>
+        /// <remarks>This property is required for when a command is decorated and there is no access to the parameter type via generic arguments.</remarks>
+        Type ParameterType { get; }
 
         Task ExecuteAsync(object? parameter, CancellationToken cancellationToken = default);
     }
@@ -34,6 +40,8 @@ namespace Reusable.Commander
         protected ILogger Logger { get; }
 
         public virtual MultiName Name { get; }
+
+        public Type ParameterType => typeof(TParameter);
 
         public virtual async Task ExecuteAsync(object? parameter, CancellationToken cancellationToken)
         {

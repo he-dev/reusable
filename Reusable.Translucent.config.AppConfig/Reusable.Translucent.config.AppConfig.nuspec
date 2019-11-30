@@ -2,7 +2,7 @@
 <package>
   <metadata>
     <id>Reusable.Translucent.config.AppConfig</id>
-    <version>16.0.1</version>
+    <version>16.0.6</version>
     <title>Reusable.Translucent.config.AppConfig</title>
     <authors>He-Dev</authors>
     <owners>He-Dev</owners>
@@ -18,11 +18,11 @@
       <dependency id="JetBrains.Annotations" version="2019.1.3" />
       <dependency id="System.Memory" version="4.5.3" />
       <dependency id="System.ValueTuple" version="4.5.0" />
-      <dependency id="Reusable.Core" version="16.0.1" />
-      <dependency id="Reusable.Translucent" version="16.0.1" />
-      <dependency id="Reusable.Translucent.config" version="16.0.1" />
-      <dependency id="Reusable.OneTo1" version="16.0.1" />
-      <dependency id="Reusable.Data" version="16.0.1" />
+      <dependency id="Reusable.Core" version="16.0.6" />
+      <dependency id="Reusable.Translucent" version="16.0.6" />
+      <dependency id="Reusable.Translucent.config" version="16.0.6" />
+      <dependency id="Reusable.OneTo1" version="16.0.6" />
+      <dependency id="Reusable.Data" version="16.0.6" />
     </dependencies>
   </metadata>
   <files>

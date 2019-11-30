@@ -54,7 +54,7 @@ namespace Reusable.Commander
             return typeof(object);
         }
 
-        public static Type ParameterType(this ICommand command) => command.GetType().GetCommandParameterType();
+        //public static Type ParameterType(this ICommand command) => command.GetType().GetCommandParameterType();
         
         public static IEnumerable<PropertyInfo> GetParameterProperties(this Type parameterType)
         {

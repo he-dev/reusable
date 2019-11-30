@@ -124,7 +124,7 @@ namespace Reusable.Commander
             (
                 async executable =>
                 {
-                    var commandParameterType = executable.command.GetType().GetCommandParameterType();
+                    var commandParameterType = executable.command.ParameterType; // executable.command.GetType().GetCommandParameterType();
                     var bindMethod = typeof(ICommandParameterBinder).GetMethod(nameof(ICommandParameterBinder.Bind))!.MakeGenericMethod(commandParameterType ?? typeof(object));
                     var parameter = bindMethod.Invoke(_commandParameterBinder, new object[] { context, executable.commandLine });
                     var task = executable.command.ExecuteAsync(parameter, cts.Token);
@@ -156,7 +156,7 @@ namespace Reusable.Commander
 
         private Task ExecuteAsync<TContext>(ICommand command, List<CommandLineArgument> args, TContext context, CancellationToken cancellationToken)
         {
-            var commandParameterType = command.ParameterType();
+            var commandParameterType = command.ParameterType;
             var bindMethod = typeof(ICommandParameterBinder).GetMethod(nameof(ICommandParameterBinder.Bind))!;
             var bindMethodGeneric = bindMethod.MakeGenericMethod(commandParameterType ?? typeof(object));
             var parameter = bindMethodGeneric.Invoke(_commandParameterBinder, new object[] { args, context });
