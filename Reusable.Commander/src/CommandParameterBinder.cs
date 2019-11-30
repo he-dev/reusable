@@ -43,9 +43,9 @@ namespace Reusable.Commander
                         ? args.SingleOrNotFound(MultiName.Command) is var a && a && a.Count > position.Value ? new CommandLineArgument($"#{position}", a.ElementAt(position)) : CommandLineArgument.NotFound
                         : args.SingleOrNotFound(argName);
 
-                var converter =
-                    property.GetCustomAttribute<TypeConverterAttribute>() is {} attr
-                        ? (ITypeConverter)Activator.CreateInstance(attr.ConverterType)
+                var converter = 
+                    property.GetCustomAttribute<TypeConverterAttribute>() is {} typeConverterAttribute
+                        ? (ITypeConverter)Activator.CreateInstance(typeConverterAttribute.ConverterType)
                         : CommandArgumentConverter.Default;
 
                 if (arg)

@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
+using Reusable.Beaver.Policies;
 using Reusable.Exceptionize;
 
 namespace Reusable.Beaver
@@ -61,6 +62,8 @@ namespace Reusable.Beaver
 
         public async Task<FeatureActionResult<T>> IIf<T>(Feature feature, Func<Task<T>> ifEnabled, Func<Task<T>>? ifDisabled = default)
         {
+            ifDisabled ??= () => Task.FromResult<T>(default);
+
             // Not catching exceptions because the caller should handle them.
 
             var context = new Feature(feature)
@@ -73,48 +76,50 @@ namespace Reusable.Beaver
 
             try
             {
-                if (policy.IsEnabled(context))
-                {
-                    try
-                    {
-                        return new FeatureActionResult<T>.Main
-                        {
-                            Policy = policy,
-                            Value = await ifEnabled().ConfigureAwait(false)
-                        };
-                    }
-                    catch (Exception inner)
-                    {
-                        throw DynamicException.Create("MainFeatureAction", $"An error occured while trying to use the 'Main' feature action for '{feature}'. See the inner exception for details.", inner);
-                    }
-                    finally
-                    {
-                        (policy as IFinalizable)?.FinallyMain(context);
-                    }
-                }
-                else
-                {
-                    try
-                    {
-                        return new FeatureActionResult<T>.Fallback
-                        {
-                            Policy = policy,
-                            Value = await (ifDisabled ?? (() => Task.FromResult<T>(default)))().ConfigureAwait(false)
-                        };
-                    }
-                    catch (Exception inner)
-                    {
-                        throw DynamicException.Create("FallbackFeatureAction", $"An error occured while trying to use the 'Fallback' feature action for '{feature}'. See the inner exception for details.", inner);
-                    }
-                    finally
-                    {
-                        (policy as IFinalizable)?.FinallyFallback(context);
-                    }
-                }
+                return
+                    policy.IsEnabled(context)
+                        ? await InvokeFeature<T, FeatureActionResult<T>.Main>(policy, context, ifEnabled)
+                        : await InvokeFeature<T, FeatureActionResult<T>.Fallback>(policy, context, ifDisabled);
             }
             finally
             {
                 (policy as IFinalizable)?.FinallyIIf(context);
+            }
+        }
+
+        private static async Task<FeatureActionResult<T>> InvokeFeature<T, TAction>(IFeaturePolicy policy, Feature feature, Func<Task<T>> body) where TAction : FeatureActionResult<T>, new()
+        {
+            try
+            {
+                return new TAction
+                {
+                    Policy = policy,
+                    Value = await body().ConfigureAwait(false)
+                };
+            }
+            catch (Exception inner)
+            {
+                throw DynamicException.Create
+                (
+                    $"{typeof(TAction).Name}FeatureAction",
+                    $"An error occured while trying to use the '{typeof(TAction).Name}' feature action for '{feature}'. See the inner exception for details.",
+                    inner
+                );
+            }
+            finally
+            {
+                if (policy is IFinalizable finalizable)
+                {
+                    if (typeof(TAction) == typeof(FeatureActionResult<T>.Main))
+                    {
+                        finalizable.FinallyMain(feature);
+                    }
+
+                    if (typeof(TAction) == typeof(FeatureActionResult<T>.Fallback))
+                    {
+                        finalizable.FinallyFallback(feature);
+                    }
+                }
             }
         }
 

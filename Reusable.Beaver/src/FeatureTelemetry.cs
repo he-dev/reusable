@@ -8,12 +8,12 @@ using Reusable.OmniLog.SemanticExtensions;
 
 namespace Reusable.Beaver
 {
-    public class FeatureToggleTelemetry : IFeatureToggle
+    public class FeatureTelemetry : IFeatureToggle
     {
         private readonly ILogger<FeatureToggle> _logger;
         private readonly IFeatureToggle _toggle;
 
-        public FeatureToggleTelemetry(ILogger<FeatureToggle> logger, IFeatureToggle toggle)
+        public FeatureTelemetry(ILogger<FeatureToggle> logger, IFeatureToggle toggle)
         {
             _logger = logger;
             _toggle = toggle;

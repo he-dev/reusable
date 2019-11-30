@@ -1,3 +1,4 @@
+using Reusable.Beaver.Policies;
 using Xunit;
 
 namespace Reusable.Beaver
@@ -8,24 +9,65 @@ namespace Reusable.Beaver
         public void Invokes_main_when_enabled()
         {
             var t = new FeatureToggle().AddOrUpdate(new AlwaysOn("test"));
-            var r = t.IIf("test", () => "a", () => "b");
 
-            Assert.Equal("a", r.Value);
-            Assert.Equal("Main", r.ToString());
-            Assert.Equal(nameof(AlwaysOn), r.Policy.GetType().Name);
-            Assert.Equal("test", r.Policy.Feature.Name);
+            var a = 0;
+            var b = 0;
+            
+            var c = t.IIf("test", () => ++a, () => ++b);
+            var d = t.IIf("test", () => ++a, () => ++b);
+
+            Assert.Equal(2, a);
+            Assert.Equal(0, b);
+            Assert.Equal(1, c);
+            Assert.Equal(2, d);
+            
+            Assert.IsType<FeatureActionResult<int>.Main>(c);
+            Assert.IsType<AlwaysOn>(c.Policy);
+            Assert.Equal("test", c.Policy.Feature.Name);
         }
 
         [Fact]
         public void Invokes_fallback_when_disabled()
         {
             var t = new FeatureToggle().AddOrUpdate(new AlwaysOff("test"));
-            var r = t.IIf("test", () => "a", () => "b");
+            
+            var a = 0;
+            var b = 0;
+            
+            var c = t.IIf("test", () => ++a, () => ++b);
+            var d = t.IIf("test", () => ++a, () => ++b);
 
-            Assert.Equal("b", r.Value);
-            Assert.Equal("Fallback", r.ToString());
-            Assert.Equal(nameof(AlwaysOff), r.Policy.GetType().Name);
-            Assert.Equal("test", r.Policy.Feature.Name);
+            Assert.Equal(0, a);
+            Assert.Equal(2, b);
+            Assert.Equal(1, c);
+            Assert.Equal(2, d);
+
+            Assert.IsType<FeatureActionResult<int>.Fallback>(c);
+            Assert.IsType<AlwaysOff>(c.Policy);
+            Assert.Equal("test", c.Policy.Feature.Name);
+        }
+        
+        [Fact]
+        public void Once_disables_itself_after_first_invoke()
+        {
+            var t = new FeatureToggle().AddOrUpdate(new Once("test"));
+            
+            var a = 0;
+            var b = 0;
+            
+            var c = t.IIf("test", () => ++a, () => ++b);
+            var d = t.IIf("test", () => ++a, () => ++b);
+
+            Assert.Equal(1, a);
+            Assert.Equal(1, b);
+            Assert.Equal(1, c);
+            Assert.Equal(1, d);
+
+            Assert.IsType<FeatureActionResult<int>.Main>(c);
+            Assert.IsType<FeatureActionResult<int>.Fallback>(d);
+            Assert.IsType<Once>(c.Policy);
+            Assert.IsType<AlwaysOff>(d.Policy);
+            Assert.Equal("test", c.Policy.Feature.Name);
         }
     }
 }

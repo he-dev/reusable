@@ -4,11 +4,9 @@ namespace Reusable.Beaver
 {
     public class FeatureActionResult<T> : IDisposable
     {
-        public IFeaturePolicy Policy { get; set; }
-        
-        public T Value { get; set; }
-        
-        public override string ToString() => GetType().Name;
+        public IFeaturePolicy Policy { get; internal set; }
+
+        public T Value { get; internal set; }
 
         public static implicit operator T(FeatureActionResult<T> telemetry) => telemetry.Value;
 

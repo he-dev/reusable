@@ -1,12 +1,13 @@
 using System;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
+using Reusable.Beaver.Policies;
 using Reusable.Extensions;
 
 namespace Reusable.Beaver
 {
     [PublicAPI]
-    public static class FeatureServiceHelpers
+    public static class FeatureToggleHelpers
     {
         public static bool IsEnabled(this IFeatureToggle toggle, Feature feature) => toggle[feature].IsEnabled(new Feature(feature) { Toggle = toggle });
 
