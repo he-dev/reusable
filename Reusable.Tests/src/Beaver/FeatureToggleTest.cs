@@ -1,4 +1,6 @@
+using System;
 using Reusable.Beaver.Policies;
+using Reusable.Exceptionize;
 using Xunit;
 
 namespace Reusable.Beaver
@@ -68,6 +70,38 @@ namespace Reusable.Beaver
             Assert.IsType<Once>(c.Policy);
             Assert.IsType<AlwaysOff>(d.Policy);
             Assert.Equal("test", c.Policy.Feature.Name);
+        }
+        
+        [Fact]
+        public void Ask_requests_permission_to_invoke()
+        {
+            var q = 0;
+            var a = 0;
+            var b = 0;
+            
+            var t = new FeatureToggle().AddOrUpdate(new Ask("test", f => q++ < 1));
+            
+            var c = t.IIf("test", () => ++a, () => ++b);
+            var d = t.IIf("test", () => ++a, () => ++b);
+
+            Assert.Equal(2, q);
+            Assert.Equal(1, a);
+            Assert.Equal(1, b);
+            Assert.Equal(1, c);
+            Assert.Equal(1, d);
+
+            Assert.IsType<FeatureActionResult<int>.Main>(c);
+            Assert.IsType<FeatureActionResult<int>.Fallback>(d);
+            Assert.IsType<Ask>(c.Policy);
+            Assert.Equal("test", c.Policy.Feature.Name);
+        }
+
+        [Fact]
+        public void Throws_when_modifying_locked_feature()
+        {
+            var t = new FeatureToggle().AddOrUpdate(new AlwaysOn("test").Lock());
+
+            Assert.Throws<InvalidOperationException>(() => t.AddOrUpdate(new AlwaysOff("test")));
         }
     }
 }
