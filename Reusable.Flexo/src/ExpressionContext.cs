@@ -45,11 +45,11 @@ namespace Reusable.Flexo
         /// </summary>
         public static readonly Selector<IImmutableContainer> Parent = This.Select(() => Parent);
         
-        public static readonly Selector<IContainer<IEqualityComparer<object>>> EqualityComparers = This.Select(() => EqualityComparers);
+        public static readonly Selector<IContainer<string, IEqualityComparer<object>>> EqualityComparers = This.Select(() => EqualityComparers);
 
-        public static readonly Selector<IContainer<IComparer<object>>> Comparers = This.Select(() => Comparers);
+        public static readonly Selector<IContainer<string, IComparer<object>>> Comparers = This.Select(() => Comparers);
 
-        public static readonly Selector<IContainer<Package>> Packages = This.Select(() => Packages);
+        public static readonly Selector<IContainer<string, Package>> Packages = This.Select(() => Packages);
 
         public static readonly Selector<Node<IExpression>> InvokeLog = This.Select(() => InvokeLog);
 

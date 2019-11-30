@@ -47,7 +47,7 @@ namespace Reusable.Flexo
             return context.FindItem<T>(key.ToString());
         }
 
-        public static IEnumerable<T> FindItems<T>(this IImmutableContainer context, Selector<IContainer<T>> containerKey, string itemKey)
+        public static IEnumerable<T> FindItems<T>(this IImmutableContainer context, Selector<IContainer<string, T>> containerKey, string itemKey)
         {
             return
                 from scope in context.Scopes()
@@ -57,7 +57,7 @@ namespace Reusable.Flexo
                 select item;
         }
 
-        public static T FindItem<T>(this IImmutableContainer context, Selector<IContainer<T>> containerKey, string itemKey)
+        public static T FindItem<T>(this IImmutableContainer context, Selector<IContainer<string, T>> containerKey, string itemKey)
         {
             return context.FindItems(containerKey, itemKey).FirstOrThrow(("ItemNotFound", $"Could not find item '{containerKey}/{itemKey}' in any scope."));
         }

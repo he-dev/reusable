@@ -1,11 +1,11 @@
 using System;
 using System.Collections;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Reusable.Beaver.Policies;
+using Reusable.Data;
 using Reusable.Exceptionize;
 
 namespace Reusable.Beaver
@@ -25,22 +25,22 @@ namespace Reusable.Beaver
         Task<FeatureActionResult<T>> IIf<T>(Feature feature, Func<Task<T>> ifEnabled, Func<Task<T>>? ifDisabled = default);
     }
 
-    public class FeatureToggle : IFeatureToggle, IEnumerable<IFeaturePolicy>
+    public class FeatureToggle : IFeatureToggle
     {
-        private readonly ConcurrentDictionary<Feature, IFeaturePolicy> _policies;
+        private readonly IContainer<Feature, IFeaturePolicy> _policies;
 
-        public FeatureToggle(IDictionary<Feature, IFeaturePolicy> policies = default)
+        public FeatureToggle(IContainer<Feature, IFeaturePolicy>? policies = default)
         {
-            _policies = new ConcurrentDictionary<Feature, IFeaturePolicy>(policies ?? Enumerable.Empty<KeyValuePair<Feature, IFeaturePolicy>>());
+            _policies = policies ?? new FeaturePolicyContainer();
         }
 
-        public IFeaturePolicy this[Feature name] => _policies.TryGetValue(name, out var policy) ? policy : new AlwaysOff(name);
+        public IFeaturePolicy this[Feature name] => _policies.GetItem(name).SingleOrDefault() ?? new AlwaysOff(name);
 
         public IFeatureToggle AddOrUpdate(IFeaturePolicy policy)
         {
             if (this.IsLocked(policy.Feature)) throw new InvalidOperationException($"Feature '{policy.Feature}' is locked and cannot be updated.");
 
-            _policies.AddOrUpdate(policy.Feature, name => policy, (f, p) => policy);
+            _policies.AddOrUpdateItem(policy.Feature, policy);
             return this;
         }
 
@@ -48,12 +48,12 @@ namespace Reusable.Beaver
         {
             if (this.IsLocked(name)) throw new InvalidOperationException($"Feature '{name}' is locked and cannot be removed.");
 
-            return _policies.TryRemove(name, out _);
+            return _policies.RemoveItem(name);
         }
 
         public bool IsEnabled(Feature name, object? parameter = default)
         {
-            return _policies.TryGetValue(name, out var policy) && policy.IsEnabled(new Feature(name)
+            return this[name].IsEnabled(new Feature(name)
             {
                 Toggle = this,
                 Parameter = parameter
@@ -122,10 +122,5 @@ namespace Reusable.Beaver
                 }
             }
         }
-
-
-        public IEnumerator<IFeaturePolicy> GetEnumerator() => _policies.Values.GetEnumerator();
-
-        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
     }
 }
