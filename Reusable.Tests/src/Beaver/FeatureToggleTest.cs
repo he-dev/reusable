@@ -1,6 +1,5 @@
 using System;
 using Reusable.Beaver.Policies;
-using Reusable.Exceptionize;
 using Xunit;
 
 namespace Reusable.Beaver
