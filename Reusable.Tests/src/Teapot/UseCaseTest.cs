@@ -50,7 +50,7 @@ namespace Reusable.Teapot
             //{
             // Request made by the application somewhere deep down the rabbit hole
 
-            var resources = ResourceRepository.Create((c, _) => c.AddHttp(default, $"{BaseUri}/api"));
+            var resources = ResourceRepository.Create((c, _) => c.AddHttp(ComplexName.Empty, $"{BaseUri}/api"));
             var response = await resources.PostAsync<HttpRequest.Json>("test?param=true", new { Greeting = "Hallo" }, http =>
             {
                 http.HeaderActions.Add(headers =>
