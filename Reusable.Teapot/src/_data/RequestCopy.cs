@@ -26,8 +26,6 @@ namespace Reusable.Teapot
 
     public static class RequestCopyExtensions
     {
-        public static bool CanShortCircuit(this RequestCopy request) => !(request is null);
-
         // Deserializes the content of request-copy for further analysis.
         public static JToken DeserializeAsJToken(this RequestCopy request)
         {

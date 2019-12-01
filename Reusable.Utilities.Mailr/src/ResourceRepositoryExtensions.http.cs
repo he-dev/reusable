@@ -18,12 +18,9 @@ namespace Reusable.Utilities.Mailr
         {
             using var response = await resourceRepository.PostAsync<HttpRequest>(uri, email, request =>
             {
-                request.ControllerTags = new HashSet<SoftString> { "Mailr" };
+                request.ControllerName = new ComplexName { "Mailr" };
                 request.ContentType = "application/json";
-                request.HeaderActions.Add(headers =>
-                {
-                    headers.AcceptHtml();
-                });
+                request.HeaderActions.Add(headers => { headers.AcceptHtml(); });
                 requestAction?.Invoke(request);
             });
             return await response.DeserializeTextAsync();

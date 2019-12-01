@@ -13,7 +13,7 @@ namespace Reusable.Translucent.Controllers
     {
         private readonly IConfiguration _configuration;
 
-        public JsonFileController(string? id, string basePath, string fileName) : base(id)
+        public JsonFileController(ComplexName name, string basePath, string fileName) : base(name)
         {
             _configuration =
                 new ConfigurationBuilder()

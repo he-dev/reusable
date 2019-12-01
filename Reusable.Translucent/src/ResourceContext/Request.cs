@@ -19,9 +19,7 @@ namespace Reusable.Translucent
 
         #region Options
 
-        public string? ControllerId { get; set; }
-
-        public ISet<SoftString> ControllerTags { get; set; } = new HashSet<SoftString>();
+        public ComplexName ControllerName { get; set; } = ComplexName.Empty;
 
         public bool Required { get; set; } = true;
 

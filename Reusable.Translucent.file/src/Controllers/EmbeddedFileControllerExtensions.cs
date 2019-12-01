@@ -6,24 +6,24 @@ namespace Reusable.Translucent
 {
     public static class EmbeddedFileControllerExtensions
     {
-        public static IResourceCollection AddEmbeddedFile<T>(this IResourceCollection controllers, string? id, string? basePath = default)
+        public static IResourceCollection AddEmbeddedFile<T>(this IResourceCollection controllers, ComplexName name, string? basePath = default)
         {
-            return controllers.Add(new EmbeddedFileController<T>(id, basePath));
+            return controllers.Add(new EmbeddedFileController<T>(name, basePath));
         }
 
-        public static IResourceCollection AddEmbeddedFile(this IResourceCollection controllers, string id, string? basePath, Type assemblyProvider)
+        public static IResourceCollection AddEmbeddedFile(this IResourceCollection controllers, ComplexName name, string basePath, Type assemblyProvider)
         {
-            return controllers.Add(new EmbeddedFileController(id, basePath ?? assemblyProvider.Namespace, assemblyProvider.Assembly));
+            return controllers.Add(new EmbeddedFileController(name, basePath ?? assemblyProvider.Namespace, assemblyProvider.Assembly));
         }
 
-        public static IResourceCollection AddPhysicalFile(this IResourceCollection controllers, string? id, string? basePath = default)
+        public static IResourceCollection AddPhysicalFile(this IResourceCollection controllers, ComplexName name, string? basePath = default)
         {
-            return controllers.Add(new PhysicalFileController(id, basePath));
+            return controllers.Add(new PhysicalFileController(name, basePath));
         }
 
-        public static IResourceCollection UseInMemoryFile(this IResourceCollection controllers, string? id)
+        public static IResourceCollection UseInMemoryFile(this IResourceCollection controllers, ComplexName name)
         {
-            return controllers.Add(new InMemoryFileController(id));
+            return controllers.Add(new InMemoryFileController(name));
         }
     }
 }

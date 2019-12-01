@@ -11,14 +11,14 @@ namespace Reusable.Translucent.Controllers
     public class HttpControllerTest : IClassFixture<TeapotServerFixture>
     {
         private readonly TeapotServerFixture _teapotServerFixture;
-        
+
         public HttpControllerTest(TeapotServerFixture teapotServerFixture) => _teapotServerFixture = teapotServerFixture;
 
         [Fact]
         public async Task Can_send_email_and_receive_html()
         {
             using var serverContext = _teapotServerFixture.GetServer("http://localhost:30002").BeginScope();
-            
+
             serverContext
                 .MockPost("/api/mailr/messages/test", request =>
                 {
@@ -46,11 +46,11 @@ namespace Reusable.Translucent.Controllers
                 Body = new { Greeting = "Hallo Mailr!" }
             };
 
-            var resources = ResourceRepository.Create((c, _) => c.AddHttp(default, "http://localhost:30002/api", http => http.Tags.Add("Mailr")));
+            var resources = ResourceRepository.Create((c, _) => c.AddHttp(new ComplexName { "Mailr" }, "http://localhost:30002/api"));
             var response = await resources.SendEmailAsync("mailr/messages/test", email, http =>
             {
                 http.HeaderActions.Add(headers => headers.UserAgent("xunit", "1.0"));
-                http.ControllerTags.Add("Mailr");
+                http.ControllerName = new ComplexName { "Mailr" };
             });
 
             serverContext.Assert();

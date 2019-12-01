@@ -8,11 +8,11 @@ using Reusable.Translucent.Annotations;
 namespace Reusable.Translucent.Controllers
 {
     [Handles(typeof(FileRequest))]
-    public class InMemoryFileController : ResourceController, IEnumerable<KeyValuePair<UriString, object>>
+    public class InMemoryFileController : ResourceController, IEnumerable<KeyValuePair<UriString, object?>>
     {
-        private readonly IDictionary<UriString, object> _items = new Dictionary<UriString, object>();
+        private readonly IDictionary<UriString, object?> _items = new Dictionary<UriString, object?>();
 
-        public InMemoryFileController(string? id = default) : base(id, UriSchemes.Known.File) { }
+        public InMemoryFileController(ComplexName? name = default) : base(name ?? ComplexName.Empty, UriSchemes.Known.File) { }
 
         [ResourceGet]
         public Task<Response> GetAsync(Request request)
@@ -52,7 +52,7 @@ namespace Reusable.Translucent.Controllers
 
         #endregion
 
-        public IEnumerator<KeyValuePair<UriString, object>> GetEnumerator() => _items.GetEnumerator();
+        public IEnumerator<KeyValuePair<UriString, object?>> GetEnumerator() => _items.GetEnumerator();
 
         IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable)_items).GetEnumerator();
 

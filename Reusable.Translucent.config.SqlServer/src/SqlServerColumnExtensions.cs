@@ -6,7 +6,7 @@ namespace Reusable.Translucent
     public static class SqlServerColumnExtensions
     {
         [NotNull]
-        public static string MapOrDefault(this IImmutableDictionary<SqlServerColumn, SoftString> mappings, SqlServerColumn column)
+        public static string MapOrDefault(this IImmutableDictionary<SqlServerColumn, SoftString>? mappings, SqlServerColumn column)
         {
             return
                 mappings is null

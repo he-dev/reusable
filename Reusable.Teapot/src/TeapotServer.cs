@@ -2,19 +2,12 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net;
 using System.Net.Http;
-using System.Threading.Tasks;
 using JetBrains.Annotations;
-using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Configuration.Memory;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.FileProviders;
-using Microsoft.Extensions.Primitives;
 using Reusable.Translucent;
 using HttpRequest = Microsoft.AspNetCore.Http.HttpRequest;
 
@@ -25,7 +18,7 @@ namespace Reusable.Teapot
     {
         private readonly IWebHost _host;
 
-        private readonly ConcurrentDictionary<Guid, ITeapotServerContext> _serverContexts = new ConcurrentDictionary<Guid, ITeapotServerContext>();
+        private readonly ConcurrentDictionary<Guid, ITeacupContext> _serverContexts = new ConcurrentDictionary<Guid, ITeacupContext>();
 
         public TeapotServer(string url)
         {
@@ -44,15 +37,10 @@ namespace Reusable.Teapot
                     .UseConfiguration(configuration)
                     .ConfigureServices(services =>
                     {
-                        // Allows to validate requests as they arrive.
                         services.AddSingleton((RequestAssertDelegate)Assert);
-                        // Allows to provide custom responses for each request.
                         services.AddSingleton((ResponseMockDelegate)GetResponseFactory);
                     })
-                    .Configure(app =>
-                    {
-                        app.UseMiddleware<TeapotMiddleware>();
-                    })
+                    .Configure(app => { app.UseMiddleware<TeapotMiddleware>(); })
                     .Build();
 
             _host.StartAsync().GetAwaiter().GetResult(); // <-- asp.net-core TestServer is doing this too.
@@ -61,12 +49,12 @@ namespace Reusable.Teapot
         //public Task Task { get; set; } // <-- I think I don't need this anymore...
 
         // Creates a new server-context that separates api-mocks.
-        public ITeapotServerContext BeginScope()
+        public ITeacupContext BeginScope()
         {
-            return _serverContexts.GetOrAdd(Guid.NewGuid(), id => new TeapotServerContext(Disposable.Create(() => _serverContexts.TryRemove(id, out _))));
+            return _serverContexts.GetOrAdd(Guid.NewGuid(), id => new TeacupContext(Disposable.Create(() => _serverContexts.TryRemove(id, out _))));
         }
 
-        private void Assert(RequestCopy requestCopy)
+        private void Assert(RequestCopy? requestCopy)
         {
             FindApiMock(requestCopy.Method, requestCopy.Uri)?.Assert(requestCopy);
         }
@@ -77,8 +65,7 @@ namespace Reusable.Teapot
         }
 
         // Finds an api-mock that should handle the current request.
-        [CanBeNull]
-        private ApiMock FindApiMock(HttpMethod method, UriString uri)
+        private ApiMock? FindApiMock(HttpMethod method, UriString uri)
         {
             if (_serverContexts.IsEmpty) throw new InvalidOperationException($"Cannot get response without a server-context. Call '{nameof(BeginScope)}' first.");
 

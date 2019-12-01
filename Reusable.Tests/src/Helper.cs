@@ -15,12 +15,12 @@ namespace Reusable
         {
             public void ConfigureResources(IResourceCollection resources)
             {
-                resources.AddEmbeddedFile<TestHelper>(default, @"Reusable/res/Translucent");
-                resources.AddEmbeddedFile<TestHelper>(default, @"Reusable/res/Flexo");
-                resources.AddEmbeddedFile<TestHelper>(default, @"Reusable/res/Utilities/JsonNet");
-                resources.AddEmbeddedFile<TestHelper>(default, @"Reusable/sql");
+                resources.AddEmbeddedFile<TestHelper>(ComplexName.Empty, @"Reusable/res/Translucent");
+                resources.AddEmbeddedFile<TestHelper>(ComplexName.Empty, @"Reusable/res/Flexo");
+                resources.AddEmbeddedFile<TestHelper>(ComplexName.Empty, @"Reusable/res/Utilities/JsonNet");
+                resources.AddEmbeddedFile<TestHelper>(ComplexName.Empty, @"Reusable/sql");
                 resources.AddAppConfig();
-                resources.AddSqlServer(default, ConnectionString, sql =>
+                resources.AddSqlServer(ComplexName.Empty, ConnectionString, sql =>
                 {
                     sql.TableName = ("reusable", "TestConfig");
                     sql.ColumnMappings =

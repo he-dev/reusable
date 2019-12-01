@@ -44,7 +44,7 @@ namespace Reusable.Translucent
 
             if (resource?.Controller is {} controller)
             {
-                request.ControllerTags.Add(controller);
+                request.ControllerName = new ComplexName { controller };
             }
 
             requestAction?.Invoke(request);

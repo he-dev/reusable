@@ -6,7 +6,7 @@ namespace Reusable.Translucent.Controllers
     [Handles(typeof(MailToRequest))]
     public abstract class MailToController : ResourceController
     {
-        protected MailToController(string? id) : base(id, UriSchemes.Known.MailTo) { }
+        protected MailToController(ComplexName name) : base(name, UriSchemes.Known.MailTo) { }
 
         protected static async Task<string> ReadBodyAsync(Stream value, MailToRequest request)
         {

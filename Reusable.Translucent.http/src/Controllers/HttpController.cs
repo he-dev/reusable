@@ -21,7 +21,7 @@ namespace Reusable.Translucent.Controllers
     {
         private readonly HttpClient _client;
 
-        public HttpController(string? id, HttpClient httpClient) : base(id, httpClient.BaseAddress.ToString(), UriSchemes.Known.Http, UriSchemes.Known.Https)
+        public HttpController(ComplexName name, HttpClient httpClient) : base(name, httpClient.BaseAddress.ToString(), UriSchemes.Known.Http, UriSchemes.Known.Https)
         {
             _client = httpClient;
             _client.DefaultRequestHeaders.Clear();
@@ -42,9 +42,9 @@ namespace Reusable.Translucent.Controllers
         /// <summary>
         /// Create a HttpProvider that doesn't use a proxy for requests.
         /// </summary>
-        public static HttpController FromBaseUri(string? id, string baseUri)
+        public static HttpController FromBaseUri(ComplexName name, string baseUri)
         {
-            return new HttpController(id, new HttpClient(new HttpClientHandler { UseProxy = false })
+            return new HttpController(name, new HttpClient(new HttpClientHandler { UseProxy = false })
             {
                 BaseAddress = new Uri(baseUri)
             });

@@ -10,7 +10,7 @@ namespace Reusable.Translucent.Controllers
 {
     public class AppSettingController : ConfigController
     {
-        public AppSettingController(string? id) : base(id) { }
+        public AppSettingController(ComplexName name) : base(name) { }
 
         [ResourceGet]
         public Task<Response> GetSettingAsync(Request request)

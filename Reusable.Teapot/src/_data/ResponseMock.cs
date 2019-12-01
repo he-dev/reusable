@@ -5,7 +5,7 @@ namespace Reusable.Teapot
 {
     public class ResponseMock : IDisposable
     {
-        public ResponseMock(int statusCode, object content, string contentType)
+        public ResponseMock(int statusCode, object? content, string contentType)
         {
             StatusCode = statusCode;
             Content = content;
@@ -14,8 +14,7 @@ namespace Reusable.Teapot
 
         public int StatusCode { get; }
 
-        [CanBeNull]
-        public object Content { get; }
+        public object? Content { get; }
 
         public string ContentType { get; }
 

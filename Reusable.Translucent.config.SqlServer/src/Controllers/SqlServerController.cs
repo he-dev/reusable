@@ -15,7 +15,7 @@ namespace Reusable.Translucent.Controllers
 
         public const string DefaultTable = "Setting";
 
-        public SqlServerController(string? id, string connectionString) : base(id)
+        public SqlServerController(ComplexName name, string connectionString) : base(name)
         {
             ConnectionString = connectionString;
             Converter = new JsonSettingConverter();

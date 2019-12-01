@@ -1,40 +1,32 @@
 using System;
 using System.Collections.Generic;
-using System.Net.Http;
-using JetBrains.Annotations;
 
 namespace Reusable.Teapot
 {
     public interface IRequestBuilder
     {
-        [NotNull]
-        IRequestBuilder Add(Action<RequestCopy> assert, bool canShortCircuit);
+        IRequestBuilder Add(Action<RequestCopy?> assert);
 
-        void Assert(RequestCopy requestCopy);
+        void Assert(RequestCopy? requestCopy);
     }
 
     // Maintains a collection of request-asserts.
     internal class RequestBuilder : IRequestBuilder
     {
-        private readonly IList<(Action<RequestCopy> Assert, bool CanShortCircuit)> _asserts = new List<(Action<RequestCopy>, bool CanShortCircuit)>();
+        private readonly IList<Action<RequestCopy>> _asserts = new List<Action<RequestCopy>>();
         
         // Adds a request assert. If it can-short-circuit then it can validate requests as they arrive.
-        public IRequestBuilder Add(Action<RequestCopy> assert, bool canShortCircuit)
+        public IRequestBuilder Add(Action<RequestCopy> assert)
         {
-            _asserts.Add((assert, canShortCircuit));
+            _asserts.Add(assert);
             return this;
         }
 
         // Fires all asserts.
-        public void Assert(RequestCopy requestCopy)
+        public void Assert(RequestCopy? requestCopy)
         {
-            foreach (var (assert, canShortCircuit) in _asserts)
+            foreach (var assert in _asserts)
             {
-                if (requestCopy is null && !canShortCircuit)
-                {
-                    continue;
-                }
-
                 assert(requestCopy);
             }
         }

@@ -6,9 +6,9 @@ namespace Reusable.Translucent
 {
     public static class JsonFileControllerExtensions
     {
-        public static IResourceCollection AddJsonFile(this IResourceCollection controllers, string? id, string basePath, string fileName, Action<JsonFileController>? controllerAction = default)
+        public static IResourceCollection AddJsonFile(this IResourceCollection controllers, ComplexName name, string basePath, string fileName, Action<JsonFileController>? controllerAction = default)
         {
-            var controller = new JsonFileController(id, basePath, fileName);
+            var controller = new JsonFileController(name, basePath, fileName);
             controllerAction?.Invoke(controller);
             return controllers.Add(controller);
         }

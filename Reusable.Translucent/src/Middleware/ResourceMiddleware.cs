@@ -20,9 +20,9 @@ namespace Reusable.Translucent.Middleware
     {
         private static readonly IEnumerable<ResourceControllerFilterCallback> Filters = new ResourceControllerFilterCallback[]
         {
-            ResourceControllerFilters.FilterByControllerId,
+            ResourceControllerFilters.FilterByControllerName,
             ResourceControllerFilters.FilterByRequest,
-            ResourceControllerFilters.FilterByControllerTags,
+            //ResourceControllerFilters.FilterByControllerTags,
             ResourceControllerFilters.FilterByUriPath,
         };
 

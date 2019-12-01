@@ -8,18 +8,18 @@ using HttpRequest = Microsoft.AspNetCore.Http.HttpRequest;
 
 namespace Reusable.Teapot
 {
-    public interface ITeapotServerContext : IEnumerable<ApiMock>, IDisposable
+    public interface ITeacupContext : IEnumerable<ApiMock>, IDisposable
     {
         ApiMock MockApi(HttpMethod method, UriString uri);
 
         void Assert();
     }
 
-    internal class TeapotServerContext : List<ApiMock>, ITeapotServerContext
+    internal class TeacupContext : List<ApiMock>, ITeacupContext
     {
         private readonly IDisposable _disposer;
 
-        public TeapotServerContext(IDisposable disposer)
+        public TeacupContext(IDisposable disposer)
         {
             _disposer = disposer;
         }
@@ -52,7 +52,7 @@ namespace Reusable.Teapot
 
     public static class TeapotServerContextExtensions
     {
-        public static ApiMock MockGet(this ITeapotServerContext context, string uri, Action<IRequestBuilder> configureRequest)
+        public static ApiMock MockGet(this ITeacupContext context, string uri, Action<IRequestBuilder> configureRequest)
         {
             return
                 context
@@ -60,7 +60,7 @@ namespace Reusable.Teapot
                     .ArrangeRequest(configureRequest);
         }
         
-        public static ApiMock MockPost(this ITeapotServerContext context, string uri, Action<IRequestBuilder> configureRequest)
+        public static ApiMock MockPost(this ITeacupContext context, string uri, Action<IRequestBuilder> configureRequest)
         {
             return
                 context
@@ -68,7 +68,7 @@ namespace Reusable.Teapot
                     .ArrangeRequest(configureRequest);
         }
         
-        public static ApiMock MockPut(this ITeapotServerContext context, string uri, Action<IRequestBuilder> configureRequest)
+        public static ApiMock MockPut(this ITeacupContext context, string uri, Action<IRequestBuilder> configureRequest)
         {
             return
                 context
@@ -76,7 +76,7 @@ namespace Reusable.Teapot
                     .ArrangeRequest(configureRequest);
         }
         
-        public static ApiMock MockDelete(this ITeapotServerContext context, string uri, Action<IRequestBuilder> configureRequest)
+        public static ApiMock MockDelete(this ITeacupContext context, string uri, Action<IRequestBuilder> configureRequest)
         {
             return
                 context

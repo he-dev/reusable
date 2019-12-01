@@ -15,10 +15,15 @@ using HttpRequest = Microsoft.AspNetCore.Http.HttpRequest;
 
 namespace Reusable.Teapot
 {
+    /// <summary>
+    /// Validates requests as they arrive.
+    /// </summary>
     public delegate void RequestAssertDelegate(RequestCopy requestCopy);
 
-    [CanBeNull]
-    public delegate Func<HttpRequest, ResponseMock> ResponseMockDelegate(HttpMethod method, UriString path);
+    /// <summary>
+    /// Provides responses for each request.
+    /// </summary>
+    public delegate Func<HttpRequest, ResponseMock>? ResponseMockDelegate(HttpMethod method, UriString path);
 
     [UsedImplicitly]
     internal class TeapotMiddleware
@@ -74,35 +79,33 @@ namespace Reusable.Teapot
 
                 await _next(context);
 
-                var responseMock = _nextResponseMock(new HttpMethod(context.Request.Method), uri);
-                if (responseMock is null)
+                if (_nextResponseMock(new HttpMethod(context.Request.Method), uri) is {} responseMock)
                 {
-                    context.Response.StatusCode = StatusCodes.Status404NotFound;
+                    using var response = responseMock(context.Request);
+                    
+                    context.Response.StatusCode = response.StatusCode;
+                    context.Response.ContentType = response.ContentType;
+
+                    // Let's see what kind of content we got and handle it appropriately...
+
+                    if (response.ContentType == MimeType.Plain)
+                    {
+                        await context.Response.WriteAsync((string)response.Content);
+                    }
+
+                    if (response.ContentType == MimeType.Binary)
+                    {
+                        await ((Stream)response.Content).Rewind().CopyToAsync(context.Response.Body);
+                    }
+
+                    if (response.ContentType == MimeType.Json)
+                    {
+                        await context.Response.WriteAsync(JsonConvert.SerializeObject(response.Content));
+                    }
                 }
                 else
                 {
-                    using (var response = responseMock(context.Request))
-                    {
-                        context.Response.StatusCode = response.StatusCode;
-                        context.Response.ContentType = response.ContentType;
-
-                        // Let's see what kind of content we got and handle it appropriately...
-
-                        if (response.ContentType == MimeType.Plain)
-                        {
-                            await context.Response.WriteAsync((string)response.Content);
-                        }
-
-                        if (response.ContentType == MimeType.Binary)
-                        {
-                            await ((Stream)response.Content).Rewind().CopyToAsync(context.Response.Body);
-                        }
-
-                        if (response.ContentType == MimeType.Json)
-                        {
-                            await context.Response.WriteAsync(JsonConvert.SerializeObject(response.Content));
-                        }
-                    }
+                    context.Response.StatusCode = StatusCodes.Status404NotFound;
                 }
             }
             catch (Exception ex)

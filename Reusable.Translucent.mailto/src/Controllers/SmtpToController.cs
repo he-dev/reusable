@@ -14,7 +14,7 @@ namespace Reusable.Translucent.Controllers
 {
     public class SmtpToController : MailToController
     {
-        public SmtpToController(string? id = default) : base(id) { }
+        public SmtpToController(ComplexName name) : base(name) { }
 
         [ResourcePost]
         public async Task<Response> SendEmailAsync(Request request)

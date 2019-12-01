@@ -15,7 +15,7 @@ namespace Reusable.Teapot
             var counter = 0;
             return builder.Add(request =>
             {
-                if (request.CanShortCircuit())
+                if (request is {})
                 {
                     if (++counter > exactly)
                     {
@@ -29,14 +29,14 @@ namespace Reusable.Teapot
                         throw DynamicException.Create(nameof(Occurs), $"Api was called {counter} time(s) but expected {exactly}.");
                     }
                 }
-            }, true);
+            });
         }
 
         public static IRequestBuilder WithHeader(this IRequestBuilder builder, string header, params string[] expectedValues)
         {
             return builder.Add(request =>
             {
-                if (request.CanShortCircuit())
+                if (request is {})
                 {
                     if (request.Headers.TryGetValue(header, out var actualValues))
                     {
@@ -59,7 +59,7 @@ namespace Reusable.Teapot
                         );
                     }
                 }
-            }, false);
+            });
         }
 
         public static IRequestBuilder WithApiVersion(this IRequestBuilder builder, string version) => builder.WithHeader("Api-Version", version);
@@ -70,9 +70,12 @@ namespace Reusable.Teapot
         {
             return builder.Add(request =>
             {
-                var content = request.DeserializeAsJToken();
-                contentAssert(ContentSection.FromJToken(content));
-            }, false);
+                if (request is {})
+                {
+                    var content = request.DeserializeAsJToken();
+                    contentAssert(ContentSection.FromJToken(content));
+                }
+            });
         }
 
         public static IRequestBuilder UserAgentIs(this IRequestBuilder builder, string product, string version) => builder.WithHeader("User-Agent", $"{product}/{version}");

@@ -14,7 +14,7 @@ namespace Reusable.Translucent.Middleware
         {
             Environment.SetEnvironmentVariable("TEST_VARIABLE", @"I:\test\this\path");
 
-            var c = Mock.Create<TestFileController>(Behavior.CallOriginal, default);
+            var c = Mock.Create<TestFileController>(Behavior.CallOriginal, ComplexName.Empty);
             c.Arrange(x => x.Get(Arg.Matches<Request>(x => x.Uri.Path.Decoded.ToString().Equals(@"I:/test/this/path/test.txt")))).Returns(new Response().ToTask()).OccursOnce();
             
             var r = ResourceRepository.Create((x, s) => x.Add(c), (p, s) => p.UseMiddleware<EnvironmentVariableMiddleware>());

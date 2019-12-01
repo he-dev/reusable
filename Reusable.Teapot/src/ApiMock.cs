@@ -1,10 +1,5 @@
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Linq.Custom;
 using System.Net.Http;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.WebUtilities;
 using Reusable.Data;
 using Reusable.Exceptionize;
 using Reusable.Translucent;
@@ -12,11 +7,13 @@ using HttpRequest = Microsoft.AspNetCore.Http.HttpRequest;
 
 namespace Reusable.Teapot
 {
-    // Represents a single api-mock.
+    /// <summary>
+    /// Represents a single api-mock.
+    /// </summary>
     public class ApiMock
     {
         private readonly IRequestBuilder _request;
-        private readonly IResponseBuilder _response;
+        private readonly IResponseFactory _responseFactory;
 
         public ApiMock(HttpMethod method, UriString uri)
         {
@@ -24,7 +21,7 @@ namespace Reusable.Teapot
             Uri = uri;
 
             _request = new RequestBuilder();
-            _response = new ResponseBuilder().Always(200, new { Message = "OK" }, MimeType.Json);
+            _responseFactory = new ResponseFactory().Always(200, new { Message = "OK" }, MimeType.Json);
         }
 
         public HttpMethod Method { get; }
@@ -39,14 +36,14 @@ namespace Reusable.Teapot
         }
 
         // Allows to configure responses.
-        public ApiMock ArrangeResponse(Action<IResponseBuilder> configure)
+        public ApiMock ArrangeResponse(Action<IResponseFactory> configure)
         {
-            configure(_response.Clear());
+            configure(_responseFactory.Clear());
             return this;
         }
 
         // Validates the request either as it arrives (not-null) or afterwards (null).
-        public void Assert(RequestCopy requestCopy = default)
+        public void Assert(RequestCopy? requestCopy = default)
         {
             try
             {
@@ -54,14 +51,14 @@ namespace Reusable.Teapot
             }
             catch (Exception inner)
             {
-                throw DynamicException.Create("Assert", $"{Method} {Uri}", inner);
+                throw DynamicException.Create("Assert", $"Could not assert '{Method}/{Uri}'.", inner);
             }
         }
 
         // Tries to get the nest response.
         public Func<HttpRequest, ResponseMock> GetResponseFactory()
         {
-            return request => _response?.Next(request);
+            return request => _responseFactory.Next(request);
         }
     }
 }

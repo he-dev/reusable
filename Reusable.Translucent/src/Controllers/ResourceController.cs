@@ -10,7 +10,7 @@ namespace Reusable.Translucent.Controllers
     [PublicAPI]
     public interface IResourceController : IDisposable
     {
-        SoftString? Id { get; }
+        ComplexName Name { get; }
 
         UriString? BaseUri { get; }
 
@@ -19,20 +19,15 @@ namespace Reusable.Translucent.Controllers
         /// </summary>
         ISet<SoftString> Schemes { get; }
 
-        /// <summary>
-        /// Gets a collection of tags that can be used to address a set of controllers.
-        /// </summary>
-        ISet<SoftString> Tags { get; }
-        
         bool SupportsRelativeUri { get; }
     }
 
     [DebuggerDisplay(DebuggerDisplayString.DefaultNoQuotes)]
     public abstract class ResourceController : IResourceController
     {
-        protected ResourceController(string? id, string? basePath, params SoftString[] schemes)
+        protected ResourceController(ComplexName name, string? basePath, params SoftString[] schemes)
         {
-            Id = id;
+            Name = name;
             BaseUri = basePath is {} uri ? new UriString(uri) : default;
             Schemes = new HashSet<SoftString>(schemes);
         }
@@ -45,13 +40,11 @@ namespace Reusable.Translucent.Controllers
             //builder.DisplayValue(x => x.Schemes);
         });
 
-        public SoftString? Id { get; }
+        public ComplexName Name { get; }
 
         public UriString? BaseUri { get; }
 
         public ISet<SoftString> Schemes { get; }
-
-        public ISet<SoftString> Tags { get; set; } = new HashSet<SoftString>();
 
         public bool SupportsRelativeUri => BaseUri is {};
 
@@ -76,7 +69,7 @@ namespace Reusable.Translucent.Controllers
     public class HandlesAttribute : Attribute
     {
         public HandlesAttribute(Type type) => Type = type;
-        
+
         public Type Type { get; }
     }
 }

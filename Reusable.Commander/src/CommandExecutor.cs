@@ -120,14 +120,15 @@ namespace Reusable.Commander
             using var cts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
             
             // Now execute async commands.
-            var actionBlock = new ActionBlock<(ICommand command, List<CommandLineArgument> commandLine)>
+            var actionBlock = new ActionBlock<(ICommand command, List<CommandLineArgument> args)>
             (
                 async executable =>
                 {
-                    var commandParameterType = executable.command.ParameterType; // executable.command.GetType().GetCommandParameterType();
-                    var bindMethod = typeof(ICommandParameterBinder).GetMethod(nameof(ICommandParameterBinder.Bind))!.MakeGenericMethod(commandParameterType ?? typeof(object));
-                    var parameter = bindMethod.Invoke(_commandParameterBinder, new object[] { context, executable.commandLine });
-                    var task = executable.command.ExecuteAsync(parameter, cts.Token);
+                    var task = ExecuteAsync(executable.command, executable.args, context, cts.Token);
+                    //var commandParameterType = executable.command.ParameterType; // executable.command.GetType().GetCommandParameterType();
+                    //var bindMethod = typeof(ICommandParameterBinder).GetMethod(nameof(ICommandParameterBinder.Bind))!.MakeGenericMethod(commandParameterType ?? typeof(object));
+                    //var parameter = bindMethod.Invoke(_commandParameterBinder, new object[] { context, executable.args });
+                    //var task = executable.command.ExecuteAsync(parameter, cts.Token);
                     var continuation = task.ContinueWith(t => exceptions.Add(t.Exception), TaskContinuationOptions.OnlyOnFaulted);
                     try
                     {
