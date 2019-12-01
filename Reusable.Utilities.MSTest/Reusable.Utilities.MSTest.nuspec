@@ -2,25 +2,23 @@
 <package>
   <metadata>
     <id>Reusable.Utilities.MSTest</id>
-    <version>16.0.6</version>
+    <version>16.1.0</version>
     <title>Reusable.Utilities.MSTest</title>
     <authors>He-Dev</authors>
     <owners>He-Dev</owners>
     <license type="expression">MIT</license>
     <projectUrl>https://github.com/he-dev/Reusable</projectUrl>
-    <iconUrl>https://raw.githubusercontent.com/he-dev/Reusable/master/_nuget/recycling.png</iconUrl>
     <requireLicenseAcceptance>true</requireLicenseAcceptance>
-    <description>Testing utilities.</description>
-    <releaseNotes></releaseNotes>
-    <copyright>Copyright 2019 He-Dev</copyright>
+    <description>This package provides utilities for MSTest.</description>
+    <copyright>Copyright 2020 He-Dev</copyright>
     <tags>Utility Extension</tags>
     <dependencies>
       <dependency id="JetBrains.Annotations" version="2019.1.3" />
       <dependency id="Microsoft.NET.Test.Sdk" version="16.4.0" />
       <dependency id="MSTest.TestAdapter" version="2.0.0" />
       <dependency id="MSTest.TestFramework" version="2.0.0" />
-      <dependency id="Reusable.Core" version="16.0.6" />
-      <dependency id="Reusable.OmniLog" version="16.0.6" />
+      <dependency id="Reusable.Core" version="16.1.0" />
+      <dependency id="Reusable.OmniLog" version="16.1.0" />
     </dependencies>
   </metadata>
   <files>
