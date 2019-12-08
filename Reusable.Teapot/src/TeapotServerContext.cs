@@ -52,7 +52,7 @@ namespace Reusable.Teapot
 
     public static class TeapotServerContextExtensions
     {
-        public static ApiMock MockGet(this ITeacupContext context, string uri, Action<IRequestBuilder> configureRequest)
+        public static ApiMock MockGet(this ITeacupContext context, string uri, Action<IRequestAssert> configureRequest)
         {
             return
                 context
@@ -60,7 +60,7 @@ namespace Reusable.Teapot
                     .ArrangeRequest(configureRequest);
         }
         
-        public static ApiMock MockPost(this ITeacupContext context, string uri, Action<IRequestBuilder> configureRequest)
+        public static ApiMock MockPost(this ITeacupContext context, string uri, Action<IRequestAssert> configureRequest)
         {
             return
                 context
@@ -68,7 +68,7 @@ namespace Reusable.Teapot
                     .ArrangeRequest(configureRequest);
         }
         
-        public static ApiMock MockPut(this ITeacupContext context, string uri, Action<IRequestBuilder> configureRequest)
+        public static ApiMock MockPut(this ITeacupContext context, string uri, Action<IRequestAssert> configureRequest)
         {
             return
                 context
@@ -76,7 +76,7 @@ namespace Reusable.Teapot
                     .ArrangeRequest(configureRequest);
         }
         
-        public static ApiMock MockDelete(this ITeacupContext context, string uri, Action<IRequestBuilder> configureRequest)
+        public static ApiMock MockDelete(this ITeacupContext context, string uri, Action<IRequestAssert> configureRequest)
         {
             return
                 context

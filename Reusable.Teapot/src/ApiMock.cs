@@ -12,7 +12,7 @@ namespace Reusable.Teapot
     /// </summary>
     public class ApiMock
     {
-        private readonly IRequestBuilder _request;
+        private readonly IRequestAssert _request;
         private readonly IResponseFactory _responseFactory;
 
         public ApiMock(HttpMethod method, UriString uri)
@@ -20,7 +20,7 @@ namespace Reusable.Teapot
             Method = method;
             Uri = uri;
 
-            _request = new RequestBuilder();
+            _request = new RequestAssert();
             _responseFactory = new ResponseFactory().Always(200, new { Message = "OK" }, MimeType.Json);
         }
 
@@ -29,7 +29,7 @@ namespace Reusable.Teapot
         public UriString Uri { get; }
 
         // Allows to configure request asserts.
-        public ApiMock ArrangeRequest(Action<IRequestBuilder> configure)
+        public ApiMock ArrangeRequest(Action<IRequestAssert> configure)
         {
             configure(_request);
             return this;

@@ -30,18 +30,18 @@ namespace Reusable.Teapot
 
             teacup
                 .MockApi(HttpMethod.Post, "api/test?param=true")
-                .ArrangeRequest(builder =>
+                .ArrangeRequest(assert =>
                 {
-                    builder
-                        .UserAgentIs("Teapot", "1.0")
+                    assert
+                        .UserAgent("Teapot", "1.0")
                         .AcceptsJson()
-                        .WithApiVersion("1.0")
-                        .ContentTypeIsJsonWhere(content => { content.HasProperty("$.Greeting"); })
+                        .ApiVersion("1.0")
+                        .ContentTypeJsonWhere(content => { content.HasProperty("$.Greeting"); })
                         .Occurs(1);
                 })
-                .ArrangeResponse(builder =>
+                .ArrangeResponse(factory =>
                 {
-                    builder
+                    factory
                         .Once(200, new { Message = "OK" })
                         .Echo();
                 });

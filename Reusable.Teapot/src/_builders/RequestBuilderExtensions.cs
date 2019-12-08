@@ -10,10 +10,10 @@ namespace Reusable.Teapot
     [PublicAPI]
     public static class RequestBuilderExtensions
     {
-        public static IRequestBuilder Occurs(this IRequestBuilder builder, int exactly)
+        public static IRequestAssert Occurs(this IRequestAssert assert, int exactly)
         {
             var counter = 0;
-            return builder.Add(request =>
+            return assert.Add(request =>
             {
                 if (request is {})
                 {
@@ -32,9 +32,9 @@ namespace Reusable.Teapot
             });
         }
 
-        public static IRequestBuilder WithHeader(this IRequestBuilder builder, string header, params string[] expectedValues)
+        public static IRequestAssert WithHeader(this IRequestAssert assert, string header, params string[] expectedValues)
         {
-            return builder.Add(request =>
+            return assert.Add(request =>
             {
                 if (request is {})
                 {
@@ -62,13 +62,13 @@ namespace Reusable.Teapot
             });
         }
 
-        public static IRequestBuilder WithApiVersion(this IRequestBuilder builder, string version) => builder.WithHeader("Api-Version", version);
+        public static IRequestAssert ApiVersion(this IRequestAssert assert, string version) => assert.WithHeader("Api-Version", version);
 
-        public static IRequestBuilder WithContentType(this IRequestBuilder builder, string mediaType) => builder.WithHeader("Content-Type", mediaType);
+        public static IRequestAssert WithContentType(this IRequestAssert assert, string mediaType) => assert.WithHeader("Content-Type", mediaType);
 
-        public static IRequestBuilder ContentTypeIsJsonWhere(this IRequestBuilder builder, Action<ContentSection<JToken>> contentAssert)
+        public static IRequestAssert ContentTypeJsonWhere(this IRequestAssert assert, Action<ContentSection<JToken>> contentAssert)
         {
-            return builder.Add(request =>
+            return assert.Add(request =>
             {
                 if (request is {})
                 {
@@ -78,13 +78,13 @@ namespace Reusable.Teapot
             });
         }
 
-        public static IRequestBuilder UserAgentIs(this IRequestBuilder builder, string product, string version) => builder.WithHeader("User-Agent", $"{product}/{version}");
+        public static IRequestAssert UserAgent(this IRequestAssert assert, string product, string version) => assert.WithHeader("User-Agent", $"{product}/{version}");
 
-        public static IRequestBuilder Accepts(this IRequestBuilder builder, string mediaType) => builder.WithHeader("Accept", mediaType);
+        public static IRequestAssert Accepts(this IRequestAssert assert, string mediaType) => assert.WithHeader("Accept", mediaType);
 
-        public static IRequestBuilder AcceptsJson(this IRequestBuilder builder) => builder.Accepts("application/json");
+        public static IRequestAssert AcceptsJson(this IRequestAssert assert) => assert.Accepts("application/json");
 
-        public static IRequestBuilder AcceptsHtml(this IRequestBuilder builder) => builder.Accepts("text/html");
+        public static IRequestAssert AcceptsHtml(this IRequestAssert assert) => assert.Accepts("text/html");
     }
 
     

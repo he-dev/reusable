@@ -24,8 +24,8 @@ namespace Reusable.Translucent.Controllers
                 {
                     request
                         .AcceptsHtml()
-                        .UserAgentIs("xunit", "1.0")
-                        .ContentTypeIsJsonWhere(content =>
+                        .UserAgent("xunit", "1.0")
+                        .ContentTypeJsonWhere(content =>
                         {
                             content
                                 .HasProperty("$.To")
