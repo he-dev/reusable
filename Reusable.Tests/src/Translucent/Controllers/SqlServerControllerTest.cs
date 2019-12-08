@@ -4,6 +4,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Data.SqlClient;
 using System.Threading.Tasks;
 using Dapper;
+using Reusable.Data;
 using Reusable.Data.Repositories;
 using Reusable.Exceptionize;
 using Reusable.Quickey;
@@ -15,11 +16,9 @@ namespace Reusable.Translucent.Controllers
     {
         public async Task InitializeAsync()
         {
-            var connectionString = ConnectionStringRepository.Default.GetConnectionString(TestHelper.ConnectionString);
-            using (var conn = new SqlConnection(connectionString))
-            {
-                await conn.ExecuteAsync(TestHelper.Resources.ReadTextFile(@"Translucent/Config/seed-test-data.sql"));
-            }
+            var connectionString = AppConfigHelper.GetConnectionString(TestHelper.ConnectionString);
+            await using var conn = new SqlConnection(connectionString);
+            await conn.ExecuteAsync(TestHelper.Resources.ReadTextFile(@"Translucent/Config/seed-test-data.sql"));
         }
 
         [Fact]
@@ -79,6 +78,7 @@ namespace Reusable.Translucent.Controllers
         public DateTime DateTime => _resources.ReadSetting(() => DateTime);
         public TimeSpan TimeSpan => _resources.ReadSetting(() => TimeSpan);
         public List<int> ListOfInt32 => _resources.ReadSetting(() => ListOfInt32, maxAge: TimeSpan.FromSeconds(7));
+
         [RegularExpression("Red|Blue")]
         public string Color => _resources.ReadSetting(() => Color);
     }
