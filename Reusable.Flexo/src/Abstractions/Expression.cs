@@ -159,17 +159,17 @@ namespace Reusable.Flexo.Abstractions
         // Check whether result and extension match; do it only for extension expressions.
         private static void ValidateArgMatches(IConstant arg, IExtension extension)
         {
-            var thisType =
-                arg.Value is IEnumerable<IExpression> collection
-                    ? collection.GetType()
-                    : arg.GetType();
+//            var thisType =
+//                extension.ExtendsType.IsAssignableFrom(arg.ValueType) // is IEnumerable<IExpression> collection
+//                    ? collection.GetType()
+//                    : arg.GetType();
 
-            if (!extension.ExtendsType.IsAssignableFrom(thisType))
+            if (!extension.ExtendsType.IsAssignableFrom(arg.ValueType))
             {
                 throw DynamicException.Create
                 (
                     $"ExtensionTypeMismatch",
-                    $"Extension '{extension.GetType().ToPrettyString()}<{extension.ExtendsType.ToPrettyString()}>' does not match the expression it is extending: '{arg.Value?.GetType().ToPrettyString()}'."
+                    $"Extension '{extension.GetType().ToPrettyString()}<{extension.ExtendsType.ToPrettyString()}>' does not match the expression it is extending: '{arg.ValueType.ToPrettyString()}'."
                 );
             }
         }

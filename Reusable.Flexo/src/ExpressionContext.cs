@@ -26,14 +26,14 @@ namespace Reusable.Flexo
                 {
                     [Keywords.Default] = Comparer<object>.Default
                 })
-                .SetItem(InvokeLog, Node.Create((IExpression)Constant.FromValue<object>("ExpressionInvokeLog")));
+                .SetItem(InvokeLog, Node.Create((IExpression)Constant.Single<object>("ExpressionInvokeLog")));
 
         private static readonly From<ExecutionContext> This = From<ExecutionContext>.This!;
 
         /// <summary>
         /// Gets or sets extension value.
         /// </summary>
-        public static readonly Selector<object> Arg = This.Select(() => Arg);
+        public static readonly Selector<IConstant> Arg = This.Select(() => Arg);
 
         /// <summary>
         /// Gets or sets scope id.

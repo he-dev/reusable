@@ -6,15 +6,18 @@ using Reusable.Flexo.Abstractions;
 
 namespace Reusable.Flexo
 {
-    public class Overlaps : CollectionExtension<bool>, IFilter
+    public class Overlaps : Extension<object, bool>, IFilter
     {
         public Overlaps() : base(default)
         {
             Matcher = Constant.DefaultComparer;
         }
-        
-        public IEnumerable<IExpression>? First { get => Arg; set => Arg = value; }
-        
+
+        public IEnumerable<IExpression>? First
+        {
+            set => Arg = value;
+        }
+
         [JsonRequired]
         [JsonProperty("With", Required = Required.Always)]
         public List<IExpression> Second { get; set; } = default!;
@@ -24,10 +27,10 @@ namespace Reusable.Flexo
 
         protected override bool ComputeValue(IImmutableContainer context)
         {
-            var first = InvokeArg(context).Values<object>();
-            var second = Second.Invoke(context).Values<object>();
+            var first = GetArg(context);
+            var second = Second.Invoke(context);
             var comparer = this.GetEqualityComparer(context);
-            return first.Intersect(second, comparer).Any();
+            return first.Intersect(second.SelectMany(c => c), comparer).Any();
         }
     }
 }

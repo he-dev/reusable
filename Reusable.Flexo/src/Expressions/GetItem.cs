@@ -73,7 +73,7 @@ namespace Reusable.Flexo
                 return default;
             }
 
-            obj = obj switch { IConstant c => c.Value ?? throw new ArgumentException($"{c.Id}'s value is null."), _ => obj };
+            obj = obj switch { IConstant c => c.ValueOrDefault(default(object)) ?? throw new ArgumentException($"{c.Id}'s value is null."), _ => obj };
 
             var member = obj.GetType().GetMember(memberName).SingleOrDefault();
             // (

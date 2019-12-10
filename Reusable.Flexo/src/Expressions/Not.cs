@@ -1,18 +1,23 @@
-﻿using Reusable.Data;
+﻿using System.Collections.Generic;
+using System.Linq;
+using Reusable.Data;
 using Reusable.Flexo.Abstractions;
 
 namespace Reusable.Flexo
 {
     //[Alias("!")]
-    public class Not : ScalarExtension<bool>
+    public class Not : Extension<bool, bool>
     {
         public Not() : base(default) { }
 
-        public IExpression? Value { get => Arg; set => Arg = value; }
-
-        protected override bool ComputeValue(IImmutableContainer context)
+        public IExpression? Value
         {
-            return !GetArg(context).Invoke(context).Value<bool>();
+            set => Arg = value;
+        }
+
+        protected override IEnumerable<bool> ComputeValues(IImmutableContainer context)
+        {
+            return GetArg(context).Invoke(context).AsEnumerable<bool>().Select(x => !x);
         }
     }
 }

@@ -6,9 +6,9 @@ namespace Reusable.Flexo
     {
         public GetSingle() : base(default) { }
 
-        protected override Constant<object> ComputeConstantGeneric(IImmutableContainer context)
+        protected override IConstant ComputeConstant(IImmutableContainer context)
         {
-            return (Path, FindItem(context), context);
+            return Constant.Single(Path, FindItem(context), context);
         }
     }
 }

@@ -6,7 +6,7 @@ namespace Reusable.Flexo
     public class Double : Constant<double>
     {
         [JsonConstructor]
-        public Double(string? id, double value) : base(id ?? nameof(Double), value) { }
+        public Double(string? id, double value) : base(id ?? nameof(Double), new[] { value }) { }
 
         public static readonly Constant<double> Zero = new Double(nameof(Zero), 0.0);
 
@@ -15,7 +15,7 @@ namespace Reusable.Flexo
 
     public class Integer : Constant<int>
     {
-        public Integer(string name, int value) : base(name ?? nameof(Integer), value) { }
+        public Integer(string name, int value) : base(name ?? nameof(Integer), new[] { value }) { }
 
         public static readonly Integer Zero = new Integer(nameof(Zero), 0);
 
@@ -24,7 +24,7 @@ namespace Reusable.Flexo
 
     public class Decimal : Constant<decimal>
     {
-        public Decimal(string name, decimal value) : base(name ?? nameof(Decimal), value) { }
+        public Decimal(string name, decimal value) : base(name ?? nameof(Decimal), new[] { value }) { }
 
         public static readonly Decimal Zero = new Decimal(nameof(Zero), 0m);
 
@@ -34,25 +34,25 @@ namespace Reusable.Flexo
     public class True : Constant<bool>
     {
         [JsonConstructor]
-        public True(string? id) : base(id ?? nameof(True), true) { }
+        public True(string? id) : base(id ?? nameof(True), new[] { true }) { }
     }
 
     public class False : Constant<bool>
     {
         [JsonConstructor]
-        public False(string? id) : base(id ?? nameof(False), false) { }
+        public False(string? id) : base(id ?? nameof(False), new[] { false }) { }
     }
 
     public class String : Constant<string>
     {
         [JsonConstructor]
-        public String(string? id, string value) : base(id ?? nameof(String), value) { }
+        public String(string? id, string value) : base(id ?? nameof(String), new[] { value }) { }
     }
 
     public class DateTime : Constant<System.DateTime>
     {
         [JsonConstructor]
-        public DateTime(string? id, string value, string? format) : base(id ?? nameof(DateTime), Parse(value, format)) { }
+        public DateTime(string? id, string value, string? format) : base(id ?? nameof(DateTime), new[] { Parse(value, format) }) { }
 
         private static System.DateTime Parse(string value, string? format)
         {
@@ -66,7 +66,7 @@ namespace Reusable.Flexo
     public class TimeSpan : Constant<System.TimeSpan>
     {
         [JsonConstructor]
-        public TimeSpan(string? id, string value, string? format) : base(id ?? nameof(TimeSpan), Parse(value, format)) { }
+        public TimeSpan(string? id, string value, string? format) : base(id ?? nameof(TimeSpan), new[] { Parse(value, format) }) { }
 
         private static System.TimeSpan Parse(string value, string? format)
         {

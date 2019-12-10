@@ -85,7 +85,7 @@ namespace Reusable.Flexo
 
         public IExpression Body { get; set; }
 
-        public object Expected { get; set; }
+        public List<object> Expected { get; set; } = new List<object>();
 
         public bool Throws { get; set; }
 

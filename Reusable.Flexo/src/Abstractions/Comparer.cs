@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using JetBrains.Annotations;
 using Newtonsoft.Json;
 using Reusable.Data;
@@ -21,27 +22,33 @@ namespace Reusable.Flexo.Abstractions
             return context.FindItem(ExpressionContext.Comparers, sorter.ComparerName ?? Keywords.Default);
         }
     }
-    
+
     [PublicAPI]
-    public abstract class Comparer : ScalarExtension<bool>, ISorter
+    public abstract class Comparer : Extension<object, bool>, ISorter
     {
         private readonly Func<int, bool> _predicate;
 
         protected Comparer(ILogger? logger, Func<int, bool> predicate)
             : base(logger) => _predicate = predicate;
-        
-        public IExpression? Left { get => Arg; set => Arg = value; }
+
+        public IExpression? Left
+        {
+            //get => Arg;
+            set => Arg = value;
+        }
 
         [JsonRequired]
         [JsonProperty("Value")]
         public IExpression Right { get; set; } = default!;
-        
+
         public string? ComparerName { get; set; }
 
         protected override bool ComputeValue(IImmutableContainer context)
         {
             var comparer = this.GetComparer(context);
-            var result = comparer.Compare(GetArg(context).Invoke(context).Value!, Right.Invoke(context).Value!);
+            var x = GetArg(context).FirstOrDefault();
+            var y = Right.Invoke(context).Cast<object>().FirstOrDefault();
+            var result = comparer.Compare(x, y);
             return _predicate(result);
         }
     }

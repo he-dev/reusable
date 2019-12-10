@@ -6,7 +6,7 @@ using Reusable.Flexo.Abstractions;
 
 namespace Reusable.Flexo
 {
-    public class Collection : Expression<IEnumerable<IExpression>>
+    public class Collection : Expression<object>
     {
         [JsonConstructor]
         public Collection() : base(default) { }
@@ -14,13 +14,9 @@ namespace Reusable.Flexo
         [JsonRequired]
         public IEnumerable<IExpression> Values { get; set; } = null!;
 
-        protected override IEnumerable<IExpression> ComputeValue(IImmutableContainer context)
+        protected override IEnumerable<object> ComputeValues(IImmutableContainer context)
         {
-            return 
-                Values
-                    .Enabled()
-                    .Select((e, i) => Constant.FromValue($"{Id}[{i}]", e.Invoke(context).Value, context))
-                    .ToList();
+            return Values.Enabled().SelectMany(e => e.Invoke(context));
         }
     }
 }

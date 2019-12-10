@@ -1,5 +1,6 @@
 using System.Diagnostics;
 using System.Globalization;
+using System.Linq;
 using System.Linq.Custom;
 using JetBrains.Annotations;
 using Reusable.Data;
@@ -24,7 +25,7 @@ namespace Reusable.Flexo
                         Text = expression switch
                         {
                             // Id: 'Value' (valueType) [tag1 tag2]
-                            IConstant c => $"{c.Id}: '{FormatValue(c.Value)}' ({c.Value?.GetType().ToPrettyString()}){FormatTags(c)}",
+                            IConstant c => $"{c.Id}: '{FormatValue(c.Cast<object>().FirstOrDefault())}' ({c.ValueType.ToPrettyString()}){FormatTags(c)}",
                             {} e => $"{e.Id} ({e.GetType().ToPrettyString()}){FormatTags(e)}",
                             _ => "null"
                         },

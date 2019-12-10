@@ -1,4 +1,7 @@
 using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Reflection;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Reusable.Exceptionize;
@@ -37,7 +40,7 @@ namespace Reusable.Flexo.Json
                 var jTokenReader = (JTokenReader)reader;
                 var name =
                     jTokenReader.CurrentToken.Parent is JArray
-                        ? $"Item[{_index++}]"
+                        ? $"Item"
                         : GetParentName(jTokenReader.CurrentToken.Parent);
 
                 return CreateConstant(name, reader.Value);
@@ -59,12 +62,22 @@ namespace Reusable.Flexo.Json
             return value switch
             {
                 double d => (IConstant)new Double(name, d),
-                bool b => (IConstant)Constant.FromValue(name, b),
-                {} x => (IConstant)Activator.CreateInstance(MakeGenericConstant(x), name, x, default),
+                bool b => (IConstant)Constant.Single(name, b),
+                //{} x => (IConstant)Activator.CreateInstance(MakeGenericConstant(x), name, new[] { x }, default),
+                {} x => (IConstant)MakeGenericFromValue(x).Invoke(default, new object[] { name, x, default }),
                 _ => throw new InvalidOperationException($"{name} must not be null.")
             };
 
             Type MakeGenericConstant(object x) => typeof(Constant<>).MakeGenericType(x.GetType());
+
+            MethodInfo MakeGenericFromValue(object x) => typeof(Constant).GetMethod(nameof(Constant.Single), BindingFlags.Public | BindingFlags.Static).MakeGenericMethod(x.GetType());
+            
+            object MakeGenericList(object x)
+            {
+                var list = (IList)Activator.CreateInstance(typeof(List<>).MakeGenericType(x.GetType()));
+                list.Add(x);
+                return list;
+            }
         }
     }
 }

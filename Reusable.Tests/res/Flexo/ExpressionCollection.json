@@ -13,9 +13,9 @@
       ]
     },
     "Expected": [
-      2,
-      3,
-      1
+      2.0,
+      3.0,
+      1.0
     ],
     "Throws": false
   },
@@ -27,7 +27,7 @@
       "True": "foo",
       "False": "bar"
     },
-    "Expected": "foo",
+    "Expected": [ "foo" ],
     "Throws": false
   }
 ]

@@ -26,7 +26,7 @@ namespace Reusable.Flexo.Helpers
             if (throws)
             {
                 var ex = Assert.ThrowsAny<Exception>(() => expression.Invoke(context));
-                return new Constant<Exception>("Exception", ex, context);
+                return new Constant<Exception>("Exception", new[] { ex }, context);
             }
             else
             {
@@ -39,8 +39,8 @@ namespace Reusable.Flexo.Helpers
                     {
                         case null: break;
                         case IEnumerable collection when !(expected is string):
-                            Assert.IsAssignableFrom<IEnumerable>(result.Value);
-                            Assert.Equal(collection.Cast<object>(), result.Value<IEnumerable<IConstant>>().Values<object>());
+                            Assert.IsAssignableFrom<IEnumerable>(result.Cast<object>().Single());
+                            //Assert.Equal(collection.Cast<object>(), result.Value<IEnumerable<IConstant>>().Values<object>());
                             if (tags.IsNotNull())
                             {
                                 Assert.True(result.Tags.SetEquals(tags));
@@ -48,7 +48,7 @@ namespace Reusable.Flexo.Helpers
 
                             break;
                         default:
-                            Assert.Equal(expected, result.Value);
+                            Assert.Equal(expected, result.Cast<object>().Single());
                             break;
                     }
                 }
@@ -61,7 +61,7 @@ namespace Reusable.Flexo.Helpers
                 return result;
             }
         }
-        
+
         public static IConstant ExpressionEqual
         (
             ExpressionUseCase useCase,
@@ -73,7 +73,7 @@ namespace Reusable.Flexo.Helpers
             if (useCase.Throws)
             {
                 var ex = Assert.ThrowsAny<Exception>(() => useCase.Body.Invoke(context));
-                return Constant.FromValue(nameof(Exception), ex, context);
+                return Constant.Single(nameof(Exception), ex, context);
             }
             else
             {
@@ -82,17 +82,7 @@ namespace Reusable.Flexo.Helpers
 
                 try
                 {
-                    switch (useCase.Expected)
-                    {
-                        case null: throw new InvalidOperationException($"The expected value for '{useCase}' is not specified.");
-                        case IEnumerable collection when !(useCase.Expected is string):
-                            Assert.IsAssignableFrom<IEnumerable>(result.Value);
-                            Assert.Equal(collection.Cast<object>(), result.Value<IEnumerable<IConstant>>().Values<object>());
-                            break;
-                        default:
-                            Assert.Equal(useCase.Expected, result.Value);
-                            break;
-                    }
+                    Assert.Equal(useCase.Expected, result);
                 }
                 catch (Exception)
                 {

@@ -14,9 +14,14 @@ namespace Reusable.Flexo
             return (scope ?? ImmutableContainer.Empty).SetItem(Parent, context);
         }
 
-        public static IImmutableContainer BeginScopeWithArg(this IImmutableContainer context, object arg)
+        public static IImmutableContainer BeginScopeWithArg(this IImmutableContainer context, IConstant arg)
         {
             return context.BeginScope().SetItem(Arg, arg);
+        }
+        
+        public static IImmutableContainer BeginScopeWithArg(this IImmutableContainer context, string id, object value)
+        {
+            return context.BeginScopeWithArg(Constant.Single(id, value));
         }
 
         /// <summary>

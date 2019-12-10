@@ -8,13 +8,12 @@ using Reusable.Flexo.Abstractions;
 namespace Reusable.Flexo
 {
     [PublicAPI]
-    public class Contains : CollectionExtension<bool>, IFilter
+    public class Contains : Extension<object, bool>, IFilter
     {
         public Contains() : base(default) { }
 
         public IEnumerable<IExpression>? Values
         {
-            get => Arg;
             set => Arg = value;
         }
 
@@ -23,10 +22,7 @@ namespace Reusable.Flexo
 
         protected override bool ComputeValue(IImmutableContainer context)
         {
-            return
-                GetArg(context)
-                    .Select(e => e.Invoke(context))
-                    .Any(c => this.Equal(context, c));
+            return GetArg(context).Any(c => this.Equal(Constant.Single("x", c), context));
         }
     }
 }

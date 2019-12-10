@@ -8,7 +8,7 @@ using Reusable.Flexo.Abstractions;
 namespace Reusable.Flexo
 {
     [PublicAPI]
-    public class All : CollectionExtension<bool>, IFilter
+    public class All : Extension<object, bool>, IFilter
     {
         public All() : base(default)
         {
@@ -21,7 +21,6 @@ namespace Reusable.Flexo
 
         public IEnumerable<IExpression>? Values
         {
-            get => Arg;
             set => Arg = value;
         }
 
@@ -30,10 +29,7 @@ namespace Reusable.Flexo
 
         protected override bool ComputeValue(IImmutableContainer context)
         {
-            return
-                GetArg(context)
-                    .Select(e => e.Invoke(context))
-                    .All(c => this.Equal(context, c));
+            return GetArg(context).All(c => this.Equal(Constant.Single("x", c), context));
         }
     }
 }

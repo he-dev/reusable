@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Newtonsoft.Json;
 using Reusable.Data;
 using Reusable.Flexo.Abstractions;
@@ -28,7 +29,7 @@ namespace Reusable.Flexo
         {
             return filter.Matcher switch
             {
-                IConstant c => c.Value switch
+                IConstant c => c.Single() switch
                 {
                     string s => context.FindItem(ExpressionContext.EqualityComparers, s),
                     _ => throw new ArgumentException(paramName: nameof(filter), message: $"'{filter.Id}' filter's '{nameof(IFilter.Matcher)}' must be a comparer-id.")
@@ -37,18 +38,19 @@ namespace Reusable.Flexo
             };
         }
 
-        public static bool Equal(this IFilter filter, IImmutableContainer context, IConstant x)
+        public static bool Equal(this IFilter filter, IConstant x, IImmutableContainer context)
         {
             return filter.Matcher switch
             {
-                IConstant c => context.FindItem(ExpressionContext.EqualityComparers, "Default").Equals(x.Value!, c.Value!),
-                {} p => p.Invoke(context.BeginScopeWithArg(x)).Value<bool>(),
+                //IConstant c => context.FindItem(ExpressionContext.EqualityComparers, "Default").Equals(x.Single(), c.Single()),
+                IConstant c => x.SequenceEqual(c, context.FindItem(ExpressionContext.EqualityComparers, "Default")),
+                {} p => p.Invoke(context.BeginScopeWithArg(x)).Cast<bool>().All(b => b),
                 _ => throw new ArgumentException(paramName: nameof(filter), message: $"'{filter.Id}' filter must specify a '{nameof(IFilter.Matcher)}' as a predicate.")
             };
         }
     }
 
-    public class IsEqual : ScalarExtension<bool>, IFilter
+    public class IsEqual : Extension<object, bool>, IFilter
     {
         public IsEqual() : base(default)
         {
@@ -57,7 +59,6 @@ namespace Reusable.Flexo
 
         public IExpression? Left
         {
-            get => Arg;
             set => Arg = value;
         }
 
@@ -69,10 +70,10 @@ namespace Reusable.Flexo
 
         protected override bool ComputeValue(IImmutableContainer context)
         {
-            var x = GetArg(context).Invoke(context).Value;
-            var y = Value.Invoke(context).Value;
+            var x = GetArg(context);
+            var y = Value.Invoke(context);
             var c = this.GetEqualityComparer(context);
-            return c.Equals(x!, y!);
+            return x.SequenceEqual(y, c);
         }
     }
 }

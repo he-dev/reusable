@@ -8,7 +8,7 @@ using Reusable.OmniLog.Abstractions;
 namespace Reusable.Flexo.Abstractions
 {
     [PublicAPI]
-    public abstract class Aggregate : CollectionExtension<double>
+    public abstract class Aggregate : Extension<double, double>
     {
         private readonly Func<IEnumerable<double>, double> _aggregate;
 
@@ -16,17 +16,13 @@ namespace Reusable.Flexo.Abstractions
 
         public IEnumerable<IExpression>? Values
         {
-            get => Arg;
+            //get => Arg;
             set => Arg = value;
         }
 
         protected override double ComputeValue(IImmutableContainer context)
         {
-            var values =
-                GetArg(context)
-                    .Select(e => e.Invoke(context))
-                    .Values<double>();
-
+            var values = GetArg(context).Cast<double>();
             return _aggregate(values);
         }
     }

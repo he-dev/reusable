@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+using System.Linq;
 using System.Text.RegularExpressions;
 using Newtonsoft.Json;
 using Reusable.Data;
@@ -5,16 +7,15 @@ using Reusable.Flexo.Abstractions;
 
 namespace Reusable.Flexo
 {
-    public class Matches : ScalarExtension<bool>, IFilter
+    public class Matches : Extension<string, bool>, IFilter
     {
         public Matches() : base(default) { }
 
         public IExpression? Value
         {
-            get => Arg;
             set => Arg = value;
         }
-        
+
         public bool IgnoreCase { get; set; } = true;
 
         [JsonRequired]
@@ -23,11 +24,10 @@ namespace Reusable.Flexo
 
         protected override bool ComputeValue(IImmutableContainer context)
         {
-            var input = GetArg(context).Invoke(context).Value<string>();
-            var pattern = Matcher!.Invoke(context).Value<string>();
+            var input = GetArg(context).AsEnumerable<string>().Single();
+            var pattern = Matcher!.Invoke(context).AsEnumerable<string>().Single();
             var options = IgnoreCase ? RegexOptions.IgnoreCase : RegexOptions.None;
             return Regex.IsMatch(input, pattern, options);
         }
-
     }
 }

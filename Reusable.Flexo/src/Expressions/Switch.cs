@@ -12,7 +12,7 @@ namespace Reusable.Flexo
 {
     [UsedImplicitly]
     [PublicAPI]
-    public class Switch : ScalarExtension<object>
+    public class Switch : Extension<object, object>
     {
         public Switch() : this(default) { }
 
@@ -20,7 +20,7 @@ namespace Reusable.Flexo
 
         public IExpression? Value
         {
-            get => Arg;
+            //get => Arg;
             set => Arg = value;
         }
         
@@ -61,8 +61,8 @@ namespace Reusable.Flexo
         {
             return When switch
             {
-                IConstant constant => context.FindItem(ExpressionContext.EqualityComparers, ComparerName ?? Keywords.Default).Equals(value.Value!, constant.Value!),
-                {} expression => expression.Invoke(context).Value<bool>(),
+                IConstant constant => value.SequenceEqual(constant, context.FindItem(ExpressionContext.EqualityComparers, ComparerName ?? Keywords.Default)),
+                {} expression => expression.Invoke(context).Cast<bool>().All(b => b),
                 _ => true // If not specified then use it as a default case.
             };
         }

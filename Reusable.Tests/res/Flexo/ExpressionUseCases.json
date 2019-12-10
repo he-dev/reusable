@@ -13,9 +13,9 @@
       ]
     },
     "Expected": [
-      2,
-      3,
-      1
+      2.0,
+      3.0,
+      1.0
     ],
     "Throws": false
   },
@@ -29,7 +29,9 @@
         false
       ]
     },
-    "Expected": true,
+    "Expected": [
+      true
+    ],
     "Throws": false
   },
   {
@@ -42,7 +44,9 @@
         false
       ]
     },
-    "Expected": false,
+    "Expected": [
+      false
+    ],
     "Throws": false
   },
   {
@@ -56,7 +60,9 @@
       ],
       "Predicate": false
     },
-    "Expected": true,
+    "Expected": [
+      true
+    ],
     "Throws": false
   },
   {
@@ -68,7 +74,9 @@
         true
       ]
     },
-    "Expected": true,
+    "Expected": [
+      true
+    ],
     "Throws": false
   },
   {
@@ -81,7 +89,9 @@
         true
       ]
     },
-    "Expected": false,
+    "Expected": [
+      false
+    ],
     "Throws": false
   },
   {
@@ -95,7 +105,9 @@
       ],
       "Predicate": false
     },
-    "Expected": true,
+    "Expected": [
+      true
+    ],
     "Throws": false
   },
   {
@@ -111,7 +123,9 @@
         "$t": "Flexo.Sum"
       }
     },
-    "Expected": 6.0,
+    "Expected": [
+      6.0
+    ],
     "Throws": false
   },
   {
@@ -122,7 +136,9 @@
         "$t": "Flexo.ToDouble"
       }
     },
-    "Expected": 1.0,
+    "Expected": [
+      1.0
+    ],
     "Throws": false
   },
   {
@@ -133,7 +149,9 @@
         "$t": "Flexo.Not"
       }
     },
-    "Expected": true,
+    "Expected": [
+      true
+    ],
     "Throws": false
   },
   {
@@ -145,7 +163,9 @@
         "$t": "Flexo.ToDouble"
       }
     },
-    "Expected": 2.0,
+    "Expected": [
+      2.0
+    ],
     "Throws": false
   },
   {
@@ -161,7 +181,9 @@
         "$t": "Flexo.Max"
       }
     },
-    "Expected": 3.0,
+    "Expected": [
+      3.0
+    ],
     "Throws": false
   },
   {
@@ -177,7 +199,9 @@
         "$t": "Flexo.Min"
       }
     },
-    "Expected": 1.0,
+    "Expected": [
+      1.0
+    ],
     "Throws": false
   },
   {
@@ -198,7 +222,9 @@
         }
       }
     },
-    "Expected": true,
+    "Expected": [
+      true
+    ],
     "Throws": false
   },
   {
@@ -219,7 +245,9 @@
         }
       }
     },
-    "Expected": true,
+    "Expected": [
+      true
+    ],
     "Throws": false
   },
   //  {
@@ -253,7 +281,9 @@
         "$t": "Flexo.All"
       }
     },
-    "Expected": true,
+    "Expected": [
+      true
+    ],
     "Throws": false
   },
   {
@@ -274,7 +304,9 @@
         "Comparer": "SoftString"
       }
     },
-    "Expected": true,
+    "Expected": [
+      true
+    ],
     "Throws": false
   },
   {
@@ -295,7 +327,9 @@
         "Comparer": "SoftString"
       }
     },
-    "Expected": true,
+    "Expected": [
+      true
+    ],
     "Throws": false
   },
   {
@@ -316,7 +350,9 @@
         "Comparer": "SoftString"
       }
     },
-    "Expected": false,
+    "Expected": [
+      false
+    ],
     "Throws": false
   },
   {
@@ -337,7 +373,9 @@
         "Comparer": "SoftString"
       }
     },
-    "Expected": true,
+    "Expected": [
+      true
+    ],
     "Throws": false
   },
   {
@@ -358,7 +396,9 @@
         "Comparer": "SoftString"
       }
     },
-    "Expected": false,
+    "Expected": [
+      false
+    ],
     "Throws": false
   },
   {
@@ -371,7 +411,9 @@
         "Value": 2.0
       }
     },
-    "Expected": true,
+    "Expected": [
+      true
+    ],
     "Throws": false
   },
   {
@@ -409,7 +451,9 @@
         ]
       }
     },
-    "Expected": true,
+    "Expected": [
+      true
+    ],
     "Throws": false
   },
   {
@@ -422,7 +466,9 @@
         "Package": "IsPositive"
       }
     },
-    "Expected": true,
+    "Expected": [
+      true
+    ],
     "Throws": false
   },
   {
@@ -435,7 +481,9 @@
         "Package": "IsPositive"
       }
     },
-    "Expected": false,
+    "Expected": [
+      false
+    ],
     "Throws": false
   },
   {
@@ -472,7 +520,9 @@
         "False": "bar"
       }
     },
-    "Expected": "foo",
+    "Expected": [
+      "foo"
+    ],
     "Throws": false
   },
   {
@@ -485,7 +535,9 @@
         "False": "bar"
       }
     },
-    "Expected": "bar",
+    "Expected": [
+      "bar"
+    ],
     "Throws": false
   },
   {
@@ -505,7 +557,9 @@
         }
       }
     },
-    "Expected": "4",
+    "Expected": [
+      "4"
+    ],
     "Throws": false
   },
   {
@@ -514,7 +568,9 @@
       "$t": "Flexo.GetSingle",
       "Path": "Product.Price"
     },
-    "Expected": 3,
+    "Expected": [
+      3
+    ],
     "Throws": false
   },
   {
@@ -556,7 +612,9 @@
         }
       ]
     },
-    "Expected": 2.0,
+    "Expected": [
+      2.0
+    ],
     "Throws": false
   }
   // goto 304

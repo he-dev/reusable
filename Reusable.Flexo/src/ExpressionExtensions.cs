@@ -33,6 +33,12 @@ namespace Reusable.Flexo
         {
             return expression.Invoke(context.BeginScope(scope));
         }
+        
+//        public static IConstant<T> Invoke<T>(this IExpression expression, IImmutableContainer context, IImmutableContainer? scope = default)
+//        {
+//            var result = expression.Invoke(context.BeginScope(scope));
+//            return new Constant<T>(result.Id.ToString(), result.Cast<T>(), context);
+//        }
 
         // public static IConstant InvokePackage(this IImmutableContainer context, string packageId, IImmutableContainer? scope = default)
         // {

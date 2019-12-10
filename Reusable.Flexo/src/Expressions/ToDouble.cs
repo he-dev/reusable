@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using Reusable.Flexo.Abstractions;
 
 namespace Reusable.Flexo
@@ -24,8 +25,8 @@ namespace Reusable.Flexo
                 },
                 new SwitchCase
                 {
-                    When = Expression<bool>.Create("CheckIfDouble", ctx => GetArg(ctx).Invoke(ctx).Value is double),
-                    Body = Expression<double>.Create("PassDouble", ctx => GetArg(ctx).Invoke(ctx).Value<double>()),
+                    When = Expression<bool>.Create("CheckIfDouble", ctx => new[] { GetArg(ctx).Single() is double }),
+                    Body = Expression<double>.Create("PassDouble", ctx => new[] { GetArg(ctx).Cast<double>().Single() }),
                 },
                 new SwitchCase
                 {

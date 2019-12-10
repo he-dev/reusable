@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
+using Newtonsoft.Json;
 using Reusable.Data;
 using Reusable.Flexo.Abstractions;
 
@@ -11,22 +12,26 @@ namespace Reusable.Flexo
     /// </summary>
     [UsedImplicitly]
     [PublicAPI]
-    public class Select : CollectionExtension<IEnumerable<IExpression>>
+    public class Select : Extension<object, object>
     {
         public Select() : base(default) { }
 
-        public IEnumerable<IExpression>? Values { get => Arg; set => Arg = value; }
+        public IEnumerable<IExpression>? Values
+        {
+            set => Arg = value;
+        }
 
-        public IExpression? Selector { get; set; }
+        [JsonRequired]
+        public IExpression Selector { get; set; }
 
-        protected override IEnumerable<IExpression> ComputeValue(IImmutableContainer context)
+        protected override IEnumerable<object> ComputeValues(IImmutableContainer context)
         {
             var query =
                 from item in GetArg(context)
-                let selector = Selector ?? item
-                select selector.Invoke(context.BeginScopeWithArg(item));
+                from result in Selector.Invoke(context.BeginScopeWithArg(Constant.Single($"{nameof(Select)}.Item", item)))
+                select result;
 
-            return query.ToList();
+            return query;
         }
     }
 }

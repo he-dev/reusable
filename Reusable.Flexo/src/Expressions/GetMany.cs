@@ -5,20 +5,19 @@ using Reusable.Flexo.Abstractions;
 
 namespace Reusable.Flexo
 {
-    public class GetMany : GetItem<IEnumerable<IExpression>>
+    public class GetMany : GetItem<object>
     {
         public GetMany() : base(default) { }
 
-        protected override Constant<IEnumerable<IExpression>> ComputeConstantGeneric(IImmutableContainer context)
+        protected override IConstant ComputeConstant(IImmutableContainer context)
         {
+            var enumerable = (IEnumerable<object>)FindItem(context);
             var items =
-                ((IEnumerable<object>)FindItem(context))
-                .Select((x, i) => x is IConstant constant ? constant : Constant.FromValue($"{Path}[{i}]", x, context))
-                .ToList()
-                .Cast<IExpression>()
-                .AsEnumerable();
-            
-            return Constant.FromValue(Path, items, context);
+                from x in enumerable
+                from y in x is IConstant c ? c.AsEnumerable() : new[] { x }
+                select y;
+
+            return new Constant<object>(Path, items, context);
         }
     }
 }

@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using JetBrains.Annotations;
 using Newtonsoft.Json;
 using Reusable.Data;
@@ -17,7 +18,7 @@ namespace Reusable.Flexo
         [JsonRequired]
         public string Message { get; set; } = default!;
 
-        protected override IExpression ComputeValue(IImmutableContainer context)
+        protected override IEnumerable<IExpression> ComputeValues(IImmutableContainer context)
         {
             throw DynamicException.Create(Exception ?? Id.ToString(), Message);
         }

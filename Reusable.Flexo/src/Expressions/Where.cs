@@ -6,13 +6,12 @@ using Reusable.Flexo.Abstractions;
 
 namespace Reusable.Flexo
 {
-    public class Where : CollectionExtension<IEnumerable<IExpression>>, IFilter
+    public class Where : Extension<object, object>, IFilter
     {
         public Where() : base(default) { }
 
         public IEnumerable<IExpression>? Values
         {
-            get => Arg;
             set => Arg = value;
         }
 
@@ -20,14 +19,12 @@ namespace Reusable.Flexo
         [JsonProperty(Filter.Properties.Predicate)]
         public IExpression? Matcher { get; set; } = default!;
 
-        protected override IEnumerable<IExpression> ComputeValue(IImmutableContainer context)
+        protected override IEnumerable<object> ComputeValues(IImmutableContainer context)
         {
-            var query =
-                from item in GetArg(context).Invoke(context)
-                where this.Equal(context, item)
+            return 
+                from item in GetArg(context)
+                where this.Equal(Constant.Single("x", item), context)
                 select item;
-
-            return query.ToList();
         }
     }
 }
