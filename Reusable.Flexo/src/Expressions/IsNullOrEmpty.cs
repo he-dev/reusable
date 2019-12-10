@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using System.Linq;
 using Reusable.Data;
 using Reusable.Flexo.Abstractions;
@@ -14,7 +13,7 @@ namespace Reusable.Flexo
             set => Arg = value;
         }
 
-        protected override bool ComputeValue(IImmutableContainer context)
+        protected override bool ComputeSingle(IImmutableContainer context)
         {
            return GetArg(context).AsEnumerable<string>().All(string.IsNullOrEmpty);
         }

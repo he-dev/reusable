@@ -16,11 +16,10 @@ namespace Reusable.Flexo.Abstractions
 
         public IEnumerable<IExpression>? Values
         {
-            //get => Arg;
             set => Arg = value;
         }
 
-        protected override double ComputeValue(IImmutableContainer context)
+        protected override double ComputeSingle(IImmutableContainer context)
         {
             var values = GetArg(context).Cast<double>();
             return _aggregate(values);

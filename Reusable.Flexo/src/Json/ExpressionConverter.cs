@@ -1,11 +1,8 @@
 using System;
-using System.Collections;
-using System.Collections.Generic;
 using System.Reflection;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Reusable.Exceptionize;
-using Reusable.Extensions;
 using Reusable.Flexo.Abstractions;
 
 namespace Reusable.Flexo.Json
@@ -43,7 +40,7 @@ namespace Reusable.Flexo.Json
                         ? $"Item"
                         : GetParentName(jTokenReader.CurrentToken.Parent);
 
-                return CreateConstant(name, reader.Value);
+                return CreateConstant(name, reader.Value ?? throw new InvalidOperationException($"{name} must not be null."));
             }
         }
 
@@ -59,25 +56,11 @@ namespace Reusable.Flexo.Json
 
         private static IConstant CreateConstant(string name, object? value)
         {
-            return value switch
-            {
-                double d => (IConstant)new Double(name, d),
-                bool b => (IConstant)Constant.Single(name, b),
-                //{} x => (IConstant)Activator.CreateInstance(MakeGenericConstant(x), name, new[] { x }, default),
-                {} x => (IConstant)MakeGenericFromValue(x).Invoke(default, new object[] { name, x, default }),
-                _ => throw new InvalidOperationException($"{name} must not be null.")
-            };
-
-            Type MakeGenericConstant(object x) => typeof(Constant<>).MakeGenericType(x.GetType());
-
-            MethodInfo MakeGenericFromValue(object x) => typeof(Constant).GetMethod(nameof(Constant.Single), BindingFlags.Public | BindingFlags.Static).MakeGenericMethod(x.GetType());
-            
-            object MakeGenericList(object x)
-            {
-                var list = (IList)Activator.CreateInstance(typeof(List<>).MakeGenericType(x.GetType()));
-                list.Add(x);
-                return list;
-            }
+            return
+                typeof(Constant)
+                    .GetMethod(nameof(Constant.Single), BindingFlags.Public | BindingFlags.Static)?
+                    .MakeGenericMethod(value.GetType())
+                    .Invoke(default, new[] { name, value, default }) as IConstant;
         }
     }
 }

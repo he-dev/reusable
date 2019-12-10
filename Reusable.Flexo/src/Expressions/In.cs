@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using System.Linq;
-using System.Linq.Custom;
 using JetBrains.Annotations;
 using Newtonsoft.Json;
 using Reusable.Data;
@@ -27,7 +26,7 @@ namespace Reusable.Flexo
         [JsonProperty(Filter.Properties.Comparer)]
         public IExpression? Matcher { get; set; }
         
-        protected override bool ComputeValue(IImmutableContainer context)
+        protected override bool ComputeSingle(IImmutableContainer context)
         {
             var x = GetArg(context);
             var y = Values.Enabled().Invoke(context).SelectMany(z => z);

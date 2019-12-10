@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
 using JetBrains.Annotations;
 using Reusable.Data;
-using Reusable.Extensions;
 using linq = System.Linq.Expressions;
 
 namespace Reusable.Flexo

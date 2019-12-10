@@ -27,9 +27,9 @@ namespace Reusable.Flexo
         [JsonProperty(Filter.Properties.Predicate)]
         public IExpression? Matcher { get; set; }
 
-        protected override bool ComputeValue(IImmutableContainer context)
+        protected override bool ComputeSingle(IImmutableContainer context)
         {
-            return GetArg(context).All(c => this.Equal(Constant.Single("x", c), context));
+            return GetArg(context).All(c => this.Equal(Constant.Single($"{nameof(All)}.Item", c), context));
         }
     }
 }

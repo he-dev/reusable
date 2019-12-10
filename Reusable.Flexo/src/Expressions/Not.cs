@@ -15,7 +15,7 @@ namespace Reusable.Flexo
             set => Arg = value;
         }
 
-        protected override IEnumerable<bool> ComputeValues(IImmutableContainer context)
+        protected override IEnumerable<bool> ComputeMany(IImmutableContainer context)
         {
             return GetArg(context).Invoke(context).AsEnumerable<bool>().Select(x => !x);
         }

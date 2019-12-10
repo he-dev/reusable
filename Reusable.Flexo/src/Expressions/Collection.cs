@@ -14,7 +14,7 @@ namespace Reusable.Flexo
         [JsonRequired]
         public IEnumerable<IExpression> Values { get; set; } = null!;
 
-        protected override IEnumerable<object> ComputeValues(IImmutableContainer context)
+        protected override IEnumerable<object> ComputeMany(IImmutableContainer context)
         {
             return Values.Enabled().SelectMany(e => e.Invoke(context));
         }

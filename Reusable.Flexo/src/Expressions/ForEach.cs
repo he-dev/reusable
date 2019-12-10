@@ -4,7 +4,6 @@ using System.Linq;
 using JetBrains.Annotations;
 using Newtonsoft.Json;
 using Reusable.Data;
-using Reusable.Exceptionize;
 using Reusable.Flexo.Abstractions;
 
 namespace Reusable.Flexo

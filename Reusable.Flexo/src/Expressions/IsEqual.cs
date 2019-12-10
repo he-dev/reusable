@@ -68,7 +68,7 @@ namespace Reusable.Flexo
         [JsonProperty(Filter.Properties.Comparer)]
         public IExpression? Matcher { get; set; }
 
-        protected override bool ComputeValue(IImmutableContainer context)
+        protected override bool ComputeSingle(IImmutableContainer context)
         {
             var x = GetArg(context);
             var y = Value.Invoke(context);

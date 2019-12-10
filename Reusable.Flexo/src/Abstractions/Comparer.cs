@@ -33,7 +33,6 @@ namespace Reusable.Flexo.Abstractions
 
         public IExpression? Left
         {
-            //get => Arg;
             set => Arg = value;
         }
 
@@ -43,13 +42,14 @@ namespace Reusable.Flexo.Abstractions
 
         public string? ComparerName { get; set; }
 
-        protected override bool ComputeValue(IImmutableContainer context)
+        protected override IEnumerable<bool> ComputeMany(IImmutableContainer context)
         {
-            var comparer = this.GetComparer(context);
-            var x = GetArg(context).FirstOrDefault();
-            var y = Right.Invoke(context).Cast<object>().FirstOrDefault();
-            var result = comparer.Compare(x, y);
-            return _predicate(result);
+            var x = GetArg(context);
+            var y = Right.Invoke(context);
+            var c = this.GetComparer(context);
+            //var result = c.Compare(x, y);
+            //return _predicate(result);
+            return x.Zip(y, (a, b) => c.Compare(a, b)).Select(r => _predicate(r));
         }
     }
 }

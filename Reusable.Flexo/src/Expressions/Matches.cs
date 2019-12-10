@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
 using Newtonsoft.Json;
@@ -22,7 +21,7 @@ namespace Reusable.Flexo
         [JsonProperty("Pattern")]
         public IExpression? Matcher { get; set; } = default!;
 
-        protected override bool ComputeValue(IImmutableContainer context)
+        protected override bool ComputeSingle(IImmutableContainer context)
         {
             var input = GetArg(context).AsEnumerable<string>().Single();
             var pattern = Matcher!.Invoke(context).AsEnumerable<string>().Single();

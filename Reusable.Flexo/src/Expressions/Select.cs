@@ -24,14 +24,12 @@ namespace Reusable.Flexo
         [JsonRequired]
         public IExpression Selector { get; set; }
 
-        protected override IEnumerable<object> ComputeValues(IImmutableContainer context)
+        protected override IEnumerable<object> ComputeMany(IImmutableContainer context)
         {
-            var query =
+            return 
                 from item in GetArg(context)
                 from result in Selector.Invoke(context.BeginScopeWithArg(Constant.Single($"{nameof(Select)}.Item", item)))
                 select result;
-
-            return query;
         }
     }
 }

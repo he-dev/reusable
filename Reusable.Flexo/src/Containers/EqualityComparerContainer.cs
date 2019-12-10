@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using Reusable.Data;
-using Reusable.Flexo.Abstractions;
 
 namespace Reusable.Flexo.Containers
 {
@@ -21,7 +20,7 @@ namespace Reusable.Flexo.Containers
         
         public bool RemoveItem(string key)
         {
-            return base.Remove(key);
+            return Remove(key);
         }
     }
 }

@@ -18,7 +18,7 @@ namespace Reusable.Flexo
         [JsonRequired]
         public string Message { get; set; } = default!;
 
-        protected override IEnumerable<IExpression> ComputeValues(IImmutableContainer context)
+        protected override IEnumerable<IExpression> ComputeMany(IImmutableContainer context)
         {
             throw DynamicException.Create(Exception ?? Id.ToString(), Message);
         }

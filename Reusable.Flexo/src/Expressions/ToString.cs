@@ -20,7 +20,7 @@ namespace Reusable.Flexo
 
         public IExpression? Format { get; set; }
 
-        protected override IEnumerable<string> ComputeValues(IImmutableContainer context)
+        protected override IEnumerable<string> ComputeMany(IImmutableContainer context)
         {
             var format = Format?.Invoke(context).ValueOrDefault<string>() ?? "{0}";
             return GetArg(context).Select(x => string.Format(CultureInfo.InvariantCulture, format, x));

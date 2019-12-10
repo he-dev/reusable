@@ -18,18 +18,17 @@ namespace Reusable.Flexo.Abstractions
 
         protected override IConstant ComputeConstant(IImmutableContainer context)
         {
-            return new Constant<TResult>(Id.ToString(), ComputeValues(context), context);
+            return new Constant<TResult>(Id.ToString(), ComputeMany(context), context);
         }
 
-        protected virtual IEnumerable<TResult> ComputeValues(IImmutableContainer context)
+        protected virtual IEnumerable<TResult> ComputeMany(IImmutableContainer context)
         {
-            //throw new NotImplementedException($"You must override either {nameof(ComputeConstantGeneric)} or {nameof(ComputeValues)} method.");
-            yield return ComputeValue(context);
+            yield return ComputeSingle(context);
         }
         
-        protected virtual TResult ComputeValue(IImmutableContainer context)
+        protected virtual TResult ComputeSingle(IImmutableContainer context)
         {
-            throw new NotImplementedException($"You must override either {nameof(ComputeConstant)} or {nameof(ComputeValues)} method.");
+            throw new NotImplementedException($"You must override either {nameof(ComputeConstant)} or {nameof(ComputeMany)} method.");
         }
 
         private class Lambda : Expression<TResult>
@@ -41,7 +40,7 @@ namespace Reusable.Flexo.Abstractions
                 _invokeAsValue = invokeAsValue;
             }
 
-            protected override IEnumerable<TResult> ComputeValues(IImmutableContainer context)
+            protected override IEnumerable<TResult> ComputeMany(IImmutableContainer context)
             {
                 return _invokeAsValue(context);
             }

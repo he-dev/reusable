@@ -19,11 +19,11 @@ namespace Reusable.Flexo
         [JsonProperty(Filter.Properties.Predicate)]
         public IExpression? Matcher { get; set; } = default!;
 
-        protected override IEnumerable<object> ComputeValues(IImmutableContainer context)
+        protected override IEnumerable<object> ComputeMany(IImmutableContainer context)
         {
             return 
                 from item in GetArg(context)
-                where this.Equal(Constant.Single("x", item), context)
+                where this.Equal(Constant.Single($"{nameof(Where)}.Item", item), context)
                 select item;
         }
     }
