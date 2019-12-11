@@ -4,7 +4,8 @@ using System.Dynamic;
 using System.Linq;
 using System.Reflection;
 
-namespace Reusable.Experimental {
+namespace Reusable.Experimental
+{
     public class DuckObject<T> : DynamicObject
     {
         private static readonly DuckObject<T> Duck = new DuckObject<T>();
@@ -52,7 +53,7 @@ namespace Reusable.Experimental {
             return true;
         }
     }
-    
+
     public class DuckObject
     {
         private static readonly ConcurrentDictionary<Type, dynamic> Cache = new ConcurrentDictionary<Type, dynamic>();
@@ -62,5 +63,11 @@ namespace Reusable.Experimental {
             var duck = Cache.GetOrAdd(type, t => Activator.CreateInstance(typeof(DuckObject<>).MakeGenericType(type)));
             return (TValue)quack(duck);
         }
+    }
+    
+    public class StaticMemberNotFoundException<T> : Exception
+    {
+        public StaticMemberNotFoundException(string missingMemberName)
+            : base($"Type '{typeof(T)}' does not contain static member '{missingMemberName}'") { }
     }
 }

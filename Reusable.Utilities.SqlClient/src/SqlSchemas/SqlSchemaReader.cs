@@ -23,7 +23,7 @@ namespace Reusable.Utilities.SqlClient.SqlSchemas
             GetIdentityColumnSchemasQuery = resources.ReadTextFile($"sql\\{nameof(GetIdentityColumnSchemas)}.sql");
         }
 
-        public static IList<SqlTableSchema> GetTableSchemas(this SqlConnection sqlConnection, SqlTableSchema schemaRestriction)
+        public static List<SqlTableSchema> GetTableSchemas(this SqlConnection sqlConnection, SqlTableSchema schemaRestriction)
         {
             if (sqlConnection == null) throw new ArgumentNullException(nameof(sqlConnection));
             if (schemaRestriction == null) throw new ArgumentNullException(nameof(schemaRestriction));
@@ -41,7 +41,7 @@ namespace Reusable.Utilities.SqlClient.SqlSchemas
         /// <summary>
         /// Gets column schemas ordered by their ordinal-position.
         /// </summary>
-        public static IList<SqlColumnSchema> GetColumnSchemas(this SqlConnection sqlConnection, SqlColumnSchema schemaRestriction)
+        public static List<SqlColumnSchema> GetColumnSchemas(this SqlConnection sqlConnection, SqlColumnSchema schemaRestriction)
         {
             if (sqlConnection == null) throw new ArgumentNullException(nameof(sqlConnection));
             if (schemaRestriction == null) throw new ArgumentNullException(nameof(schemaRestriction));
@@ -57,7 +57,7 @@ namespace Reusable.Utilities.SqlClient.SqlSchemas
             }
         }
 
-        public static IList<SqlIdentityColumnSchema> GetIdentityColumnSchemas(this SqlConnection connection, string schema, string table)
+        public static List<SqlIdentityColumnSchema> GetIdentityColumnSchemas(this SqlConnection connection, string schema, string table)
         {
             using (var cmd = connection.CreateCommand())
             {
@@ -79,7 +79,7 @@ namespace Reusable.Utilities.SqlClient.SqlSchemas
         }
 
         [NotNull]
-        public static IList<(SoftString Name, Type Type)> GetColumnFrameworkTypes(this SqlConnection connection, [NotNull] string schema, [NotNull] string table)
+        public static List<(SoftString Name, Type Type)> GetColumnFrameworkTypes(this SqlConnection connection, [NotNull] string schema, [NotNull] string table)
         {
             if (schema == null) throw new ArgumentNullException(nameof(schema));
             if (table == null) throw new ArgumentNullException(nameof(table));

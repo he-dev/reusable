@@ -5,17 +5,10 @@
     <TargetFrameworks>netcoreapp2.2;net47</TargetFrameworks>
     <Configurations>Debug;Release;Debug.csproj</Configurations>
     <Platforms>AnyCPU;x64</Platforms>
+    <LangVersion>latest</LangVersion>
     <Nullable>enable</Nullable>
   </PropertyGroup>
-
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <LangVersion>default</LangVersion>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-    <LangVersion>latest</LangVersion>
-  </PropertyGroup>
-
+  
   <ItemGroup>
     <Compile Remove="src\Expressions.cs" />
   </ItemGroup>
