@@ -49,15 +49,6 @@ namespace Reusable.Flexo
                     {} obj => obj,
                     _ => throw DynamicException.Create("MemberNotFound", $"Could not find member '{Path}'.")
                 };
-
-                // foreach (var item in items)
-                // {
-                //     var obj = names.Skip(1).Aggregate(item, GetMemberValue);
-                //     if (obj is {})
-                //     {
-                //         return obj;
-                //     }
-                // }
             }
             catch (Exception inner)
             {
@@ -72,7 +63,7 @@ namespace Reusable.Flexo
                 return default;
             }
 
-            obj = obj switch { IConstant c => c.ValueOrDefault(default(object)) ?? throw new ArgumentException($"{c.Id}'s value is null."), _ => obj };
+            obj = obj switch { IConstant {Count: 1} c => c.Single() ?? throw new ArgumentException($"{c.Id}'s value is null."), _ => obj };
 
             var member = obj.GetType().GetMember(memberName).SingleOrDefault();
             // (

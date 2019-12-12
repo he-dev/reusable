@@ -82,7 +82,7 @@ namespace Reusable.Flexo.Helpers
 
                 try
                 {
-                    Assert.Equal(useCase.Expected, result);
+                    Assert.Equal(useCase.Expected, result.Cast<object>());
                 }
                 catch (Exception)
                 {

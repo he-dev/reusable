@@ -23,8 +23,8 @@ namespace Reusable.Flexo
 
         protected override bool ComputeSingle(IImmutableContainer context)
         {
-            var input = GetArg(context).AsEnumerable<string>().Single();
-            var pattern = Matcher!.Invoke(context).AsEnumerable<string>().Single();
+            var input = GetArg(context).Value<string>();
+            var pattern = Matcher!.Invoke(context).Value<string>();
             var options = IgnoreCase ? RegexOptions.IgnoreCase : RegexOptions.None;
             return Regex.IsMatch(input, pattern, options);
         }

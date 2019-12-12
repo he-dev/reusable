@@ -16,7 +16,7 @@ namespace Reusable.Flexo
 
         protected override IEnumerable<object> ComputeMany(IImmutableContainer context)
         {
-            return Values.Enabled().SelectMany(e => e.Invoke(context));
+            return Values.Enabled().SelectMany(e => e.Invoke(context).Cast<object>());
         }
     }
 }

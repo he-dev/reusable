@@ -15,7 +15,7 @@ namespace Reusable.Flexo
 
         protected override bool ComputeSingle(IImmutableContainer context)
         {
-           return GetArg(context).AsEnumerable<string>().All(string.IsNullOrEmpty);
+           return GetArg(context).Values<string>().All(string.IsNullOrEmpty);
         }
     }
 }

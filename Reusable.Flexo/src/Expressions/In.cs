@@ -29,7 +29,7 @@ namespace Reusable.Flexo
         protected override bool ComputeSingle(IImmutableContainer context)
         {
             var x = GetArg(context);
-            var y = Values.Enabled().Invoke(context).SelectMany(z => z);
+            var y = Values.Enabled().Invoke(context).SelectMany(z => z.Cast<object>());
             var c = this.GetEqualityComparer(context);
             return x.Intersect(y, c).Any();
         }

@@ -13,7 +13,7 @@ namespace Reusable.Flexo
             var enumerable = (IEnumerable<object>)FindItem(context);
             var items =
                 from x in enumerable
-                from y in x is IConstant c ? c.AsEnumerable() : new[] { x }
+                from y in x is IConstant c ? c.Cast<object>() : new[] { x }
                 select y;
 
             return new Constant<object>(Path, items, context);

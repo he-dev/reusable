@@ -16,12 +16,18 @@ namespace Reusable.Flexo
         IImmutableContainer? Context { get; }
 
         Type ValueType { get; }
+        
+        bool HasValue { get; }
+        
+        int Count { get; }
 
         IEnumerable<T> AsEnumerable<T>();
     }
 
+    //public interface IConstant<out TValue> : IConstant, IEnumerable<TValue> { }
+
     [JsonObject]
-    public class Constant<TValue> : Expression<TValue>, IConstant //, IEquatable<Constant<TValue>>
+    public class Constant<TValue> : Expression<TValue>, IConstant//, IConstant<TValue> //, IEquatable<Constant<TValue>>
     {
         private readonly IList<TValue> _values;
 
@@ -37,6 +43,10 @@ namespace Reusable.Flexo
         public static Constant<TValue> Empty(string id, IImmutableContainer? context = default) => new Constant<TValue>(id, Enumerable.Empty<TValue>(), context);
 
         public Type ValueType => _values.FirstOrDefault()?.GetType() ?? typeof(TValue);
+
+        public bool HasValue => _values.Any();
+
+        public int Count => _values.Count;
 
         public IImmutableContainer? Context { get; }
 
@@ -57,21 +67,21 @@ namespace Reusable.Flexo
 
         #region IEquatable
 
-//        public override int GetHashCode() => AutoEquality<Constant<TValue>>.Comparer.GetHashCode(this);
-//        
-//        public override bool Equals(object obj)
-//        {
-//            return obj switch
-//            {
-//                Constant<TValue> constant => Equals(constant),
-//                IConstant constant => Equals(constant),
-//                _ => false
-//            };
-//        }
-//
-//        public bool Equals(Constant<TValue> other) => AutoEquality<Constant<TValue>>.Comparer.Equals(this, other);
-//
-//        public bool Equals(IConstant other) => AutoEquality<IConstant>.Comparer.Equals(this, other);
+        //        public override int GetHashCode() => AutoEquality<Constant<TValue>>.Comparer.GetHashCode(this);
+        //        
+        //        public override bool Equals(object obj)
+        //        {
+        //            return obj switch
+        //            {
+        //                Constant<TValue> constant => Equals(constant),
+        //                IConstant constant => Equals(constant),
+        //                _ => false
+        //            };
+        //        }
+        //
+        //        public bool Equals(Constant<TValue> other) => AutoEquality<Constant<TValue>>.Comparer.Equals(this, other);
+        //
+        //        public bool Equals(IConstant other) => AutoEquality<IConstant>.Comparer.Equals(this, other);
 
         #endregion
 
@@ -79,7 +89,7 @@ namespace Reusable.Flexo
 
         IEnumerator<object> IEnumerable<object>.GetEnumerator() => _values.Cast<object>().GetEnumerator();
 
-        //IEnumerator<object> IEnumerable<object>.GetEnumerator() => _values.Cast<object>().GetEnumerator();
+        //IEnumerator<TValue> IEnumerable<TValue>.GetEnumerator() => _values.GetEnumerator();
 
         IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable)_values).GetEnumerator();
 

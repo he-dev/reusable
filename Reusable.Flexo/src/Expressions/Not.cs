@@ -17,7 +17,7 @@ namespace Reusable.Flexo
 
         protected override IEnumerable<bool> ComputeMany(IImmutableContainer context)
         {
-            return GetArg(context).Invoke(context).AsEnumerable<bool>().Select(x => !x);
+            return GetArg(context).Invoke(context).Values<bool>().Select(x => !x);
         }
     }
 }

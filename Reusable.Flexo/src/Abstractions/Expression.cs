@@ -105,14 +105,15 @@ namespace Reusable.Flexo.Abstractions
         };
         // ReSharper restore RedundantNameQualifier
 
-        private static volatile int _counter = 0;
+        //private static volatile int _counter = 0;
 
         private SoftString _name;
 
         protected Expression(ILogger? logger)
         {
             //Logger = logger ?? EmptyLogger.Instance;
-            _name = $"{GetType().ToPrettyString()}-{++_counter}"!;
+            //_name = $"{GetType().ToPrettyString()}-{++_counter}"!;
+            _name = GetType().ToPrettyString();
         }
 
         public SoftString Id

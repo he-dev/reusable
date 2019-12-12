@@ -29,7 +29,7 @@ namespace Reusable.Flexo
         {
             return filter.Matcher switch
             {
-                IConstant c => c.Single() switch
+                IConstant c => c.Value<object>() switch
                 {
                     string s => context.FindItem(ExpressionContext.EqualityComparers, s),
                     _ => throw new ArgumentException(paramName: nameof(filter), message: $"'{filter.Id}' filter's '{nameof(IFilter.Matcher)}' must be a comparer-id.")
@@ -43,7 +43,7 @@ namespace Reusable.Flexo
             return filter.Matcher switch
             {
                 //IConstant c => context.FindItem(ExpressionContext.EqualityComparers, "Default").Equals(x.Single(), c.Single()),
-                IConstant c => x.SequenceEqual(c, context.FindItem(ExpressionContext.EqualityComparers, "Default")),
+                IConstant c => x.Cast<object>().SequenceEqual(c.Cast<object>(), context.FindItem(ExpressionContext.EqualityComparers, "Default")),
                 {} p => p.Invoke(context.BeginScopeWithArg(x)).Cast<bool>().All(b => b),
                 _ => throw new ArgumentException(paramName: nameof(filter), message: $"'{filter.Id}' filter must specify a '{nameof(IFilter.Matcher)}' as a predicate.")
             };
@@ -71,7 +71,7 @@ namespace Reusable.Flexo
         protected override bool ComputeSingle(IImmutableContainer context)
         {
             var x = GetArg(context);
-            var y = Value.Invoke(context);
+            var y = Value.Invoke(context).Cast<object>();
             var c = this.GetEqualityComparer(context);
             return x.SequenceEqual(y, c);
         }

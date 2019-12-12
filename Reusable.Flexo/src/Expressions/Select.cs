@@ -28,7 +28,7 @@ namespace Reusable.Flexo
         {
             return 
                 from item in GetArg(context)
-                from result in Selector.Invoke(context.BeginScopeWithArg(Constant.Single($"{nameof(Select)}.Item", item)))
+                from result in Selector.Invoke(context.BeginScopeWithArg(Constant.Single($"{nameof(Select)}.Item", item))).Cast<object>()
                 select result;
         }
     }

@@ -30,7 +30,7 @@ namespace Reusable.Flexo
             var first = GetArg(context);
             var second = Second.Invoke(context);
             var comparer = this.GetEqualityComparer(context);
-            return first.Intersect(second.SelectMany(c => c), comparer).Any();
+            return first.Intersect(second.SelectMany(c => c.Cast<object>()), comparer).Any();
         }
     }
 }

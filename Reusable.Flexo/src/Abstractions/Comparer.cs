@@ -45,7 +45,7 @@ namespace Reusable.Flexo.Abstractions
         protected override IEnumerable<bool> ComputeMany(IImmutableContainer context)
         {
             var x = GetArg(context);
-            var y = Right.Invoke(context);
+            var y = Right.Invoke(context).Cast<object>();
             var c = this.GetComparer(context);
             //var result = c.Compare(x, y);
             //return _predicate(result);

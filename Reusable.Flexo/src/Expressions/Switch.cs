@@ -61,7 +61,7 @@ namespace Reusable.Flexo
         {
             return When switch
             {
-                IConstant constant => value.SequenceEqual(constant, context.FindItem(ExpressionContext.EqualityComparers, ComparerName ?? Keywords.Default)),
+                IConstant constant => value.Cast<object>().SequenceEqual(constant.Cast<object>(), context.FindItem(ExpressionContext.EqualityComparers, ComparerName ?? Keywords.Default)),
                 {} expression => expression.Invoke(context).Cast<bool>().All(b => b),
                 _ => true // If not specified then use it as a default case.
             };
