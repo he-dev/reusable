@@ -1,4 +1,6 @@
 using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Custom;
 using System.Reflection;
@@ -22,8 +24,7 @@ namespace Reusable.Flexo
         [JsonRequired]
         public string Path { get; set; } = default!;
 
-        // key.Property.Property --> session[key].Property.Property
-        // this.Property.Property --> @this.Property.Property
+        // item.Property.Property --> scope[item].Property.Property
 
         protected object FindItem(IImmutableContainer context)
         {
@@ -32,19 +33,19 @@ namespace Reusable.Flexo
                 {} x when x.Any() => x,
                 _ => throw new InvalidOperationException($"{Id}'s {nameof(Path)} must contain at least one name.")
             };
-            
+
             var itemKey = MapItemKey(names.First());
 
             try
             {
                 // Since scopes can be nested, we need to search for the path in all of them until there's a hit.
-                var query =
+                var objects =
                     from item in context.FindItems<object>(itemKey)
                     let obj = names.Skip(1).Aggregate<string, object?>(item, GetMemberValue)
                     where obj is { }
                     select obj;
 
-                return query.FirstOrDefault() switch
+                return objects.FirstOrDefault() switch
                 {
                     {} obj => obj,
                     _ => throw DynamicException.Create("MemberNotFound", $"Could not find member '{Path}'.")
@@ -62,21 +63,19 @@ namespace Reusable.Flexo
             {
                 return default;
             }
-
-            obj = obj switch { IConstant {Count: 1} c => c.Single() ?? throw new ArgumentException($"{c.Id}'s value is null."), _ => obj };
-
-            var member = obj.GetType().GetMember(memberName).SingleOrDefault();
-            // (
-            //     onEmpty: () => DynamicException.Create("MemberNotFound", $"Type '{obj.GetType().ToPrettyString()}' does not have any members with the name '{memberName}'."),
-            //     onMany: () => DynamicException.Create("MultipleMembersFound", $"Type '{obj.GetType().ToPrettyString()}' has more than one member with the name '{memberName}'.")
-            // );
-
-            return member switch
+            else
             {
-                PropertyInfo property => property.GetValue(obj),
-                FieldInfo field => field.GetValue(obj),
-                _ => default // throw DynamicException.Create("MemberNotFound", $"Could not find member '{obj.GetType().ToPrettyString()}.{memberName}'.")
-            };
+                obj = obj switch { IConstant {Count: 1} c => c.Single() ?? throw new ArgumentException($"{c.Id}'s value is null."), _ => obj };
+
+                var member = obj.GetType().GetMember(memberName).SingleOrDefault();
+
+                return member switch
+                {
+                    PropertyInfo property => property.GetValue(obj),
+                    FieldInfo field => field.GetValue(obj),
+                    _ => default // Since we search for the member in all objects we don't want to throw anything here.
+                };
+            }
         }
 
         private static string MapItemKey(string name)

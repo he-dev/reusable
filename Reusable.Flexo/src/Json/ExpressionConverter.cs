@@ -20,13 +20,13 @@ namespace Reusable.Flexo.Json
             throw new NotSupportedException($"{nameof(ExpressionConverter)} does not support writing.");
         }
 
-        private int _index;
+        //private int _index;
 
         public override object ReadJson(JsonReader reader, Type objectType, object? existingValue, JsonSerializer serializer)
         {
             if (reader.Value is null && reader.TokenType == JsonToken.StartObject)
             {
-                _index = 0;
+                //_index = 0;
                 var jToken = JObject.Load(reader);
                 var typeName = (string?)jToken.SelectToken("$.$type") ?? throw DynamicException.Create("TypePropertyNotFound", $"Could not find '$type' property on '{jToken}'.");
                 var actualType = Type.GetType(typeName) ?? throw DynamicException.Create("TypeNotFound", $"Could not find type '{typeName}'.");
@@ -54,13 +54,13 @@ namespace Reusable.Flexo.Json
             };
         }
 
-        private static IConstant CreateConstant(string name, object? value)
+        private static IConstant CreateConstant(string name, object value)
         {
             return
-                typeof(Constant)
+                (IConstant)typeof(Constant)
                     .GetMethod(nameof(Constant.Single), BindingFlags.Public | BindingFlags.Static)?
                     .MakeGenericMethod(value.GetType())
-                    .Invoke(default, new[] { name, value, default }) as IConstant;
+                    .Invoke(default, new[] { name, value, default })!;
         }
     }
 }
