@@ -7,9 +7,14 @@ using Reusable.Flexo.Abstractions;
 
 namespace Reusable.Flexo
 {
-    // Makes sure that all types that support a comparer are consistent.
+    /// <summary>
+    /// This interface provides a consistent way for comparer support.
+    /// </summary>
     public interface IFilter : IIdentifiable
     {
+        /// <summary>
+        /// Gets or sets an expression that is used for filtering.
+        /// </summary>
         IExpression? Matcher { get; set; }
     }
 

@@ -3,6 +3,7 @@ using Reusable.Data;
 
 namespace Reusable.Flexo.Containers
 {
+    
     public class ComparerContainer : Dictionary<SoftString, IComparer<object>>, IContainer<string, IComparer<object>>
     {
         public Maybe<IComparer<object>> GetItem(string key)

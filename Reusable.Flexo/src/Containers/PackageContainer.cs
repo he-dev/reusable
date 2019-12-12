@@ -2,8 +2,14 @@ using Reusable.Data;
 
 namespace Reusable.Flexo.Containers
 {
+    /// <summary>
+    /// This delegate implements getting packages. 
+    /// </summary>
     public delegate Package? GetPackageFunc(string packageId);
 
+    /// <summary>
+    /// This package container provides packages.
+    /// </summary>
     public class PackageContainer : ReadOnlyContainer<string, Package>
     {
         private readonly GetPackageFunc _getPackage;
