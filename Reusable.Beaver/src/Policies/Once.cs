@@ -1,12 +1,20 @@
 namespace Reusable.Beaver.Policies
 {
+    /// <summary>
+    /// Disables a feature after a single usage.
+    /// </summary>
     public class Once : IFeaturePolicy, IFinalizable
     {
-        public Once(string name) => Feature = name;
-        public Feature Feature { get; }
-        public bool IsEnabled(Feature feature) => true;
-        public void FinallyMain(Feature feature) => feature.Toggle?.Remove(Feature);
-        public void FinallyFallback(Feature feature) { }
-        public void FinallyIIf(Feature feature) { }
+        public FeatureState State(FeatureContext context) => FeatureState.Enabled;
+
+        public void Finally(FeatureContext context, FeatureState after)
+        {
+            switch (after)
+            {
+                case FeatureState.Enabled:
+                    context.Toggle.Remove(context.Feature);
+                    break;
+            }
+        }
     }
 }

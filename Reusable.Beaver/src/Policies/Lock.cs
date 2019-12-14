@@ -1,13 +1,16 @@
 namespace Reusable.Beaver.Policies
 {
+    /// <summary>
+    /// Locks a feature preventing further changes. The toggle will throw an exception if a locked feature is set.
+    /// </summary>
     public class Lock : IFeaturePolicy, IFinalizable
     {
         private readonly IFeaturePolicy _policy;
+
         public Lock(IFeaturePolicy policy) => _policy = policy;
-        public Feature Feature => _policy.Feature;
-        public bool IsEnabled(Feature feature) => _policy.IsEnabled(feature);
-        public void FinallyMain(Feature feature) => (_policy as IFinalizable)?.FinallyMain(feature);
-        public void FinallyFallback(Feature feature) => (_policy as IFinalizable)?.FinallyFallback(feature);
-        public void FinallyIIf(Feature feature) => (_policy as IFinalizable)?.FinallyIIf(feature);
+
+        public FeatureState State(FeatureContext context) => _policy.State(context);
+
+        public void Finally(FeatureContext context, FeatureState after) => (_policy as IFinalizable)?.Finally(context, after);
     }
 }

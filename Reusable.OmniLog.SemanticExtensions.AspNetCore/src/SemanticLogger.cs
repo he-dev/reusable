@@ -10,6 +10,7 @@ using Reusable.Data;
 using Reusable.Extensions;
 using Reusable.OmniLog.Abstractions;
 using Reusable.OmniLog.Nodes;
+using Reusable.OmniLog.SemanticExtensions.AspNetCore.Mvc.Filters;
 
 namespace Reusable.OmniLog.SemanticExtensions.AspNetCore
 {
@@ -54,7 +55,7 @@ namespace Reusable.OmniLog.SemanticExtensions.AspNetCore
 
                         using (var reader = new StreamReader(memory.Rewind()))
                         {
-                            body = featureToggle.IsEnabled(Features.LogResponseBody) ? await reader.ReadToEndAsync() : default;
+                            body = featureToggle.IsEnabled(nameof(LogResponseBody)) ? await reader.ReadToEndAsync() : default;
 
                             // Restore Response.Body
                             if (!context.Response.StatusCode.In(304))

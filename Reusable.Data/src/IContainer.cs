@@ -44,4 +44,12 @@ namespace Reusable.Data
             throw new NotSupportedException($"{typeof(ReadOnlyContainer<TKey, TValue>).ToPrettyString()} does not support removing items.");
         }
     }
+
+    public static class ContainerExtensions
+    {
+        public static void AddOrUpdateItem<TKey, TValue>(this IContainer<TKey, TValue> container, Func<TValue, TKey> keySelector, TValue value)
+        {
+            container.AddOrUpdateItem(keySelector(value), value);
+        }
+    }
 }

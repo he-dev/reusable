@@ -6,6 +6,6 @@ namespace Reusable.OmniLog.SemanticExtensions.AspNetCore
     [PlainSelectorFormatter]
     public abstract class Features : SelectorBuilder<Features>
     {
-        public static Selector<object> LogResponseBody { get; } = Select(() => LogResponseBody);
+        //public static Selector<object> LogResponseBody { get; } = Select(() => LogResponseBody);
     }
 }

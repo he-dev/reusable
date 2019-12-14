@@ -20,7 +20,7 @@ namespace Reusable.OmniLog.SemanticExtensions.AspNetCore.Mvc.Filters
 
         public override void OnActionExecuting(ActionExecutingContext context)
         {
-            _featureToggle.AddOrUpdate(new AlwaysOn(Features.LogResponseBody.ToString()));
+            _featureToggle.SetOrUpdate(nameof(LogResponseBody), FeaturePolicy.AlwaysOn);
         }
     }
 }

@@ -12,26 +12,11 @@ namespace Reusable.Beaver
 
         public Feature(string name) : this() => Name = name;
 
-        public Feature(Feature other) : this(other.Name)
-        {
-            Tags.UnionWith(other.Tags);
-            Description = other.Description;
-            Telemetry = other.Telemetry;
-            Parameter = other.Parameter;
-            Toggle = other.Toggle;
-        }
-
         public string Name { get; }
 
         public ISet<string> Tags { get; }
 
         public string? Description { get; set; }
-
-        public bool Telemetry { get; set; }
-
-        public object? Parameter { get; set; }
-
-        public IFeatureToggle? Toggle { get; set; }
 
         public override string ToString() => Name;
 
@@ -44,8 +29,6 @@ namespace Reusable.Beaver
         public bool Equals(string? other) => SoftString.Comparer.Equals(Name, other);
 
         public static implicit operator Feature(string name) => new Feature(name);
-
-        public static implicit operator Feature((string Name, object? Parameter) feature) => new Feature(feature.Name) { Parameter = feature.Parameter };
 
         public static implicit operator Feature(Selector selector) => new Feature(selector.ToString());
 

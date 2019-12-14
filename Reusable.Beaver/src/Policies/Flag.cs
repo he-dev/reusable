@@ -2,9 +2,10 @@ namespace Reusable.Beaver.Policies
 {
     public abstract class Flag : IFeaturePolicy
     {
-        protected Flag(string name, bool value) => (Feature, Value) = (name, value);
-        public Feature Feature { get; }
-        public bool Value { get; }
-        public bool IsEnabled(Feature feature) => Value;
+        private readonly bool _value;
+        
+        protected Flag(bool enabled) => _value = enabled;
+
+        public FeatureState State(FeatureContext context) => _value ? FeatureState.Enabled : FeatureState.Disabled;
     }
 }
