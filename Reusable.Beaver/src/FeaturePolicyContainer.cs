@@ -11,8 +11,8 @@ namespace Reusable.Beaver
         {
             return
                 _policies.TryGetValue(feature, out var policy)
-                    ? (policy, feature)
-                    : (default, feature);
+                    ? Maybe.SingleRef(policy, feature)
+                    : Maybe<IFeaturePolicy>.Empty(feature);
         }
 
         public void AddOrUpdateItem(Feature feature, IFeaturePolicy policy)

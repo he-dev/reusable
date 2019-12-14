@@ -8,7 +8,7 @@ namespace Reusable.Beaver
     [PublicAPI]
     public class Feature : IEquatable<Feature>, IEquatable<string>
     {
-        public Feature() => Tags = new HashSet<string>(SoftString.Comparer);
+        private Feature() => Tags = new HashSet<string>(SoftString.Comparer);
 
         public Feature(string name) : this() => Name = name;
 

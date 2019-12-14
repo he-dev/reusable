@@ -52,7 +52,7 @@ namespace Reusable.Commander
             );
         }
 
-        protected abstract Task ExecuteAsync(TParameter? parameter, CancellationToken cancellationToken);
+        protected abstract Task ExecuteAsync(TParameter parameter, CancellationToken cancellationToken);
     }
 
     public static class Command

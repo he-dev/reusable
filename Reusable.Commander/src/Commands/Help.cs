@@ -31,7 +31,7 @@ namespace Reusable.Commander.Commands
 
         public ConsoleStyle Style { get; set; }
 
-        protected override Task ExecuteAsync(Parameter? parameter, CancellationToken cancellationToken)
+        protected override Task ExecuteAsync(Parameter parameter, CancellationToken cancellationToken)
         {
             var commandSelected = parameter.Command.IsNotNullOrEmpty();
             if (commandSelected)

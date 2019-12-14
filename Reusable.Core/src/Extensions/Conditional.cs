@@ -13,7 +13,7 @@ namespace Reusable.Extensions
         [ContractAnnotation("value: null => false; notnull => true")]
         public static bool IsNotNull<T>([CanBeNull] this T value) => !IsNull(value);
 
-        [ContractAnnotation("value: null => true")]
+        [ContractAnnotation("value: null => true; notnull => false")]
         public static bool IsNullOrEmpty(this string? value) => string.IsNullOrEmpty(value);
 
         [ContractAnnotation("value: null => false; notnull => true")]

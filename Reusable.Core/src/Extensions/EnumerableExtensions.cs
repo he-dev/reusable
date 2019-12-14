@@ -354,7 +354,7 @@ namespace System.Linq.Custom
                     .SequenceEqual(first, comparer);
         }
 
-        public static bool IsSupersetOf<T>(this IEnumerable<T> first, IEnumerable<T> second, IEqualityComparer<T> comparer = default)
+        public static bool IsSupersetOf<T>(this IEnumerable<T> first, IEnumerable<T> second, IEqualityComparer<T>? comparer = default)
         {
             return second.IsSubsetOf(first, comparer);
         }

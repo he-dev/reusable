@@ -25,9 +25,9 @@ namespace Reusable.Beaver
 
         public bool Remove(Feature name) => _toggle.Remove(name);
 
-        public bool IsEnabled(Feature name, object parameter = default) => _toggle.IsEnabled(name, parameter);
+        public bool IsEnabled(Feature name) => _toggle.IsEnabled(name);
 
-        public async Task<FeatureActionResult<T>> IIf<T>(Feature feature, Func<Task<T>> ifEnabled, Func<Task<T>> ifDisabled = default)
+        public async Task<FeatureActionResult<T>> IIf<T>(Feature feature, Func<Task<T>> ifEnabled, Func<Task<T>>? ifDisabled = default)
         {
             using (_logger.BeginScope().WithCorrelationHandle("CollectFeatureTelemetry").UseStopwatch())
             {

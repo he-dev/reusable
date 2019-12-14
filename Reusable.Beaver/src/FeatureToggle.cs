@@ -19,7 +19,7 @@ namespace Reusable.Beaver
 
         bool Remove(Feature name);
 
-        bool IsEnabled(Feature name, object? parameter = default);
+        bool IsEnabled(Feature name);
 
         // ReSharper disable once InconsistentNaming - This name is by convention so.
         Task<FeatureActionResult<T>> IIf<T>(Feature feature, Func<Task<T>> ifEnabled, Func<Task<T>>? ifDisabled = default);
@@ -51,12 +51,11 @@ namespace Reusable.Beaver
             return _policies.RemoveItem(name);
         }
 
-        public bool IsEnabled(Feature name, object? parameter = default)
+        public bool IsEnabled(Feature name)
         {
             return this[name].IsEnabled(new Feature(name)
             {
-                Toggle = this,
-                Parameter = parameter
+                Toggle = this
             });
         }
 

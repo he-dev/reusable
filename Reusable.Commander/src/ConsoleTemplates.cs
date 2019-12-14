@@ -41,7 +41,7 @@ namespace Reusable.Commander.ConsoleTemplates
     {
         public class TableRow : ConsoleTemplateBuilder<HtmlElement>
         {
-            public IEnumerable<string> Cells { get; set; }
+            public IEnumerable<string> Cells { get; set; } = default!;
 
             public override HtmlElement Build(LogEntry logEntry) =>
                 HtmlElement
@@ -54,7 +54,7 @@ namespace Reusable.Commander.ConsoleTemplates
 
     public class Error : ConsoleTemplateBuilder<HtmlElement>
     {
-        public string Text { get; set; }
+        public string Text { get; set; } = default!;
 
         public override HtmlElement Build(LogEntry logEntry) =>
             HtmlElement

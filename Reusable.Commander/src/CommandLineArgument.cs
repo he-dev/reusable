@@ -71,7 +71,7 @@ namespace Reusable.Commander
 
         public override string ToString() => ToString(DefaultFormat, CultureInfo.InvariantCulture);
 
-        public static implicit operator string(CommandLineArgument commandLineArgument) => commandLineArgument?.ToString();
+        public static implicit operator string(CommandLineArgument commandLineArgument) => commandLineArgument?.ToString() ?? string.Empty;
 
         public static implicit operator bool(CommandLineArgument arg) => arg.Name.Any();
     }
