@@ -45,18 +45,23 @@ namespace Reusable
 
         public static implicit operator Maybe<T>(T value) => value == null ? Empty() : Maybe.Create(value);
 
-        public static implicit operator Maybe<T>((T value, object tag) option)
-        {
-            return
-                option.value == null
-                    ? Empty(option.tag)
-                    : Maybe.Create(option.value, option.tag);
-        }
+        // public static implicit operator Maybe<T>((T value, object tag) option)
+        // {
+        //     return
+        //         option.value == null
+        //             ? Empty(option.tag)
+        //             : Maybe.Create(option.value, option.tag);
+        // }
     }
 
     public static class Maybe
     {
         public static Maybe<T> Create<T>(T value, object? tag = default) => new Maybe<T>(new List<T> { value }, tag);
+        
+        public static Maybe<T> SingleRef<T>(T? value, object? tag = default) where T: class
+        {
+            return new Maybe<T>(value is null ? new List<T>() : new List<T> { value }, tag);
+        }
 
         //public static Option<T> Create<T>(T value, object? tag = default) where T : class => new Option<T>(new List<T> { value }, tag);
     }

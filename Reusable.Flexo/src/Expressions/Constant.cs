@@ -16,9 +16,9 @@ namespace Reusable.Flexo
         IImmutableContainer? Context { get; }
 
         Type ValueType { get; }
-        
+
         bool HasValue { get; }
-        
+
         int Count { get; }
 
         IEnumerable<T> AsEnumerable<T>();
@@ -27,7 +27,7 @@ namespace Reusable.Flexo
     //public interface IConstant<out TValue> : IConstant, IEnumerable<TValue> { }
 
     [JsonObject]
-    public class Constant<TValue> : Expression<TValue>, IConstant//, IConstant<TValue> //, IEquatable<Constant<TValue>>
+    public class Constant<TValue> : Expression<TValue>, IConstant //, IConstant<TValue> //, IEquatable<Constant<TValue>>
     {
         private readonly IList<TValue> _values;
 
@@ -50,7 +50,19 @@ namespace Reusable.Flexo
 
         public IImmutableContainer? Context { get; }
 
-        public IEnumerable<T> AsEnumerable<T>() => _values.Cast<T>();
+        public IEnumerable<T> AsEnumerable<T>()
+        {
+            // if (!typeof(T).IsAssignableFrom(ValueType))
+            // {
+            //     throw new ArgumentException
+            //     (
+            //         paramName: nameof(T),
+            //         message: $"'{Id}' could not cast item from {typeof(TValue).ToPrettyString()} to {typeof(T).ToPrettyString()}."
+            //     );
+            // }
+
+            return _values.Cast<T>();
+        }
 
         protected override IConstant ComputeConstant(IImmutableContainer context)
         {

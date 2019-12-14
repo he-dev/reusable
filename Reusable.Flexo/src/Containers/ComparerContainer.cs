@@ -10,8 +10,8 @@ namespace Reusable.Flexo.Containers
         {
             return
                 TryGetValue(key, out var comparer)
-                    ? (comparer, key)
-                    : (default, key);
+                    ? Maybe.SingleRef(comparer, key)
+                    : Maybe<IComparer<object>>.Empty(key);
         }
 
         public void AddOrUpdateItem(string key, IComparer<object> value)

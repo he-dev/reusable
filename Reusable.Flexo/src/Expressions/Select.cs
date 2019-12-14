@@ -22,7 +22,7 @@ namespace Reusable.Flexo
         }
 
         [JsonRequired]
-        public IExpression Selector { get; set; }
+        public IExpression Selector { get; set; } = default!;
 
         protected override IEnumerable<object> ComputeMany(IImmutableContainer context)
         {

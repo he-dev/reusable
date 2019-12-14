@@ -159,7 +159,7 @@ namespace Reusable.Commander
         {
             var commandParameterType = command.ParameterType;
             var bindMethod = typeof(ICommandParameterBinder).GetMethod(nameof(ICommandParameterBinder.Bind))!;
-            var bindMethodGeneric = bindMethod.MakeGenericMethod(commandParameterType ?? typeof(object));
+            var bindMethodGeneric = bindMethod!.MakeGenericMethod(commandParameterType ?? typeof(object));
             var parameter = bindMethodGeneric.Invoke(_commandParameterBinder, new object[] { args, context });
             return command.ExecuteAsync(parameter, cancellationToken);
         }

@@ -22,20 +22,20 @@ namespace Reusable.Flexo
         [JsonProperty(Filter.Properties.Comparer)]
         public IExpression? Matcher { get; set; }
 
-        public IExpression? True { get; set; }
+        [JsonRequired]
+        public IExpression True { get; set; }
 
-        public IExpression? False { get; set; }
+        [JsonRequired]
+        public IExpression False { get; set; }
 
         protected override IConstant ComputeConstant(IImmutableContainer context)
         {
-            if (True is null && False is null) throw new InvalidOperationException($"You need to specify at least one result ({nameof(True)}/{nameof(False)}).");
-
             var x = GetArg(context);
             var comparer = this.GetEqualityComparer(context);
             return x.SequenceEqual(new object[] { true }, comparer) switch
             {
-                true => True?.Invoke(context),
-                false => False?.Invoke(context)
+                true => True.Invoke(context),
+                false => False.Invoke(context)
             };
         }
     }

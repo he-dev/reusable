@@ -13,7 +13,7 @@ namespace Reusable.Utilities.JsonNet.Converters
     public class ListConverter<TItemBase> : JsonConverter
     {
         // ReSharper disable once StaticMemberInGenericType - We want this to be static for the current type.
-        private static readonly IDictionary<SoftString, Type> Types;
+        private static readonly IDictionary<string, Type> Types;
 
         static ListConverter()
         {
@@ -22,7 +22,7 @@ namespace Reusable.Utilities.JsonNet.Converters
                     .Assembly
                     .GetTypes()
                     .Where(t => t.IsClass && typeof(TItemBase).IsAssignableFrom(t))
-                    .ToDictionary(t => t.Name.ToSoftString());
+                    .ToDictionary(t => t.Name, SoftString.Comparer);
         }
 
         public override bool CanConvert(Type objectType)

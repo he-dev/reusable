@@ -26,7 +26,7 @@ namespace Reusable.Flexo
         protected override bool ComputeSingle(IImmutableContainer context)
         {
             var first = GetArg(context);
-            var second = Of.Invoke(context).SelectMany(c => c.Cast<object>());
+            var second = Of.Invoke(context).SelectMany(c => c);
             var comparer = this.GetEqualityComparer(context);
             return first.IsSupersetOf(second, comparer);
         }
