@@ -4,7 +4,7 @@
     {
       "feature": "a",
       "policy": {
-        "$ft": "AlwaysOn"
+        "$b": "AlwaysOn"
       }
     },
     {

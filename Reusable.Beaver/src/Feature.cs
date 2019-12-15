@@ -1,11 +1,12 @@
 using System;
 using System.Collections.Generic;
 using JetBrains.Annotations;
+using Reusable.Beaver.Annotations;
 using Reusable.Quickey;
 
 namespace Reusable.Beaver
 {
-    [FeatureToggle]
+    [Beaver]
     [PublicAPI]
     public class Feature : IEquatable<Feature>, IEquatable<string>
     {
