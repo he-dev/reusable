@@ -80,21 +80,20 @@ namespace System.Linq.Custom
             return string.Join(separator, values.Select(selector));
         }
 
-        public static IEnumerable<TArg> Except<TArg, TProjection>(this IEnumerable<TArg> first, IEnumerable<TArg> second, Func<TArg, TProjection> projection)
+        public static IEnumerable<TSource> Except<TSource, T>(this IEnumerable<TSource> first, IEnumerable<TSource> second, Func<TSource, T> keySelector)
         {
-            if (first == null)
-            {
-                throw new ArgumentNullException(nameof(first));
-            }
+            return first.Except(second, EqualityComparer.Create(keySelector));
+        }
 
-            if (second == null) throw new ArgumentNullException(nameof(second));
-            if (projection == null) throw new ArgumentNullException(nameof(projection));
-            if (ReferenceEquals(first, projection))
-            {
-                throw new ArgumentException(paramName: nameof(projection), message: "Projection must be an anonymous type.");
-            }
-
-            return first.Except(second, ProjectionEqualityComparer<TArg>.Create(projection));
+        public static IEnumerable<TSource> Except<TSource, T>
+        (
+            this IEnumerable<TSource> first,
+            IEnumerable<TSource> second,
+            Func<TSource, T> keySelector,
+            IEqualityComparer<T> keyComparer
+        )
+        {
+            return first.Except(second, EqualityComparer.Create(keySelector, keyComparer));
         }
 
         public static IEnumerable<string> QuoteAllWith<T>(this IEnumerable<T> values, string quotationMark)
@@ -367,7 +366,27 @@ namespace System.Linq.Custom
                     : dictionary;
         }
 
-//        public static IEnumerable<T> Take<T>(this IEnumerable<T> source, int count)
+        public static CollectionDiff<TSource> Diff<TSource, TKey>
+        (
+            this IEnumerable<TSource> first,
+            IEnumerable<TSource> second,
+            Func<TSource, TKey> keySelector,
+            IEqualityComparer<TSource> valueComparer,
+            IEqualityComparer<TKey> keyComparer
+        )
+        {
+            var both = first.Join(second, keySelector, keySelector, (f, s) => (f, s), keyComparer);
+
+            return new CollectionDiff<TSource>
+            {
+                Added = second.Except(first, keySelector, keyComparer),
+                Removed = first.Except(second, keySelector, keyComparer),
+                Same = both.Where(t => valueComparer.Equals(t.f, t.s)).Select(t => t.s),
+                Changed = both.Where(t => !valueComparer.Equals(t.f, t.s)).Select(t => t.s)
+            };
+        }
+
+        //        public static IEnumerable<T> Take<T>(this IEnumerable<T> source, int count)
 //        {
 //            if (source == null) throw new ArgumentNullException(nameof(source));
 //            if (count <= 0) return source;
@@ -412,5 +431,13 @@ namespace System.Linq.Custom
 //                }
 //            }
 //        }
+    }
+
+    public class CollectionDiff<T>
+    {
+        public IEnumerable<T> Added { get; set; }
+        public IEnumerable<T> Removed { get; set; }
+        public IEnumerable<T> Same { get; set; }
+        public IEnumerable<T> Changed { get; set; }
     }
 }

@@ -9,7 +9,8 @@ namespace Reusable.Collections
         {
             var comparer = EqualityComparer<TProjection>.Default;
 
-            return EqualityComparerFactory<T>.Create(
+            return EqualityComparerFactory<T>.Create
+            (
                 getHashCode: obj => comparer.GetHashCode(projection(obj)),
                 equals: (x, y) => comparer.Equals(projection(x), projection(y))
             );

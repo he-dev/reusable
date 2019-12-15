@@ -9,11 +9,11 @@ namespace Reusable.Collections
         private readonly Func<T, T, bool> _equals;
         private readonly Func<T, int> _getHashCode;
 
-        internal LambdaEqualityComparer([NotNull] Func<T, T, bool> equals, [NotNull] Func<T, int> getHashCode)
+        internal LambdaEqualityComparer(Func<T, T, bool> equals, Func<T, int> getHashCode)
         {
-            _equals = equals ?? throw new ArgumentNullException(nameof(equals));
-            _getHashCode = getHashCode ?? throw new ArgumentNullException(nameof(getHashCode));
-        }        
+            _equals = equals;
+            _getHashCode = getHashCode;
+        }
 
         public bool Equals(T x, T y)
         {
@@ -26,25 +26,45 @@ namespace Reusable.Collections
         public int GetHashCode(T obj) => _getHashCode(obj);
     }
 
+    public static class EqualityComparer
+    {
+        /// <summary>
+        /// Creates an equality-comparer with object's hash-code.
+        /// </summary>
+        public static IEqualityComparer<T> Create<T>(Func<T, T, bool> equals)
+        {
+            return Create(equals, obj => obj?.GetHashCode() ?? 0);
+        }
+
+        public static IEqualityComparer<T> Create<T>(Func<T, T, bool> equals, Func<T, int> getHashCode)
+        {
+            return new LambdaEqualityComparer<T>(equals, getHashCode);
+        }
+
+        public static IEqualityComparer<TSource> Create<TSource, T>(Func<TSource, T> keySelector, IEqualityComparer<T>? comparer = default)
+        {
+            comparer ??= EqualityComparer<T>.Default;
+
+            return EqualityComparerFactory<TSource>.Create
+            (
+                getHashCode: obj => comparer.GetHashCode(keySelector(obj)),
+                equals: (x, y) => comparer.Equals(keySelector(x), keySelector(y))
+            );
+        }
+    }
+
     public static class EqualityComparerFactory<T>
     {
         /// <summary>
         /// Creates an equality-comparer with object's hash-code.
         /// </summary>
-        [NotNull]
-        public static IEqualityComparer<T> Create([NotNull] Func<T, T, bool> equals)
+        public static IEqualityComparer<T> Create(Func<T, T, bool> equals)
         {
-            if (equals == null) throw new ArgumentNullException(nameof(equals));
-            
             return Create(equals, obj => obj?.GetHashCode() ?? 0);
         }
 
-        [NotNull]
-        public static IEqualityComparer<T> Create([NotNull] Func<T, T, bool> equals, [NotNull] Func<T, int> getHashCode)
+        public static IEqualityComparer<T> Create(Func<T, T, bool> equals, Func<T, int> getHashCode)
         {
-            if (equals == null) throw new ArgumentNullException(nameof(equals));
-            if (getHashCode == null) throw new ArgumentNullException(nameof(getHashCode));
-            
             return new LambdaEqualityComparer<T>(equals, getHashCode);
         }
     }
