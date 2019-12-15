@@ -18,42 +18,33 @@ namespace Reusable.Utilities.JsonNet
     [PublicAPI]
     public class PrettyJsonSerializer : IPrettyJsonSerializer
     {
-        private readonly IContractResolver _contractResolver;
-        private readonly JsonSerializer _jsonSerializer;
+        private readonly JsonSerializer jsonSerializer;
 
-        public PrettyJsonSerializer
-        (
-            IContractResolver contractResolver,
-            Action<JsonSerializer>? configureSerializer = default
-        )
+        public PrettyJsonSerializer(IContractResolver contractResolver, Action<JsonSerializer>? configure = default)
         {
-            _contractResolver = contractResolver ?? throw new ArgumentNullException(paramName: nameof(contractResolver), message: $"You need to register na {nameof(IContractResolver)}.");
-
-            _jsonSerializer = new JsonSerializer
+            jsonSerializer = new JsonSerializer
             {
                 NullValueHandling = NullValueHandling.Ignore,
                 TypeNameHandling = TypeNameHandling.Auto,
+                ObjectCreationHandling = ObjectCreationHandling.Replace,
                 ContractResolver = contractResolver,
                 Converters =
                 {
                     new SoftStringConverter(),
                 }
             };
-
-            configureSerializer?.Invoke(_jsonSerializer);
+            configure?.Invoke(jsonSerializer);
         }
 
         public T Deserialize<T>(string json, IImmutableDictionary<SoftString, Type> knownTypes)
         {
-            if (json == null) throw new ArgumentNullException(nameof(json));
-
-            return
-                ImmutableList<IJsonVisitor>
-                    .Empty
-                    .Add(new TrimPropertyNameVisitor())
-                    .Add(new RewriteTypeVisitor(new PrettyTypeResolver(knownTypes)))
-                    .Visit(JToken.Parse(json))
-                    .ToObject<T>(_jsonSerializer);
+            var visitor = new CompositeJsonVisitor
+            {
+                new TrimPropertyNameVisitor(),
+                new RewriteTypeVisitor(new PrettyTypeResolver(knownTypes))
+            };
+            var token = visitor.Visit(JToken.Parse(json));
+            return token.ToObject<T>(jsonSerializer);
         }
     }
 
@@ -61,17 +52,13 @@ namespace Reusable.Utilities.JsonNet
     {
         public static async Task<T> DeserializeAsync<T>(this IPrettyJsonSerializer serializer, Stream jsonStream, IImmutableDictionary<SoftString, Type> knownTypes)
         {
-            if (jsonStream == null) throw new ArgumentNullException(nameof(jsonStream));
-
             return serializer.Deserialize<T>(await ReadJsonAsync(jsonStream), knownTypes);
         }
 
         private static async Task<string> ReadJsonAsync(Stream jsonStream)
         {
-            using (var streamReader = new StreamReader(jsonStream))
-            {
-                return await streamReader.ReadToEndAsync();
-            }
+            using var streamReader = new StreamReader(jsonStream);
+            return await streamReader.ReadToEndAsync();
         }
     }
 }

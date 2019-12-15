@@ -1,0 +1,25 @@
+{
+  "settings": [
+    {
+      "feature": "test",
+      "policy": {
+        "$ft": "AlwaysOn"
+      }
+    },
+    {
+      "feature": {
+        "name": "test",
+        "description": "blub",
+        "tags": [
+          "foo",
+          "bar"
+        ]
+      },
+      "policy": true
+    },
+    {
+      "feature": "Fallback",
+      "policy": false
+    }
+  ]
+}

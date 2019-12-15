@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using Reusable.Beaver.Policies;
 
 namespace Reusable.Beaver
@@ -10,6 +11,13 @@ namespace Reusable.Beaver
 
     public static class FeaturePolicy
     {
+        public static readonly IEnumerable<Type> BuiltIn = new[]
+        {
+            typeof(AlwaysOn),
+            typeof(AlwaysOff),
+            typeof(Once)
+        };
+
         public static readonly IFeaturePolicy AlwaysOn = new AlwaysOn();
 
         public static readonly IFeaturePolicy AlwaysOff = new AlwaysOff();
@@ -22,7 +30,7 @@ namespace Reusable.Beaver
 
         public static readonly IFeaturePolicy Remove = new Remove();
 
-        public static readonly string Fallback = nameof(Fallback);
+        public static readonly string Fallback = string.Empty;
     }
 
     public interface IFinalizable

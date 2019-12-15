@@ -10,35 +10,27 @@ namespace Reusable.Beaver
     /// </summary>
     public class FeaturePolicyContainer : IContainer<Feature, IFeaturePolicy>, IEnumerable<IFeaturePolicy>
     {
-        private readonly ConcurrentDictionary<Feature, IFeaturePolicy> _policies;
-
-        public FeaturePolicyContainer(IFeaturePolicy fallback)
-        {
-            _policies = new ConcurrentDictionary<Feature, IFeaturePolicy>
-            {
-                [FeaturePolicy.Fallback] = fallback
-            };
-        }
-
+        private readonly ConcurrentDictionary<Feature, IFeaturePolicy> policies = new ConcurrentDictionary<Feature, IFeaturePolicy>();
+        
         public Maybe<IFeaturePolicy> GetItem(Feature feature)
         {
             return
-                _policies.TryGetValue(feature, out var policy)
+                policies.TryGetValue(feature, out var policy)
                     ? Maybe.SingleRef(policy, feature)
-                    : Maybe.SingleRef(_policies[FeaturePolicy.Fallback], feature);
+                    : Maybe<IFeaturePolicy>.Empty(feature);
         }
 
         public void AddOrUpdateItem(Feature feature, IFeaturePolicy policy)
         {
-            _policies.AddOrUpdate(feature, name => policy, (f, p) => policy);
+            policies.AddOrUpdate(feature, name => policy, (f, p) => policy);
         }
 
         public bool RemoveItem(Feature key)
         {
-            return _policies.TryRemove(key, out _);
+            return policies.TryRemove(key, out _);
         }
 
-        public IEnumerator<IFeaturePolicy> GetEnumerator() => _policies.Values.GetEnumerator();
+        public IEnumerator<IFeaturePolicy> GetEnumerator() => policies.Values.GetEnumerator();
 
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 

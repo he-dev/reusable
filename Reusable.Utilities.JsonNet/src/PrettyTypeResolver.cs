@@ -10,8 +10,7 @@ namespace Reusable.Utilities.JsonNet
 {
     public interface ITypeResolver
     {
-        [NotNull]
-        string Resolve([NotNull] string name);
+        string Resolve(string name);
     }
 
     public delegate Type GetTypeFunc(string name);

@@ -15,6 +15,7 @@ namespace Reusable
         {
             public void ConfigureResources(IResourceCollection resources)
             {
+                resources.AddEmbeddedFile<TestHelper>(ComplexName.Empty, @"Reusable/res/Beaver");
                 resources.AddEmbeddedFile<TestHelper>(ComplexName.Empty, @"Reusable/res/Translucent");
                 resources.AddEmbeddedFile<TestHelper>(ComplexName.Empty, @"Reusable/res/Flexo");
                 resources.AddEmbeddedFile<TestHelper>(ComplexName.Empty, @"Reusable/res/Utilities/JsonNet");

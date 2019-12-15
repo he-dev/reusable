@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
@@ -11,25 +12,15 @@ namespace Reusable.Utilities.JsonNet
 {
     public interface IJsonVisitor
     {
-        [NotNull]
-        JToken Visit([NotNull] JToken token);
+        JToken Visit(JToken token);
 
         // Without this API a string is casted into JValue and doesn't work.
         // Extension does not work either and the JToken overload is picked. 
-        [NotNull]
-        JToken Visit([NotNull] string json);
+        JToken Visit(string json);
     }
-
-//    public static class JsonVisitorExtensions
-//    {
-//        [NotNull]
-//        public static JToken Visit(this IJsonVisitor visitor, [NotNull] string json) => visitor.Visit(JToken.Parse(json));
-//    }
 
     public abstract class JsonVisitor : IJsonVisitor
     {
-        public static JsonVisitor CreateComposite(params JsonVisitor[] visitors) => new CompositeJsonVisitor(visitors);
-
         public virtual JToken Visit(JToken token)
         {
             if (token == null) throw new ArgumentNullException(nameof(token));
@@ -72,17 +63,16 @@ namespace Reusable.Utilities.JsonNet
 
         private static JContainer CreateJContainer(JTokenType tokenType)
         {
-            switch (tokenType)
+            return tokenType switch
             {
-                case JTokenType.Object: return new JObject();
-                case JTokenType.Array: return new JArray();
-                default:
-                    throw new ArgumentOutOfRangeException
-                    (
-                        paramName: nameof(tokenType),
-                        message: $"Invalid token type: {tokenType} (supported are only [{string.Join(", ", new[] { JTokenType.Object, JTokenType.Array })}]"
-                    );
-            }
+                JTokenType.Object => new JObject(),
+                JTokenType.Array => new JArray(),
+                _ => throw new ArgumentOutOfRangeException
+                (
+                    paramName: nameof(tokenType),
+                    message: $"Invalid token type: {tokenType} (supported are only [{string.Join(", ", new[] { JTokenType.Object, JTokenType.Array })}]"
+                )
+            };
         }
     }
 
@@ -97,17 +87,21 @@ namespace Reusable.Utilities.JsonNet
     /// <summary>
     /// This is an immutable visitor that executes specified visitor in the order they were added.
     /// </summary>
-    public class CompositeJsonVisitor : JsonVisitor
+    public class CompositeJsonVisitor : JsonVisitor, IEnumerable<IJsonVisitor>
     {
-        private readonly IImmutableList<IJsonVisitor> _visitors;
+        private readonly IList<IJsonVisitor> _visitors = new List<IJsonVisitor>();
 
-        public CompositeJsonVisitor(IEnumerable<IJsonVisitor> visitors) => _visitors = visitors.ToImmutableList();
+        //public CompositeJsonVisitor(IEnumerable<IJsonVisitor> visitors) => _visitors = visitors.ToImmutableList();
 
-        public static CompositeJsonVisitor Empty => new CompositeJsonVisitor(ImmutableList<IJsonVisitor>.Empty);
+        //public static CompositeJsonVisitor Empty => new CompositeJsonVisitor(ImmutableList<IJsonVisitor>.Empty);
 
-        public CompositeJsonVisitor Add(IJsonVisitor visitor) => new CompositeJsonVisitor(_visitors.Add(visitor));
+        public void Add(IJsonVisitor visitor) => _visitors.Add(visitor);
 
-        public override JToken Visit(JToken token) => _visitors.Aggregate(token, (current, visitor) => visitor.Visit(current));
+        public override JToken Visit(JToken token) => this.Aggregate(token, (current, visitor) => visitor.Visit(current));
+        
+        public IEnumerator<IJsonVisitor> GetEnumerator() => _visitors.GetEnumerator();
+
+        IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable)_visitors).GetEnumerator();
     }
 
     public class TrimPropertyNameVisitor : JsonVisitor

@@ -28,6 +28,8 @@
         <None Update="hosting.json">
           <CopyToOutputDirectory>Always</CopyToOutputDirectory>
         </None>
+        <None Remove="res\Beaver\Features.json" />
+        <EmbeddedResource Include="res\Beaver\Features.json" />
     </ItemGroup>
     <ItemGroup>
         <PackageReference Include="Autofac" Version="4.9.4" />

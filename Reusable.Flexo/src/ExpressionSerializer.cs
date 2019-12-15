@@ -35,11 +35,11 @@ namespace Reusable.Flexo
         {
             _contractResolver = contractResolver;
 
-            Transform =
-                CompositeJsonVisitor
-                    .Empty
-                    .Add(new TrimPropertyNameVisitor())
-                    .Add(new RewriteTypeVisitor(new PrettyTypeResolver(expressionTypes)));
+            Transform = new CompositeJsonVisitor
+            {
+                new TrimPropertyNameVisitor(),
+                new RewriteTypeVisitor(new PrettyTypeResolver(expressionTypes)),
+            };
 
             JsonSerializer = new JsonSerializer
             {

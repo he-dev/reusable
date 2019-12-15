@@ -1,11 +1,23 @@
 using System;
+using System.Collections.Generic;
+using Newtonsoft.Json.Serialization;
+using Reusable.Beaver.Json;
 using Reusable.Beaver.Policies;
+using Reusable.Translucent;
+using Reusable.Utilities.JsonNet;
 using Xunit;
 
 namespace Reusable.Beaver
 {
     public class FeatureToggleTest
     {
+        [Fact]
+        public void asdf()
+        {
+            var json = TestHelper.Resources.ReadTextFile("Features.json");
+            var ft = FeatureToggle.FromJson(json);
+        }
+
         [Fact]
         public void Invokes_main_when_enabled()
         {
@@ -103,4 +115,6 @@ namespace Reusable.Beaver
             Assert.Throws<InvalidOperationException>(() => t.SetOrUpdate("test", FeaturePolicy.AlwaysOff));
         }
     }
+
+    
 }
