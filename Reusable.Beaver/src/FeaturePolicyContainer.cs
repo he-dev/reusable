@@ -16,7 +16,7 @@ namespace Reusable.Beaver
         {
             return
                 policies.TryGetValue(feature, out var policy)
-                    ? Maybe.SingleRef(policy, feature)
+                    ? Maybe.FromObject(policy, feature)
                     : Maybe<IFeaturePolicy>.Empty(feature);
         }
 

@@ -16,6 +16,6 @@ namespace Reusable.Flexo.Containers
 
         public PackageContainer(GetPackageFunc getPackage) => _getPackage = getPackage;
 
-        public override Maybe<Package> GetItem(string key) => Maybe.SingleRef(_getPackage(key), key);
+        public override Maybe<Package> GetItem(string key) => Maybe.FromObject(_getPackage(key), key);
     }
 }

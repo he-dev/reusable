@@ -26,7 +26,7 @@ namespace Reusable.Beaver
 
         public static IFeatureToggle Lock(this IFeatureToggle toggle, Feature feature) => toggle.SetOrUpdate(feature, toggle[feature].Lock());
 
-        #region IIf helpers
+        #region Use
 
         public static async Task<FeatureResult<T>> Use<T>(this IFeatureToggle toggle, Feature feature, Func<Task<T>> ifEnabled, Func<Task<T>>? ifDisabled = default, object? parameter = default)
         {
@@ -135,26 +135,36 @@ namespace Reusable.Beaver
 
         #endregion
 
+        /// <summary>
+        /// Logs feature-telemetry when it's tagged with the 'telemetry' tag.
+        /// </summary>
         public static async Task<FeatureResult<T>> Telemetry<T>(this IFeatureToggle toggle, ILogger logger, Func<IFeatureToggle, Task<FeatureResult<T>>> use)
         {
             using (logger.BeginScope().WithCorrelationHandle("UseFeature").UseStopwatch())
             {
                 return await use(toggle).ContinueWith(t =>
                 {
-                    logger.Log(Abstraction.Layer.Service().Meta(new
+                    if (t.Result.Feature.Tags.Contains(nameof(Telemetry)))
                     {
-                        FeatureTelemetry = new
+                        logger.Log(Abstraction.Layer.Service().Meta(new
                         {
-                            name = t.Result.Feature.Name,
-                            state = t.Result.State,
-                            policy = t.Result.Policy.GetType().ToPrettyString()
-                        }
-                    }), log => log.Exception(t.Exception));
+                            FeatureTelemetry = new
+                            {
+                                name = t.Result.Feature.Name,
+                                state = t.Result.State,
+                                policy = t.Result.Policy.GetType().ToPrettyString()
+                            }
+                        }), log => log.Exception(t.Exception));
+                    }
+
                     return t.Result;
                 });
             }
         }
 
+        /// <summary>
+        /// Logs feature-telemetry when it's tagged with the 'telemetry' tag.
+        /// </summary>
         public static FeatureResult<T> Telemetry<T>(this IFeatureToggle toggle, ILogger logger, Func<IFeatureToggle, FeatureResult<T>> use)
         {
             return toggle.Telemetry(logger, t => use(t).ToTask()).GetAwaiter().GetResult();

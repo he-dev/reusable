@@ -6,8 +6,6 @@ namespace Reusable.Data
     /// <summary>
     /// This interface provides APIs used by containers. 
     /// </summary>
-    /// <typeparam name="TKey"></typeparam>
-    /// <typeparam name="TValue"></typeparam>
     /// <remarks>Containers are used to hold data of the same type.</remarks>
     public interface IContainer<in TKey, TValue>
     {

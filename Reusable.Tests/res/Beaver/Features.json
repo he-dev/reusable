@@ -1,14 +1,15 @@
 {
+  "fallback": "c",
   "settings": [
     {
-      "feature": "test",
+      "feature": "a",
       "policy": {
         "$ft": "AlwaysOn"
       }
     },
     {
       "feature": {
-        "name": "test",
+        "name": "b",
         "description": "blub",
         "tags": [
           "foo",
@@ -18,7 +19,7 @@
       "policy": true
     },
     {
-      "feature": "Fallback",
+      "feature": "c",
       "policy": false
     }
   ]

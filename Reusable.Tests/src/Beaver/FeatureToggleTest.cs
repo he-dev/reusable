@@ -15,7 +15,9 @@ namespace Reusable.Beaver
         public void asdf()
         {
             var json = TestHelper.Resources.ReadTextFile("Features.json");
-            var ft = FeatureToggle.FromJson(json);
+            var c = FeatureConfiguration.FromJson(json);
+            var t = FeatureToggle.FromConfiguration(c);
+            
         }
 
         [Fact]

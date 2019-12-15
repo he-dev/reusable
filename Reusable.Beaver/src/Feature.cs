@@ -1,8 +1,6 @@
 using System;
 using System.Collections.Generic;
 using JetBrains.Annotations;
-using Newtonsoft.Json;
-using Reusable.Beaver.Json;
 using Reusable.Quickey;
 
 namespace Reusable.Beaver
