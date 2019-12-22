@@ -366,13 +366,14 @@ namespace System.Linq.Custom
                     : dictionary;
         }
 
-        public static CollectionDiff<TSource> Diff<TSource, TKey>
+        public static CollectionDiff<TSource> Diff<TSource, TKey, TValue>
         (
             this IEnumerable<TSource> first,
             IEnumerable<TSource> second,
             Func<TSource, TKey> keySelector,
-            IEqualityComparer<TSource> valueComparer,
-            IEqualityComparer<TKey> keyComparer
+            Func<TSource, TValue> valueSelector,
+            IEqualityComparer<TKey> keyComparer,
+            IEqualityComparer<TValue> valueComparer
         )
         {
             var both = first.Join(second, keySelector, keySelector, (f, s) => (f, s), keyComparer);
@@ -381,8 +382,8 @@ namespace System.Linq.Custom
             {
                 Added = second.Except(first, keySelector, keyComparer),
                 Removed = first.Except(second, keySelector, keyComparer),
-                Same = both.Where(t => valueComparer.Equals(t.f, t.s)).Select(t => t.s),
-                Changed = both.Where(t => !valueComparer.Equals(t.f, t.s)).Select(t => t.s)
+                Same = both.Where(t => valueComparer.Equals(valueSelector(t.f), valueSelector(t.s))).Select(t => t.s),
+                Changed = both.Where(t => !valueComparer.Equals(valueSelector(t.f), valueSelector(t.s))).Select(t => t.s)
             };
         }
 

@@ -1,10 +1,11 @@
+using System.Collections.Generic;
 using System.Linq.Custom;
 using Reusable.Exceptionize;
 using Xunit;
 
 namespace Reusable.Extensions
 {
-    public static class EnumerableExtensionsTest
+    public class EnumerableExtensionsTest
     {
         public class SingleOrThrowTest
         {
@@ -33,6 +34,20 @@ namespace Reusable.Extensions
                 
                 Assert.True(x.StartsWith(y));
             }
+        }
+        
+        [Fact]
+        public void Diff_can_compare_collections()
+        {
+            var a = new (int id, string name)[] { (1, "a"), (2, "b"), (3, "d") };
+            var b = new (int id, string name)[] { (2, "b"), (3, "e"), (4, "d") };
+
+            var diff = a.Diff(b, x => x.id, x => x.name, EqualityComparer<int>.Default, EqualityComparer<string>.Default);
+
+            Assert.Equal(new[] { (4, "d") }, diff.Added);
+            Assert.Equal(new[] { (1, "a") }, diff.Removed);
+            Assert.Equal(new[] { (2, "b") }, diff.Same);
+            Assert.Equal(new[] { (3, "e") }, diff.Changed);
         }
     }
 }
