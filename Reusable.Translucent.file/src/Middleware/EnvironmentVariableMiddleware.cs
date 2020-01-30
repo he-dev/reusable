@@ -9,20 +9,18 @@ namespace Reusable.Translucent.Middleware
     /// Resolves environment variables for file requests.
     /// </summary>
     [UsedImplicitly]
-    public class EnvironmentVariableMiddleware
+    public class EnvironmentVariableMiddleware : MiddlewareBase
     {
-        private readonly RequestDelegate<ResourceContext> _next;
+        public EnvironmentVariableMiddleware(RequestDelegate<ResourceContext> next, IServiceProvider services) : base(next, services) { }
 
-        public EnvironmentVariableMiddleware(RequestDelegate<ResourceContext> next) => _next = next;
-
-        public async Task InvokeAsync(ResourceContext context)
+        public override async Task InvokeAsync(ResourceContext context)
         {
             if (context.Request is FileRequest)
             {
                 context.Request.Uri = Resolve(context.Request);
             }
 
-            await _next(context);
+            await InvokeNext(context);
         }
 
         private static UriString Resolve(Request request)

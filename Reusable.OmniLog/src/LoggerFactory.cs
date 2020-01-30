@@ -65,7 +65,6 @@ namespace Reusable.OmniLog
 
     public static class LoggerFactoryBuilderExtensions
     {
-        [NotNull]
         public static ILogger<T> CreateLogger<T>(this ILoggerFactory loggerFactory)
         {
             return new Logger<T>(loggerFactory);

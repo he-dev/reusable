@@ -109,7 +109,7 @@ namespace Reusable
             };
         }
 
-        public override IEnumerable<IMiddlewareInfo> Middleware(IServiceProvider services)
+        public override IEnumerable<IMiddlewareInfo<ResourceContext>> Middleware(IServiceProvider services)
         {
             yield return Use<CacheMiddleware>();
             yield return Use<SettingValidationMiddleware>();

@@ -1,5 +1,4 @@
 using System;
-using Reusable.Data;
 using Reusable.Translucent.Data;
 
 namespace Reusable.Translucent.Annotations

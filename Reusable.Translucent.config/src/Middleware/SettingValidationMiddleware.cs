@@ -16,25 +16,20 @@ namespace Reusable.Translucent.Middleware
     /// Validates settings on their way in/out using their validation attributes.
     /// </summary>
     [UsedImplicitly]
-    public class SettingValidationMiddleware
+    public class SettingValidationMiddleware : MiddlewareBase
     {
-        private readonly RequestDelegate<ResourceContext> _next;
+        public SettingValidationMiddleware(RequestDelegate<ResourceContext> next, IServiceProvider services) : base(next, services) { }
 
-        public SettingValidationMiddleware(RequestDelegate<ResourceContext> next)
-        {
-            _next = next;
-        }
-
-        public async Task InvokeAsync(ResourceContext context)
+        public override async Task InvokeAsync(ResourceContext context)
         {
             var configRequest = context.Request as ConfigRequest;
-            
+
             if (context.Request.Method.In(RequestMethod.Post, RequestMethod.Put) && configRequest is {})
             {
                 Validate(context.Request.Uri, context.Request.Body, configRequest.ValidationAttributes);
             }
 
-            await _next(context);
+            await InvokeNext(context);
 
             if (context.Request.Method == RequestMethod.Get && configRequest is {})
             {

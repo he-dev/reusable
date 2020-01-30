@@ -1,3 +1,4 @@
+using System;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Reusable.Exceptionize;
@@ -10,15 +11,13 @@ namespace Reusable.Translucent.Middleware
     /// Validates that a required resource exists and throws if it is not the case. Handles only GET requests.
     /// </summary>
     [UsedImplicitly]
-    public class ResourceExistsValidationMiddleware
+    public class ResourceExistsValidationMiddleware : MiddlewareBase
     {
-        private readonly RequestDelegate<ResourceContext> _next;
+        public ResourceExistsValidationMiddleware(RequestDelegate<ResourceContext> next, IServiceProvider services) : base(next, services) { }
 
-        public ResourceExistsValidationMiddleware(RequestDelegate<ResourceContext> next) => _next = next;
-
-        public async Task InvokeAsync(ResourceContext context)
+        public override async Task InvokeAsync(ResourceContext context)
         {
-            await _next(context);
+            await InvokeNext(context);
 
             if (context.Request.Method == RequestMethod.Get && context.Request.Required && !context.Response.Exists())
             {

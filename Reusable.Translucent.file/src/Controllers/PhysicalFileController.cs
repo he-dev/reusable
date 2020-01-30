@@ -31,12 +31,10 @@ namespace Reusable.Translucent.Controllers
         {
             var path = CreatePath(request.Uri);
 
-            using (var fileStream = new FileStream(path, FileMode.CreateNew, FileAccess.Write))
-            using (var body = await request.CreateBodyStreamAsync())
-            {
-                await body.Rewind().CopyToAsync(fileStream);
-                await fileStream.FlushAsync();
-            }
+            using var fileStream = new FileStream(path, FileMode.CreateNew, FileAccess.Write);
+            using var body = await request.CreateBodyStreamAsync();
+            await body.Rewind().CopyToAsync(fileStream);
+            await fileStream.FlushAsync();
 
             return OK<FileResponse>();
         }

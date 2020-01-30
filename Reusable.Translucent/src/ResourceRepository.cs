@@ -1,10 +1,13 @@
 using System;
-using System.Collections.Generic;
+using System.Collections.Immutable;
+using System.Linq;
+using System.Linq.Custom;
+using System.Reflection;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
-using Reusable.Translucent.Controllers;
+using Reusable.Exceptionize;
+using Reusable.Extensions;
 using Reusable.Translucent.Data;
-using Reusable.Translucent.Middleware;
 
 namespace Reusable.Translucent
 {
@@ -21,9 +24,9 @@ namespace Reusable.Translucent
 
         internal ResourceRepository(RequestDelegate<ResourceContext> requestDelegate)
         {
-            _requestDelegate = requestDelegate; 
+            _requestDelegate = requestDelegate;
         }
-        
+
         public static ResourceRepositoryBuilder Builder() => new ResourceRepositoryBuilder();
 
         public static IResourceRepository From<TSetup>(IServiceProvider services) where TSetup : IResourceRepositorySetup, new()
@@ -44,7 +47,7 @@ namespace Reusable.Translucent
 
             return builder.Build(services);
         }
-        
+
         public async Task<Response> InvokeAsync(Request request)
         {
             var context = new ResourceContext
@@ -59,72 +62,104 @@ namespace Reusable.Translucent
     }
 
 
-    public interface IResourceRepositorySetup
-    {
-        IEnumerable<IResourceController> Controllers(IServiceProvider services);
-
-        IEnumerable<IMiddlewareInfo> Middleware(IServiceProvider services);
-    }
-
-    public abstract class ResourceRepositorySetup : IResourceRepositorySetup
-    {
-        public abstract IEnumerable<IResourceController> Controllers(IServiceProvider services);
-
-        public virtual IEnumerable<IMiddlewareInfo> Middleware(IServiceProvider services)
-        {
-            yield break;
-        }
-
-        protected static IMiddlewareInfo Use<T>(params object[] args) => MiddlewareInfo.Create<T>(args);
-    }
-
-    public interface IMiddlewareInfo
+    public interface IMiddlewareInfo<TContext>
     {
         Type Type { get; }
 
         object[] Args { get; }
 
+        ConstructorInfo GetConstructor();
+
+        MethodInfo GetInvokeMethod();
+
         void Deconstruct(out Type type, out object[] args);
     }
 
-    public class MiddlewareInfo : IMiddlewareInfo
+    public class MiddlewareInfo<TContext> : IMiddlewareInfo<TContext>
     {
+        // ReSharper disable once StaticMemberInGenericType - this is OK
+        public static readonly IImmutableList<string> InvokeMethodNames = ImmutableList<string>.Empty.Add("InvokeAsync").Add("Invoke");
+        
         public Type Type { get; set; }
 
         public object[] Args { get; set; }
 
-        public static MiddlewareInfo Create<T>(params object[] args) => new MiddlewareInfo
+        public static MiddlewareInfo<TContext> Create<T>(params object[] args) => new MiddlewareInfo<TContext>
         {
             Type = typeof(T),
             Args = args
         };
+        
+        public ConstructorInfo GetConstructor()
+        {
+            var ctors =
+                from ctor in Type.GetConstructors()
+                let parameters = ctor.GetParameters()
+                where parameters.Any() && typeof(RequestDelegate<TContext>).IsAssignableFrom(ctor.GetParameters().First().ParameterType)
+                select ctor;
+
+            var match = ctors.SingleOrThrow
+            (
+                onEmpty: ("ConstructorNotFound", $"Type '{Type.ToPrettyString()}' does not have a constructor with the first parameter '{typeof(RequestDelegate<TContext>).ToPrettyString()}'."),
+                onMany: ("AmbiguousConstructorsFound", $"Type '{Type.ToPrettyString()}' has more than one constructor with the first parameter '{typeof(RequestDelegate<TContext>).ToPrettyString()}'.")
+            );
+            
+            if (Args.Any())
+            {
+                var ctorParameterCountWithoutDelegate = match.GetParameters().Length - 1;
+                if (ctorParameterCountWithoutDelegate != Args.Length)
+                {
+                    throw new ArgumentException
+                    (
+                        paramName: nameof(Args),
+                        message: $"Invalid number of arguments ({Args.Length} of {ctorParameterCountWithoutDelegate}) specified for '{Type.ToPrettyString()}'."
+                    );
+                }
+            }
+
+            return match;
+        }
+        
+        public MethodInfo GetInvokeMethod()
+        {
+            var invokeMethods =
+                from n in InvokeMethodNames
+                let m = Type.GetMethod(n)
+                where m.IsNotNull()
+                select m;
+
+
+            var invokeMethod = invokeMethods.SingleOrThrow
+            (
+                onEmpty: ("InvokeNotFound", $"{Type.ToPrettyString()} must implement either 'InvokeAsync' or 'Invoke'."),
+                onMany: ("AmbiguousInvoke", $"{Type.ToPrettyString()} must implement either 'InvokeAsync' or 'Invoke' but not both.")
+            );
+
+            if (!typeof(Task).IsAssignableFrom(invokeMethod.ReturnType))
+            {
+                throw DynamicException.Create
+                (
+                    "InvokeSignature",
+                    $"{Type.ToPrettyString()} Invoke's return type must be '{typeof(Task).ToPrettyString()}'."
+                );
+            }
+
+            if (!typeof(TContext).IsAssignableFrom(invokeMethod.GetParameters().FirstOrDefault()?.ParameterType))
+            {
+                throw DynamicException.Create
+                (
+                    "InvokeSignature",
+                    $"{Type.ToPrettyString()} Invoke's first parameters must be of type '{typeof(TContext).ToPrettyString()}'."
+                );
+            }
+
+            return invokeMethod;
+        }
 
         public void Deconstruct(out Type type, out object[] args)
         {
             type = Type;
             args = Args;
         }
-    }
-
-    public interface IMiddleware
-    {
-        Task InvokeAsync(ResourceContext context);
-    }
-
-    public abstract class MiddlewareBase : IMiddleware
-    {
-        protected MiddlewareBase(RequestDelegate<ResourceContext> next, IServiceProvider services)
-        {
-            Next = next;
-            Services = services;
-        }
-
-        protected RequestDelegate<ResourceContext> Next { get; }
-
-        protected IServiceProvider Services { get; }
-
-        public abstract Task InvokeAsync(ResourceContext context);
-
-        protected Task InvokeNext(ResourceContext context) => Next?.Invoke(context);
     }
 }

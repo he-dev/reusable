@@ -17,7 +17,7 @@ namespace Reusable.Translucent
 
         IPipelineBuilder<TContext> UseMiddleware<T>(params object[] args);
 
-        RequestDelegate<TContext> Build();
+        RequestDelegate<TContext> Build(IServiceProvider services);
     }
 
     [PublicAPI]
@@ -26,11 +26,7 @@ namespace Reusable.Translucent
         // ReSharper disable once StaticMemberInGenericType - this is OK
         public static readonly IImmutableList<string> InvokeMethodNames = ImmutableList<string>.Empty.Add("InvokeAsync").Add("Invoke");
 
-        private readonly IServiceProvider _services;
-
         private readonly Stack<(Type Type, ConstructorInfo Ctor, MethodInfo InvokeMethod, object[] Args)> _pipeline = new Stack<(Type, ConstructorInfo, MethodInfo, object[])>();
-
-        public PipelineBuilder(IServiceProvider services) => _services = services;
 
         public IPipelineBuilder<TContext> UseMiddleware(Type type, params object[]? args)
         {
@@ -57,7 +53,7 @@ namespace Reusable.Translucent
 
         public IPipelineBuilder<TContext> UseMiddleware<TMiddleware>(params object[]? args) => UseMiddleware(typeof(TMiddleware), args);
 
-        public RequestDelegate<TContext> Build()
+        public RequestDelegate<TContext> Build(IServiceProvider services)
         {
             if (!_pipeline.Any())
             {
@@ -66,13 +62,13 @@ namespace Reusable.Translucent
 
             var first = _pipeline.Aggregate((middleware: default(object), invokeMethod: default(MethodInfo)), (previous, current) =>
             {
-                var nextCallback = CreateRequestDelegate(previous.middleware, previous.invokeMethod);
-                var parameterValues = CreateConstructorParameters(current.Ctor, nextCallback, current.Args, _services);
+                var nextCallback = CreateRequestDelegate(previous.middleware, previous.invokeMethod, services);
+                var parameterValues = CreateConstructorParameters(current.Ctor, nextCallback, current.Args, services);
                 var middleware = current.Ctor.Invoke(parameterValues);
                 return (middleware, current.InvokeMethod);
             });
 
-            return CreateRequestDelegate(first.middleware, first.invokeMethod);
+            return CreateRequestDelegate(first.middleware, first.invokeMethod, services);
         }
 
         private static object[] CreateConstructorParameters(ConstructorInfo ctor, RequestDelegate<TContext> nextCallback, object[] args, IServiceProvider services)
@@ -102,7 +98,7 @@ namespace Reusable.Translucent
         }
 
         // Using this helper to "catch" the "previous" middleware before it goes out of scope and is overwritten by the loop.
-        private RequestDelegate<TContext> CreateRequestDelegate(object? middleware, MethodInfo? invokeMethod)
+        private RequestDelegate<TContext> CreateRequestDelegate(object? middleware, MethodInfo? invokeMethod, IServiceProvider services)
         {
             // This is the last last middleware and there is nowhere to go from here.
             if (middleware is null)
@@ -115,7 +111,7 @@ namespace Reusable.Translucent
                 {
                     var parameterValues =
                         from p in invokeMethod!.GetParameters().Skip(1) // TContext is always there.
-                        select _services.Resolve(p.ParameterType); // Resolve other Invoke(Async) parameters.
+                        select services.Resolve(p.ParameterType); // Resolve other Invoke(Async) parameters.
 
                     // Call the actual invoke with its parameters.
                     return (Task)invokeMethod.Invoke(middleware, parameterValues.Prepend(context).ToArray());

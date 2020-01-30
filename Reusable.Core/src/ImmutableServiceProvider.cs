@@ -1,15 +1,13 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
-using Reusable.Exceptionize;
-using Reusable.Extensions;
 
 namespace Reusable
 {
     public class ImmutableServiceProvider : IServiceProvider
     {
-        private readonly IServiceProvider? _child;
         private readonly IImmutableDictionary<Type, object> _services;
+        private readonly IServiceProvider? _child;
 
         public ImmutableServiceProvider(IEnumerable<KeyValuePair<Type, object>> services)
         {

@@ -33,7 +33,7 @@ namespace Reusable.Translucent.Middleware
         };
 
         private readonly IImmutableList<IResourceController> controllers;
-        private readonly ILogger<ResourceMiddleware> logger;
+        private readonly ILogger logger;
         private readonly IMemoryCache cache;
 
         public ResourceMiddleware(RequestDelegate<ResourceContext> next, IServiceProvider services) : base(next, services)
