@@ -11,11 +11,11 @@ namespace Reusable.Translucent.Middleware
     /// Allows to cache resources for GET requests by specifying the MaxAge in the request.
     /// </summary>
     [UsedImplicitly]
-    public class CacheMiddleware : MiddlewareBase
+    public class MemoryCache : MiddlewareBase
     {
         private readonly IMemoryCache _memoryCache;
 
-        public CacheMiddleware(RequestDelegate<ResourceContext> next, IServiceProvider services) : base(next, services)
+        public MemoryCache(RequestDelegate<ResourceContext> next, IServiceProvider services) : base(next, services)
         {
             _memoryCache = Services.GetService<IMemoryCache>();
         }

@@ -20,7 +20,7 @@ namespace Reusable.Translucent
 
         public ResourceRepositoryBuilder Use(Type type, object[] args)
         {
-            if (type == typeof(ResourceMiddleware)) throw new ArgumentException(paramName: nameof(type), message: $"{nameof(ResourceMiddleware)} is added implicitly.");
+            if (type == typeof(ResourceProvider)) throw new ArgumentException(paramName: nameof(type), message: $"{nameof(ResourceProvider)} is added implicitly.");
             _middleware.Add(new MiddlewareInfo<ResourceContext> { Type = type, Args = args });
             return this;
         }
@@ -45,7 +45,7 @@ namespace Reusable.Translucent
                 // This is the default middleware that is always the last one.
                 //pipelineBuilder.UseMiddleware<ResourceMiddleware>();
 
-                _middleware.Add(MiddlewareInfo<ResourceContext>.Create<ResourceMiddleware>());
+                _middleware.Add(MiddlewareInfo<ResourceContext>.Create<ResourceProvider>());
 
                 //return new ResourceRepository(pipelineBuilder.Build(services));
 

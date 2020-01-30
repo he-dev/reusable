@@ -16,9 +16,9 @@ namespace Reusable.Translucent.Middleware
     /// Validates settings on their way in/out using their validation attributes.
     /// </summary>
     [UsedImplicitly]
-    public class SettingValidationMiddleware : MiddlewareBase
+    public class ValidateSetting : MiddlewareBase
     {
-        public SettingValidationMiddleware(RequestDelegate<ResourceContext> next, IServiceProvider services) : base(next, services) { }
+        public ValidateSetting(RequestDelegate<ResourceContext> next, IServiceProvider services) : base(next, services) { }
 
         public override async Task InvokeAsync(ResourceContext context)
         {

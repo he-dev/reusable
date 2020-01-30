@@ -12,6 +12,7 @@ using Reusable.Translucent;
 using Reusable.Translucent.Controllers;
 using Reusable.Translucent.Data;
 using Reusable.Translucent.Middleware;
+using MemoryCache = Reusable.Translucent.Middleware.MemoryCache;
 
 namespace Reusable
 {
@@ -47,7 +48,7 @@ namespace Reusable
     {
         public static readonly string ConnectionString = "Data Source=(local);Initial Catalog=TestDb;Integrated Security=SSPI;";
         
-        public static IMemoryCache CreateCache() => new MemoryCache(new MemoryCacheOptions());
+        public static IMemoryCache CreateCache() => new Microsoft.Extensions.Caching.Memory.MemoryCache(new MemoryCacheOptions());
 
         public static ILoggerFactory CreateLoggerFactory(ILogRx logRx)
         {
@@ -112,9 +113,9 @@ namespace Reusable
 
         public override IEnumerable<IMiddlewareInfo> Middleware(IServiceProvider services)
         {
-            yield return Use<CacheMiddleware>();
-            yield return Use<SettingValidationMiddleware>();
-            yield return Use<ResourceExistsValidationMiddleware>();
+            yield return Use<MemoryCache>();
+            yield return Use<ValidateSetting>();
+            yield return Use<ValidateResourceExists>();
         }
     }
 }

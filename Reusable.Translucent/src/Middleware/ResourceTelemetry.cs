@@ -11,18 +11,18 @@ using Reusable.OmniLog.SemanticExtensions;
 namespace Reusable.Translucent.Middleware
 {
     [UsedImplicitly]
-    public class TelemetryMiddleware : MiddlewareBase
+    public class ResourceTelemetry : MiddlewareBase
     {
         private readonly ILogger _logger;
 
-        public TelemetryMiddleware(RequestDelegate<ResourceContext> next, IServiceProvider services) :base(next, services)
+        public ResourceTelemetry(RequestDelegate<ResourceContext> next, IServiceProvider services) :base(next, services)
         {
-            _logger = services.GetService<ILoggerFactory>().CreateLogger<ILogger<TelemetryMiddleware>>();
+            _logger = services.GetService<ILoggerFactory>().CreateLogger<ResourceTelemetry>();
         }
 
         public override async Task InvokeAsync(ResourceContext context)
         {
-            using (_logger.BeginScope().WithCorrelationHandle("CollectMiddlewareTelemetry").UseStopwatch())
+            using (_logger.BeginScope().WithCorrelationHandle("ResourceTelemetry").UseStopwatch())
             {
                 var requestUri = context.Request.Uri.ToString();
                 try

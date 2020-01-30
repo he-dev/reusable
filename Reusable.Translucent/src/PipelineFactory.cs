@@ -25,11 +25,18 @@ namespace Reusable.Translucent
 
             var first = pipeline.Aggregate((instance: default(object), invokeMethod: default(MethodInfo)), (previous, current) =>
             {
-                var nextCallback = CreateRequestDelegate<TContext>(previous.instance, previous.invokeMethod, services);
-                var ctor = current.GetConstructor();
-                var parameterValues = CreateConstructorParameters(ctor, nextCallback, current.Args, services);
-                var instance = ctor.Invoke(parameterValues);
-                return (instance, current.GetInvokeMethod());
+                try
+                {
+                    var nextCallback = CreateRequestDelegate<TContext>(previous.instance, previous.invokeMethod, services);
+                    var ctor = current.GetConstructor();
+                    var parameterValues = CreateConstructorParameters(ctor, nextCallback, current.Args, services);
+                    var instance = ctor.Invoke(parameterValues);
+                    return (instance, current.GetInvokeMethod());
+                }
+                catch (Exception inner)
+                {
+                    throw DynamicException.Create("MiddlewareActivation", $"Could not activate middleware '{current.Type.ToPrettyString()}'.", inner);
+                }
             });
 
             return CreateRequestDelegate<TContext>(first.instance, first.invokeMethod, services);

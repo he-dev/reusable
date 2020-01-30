@@ -23,7 +23,7 @@ namespace Reusable.Translucent.Middleware
     /// Handles requests and determines which resource-controller to use to get a resources. Controllers determined with a GET requests are cached.
     /// </summary>
     [UsedImplicitly]
-    public class ResourceMiddleware : MiddlewareBase
+    public class ResourceProvider : MiddlewareBase
     {
         private static readonly IEnumerable<ResourceControllerFilterCallback> Filters = new ResourceControllerFilterCallback[]
         {
@@ -36,9 +36,9 @@ namespace Reusable.Translucent.Middleware
         private readonly ILogger logger;
         private readonly IMemoryCache cache;
 
-        public ResourceMiddleware(RequestDelegate<ResourceContext> next, IServiceProvider services) : base(next, services)
+        public ResourceProvider(RequestDelegate<ResourceContext> next, IServiceProvider services) : base(next, services)
         {
-            logger = services.GetService<ILoggerFactory>().CreateLogger<ResourceMiddleware>();
+            logger = services.GetService<ILoggerFactory>().CreateLogger<ResourceProvider>();
             controllers = services.GetService<IEnumerable<IResourceController>>().ToImmutableList();
             cache = services.GetService<IMemoryCache>();
         }

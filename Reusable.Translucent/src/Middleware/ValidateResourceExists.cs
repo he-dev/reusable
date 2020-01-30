@@ -11,9 +11,9 @@ namespace Reusable.Translucent.Middleware
     /// Validates that a required resource exists and throws if it is not the case. Handles only GET requests.
     /// </summary>
     [UsedImplicitly]
-    public class ResourceExistsValidationMiddleware : MiddlewareBase
+    public class ValidateResourceExists : MiddlewareBase
     {
-        public ResourceExistsValidationMiddleware(RequestDelegate<ResourceContext> next, IServiceProvider services) : base(next, services) { }
+        public ValidateResourceExists(RequestDelegate<ResourceContext> next, IServiceProvider services) : base(next, services) { }
 
         public override async Task InvokeAsync(ResourceContext context)
         {
