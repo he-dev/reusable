@@ -28,7 +28,7 @@ namespace Reusable
     {
         public static async Task SendEmailViaSmtp()
         {
-            var resources = ResourceRepository.Create((c, _) => c.AddSmtp());
+            var resources = ResourceRepository.Builder().Add(new SmtpToController(ControllerName.Empty)).Build();
 
             await resources.SendEmailAsync(new Email<EmailSubject, EmailBody>
             {
@@ -48,7 +48,7 @@ namespace Reusable
 
         public static async Task SendEmailViaMailr()
         {
-            var resources = ResourceRepository.Create((c, _) => c.AddHttp("Mailr", "http://localhost:7000/api"));
+            var resources = ResourceRepository.Builder().Add(HttpController.FromBaseUri("Mailr", "http://localhost:7000/api")).Build();
 
             await resources.SendEmailAsync
             (

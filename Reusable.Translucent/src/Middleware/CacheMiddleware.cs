@@ -2,6 +2,7 @@ using System;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.DependencyInjection;
 using Reusable.Translucent.Data;
 
 namespace Reusable.Translucent.Middleware
@@ -10,31 +11,28 @@ namespace Reusable.Translucent.Middleware
     /// Allows to cache resources for GET requests by specifying the MaxAge in the request.
     /// </summary>
     [UsedImplicitly]
-    public class CacheMiddleware
+    public class CacheMiddleware : MiddlewareBase
     {
-        private readonly RequestDelegate<ResourceContext> _next;
-        
         private readonly IMemoryCache _memoryCache;
 
-        public CacheMiddleware(RequestDelegate<ResourceContext> next, IMemoryCache memoryCache)
+        public CacheMiddleware(RequestDelegate<ResourceContext> next, IServiceProvider services) : base(next, services)
         {
-            _next = next;
-            _memoryCache = memoryCache;
+            _memoryCache = Services.GetService<IMemoryCache>();
         }
 
-        public async Task InvokeAsync(ResourceContext context)
+        public override async Task InvokeAsync(ResourceContext context)
         {
             // Only GET requests are cacheable.
             if (!context.Request.Method.Equals(RequestMethod.Get))
             {
-                await _next(context);
+                await Next(context);
                 return;
             }
 
             // Only requests with non-zero MaxAge are cacheable.
             if (context.Request.MaxAge == TimeSpan.Zero)
             {
-                await _next(context);
+                await Next(context);
                 return;
             }
 
@@ -45,7 +43,7 @@ namespace Reusable.Translucent.Middleware
             }
             else
             {
-                await _next(context);
+                await Next(context);
                 _memoryCache.Set(key, context.Response, context.Request.MaxAge);
             }
         }

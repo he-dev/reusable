@@ -56,9 +56,9 @@ namespace Reusable.Apps.Server
         {
             SmartPropertiesLayoutRenderer.Register();
 
-            services.AddOmniLog(factory =>
+            services.AddOmniLog(builder =>
             {
-                factory
+                builder
                     .UseStopwatch()
                     .UseService
                     (

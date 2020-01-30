@@ -11,12 +11,12 @@ namespace Reusable.Beaver
 {
     public class FeatureToggleTest
     {
-        [Fact]
+        //[Fact]
         public void asdf()
         {
-            var json = TestHelper.Resources.ReadTextFile("Features.json");
-            var c = FeatureConfiguration.FromJson(json);
-            var t = FeatureToggle.FromConfiguration(c);
+            // var json = TestHelper.Resources.ReadTextFile("Features.json");
+            // var c = FeatureConfiguration.FromJson(json);
+            // var t = FeatureToggle.FromConfiguration(c);
             
         }
 

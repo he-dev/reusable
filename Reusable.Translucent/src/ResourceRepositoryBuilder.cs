@@ -5,93 +5,56 @@ using System.Linq.Custom;
 using System.Reflection;
 using Reusable.Exceptionize;
 using Reusable.Extensions;
+using Reusable.Translucent.Controllers;
 using Reusable.Translucent.Middleware;
 
 namespace Reusable.Translucent
 {
     public class ResourceRepositoryBuilder
     {
-        private object _setup;
-        private MethodInfo _configureResourcesMethod;
-        private MethodInfo _configurePipelineMethod;
+        private readonly List<IResourceController> _controllers = new List<IResourceController>();
+        private readonly List<IMiddlewareInfo> _middleware = new List<IMiddlewareInfo>();
+        private readonly List<KeyValuePair<Type, object>> _services = new List<KeyValuePair<Type, object>>();
 
-        public static ResourceRepositoryBuilder Empty => new ResourceRepositoryBuilder();
-
-        public ResourceRepositoryBuilder UseSetup<TSetup>() where TSetup : new()
+        public ResourceRepositoryBuilder Add(params IResourceController[] controllers)
         {
-            _setup = new TSetup();
-            _configureResourcesMethod = GetConfigureMethod<TSetup>(nameof(QuickSetup<ReflectionContext>.ConfigureResources), isOptional: false);
-            _configurePipelineMethod = GetConfigureMethod<TSetup>(nameof(QuickSetup<ReflectionContext>.ConfigurePipeline), isOptional: true);
-
-            ValidateMethodHasMandatoryParameters(_configureResourcesMethod, new[] { typeof(IResourceCollection) });
-            ValidateMethodHasMandatoryParameters(_configurePipelineMethod, new[] { typeof(IPipelineBuilder<ResourceContext>) });
-
+            _controllers.AddRange(controllers);
             return this;
         }
 
-        private static MethodInfo? GetConfigureMethod<T>(string methodName, bool isOptional)
+        public ResourceRepositoryBuilder Use(Type type, object[] args)
         {
-            return typeof(T).GetMethod(methodName) switch
-            {
-                {} m => m,
-                _ when isOptional => default,
-                _ => throw DynamicException.Create
-                (
-                    $"{methodName}MethodNotFound",
-                    $"'{typeof(T).ToPrettyString()}' does not define the '{methodName}' method."
-                )
-            };
+            if (type == typeof(ResourceMiddleware)) throw new ArgumentException(paramName: nameof(type), message: $"{nameof(ResourceMiddleware)} is added implicitly.");
+            _middleware.Add(new MiddlewareInfo{Type = type, Args = args});
+            return this;
+        }
+        
+        public ResourceRepositoryBuilder Use<T>(params object[] args)
+        {
+            return Use(typeof(T), args);
         }
 
-        private static void ValidateMethodHasMandatoryParameters(MethodInfo? method, IEnumerable<Type> mandatoryParameterTypes)
+        public ResourceRepositoryBuilder Register<T>(T instance)
         {
-            if (method is {})
+            _services.Add(new KeyValuePair<Type, object>(typeof(T), instance));
+            return this;
+        }
+
+        public IResourceRepository Build(IServiceProvider? services = default)
+        {
+            services = new ImmutableServiceProvider(_services, services ?? ImmutableServiceProvider.Empty).Add<IEnumerable<IResourceController>>(_controllers);
+
+            var pipelineBuilder = new PipelineBuilder<ResourceContext>(services);
+
+            foreach (var (type, args) in _middleware)
             {
-                var missingParameterTypes = mandatoryParameterTypes.Except(method.GetParameters().Select(p => p.ParameterType)).ToList();
-                if (missingParameterTypes.Any())
-                {
-                    throw DynamicException.Create
-                    (
-                        "MethodParameterNotFound",
-                        $"One or more '{method.Name}' method parameters not found: [{missingParameterTypes.Select(t => t.ToPrettyString()).Join(", ")}]."
-                    );
-                }
+                pipelineBuilder.UseMiddleware(type, args);
             }
-        }
-
-        public RequestDelegate<ResourceContext> Build(IServiceProvider serviceProvider)
-        {
-            var resources = new ResourceCollection();
-            var pipelineBuilder = new PipelineBuilder<ResourceContext>(new ImmutableServiceProvider(parent: serviceProvider).Add<IResourceCollection>(resources));
-
-            serviceProvider =
-                new ImmutableServiceProvider(parent: serviceProvider)
-                    .Add<IResourceCollection>(resources)
-                    .Add<IPipelineBuilder<ResourceContext>>(pipelineBuilder);
-
-            InvokeSetupMethod<IResourceCollection>(_setup, _configureResourcesMethod, serviceProvider);
-            InvokeSetupMethod<IPipelineBuilder<ResourceContext>>(_setup, _configurePipelineMethod, serviceProvider);
 
             // This is the default middleware that is always the last one.
             pipelineBuilder.UseMiddleware<ResourceMiddleware>();
 
-            return pipelineBuilder.Build();
-        }
-
-        private static void InvokeSetupMethod<T>(object setup, MethodInfo configureMethod, IServiceProvider services)
-        {
-            if (configureMethod is null)
-            {
-                return;
-            }
-
-            var parameterValues =
-                configureMethod
-                    .GetParameters()
-                    .Select(p => services.Resolve(p.ParameterType))
-                    .ToArray();
-
-            configureMethod.Invoke(setup, parameterValues);
+            return new ResourceRepository(pipelineBuilder.Build());
         }
     }
 }

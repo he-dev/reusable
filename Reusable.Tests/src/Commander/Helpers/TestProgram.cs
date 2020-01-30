@@ -40,7 +40,7 @@ namespace Reusable.Commander.Helpers
             var builder = new ContainerBuilder();
 
             builder
-                .RegisterInstance(new LoggerFactory())
+                .RegisterInstance(LoggerFactory.Builder().Build())
                 .As<ILoggerFactory>();
 
             builder

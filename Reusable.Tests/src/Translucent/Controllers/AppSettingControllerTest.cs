@@ -4,10 +4,13 @@ using Xunit;
 
 namespace Reusable.Translucent.Controllers
 {
-    public class AppSettingControllerTest
+    public class AppSettingControllerTest : IClassFixture<TestHelperFixture>
     {
-        public AppSettingControllerTest()
+        private readonly TestHelperFixture _testHelper;
+
+        public AppSettingControllerTest(TestHelperFixture testHelper)
         {
+            _testHelper = testHelper;
             SeedAppSettings();
         }
         
@@ -34,7 +37,7 @@ namespace Reusable.Translucent.Controllers
         [Fact]
         public async Task Can_get_setting()
         {
-            var env = await TestHelper.Resources.ReadSettingAsync(From<IProgramConfig>.Select(x => x.Environment));
+            var env = await _testHelper.Resources.ReadSettingAsync(From<IProgramConfig>.Select(x => x.Environment));
             
             Assert.Equal("test", env);
         }

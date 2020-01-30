@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
@@ -6,6 +7,7 @@ using System.Reflection;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.DependencyInjection;
 using Reusable.Extensions;
 using Reusable.OmniLog;
 using Reusable.OmniLog.Abstractions;
@@ -21,32 +23,29 @@ namespace Reusable.Translucent.Middleware
     /// Handles requests and determines which resource-controller to use to get a resources. Controllers determined with a GET requests are cached.
     /// </summary>
     [UsedImplicitly]
-    public class ResourceMiddleware
+    public class ResourceMiddleware : MiddlewareBase
     {
         private static readonly IEnumerable<ResourceControllerFilterCallback> Filters = new ResourceControllerFilterCallback[]
         {
             ResourceControllerFilters.FilterByControllerName,
             ResourceControllerFilters.FilterByRequest,
-            //ResourceControllerFilters.FilterByControllerTags,
             ResourceControllerFilters.FilterByUriPath,
         };
 
         private readonly IImmutableList<IResourceController> controllers;
-        private readonly RequestDelegate<ResourceContext> next;
         private readonly ILogger<ResourceMiddleware> logger;
         private readonly IMemoryCache cache;
 
-        public ResourceMiddleware(RequestDelegate<ResourceContext> next, IResourceCollection controllers, ILogger<ResourceMiddleware> logger)
+        public ResourceMiddleware(RequestDelegate<ResourceContext> next, IServiceProvider services) : base(next, services)
         {
-            this.next = next;
-            this.logger = logger;
-            this.controllers = controllers.ToImmutableList();
-            cache = new MemoryCache(new MemoryCacheOptions { });
+            logger = services.GetService<ILoggerFactory>().CreateLogger<ResourceMiddleware>();
+            controllers = services.GetService<IEnumerable<IResourceController>>().ToImmutableList();
+            cache = services.GetService<IMemoryCache>();
         }
 
-        public async Task InvokeAsync(ResourceContext context)
+        public override async Task InvokeAsync(ResourceContext context)
         {
-            await next(context);
+            await InvokeNext(context);
 
             var providerKey = context.Request.Uri.ToString();
 

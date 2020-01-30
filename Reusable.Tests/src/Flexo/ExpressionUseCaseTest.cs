@@ -12,20 +12,23 @@ using Xunit.Abstractions;
 // ReSharper disable once CheckNamespace
 namespace Reusable.Flexo
 {
-    public class ExpressionUseCaseTest
+    public class ExpressionUseCaseTest : IClassFixture<ExpressionFixture>, IClassFixture<TestHelperFixture>
     {
         private readonly ITestOutputHelper _output;
+        private readonly ExpressionFixture _expressionHelper;
+        private static TestHelperFixture _testHelper;
 
-        public ExpressionUseCaseTest(ITestOutputHelper output)
+        public ExpressionUseCaseTest(ITestOutputHelper output, ExpressionFixture expressionHelper, TestHelperFixture testHelper)
         {
             _output = output;
+            _expressionHelper = expressionHelper;
+            _testHelper = testHelper;
         }
 
         [Fact]
         public void Can_deserialize_values_into_constants()
         {
-            using var helper = new ExpressionFixture();
-            var useCases = helper.ReadExpressionFile<List<ExpressionUseCase>>("ExpressionCollection.json");
+            var useCases = _expressionHelper.ReadExpressionFile<List<ExpressionUseCase>>(_testHelper.Resources, "ExpressionCollection.json");
             ExpressionAssert.ExpressionEqual(useCases[0], _output);
             ExpressionAssert.ExpressionEqual(useCases[1], _output);
         }
@@ -43,7 +46,7 @@ namespace Reusable.Flexo
             using var helper = new ExpressionFixture();
             var packages = new List<IExpression>
             {
-                helper.ReadExpressionFile<IExpression>("Packages.IsPositive.json")
+                helper.ReadExpressionFile<IExpression>(_testHelper.Resources, "Packages.IsPositive.json")
             };
             var scope =
                 ImmutableContainer
@@ -51,7 +54,7 @@ namespace Reusable.Flexo
                     .SetItem(ExpressionContext.Packages, new PackageContainer(packageId => packages.Single(p => p.Id == packageId) as Package))
                     .SetItem("Product", new Product());
 
-            var useCases = helper.ReadExpressionFile<List<ExpressionUseCase>>("ExpressionUseCases.json");
+            var useCases = helper.ReadExpressionFile<List<ExpressionUseCase>>(_testHelper.Resources, "ExpressionUseCases.json");
 
             foreach (var useCase in useCases)
             {

@@ -4,12 +4,19 @@ using Xunit;
 
 namespace Reusable.Utilities.Mailr.Models
 {
-    public class HtmlTableTest
+    public class HtmlTableTest : IClassFixture<TestHelperFixture>
     {
+        private readonly TestHelperFixture _testHelper;
+
+        public HtmlTableTest(TestHelperFixture testHelper)
+        {
+            _testHelper = testHelper;
+        }
+        
         [Fact]
         public void CanBeSerializedToJson()
         {
-            var expected = TestHelper.Resources.ReadTextFile(@"Http\Mailr\HtmlTable.json");
+            var expected = _testHelper.Resources.ReadTextFile(@"Http\Mailr\HtmlTable.json");
 
             var table = new HtmlTable(HtmlTableColumn.Create(("Name", typeof(string)), ("Age", typeof(int))));
             var row = table.Body.NewRow();

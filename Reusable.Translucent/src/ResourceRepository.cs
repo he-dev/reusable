@@ -1,7 +1,10 @@
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
+using Reusable.Translucent.Controllers;
 using Reusable.Translucent.Data;
+using Reusable.Translucent.Middleware;
 
 namespace Reusable.Translucent
 {
@@ -12,13 +15,34 @@ namespace Reusable.Translucent
     }
 
     [PublicAPI]
-    public class ResourceRepository<TSetup> : IResourceRepository where TSetup : new()
+    public class ResourceRepository : IResourceRepository //<TSetup> : IResourceRepository where TSetup : new()
     {
         private readonly RequestDelegate<ResourceContext> _requestDelegate;
 
-        public ResourceRepository(IServiceProvider serviceProvider)
+        internal ResourceRepository(RequestDelegate<ResourceContext> requestDelegate)
         {
-            _requestDelegate = ResourceRepositoryBuilder.Empty.UseSetup<TSetup>().Build(serviceProvider);
+            _requestDelegate = requestDelegate; 
+        }
+        
+        public static ResourceRepositoryBuilder Builder() => new ResourceRepositoryBuilder();
+
+        public static IResourceRepository From<TSetup>(IServiceProvider services) where TSetup : IResourceRepositorySetup, new()
+        {
+            var setup = new TSetup();
+
+            var builder = Builder();
+
+            foreach (var controller in setup.Controllers(services))
+            {
+                builder.Add(controller);
+            }
+
+            foreach (var (type, args) in setup.Middleware(services))
+            {
+                builder.Use(type, args);
+            }
+
+            return builder.Build(services);
         }
         
         public async Task<Response> InvokeAsync(Request request)
@@ -34,29 +58,73 @@ namespace Reusable.Translucent
         }
     }
 
-    public static class ResourceRepository
+
+    public interface IResourceRepositorySetup
     {
-        public static IResourceRepository Create(ConfigureResourcesDelegate configureResources, ConfigurePipelineDelegate<ResourceContext>? configurePipeline = default)
+        IEnumerable<IResourceController> Controllers(IServiceProvider services);
+
+        IEnumerable<IMiddlewareInfo> Middleware(IServiceProvider services);
+    }
+
+    public abstract class ResourceRepositorySetup : IResourceRepositorySetup
+    {
+        public abstract IEnumerable<IResourceController> Controllers(IServiceProvider services);
+
+        public virtual IEnumerable<IMiddlewareInfo> Middleware(IServiceProvider services)
         {
-            return new ResourceRepository<QuickSetup<ResourceContext>>(ImmutableServiceProvider.Empty.Add(configureResources).Add(configurePipeline));
+            yield break;
+        }
+
+        protected static IMiddlewareInfo Use<T>(params object[] args) => MiddlewareInfo.Create<T>(args);
+    }
+
+    public interface IMiddlewareInfo
+    {
+        Type Type { get; }
+
+        object[] Args { get; }
+
+        void Deconstruct(out Type type, out object[] args);
+    }
+
+    public class MiddlewareInfo : IMiddlewareInfo
+    {
+        public Type Type { get; set; }
+
+        public object[] Args { get; set; }
+
+        public static MiddlewareInfo Create<T>(params object[] args) => new MiddlewareInfo
+        {
+            Type = typeof(T),
+            Args = args
+        };
+
+        public void Deconstruct(out Type type, out object[] args)
+        {
+            type = Type;
+            args = Args;
         }
     }
 
-    [PublicAPI]
-    public class QuickSetup<T>
+    public interface IMiddleware
     {
-        public void ConfigureResources(IResourceCollection resources, IServiceProvider serviceProvider, ConfigureResourcesDelegate configure)
-        {
-            configure(resources, serviceProvider);
-        }
-
-        public void ConfigurePipeline(IPipelineBuilder<T> repository, IServiceProvider serviceProvider, ConfigurePipelineDelegate<T>? configure)
-        {
-            configure?.Invoke(repository, serviceProvider);
-        }
+        Task InvokeAsync(ResourceContext context);
     }
 
-    public delegate void ConfigureResourcesDelegate(IResourceCollection resource, IServiceProvider serviceProvider);
+    public abstract class MiddlewareBase : IMiddleware
+    {
+        protected MiddlewareBase(RequestDelegate<ResourceContext> next, IServiceProvider services)
+        {
+            Next = next;
+            Services = services;
+        }
 
-    public delegate void ConfigurePipelineDelegate<out T>(IPipelineBuilder<T> pipelineController, IServiceProvider serviceProvider);
+        protected RequestDelegate<ResourceContext> Next { get; }
+
+        protected IServiceProvider Services { get; }
+
+        public abstract Task InvokeAsync(ResourceContext context);
+
+        protected Task InvokeNext(ResourceContext context) => Next?.Invoke(context);
+    }
 }

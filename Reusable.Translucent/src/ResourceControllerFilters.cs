@@ -14,10 +14,17 @@ namespace Reusable.Translucent
         {
             if (request.ControllerName.Equals(ControllerName.Empty))
             {
-                return
-                    from c in controllers
-                    where c.ControllerName.Tags.Overlaps(request.ControllerName.Tags)
-                    select c;
+                if (request.ControllerName.Tags.Any())
+                {
+                    return
+                        from c in controllers
+                        where c.ControllerName.Tags.Overlaps(request.ControllerName.Tags)
+                        select c;
+                }
+                else
+                {
+                    return controllers;
+                }
             }
             else
             {

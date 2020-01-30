@@ -12,11 +12,11 @@ namespace Reusable.OmniLog.SemanticExtensions.AspNetCore.Extensions
         /// <summary>
         /// Adds OmniLog service to the container.
         /// </summary>
-        public static IServiceCollection AddOmniLog(this IServiceCollection services, Action<LoggerFactory> setupAction)
+        public static IServiceCollection AddOmniLog(this IServiceCollection services, Action<LoggerFactoryBuilder> customize)
         {
             return 
                 services
-                    .AddSingleton<ILoggerFactory>(new LoggerFactory().Pipe(setupAction))
+                    .AddSingleton(LoggerFactory.Builder().Pipe(customize).Build())
                     .AddSingleton(typeof(ILogger<>), typeof(Logger<>))
                     .AddScoped<LogResponseBody>();
         }

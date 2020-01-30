@@ -1,18 +1,23 @@
 using System;
+using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using JetBrains.Annotations;
+using Reusable.Extensions;
 using Reusable.OmniLog.Abstractions;
 using Reusable.OmniLog.Nodes;
 using Reusable.OmniLog.Services;
 
 namespace Reusable.OmniLog
 {
-    public class LoggerFactory : ILoggerFactory
+    public class LoggerFactory : ILoggerFactory, IEnumerable<ILoggerNode>
     {
+        private readonly IEnumerable<ILoggerNode> _nodes;
         private readonly ConcurrentDictionary<SoftString, ILogger> _loggers = new ConcurrentDictionary<SoftString, ILogger>();
 
-        public List<ILoggerNode> Nodes { get; set; } = new List<ILoggerNode>();
+        public LoggerFactory(IEnumerable<ILoggerNode> nodes) => _nodes = nodes;
+        
+        public static LoggerFactoryBuilder Builder() => new LoggerFactoryBuilder();
 
         #region ILoggerFactory
 
@@ -24,9 +29,10 @@ namespace Reusable.OmniLog
             {
                 Next = new ServiceNode { Services = { new Constant(nameof(Logger), loggerName) } }
             };
+            
             var current = logger.Next;
 
-            foreach (var node in Nodes)
+            foreach (var node in this)
             {
                 current = current.AddAfter(node);
             }
@@ -37,9 +43,27 @@ namespace Reusable.OmniLog
         public void Dispose() { }
 
         #endregion
+
+        public IEnumerator<ILoggerNode> GetEnumerator() => _nodes.GetEnumerator();
+
+        IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable)_nodes).GetEnumerator();
     }
 
-    public static class LoggerFactoryExtensions
+    public class LoggerFactoryBuilder : List<ILoggerNode>
+    {
+        public LoggerFactoryBuilder Use<T>(LoggerFactoryBuilder builder, Action<T>? configure = default) where T : ILoggerNode, new()
+        {
+            Add(new T().Pipe(configure));
+            return this;
+        }
+
+        public ILoggerFactory Build()
+        {
+            return new LoggerFactory(this);
+        }
+    }
+
+    public static class LoggerFactoryBuilderExtensions
     {
         [NotNull]
         public static ILogger<T> CreateLogger<T>(this ILoggerFactory loggerFactory)
@@ -47,18 +71,18 @@ namespace Reusable.OmniLog
             return new Logger<T>(loggerFactory);
         }
 
-        public static LoggerFactory Use<T>(this LoggerFactory loggerFactory, Action<T>? configure = default) where T : ILoggerNode, new()
+        public static LoggerFactoryBuilder Use<T>(this LoggerFactoryBuilder builder, Action<T>? configure = default) where T : ILoggerNode, new()
         {
             var node = new T();
             configure?.Invoke(node);
-            return loggerFactory.Use(node);
+            return builder.Use(node);
         }
 
 
-        public static LoggerFactory Use<T>(this LoggerFactory loggerFactory, T node) where T : ILoggerNode
+        public static LoggerFactoryBuilder Use<T>(this LoggerFactoryBuilder builder, T node) where T : ILoggerNode
         {
-            loggerFactory.Nodes.Add(node);
-            return loggerFactory;
+            builder.Add(node);
+            return builder;
         }
     }
 }

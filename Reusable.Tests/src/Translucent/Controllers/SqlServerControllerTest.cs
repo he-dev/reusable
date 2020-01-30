@@ -12,19 +12,26 @@ using Xunit;
 
 namespace Reusable.Translucent.Controllers
 {
-    public class SqlServerControllerTest : IAsyncLifetime
+    public class SqlServerControllerTest : IAsyncLifetime, IClassFixture<TestHelperFixture>
     {
+        private readonly TestHelperFixture _testHelper;
+
+        public SqlServerControllerTest(TestHelperFixture testHelper)
+        {
+            _testHelper = testHelper;
+        }
+        
         public async Task InitializeAsync()
         {
             var connectionString = AppConfigHelper.GetConnectionString(TestHelper.ConnectionString);
             await using var conn = new SqlConnection(connectionString);
-            await conn.ExecuteAsync(TestHelper.Resources.ReadTextFile(@"Translucent/Config/seed-test-data.sql"));
+            await conn.ExecuteAsync(_testHelper.Resources.ReadTextFile(@"Translucent/Config/seed-test-data.sql"));
         }
 
         [Fact]
         public void Can_deserialize_various_types()
         {
-            var testDto = new TestDto(TestHelper.Resources);
+            var testDto = new TestDto(_testHelper.Resources);
 
             Assert.Equal("Tower Bridge", testDto.String);
             Assert.Equal(true, testDto.Boolean);
@@ -44,7 +51,7 @@ namespace Reusable.Translucent.Controllers
         [Fact]
         public void Can_update_setting()
         {
-            var testDto = new TestDto(TestHelper.Resources);
+            var testDto = new TestDto(_testHelper.Resources);
             Assert.Equal("Tower Bridge", testDto.String);
             testDto.String = "Tower Bridge new";
             Assert.Equal("Tower Bridge new", testDto.String);

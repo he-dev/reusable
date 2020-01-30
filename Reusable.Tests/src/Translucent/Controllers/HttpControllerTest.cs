@@ -8,16 +8,21 @@ using Xunit;
 
 namespace Reusable.Translucent.Controllers
 {
-    public class HttpControllerTest : IClassFixture<TeapotServerFixture>
+    public class HttpControllerTest : IClassFixture<TeapotServerFixture>, IClassFixture<TestHelperFixture>
     {
-        private readonly TeapotServerFixture _teapotServerFixture;
+        private readonly TeapotServerFixture _teapotServer;
+        private readonly TestHelperFixture _testHelper;
 
-        public HttpControllerTest(TeapotServerFixture teapotServerFixture) => _teapotServerFixture = teapotServerFixture;
+        public HttpControllerTest(TeapotServerFixture teapotServer, TestHelperFixture testHelper)
+        {
+            _teapotServer = teapotServer;
+            _testHelper = testHelper;
+        }
 
         [Fact]
         public async Task Can_send_email_and_receive_html()
         {
-            using var serverContext = _teapotServerFixture.GetServer("http://localhost:30002").BeginScope();
+            using var serverContext = _teapotServer.GetServer("http://localhost:30002").BeginScope();
 
             serverContext
                 .MockPost("/api/mailr/messages/test", request =>
@@ -46,7 +51,13 @@ namespace Reusable.Translucent.Controllers
                 Body = new { Greeting = "Hallo Mailr!" }
             };
 
-            var resources = ResourceRepository.Create((c, _) => c.AddHttp("Mailr", "http://localhost:30002/api"));
+            var resources = 
+                ResourceRepository
+                    .Builder()
+                    .Add(HttpController.FromBaseUri("Mailr", "http://localhost:30002/api"))
+                    .Register(TestHelper.CreateCache())
+                    .Register(_testHelper.LoggerFactory)
+                    .Build();
             var response = await resources.SendEmailAsync("mailr/messages/test", email, http =>
             {
                 http.HeaderActions.Add(headers => headers.UserAgent("xunit", "1.0"));

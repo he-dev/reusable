@@ -6,6 +6,7 @@ using System.Linq;
 using JetBrains.Annotations;
 using Reusable.Extensions;
 using Reusable.Translucent;
+using Reusable.Translucent.Controllers;
 
 namespace Reusable.Utilities.SqlClient.SqlSchemas
 {
@@ -19,7 +20,12 @@ namespace Reusable.Utilities.SqlClient.SqlSchemas
 
         static SqlSchemaReader()
         {
-            var resources = ResourceRepository.Create((c, _) => c.AddEmbeddedFile(default, @"Reusable\Utilities\SqlClient\sql", typeof(SqlSchemaReader)));
+            var resources = 
+                ResourceRepository
+                    .Builder()
+                    .Add(new EmbeddedFileController(ControllerName.Empty, @"Reusable\Utilities\SqlClient\sql", typeof(SqlSchemaReader).Assembly))
+                    .Build(ImmutableServiceProvider.Empty);
+
             GetIdentityColumnSchemasQuery = resources.ReadTextFile($"sql\\{nameof(GetIdentityColumnSchemas)}.sql");
         }
 

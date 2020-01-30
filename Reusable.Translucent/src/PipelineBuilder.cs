@@ -13,7 +13,7 @@ namespace Reusable.Translucent
 {
     public interface IPipelineBuilder<in TContext>
     {
-        IPipelineBuilder<TContext> UseMiddleware(Type middlewareType, params object[] args);
+        IPipelineBuilder<TContext> UseMiddleware(Type type, params object[] args);
 
         IPipelineBuilder<TContext> UseMiddleware<T>(params object[] args);
 
@@ -32,11 +32,11 @@ namespace Reusable.Translucent
 
         public PipelineBuilder(IServiceProvider services) => _services = services;
 
-        public IPipelineBuilder<TContext> UseMiddleware(Type middlewareType, params object[]? args)
+        public IPipelineBuilder<TContext> UseMiddleware(Type type, params object[]? args)
         {
             args ??= new object[0];
 
-            _pipeline.Push((middlewareType, GetConstructor(middlewareType), GetInvokeMethod(middlewareType), args));
+            _pipeline.Push((type, GetConstructor(type), GetInvokeMethod(type), args));
             var last = _pipeline.Peek();
 
             if (args.Any())
@@ -47,7 +47,7 @@ namespace Reusable.Translucent
                     throw new ArgumentException
                     (
                         paramName: nameof(args),
-                        message: $"Invalid number of arguments ({args.Length} of {ctorParameterCountWithoutContext}) specified for '{middlewareType.ToPrettyString()}' #{_pipeline.Count}."
+                        message: $"Invalid number of arguments ({args.Length} of {ctorParameterCountWithoutContext}) specified for '{type.ToPrettyString()}' #{_pipeline.Count}."
                     );
                 }
             }

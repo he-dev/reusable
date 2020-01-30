@@ -8,8 +8,10 @@ using Xunit;
 
 namespace Reusable.Utilities.JsonNet
 {
-    public class RewritePrettyTypeVisitorTest
+    public class RewritePrettyTypeVisitorTest : IClassFixture<TestHelperFixture>
     {
+        private readonly TestHelperFixture _testHelper;
+
         private static readonly JsonSerializer JsonSerializer = new JsonSerializer
         {
             TypeNameHandling = TypeNameHandling.Auto
@@ -26,6 +28,11 @@ namespace Reusable.Utilities.JsonNet
                             typeof(JsonTestClass2<,>)
                         ))));
 
+        public RewritePrettyTypeVisitorTest(TestHelperFixture testHelper)
+        {
+            _testHelper = testHelper;
+        }
+
         [Fact]
         public void Disallows_types_with_explicit_generic_arguments()
         {
@@ -35,7 +42,7 @@ namespace Reusable.Utilities.JsonNet
         [Fact]
         public void Can_rewrite_non_generic_type()
         {
-            var json = TestHelper.Resources.ReadTextFile("PrettyType0.json");
+            var json = _testHelper.Resources.ReadTextFile("PrettyType0.json");
             var testClass = RewritePrettyTypeVisitor.Visit(json).ToObject<JsonTestClass>(JsonSerializer);
 
             Assert.NotNull(testClass);
@@ -47,7 +54,7 @@ namespace Reusable.Utilities.JsonNet
         [Fact]
         public void Can_rewrite_generic_type_with_one_argument()
         {
-            var json = TestHelper.Resources.ReadTextFile("PrettyType1.json");
+            var json = _testHelper.Resources.ReadTextFile("PrettyType1.json");
             var testClass = RewritePrettyTypeVisitor.Visit(json).ToObject<JsonTestClass>(JsonSerializer);
 
             Assert.NotNull(testClass);
@@ -59,7 +66,7 @@ namespace Reusable.Utilities.JsonNet
         [Fact]
         public void Can_rewrite_generic_type_with_two_arguments()
         {
-            var json = TestHelper.Resources.ReadTextFile("PrettyType2.json");
+            var json = _testHelper.Resources.ReadTextFile("PrettyType2.json");
             var testClass = RewritePrettyTypeVisitor.Visit(json).ToObject<JsonTestClass>(JsonSerializer);
 
             Assert.NotNull(testClass);

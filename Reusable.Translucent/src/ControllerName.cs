@@ -29,7 +29,11 @@ namespace Reusable.Translucent
         public override bool Equals(object? obj) => Equals(obj as ControllerName);
 
         public override int GetHashCode() => AutoEquality<ControllerName>.Comparer.GetHashCode(this);
-        
+
+        public override string ToString() => Value;
+
         public static implicit operator ControllerName(string value) => new ControllerName(value);
+
+        public static implicit operator string(ControllerName name) => name?.ToString();
     }
 }

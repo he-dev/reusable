@@ -1,6 +1,7 @@
 ﻿using System.Net.Http;
 using System.Threading.Tasks;
 using Reusable.Translucent;
+using Reusable.Translucent.Controllers;
 using Reusable.Translucent.Extensions;
 using Reusable.Utilities.XUnit.Fixtures;
 using Xunit;
@@ -51,7 +52,7 @@ namespace Reusable.Teapot
             //{
             // Request made by the application somewhere deep down the rabbit hole
 
-            var resources = ResourceRepository.Create((c, _) => c.AddHttp(ControllerName.Empty, $"{BaseUri}/api"));
+            var resources = ResourceRepository.Builder().Add(HttpController.FromBaseUri(ControllerName.Empty, $"{BaseUri}/api")).Build(ImmutableServiceProvider.Empty);
             var response = await resources.PostAsync<HttpRequest.Json>("test?param=true", new { Greeting = "Hallo" }, http =>
             {
                 http.HeaderActions.Add(headers =>

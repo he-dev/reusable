@@ -19,92 +19,89 @@ namespace Reusable
         {
             SmartPropertiesLayoutRenderer.Register();
 
-            var loggerFactory = new LoggerFactory
+            var loggerFactoryBuilder = new LoggerFactoryBuilder
             {
-                Nodes =
-                {
-                    // Adds elapsed time to each log-entry. Can be enabled with logger.UseStopwatch(). Dispose to disable.
+                // Adds elapsed time to each log-entry. Can be enabled with logger.UseStopwatch(). Dispose to disable.
 //                    new StopwatchNode
 //                    {
 //                        // Selects milliseconds to be logged. This is the default.
 //                        GetValue = elapsed => elapsed.TotalMilliseconds
 //                    },
-                    // Adds computed properties to each log-entry.
-                    new ServiceNode
+                // Adds computed properties to each log-entry.
+                new ServiceNode
+                {
+                    Services =
                     {
-                        Services =
-                        {
-                            new Constant("Environment", "Demo"),
-                            new Constant("Product", "Reusable.app.Console"),
-                            // Adds utc timestamp to each log-entry.
-                            new Timestamp<DateTimeUtc>()
-                        }
-                    },
-                    // Adds support for logger.Log(log => ..) overload.
-                    new DelegateNode(),
-                    // Adds Correlation object to each log-entry.
-                    //new CorrelationNode(),
-                    new ScopeNode(),
-                    // Copies everything from AbstractionBuilder to each log-entry.
-                    // Contains properties Layer and Category and Meta#Dump.
-                    new BuilderNode(),
-                    // Explodes objects and dictionaries into multiple log-entries. One per each property/item.
-                    new DestructureNode(),
-                    // Converts #Serializable items. Objects and dictionaries are treated as collections of KeyValuePairs.
-                    // They are added as Variable & #Serializable to each log-entry.
-                    new ObjectMapperNode
-                    {
-                        // Maps Person to a different type.
-                        Mappings =
-                        {
-                            ObjectMapperNode.Mapping.For<Person>(x => new { FullName = $"{x.LastName}, {x.FirstName}".ToUpper() })
-                        }
-                    },
-                    // Serializes every #Serializable item in the log-entry and adds it as #Property.
-                    new SerializerNode(),
-                    // Filters log-entries and short-circuits the pipeline when False.
-                    new FilterNode(logEntry => true),
-                    // Renames properties.
-                    new PropertyMapperNode
-                    {
-                        Mappings =
-                        {
-                            //{ LogEntry.Names.Scope, "Scope" },
-                            { LogEntry.Names.SnapshotName, "Identifier" },
-                            //{ LogEntry.Names.Snapshot, "Snapshot" },
-                        }
-                    },
-                    // Sets default values for the specified keys when they are not set already. 
-                    new FallbackNode
-                    {
-                        Defaults =
-                        {
-                            [LogEntry.Names.Level] = LogLevel.Information
-                        }
-                    },
-                    // When activated, buffers log-entries until committed. Can be enabled with logger.UseTransaction(). Dispose to disable.
-                    //new BufferNode(),
-                    // The final node that sends log-entries to the receivers.
-                    new EchoNode
-                    {
-                        Rx =
-                        {
-                            new NLogRx(), // Use NLog.
-                            new ConsoleRx // Use console.
-                            {
-                                // Use simple console renderer with color per line. This is the default.
-                                Renderer = new SimpleConsoleRenderer
-                                {
-                                    // Render output with this template. This is the default.
-                                    Template = @"[{Timestamp:HH:mm:ss:fff}] [{Level:u}] {Layer} | {Category} | {Identifier}: {Snapshot} {Elapsed}ms | {Message} {Exception}"
-                                }
-                            }
-                        },
+                        new Constant("Environment", "Demo"),
+                        new Constant("Product", "Reusable.app.Console"),
+                        // Adds utc timestamp to each log-entry.
+                        new Timestamp<DateTimeUtc>()
                     }
+                },
+                // Adds support for logger.Log(log => ..) overload.
+                new DelegateNode(),
+                // Adds Correlation object to each log-entry.
+                //new CorrelationNode(),
+                new ScopeNode(),
+                // Copies everything from AbstractionBuilder to each log-entry.
+                // Contains properties Layer and Category and Meta#Dump.
+                new BuilderNode(),
+                // Explodes objects and dictionaries into multiple log-entries. One per each property/item.
+                new DestructureNode(),
+                // Converts #Serializable items. Objects and dictionaries are treated as collections of KeyValuePairs.
+                // They are added as Variable & #Serializable to each log-entry.
+                new ObjectMapperNode
+                {
+                    // Maps Person to a different type.
+                    Mappings =
+                    {
+                        ObjectMapperNode.Mapping.For<Person>(x => new { FullName = $"{x.LastName}, {x.FirstName}".ToUpper() })
+                    }
+                },
+                // Serializes every #Serializable item in the log-entry and adds it as #Property.
+                new SerializerNode(),
+                // Filters log-entries and short-circuits the pipeline when False.
+                new FilterNode(logEntry => true),
+                // Renames properties.
+                new PropertyMapperNode
+                {
+                    Mappings =
+                    {
+                        //{ LogEntry.Names.Scope, "Scope" },
+                        { LogEntry.Names.SnapshotName, "Identifier" },
+                        //{ LogEntry.Names.Snapshot, "Snapshot" },
+                    }
+                },
+                // Sets default values for the specified keys when they are not set already. 
+                new FallbackNode
+                {
+                    Defaults =
+                    {
+                        [LogEntry.Names.Level] = LogLevel.Information
+                    }
+                },
+                // When activated, buffers log-entries until committed. Can be enabled with logger.UseTransaction(). Dispose to disable.
+                //new BufferNode(),
+                // The final node that sends log-entries to the receivers.
+                new EchoNode
+                {
+                    Rx =
+                    {
+                        new NLogRx(), // Use NLog.
+                        new ConsoleRx // Use console.
+                        {
+                            // Use simple console renderer with color per line. This is the default.
+                            Renderer = new SimpleConsoleRenderer
+                            {
+                                // Render output with this template. This is the default.
+                                Template = @"[{Timestamp:HH:mm:ss:fff}] [{Level:u}] {Layer} | {Category} | {Identifier}: {Snapshot} {Elapsed}ms | {Message} {Exception}"
+                            }
+                        }
+                    },
                 }
             };
 
-            var logger = loggerFactory.CreateLogger("Demo");
+            var logger = loggerFactoryBuilder.Build().CreateLogger("Demo");
 
             logger.Information("Hallo omni-log!");
 

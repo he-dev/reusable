@@ -24,7 +24,7 @@ namespace Reusable.Flexo
 
             builder.RegisterType<ExpressionUseCase>().AsSelf();
             builder.RegisterModule<JsonContractResolverModule>();
-            builder.RegisterModule(new LoggerModule(new LoggerFactory()));
+            builder.RegisterModule(new LoggerModule(LoggerFactory.Builder().Build()));
             builder.RegisterModule(new ExpressionSerializerModule(Enumerable.Empty<Type>()));
 
             var container = builder.Build();
@@ -47,13 +47,13 @@ namespace Reusable.Flexo
             return t;
         }
 
-        public IList<IExpression> Expressions => _expressions.GetOrAdd("ExpressionCollection.json", ReadExpressionFile<IList<IExpression>>);
+        //public IList<IExpression> Expressions => _expressions.GetOrAdd("ExpressionCollection.json", ReadExpressionFile<IList<IExpression>>);
         
-        public IList<IExpression> Packages => _expressions.GetOrAdd("Packages.IsPositive.json", fileName => new List<IExpression> { ReadExpressionFile<IExpression>(fileName) });
+        //public IList<IExpression> Packages => _expressions.GetOrAdd("Packages.IsPositive.json", fileName => new List<IExpression> { ReadExpressionFile<IExpression>(fileName) });
 
-        public T ReadExpressionFile<T>(string fileName)
+        public T ReadExpressionFile<T>(IResourceRepository resources, string fileName)
         {
-            var json = TestHelper.Resources.ReadTextFile(fileName);
+            var json = resources.ReadTextFile(fileName);
             return Serializer.Deserialize<T>(json);
         }
 

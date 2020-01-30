@@ -46,23 +46,20 @@ namespace Reusable.OmniLog
         public void Can_log_message()
         {
             var rx = new MemoryRx();
-            using var lf = new LoggerFactory
+            using var lf = new LoggerFactoryBuilder
             {
-                Nodes =
+                new StopwatchNode(),
+                new ServiceNode(),
+                new DelegateNode(),
+                new ScopeNode(),
+                new SerializerNode(),
+                //new LoggerFilter()
+                //new BufferNode(),
+                new EchoNode
                 {
-                    new StopwatchNode(),
-                    new ServiceNode(),
-                    new DelegateNode(),
-                    new ScopeNode(),
-                    new SerializerNode(),
-                    //new LoggerFilter()
-                    //new BufferNode(),
-                    new EchoNode
-                    {
-                        Rx = { rx },
-                    }
+                    Rx = { rx },
                 }
-            };
+            }.Build();
             var logger = lf.CreateLogger("test");
             logger.Log(l => l.Message("Hallo!"));
             Assert.Equal(1, rx.Count());
@@ -75,23 +72,20 @@ namespace Reusable.OmniLog
             ExecutionContext.SuppressFlow();
 
             var rx = new MemoryRx();
-            var lf = new LoggerFactory
+            var lf = new LoggerFactoryBuilder
             {
-                Nodes =
+                new StopwatchNode(),
+                new ServiceNode(),
+                new DelegateNode(),
+                new ScopeNode(),
+                new SerializerNode(),
+                //new LoggerFilter()
+                //new BufferNode(),
+                new EchoNode
                 {
-                    new StopwatchNode(),
-                    new ServiceNode(),
-                    new DelegateNode(),
-                    new ScopeNode(),
-                    new SerializerNode(),
-                    //new LoggerFilter()
-                    //new BufferNode(),
-                    new EchoNode
-                    {
-                        Rx = { rx },
-                    }
+                    Rx = { rx },
                 }
-            };
+            }.Build();
             using (lf)
             {
                 var logger = lf.CreateLogger("test");
@@ -123,24 +117,21 @@ namespace Reusable.OmniLog
         public void Can_serialize_data()
         {
             var rx = new MemoryRx();
-            var lf = new LoggerFactory
+            var lf = new LoggerFactoryBuilder
             {
-                Nodes =
+                new StopwatchNode(),
+                new ServiceNode(),
+                new DelegateNode(),
+                new ScopeNode(),
+                new DestructureNode(),
+                new SerializerNode(),
+                //new LoggerFilter()
+                //new BufferNode(),
+                new EchoNode
                 {
-                    new StopwatchNode(),
-                    new ServiceNode(),
-                    new DelegateNode(),
-                    new ScopeNode(),
-                    new DestructureNode(),
-                    new SerializerNode(),
-                    //new LoggerFilter()
-                    //new BufferNode(),
-                    new EchoNode
-                    {
-                        Rx = { rx },
-                    }
+                    Rx = { rx },
                 }
-            };
+            }.Build();
             using (lf)
             {
                 var logger = lf.CreateLogger("test");
@@ -160,24 +151,21 @@ namespace Reusable.OmniLog
             var timestamp = DateTime.Parse("2019-05-01");
 
             var rx = new MemoryRx();
-            var lf = new LoggerFactory
+            var lf = new LoggerFactoryBuilder
             {
-                Nodes =
+                new ServiceNode
                 {
-                    new ServiceNode
+                    Services =
                     {
-                        Services =
-                        {
-                            new Timestamp(new[] { timestamp })
-                        }
-                    },
-                    new DelegateNode(),
-                    new EchoNode
-                    {
-                        Rx = { rx },
+                        new Timestamp(new[] { timestamp })
                     }
+                },
+                new DelegateNode(),
+                new EchoNode
+                {
+                    Rx = { rx },
                 }
-            };
+            }.Build();
             using (lf)
             {
                 var logger = lf.CreateLogger("test");
@@ -195,16 +183,13 @@ namespace Reusable.OmniLog
             var timestamp = DateTime.Parse("2019-05-01");
 
             var rx = new MemoryRx();
-            var lf = new LoggerFactory
+            var lf = new LoggerFactoryBuilder
             {
-                Nodes =
-                {
-                    new ServiceNode { Services = { new Timestamp(new[] { timestamp }) } },
-                    new DelegateNode(),
-                    new DestructureNode(),
-                    new EchoNode { Rx = { rx }, }
-                },
-            };
+                new ServiceNode { Services = { new Timestamp(new[] { timestamp }) } },
+                new DelegateNode(),
+                new DestructureNode(),
+                new EchoNode { Rx = { rx }, }
+            }.Build();
             using (lf)
             {
                 var logger = lf.CreateLogger("test");
@@ -225,32 +210,29 @@ namespace Reusable.OmniLog
             var timestamp = DateTime.Parse("2019-05-01");
 
             var rx = new MemoryRx();
-            var lf = new LoggerFactory
+            var lf = new LoggerFactoryBuilder()
             {
-                Nodes =
+                new ServiceNode
                 {
-                    new ServiceNode
+                    Services =
                     {
-                        Services =
-                        {
-                            new Timestamp(new[] { timestamp })
-                        }
-                    },
-                    new DelegateNode(),
-                    new DestructureNode(),
-                    new ObjectMapperNode
-                    {
-                        Mappings =
-                        {
-                            ObjectMapperNode.Mapping.For<Person>(p => new { FullName = p.LastName + ", " + p.FirstName })
-                        }
-                    },
-                    new EchoNode
-                    {
-                        Rx = { rx },
+                        new Timestamp(new[] { timestamp })
                     }
                 },
-            };
+                new DelegateNode(),
+                new DestructureNode(),
+                new ObjectMapperNode
+                {
+                    Mappings =
+                    {
+                        ObjectMapperNode.Mapping.For<Person>(p => new { FullName = p.LastName + ", " + p.FirstName })
+                    }
+                },
+                new EchoNode
+                {
+                    Rx = { rx },
+                }
+            }.Build();
             using (lf)
             {
                 var logger = lf.CreateLogger("test");
