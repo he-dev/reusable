@@ -4,13 +4,14 @@ using System.Diagnostics;
 using JetBrains.Annotations;
 using Reusable.Diagnostics;
 using Reusable.Extensions;
+using Reusable.Translucent.Data;
 
 namespace Reusable.Translucent.Controllers
 {
     [PublicAPI]
     public interface IResourceController : IDisposable
     {
-        ComplexName Name { get; }
+        ControllerName ControllerName { get; }
 
         UriString? BaseUri { get; }
 
@@ -25,9 +26,9 @@ namespace Reusable.Translucent.Controllers
     [DebuggerDisplay(DebuggerDisplayString.DefaultNoQuotes)]
     public abstract class ResourceController : IResourceController
     {
-        protected ResourceController(ComplexName name, string? basePath, params SoftString[] schemes)
+        protected ResourceController(ControllerName controllerName, string? basePath, params SoftString[] schemes)
         {
-            Name = name;
+            ControllerName = controllerName;
             BaseUri = basePath is {} uri ? new UriString(uri) : default;
             Schemes = new HashSet<SoftString>(schemes);
         }
@@ -40,7 +41,7 @@ namespace Reusable.Translucent.Controllers
             //builder.DisplayValue(x => x.Schemes);
         });
 
-        public ComplexName Name { get; }
+        public ControllerName ControllerName { get; }
 
         public UriString? BaseUri { get; }
 

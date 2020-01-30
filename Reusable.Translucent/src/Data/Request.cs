@@ -1,10 +1,8 @@
 using System;
-using System.Collections.Generic;
 using System.Text;
 using System.Threading;
-using Reusable.Data;
 
-namespace Reusable.Translucent
+namespace Reusable.Translucent.Data
 {
     public class Request : IDisposable
     {
@@ -19,7 +17,7 @@ namespace Reusable.Translucent
 
         #region Options
 
-        public ComplexName ControllerName { get; set; } = ComplexName.Empty;
+        public ControllerName ControllerName { get; set; } = ControllerName.Empty;
 
         public bool Required { get; set; } = true;
 

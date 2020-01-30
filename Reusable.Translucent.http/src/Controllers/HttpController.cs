@@ -10,6 +10,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using Reusable.Extensions;
 using Reusable.Translucent.Annotations;
+using Reusable.Translucent.Data;
 using Reusable.Utilities.JsonNet.Converters;
 using Reusable.Utilities.JsonNet.Extensions;
 
@@ -21,7 +22,7 @@ namespace Reusable.Translucent.Controllers
     {
         private readonly HttpClient _client;
 
-        public HttpController(ComplexName name, HttpClient httpClient) : base(name, httpClient.BaseAddress.ToString(), UriSchemes.Known.Http, UriSchemes.Known.Https)
+        public HttpController(ControllerName controllerName, HttpClient httpClient) : base(controllerName, httpClient.BaseAddress.ToString(), UriSchemes.Known.Http, UriSchemes.Known.Https)
         {
             _client = httpClient;
             _client.DefaultRequestHeaders.Clear();
@@ -42,9 +43,9 @@ namespace Reusable.Translucent.Controllers
         /// <summary>
         /// Create a HttpProvider that doesn't use a proxy for requests.
         /// </summary>
-        public static HttpController FromBaseUri(ComplexName name, string baseUri)
+        public static HttpController FromBaseUri(ControllerName controllerName, string baseUri)
         {
-            return new HttpController(name, new HttpClient(new HttpClientHandler { UseProxy = false })
+            return new HttpController(controllerName, new HttpClient(new HttpClientHandler { UseProxy = false })
             {
                 BaseAddress = new Uri(baseUri)
             });

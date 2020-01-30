@@ -11,6 +11,7 @@
   
   <ItemGroup>
     <Compile Remove="src\Expressions.cs" />
+    <Compile Remove="src\Nodes\ConstantNode.cs" />
   </ItemGroup>
 
   <ItemGroup>

@@ -16,10 +16,10 @@ using Reusable.OmniLog.Abstractions.Data;
 using Reusable.OmniLog.Nodes;
 using Reusable.OmniLog.Rx;
 using Reusable.OmniLog.Rx.ConsoleRenderers;
-using Reusable.OmniLog.Scalars;
 using Reusable.OmniLog.SemanticExtensions;
 using Reusable.OmniLog.SemanticExtensions.AspNetCore;
 using Reusable.OmniLog.SemanticExtensions.AspNetCore.Extensions;
+using Reusable.OmniLog.Services;
 using Reusable.Utilities.AspNetCore;
 using Reusable.Utilities.AspNetCore.Hosting;
 using Reusable.Utilities.NLog.LayoutRenderers;
@@ -59,20 +59,20 @@ namespace Reusable.Apps.Server
             services.AddOmniLog(factory =>
             {
                 factory
-                    .UseConstant
-                    (
-                        ("Environment", _hostingEnvironment.EnvironmentName),
-                        ("Product", "Reusable.app.Server")
-                    )
                     .UseStopwatch()
-                    .UseScalar(new Timestamp<DateTimeUtc>())
-                    .UseLambda()
+                    .UseService
+                    (
+                        new Constant("Environment", _hostingEnvironment.EnvironmentName),
+                        new Constant("Product", "Reusable.app.Server"),
+                        new Timestamp<DateTimeUtc>()
+                    )
+                    .UseDelegate()
                     .UseScope()
                     .UseBuilder()
-                    .UseOneToMany()
-                    .UseMapper()
+                    .UseDestructure()
+                    .UseObjectMapper()
                     .UseSerializer()
-                    .UseRename
+                    .UsePropertyMapper
                     (
                         (LogEntry.Names.SnapshotName, "Identifier")
                     )

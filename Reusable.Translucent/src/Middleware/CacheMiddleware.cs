@@ -2,6 +2,7 @@ using System;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.Extensions.Caching.Memory;
+using Reusable.Translucent.Data;
 
 namespace Reusable.Translucent.Middleware
 {

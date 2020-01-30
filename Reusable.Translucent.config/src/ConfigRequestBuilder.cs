@@ -6,6 +6,7 @@ using Reusable.Data;
 using Reusable.Quickey;
 using Reusable.Translucent.Annotations;
 using Reusable.Translucent.Controllers;
+using Reusable.Translucent.Data;
 
 namespace Reusable.Translucent
 {
@@ -13,7 +14,7 @@ namespace Reusable.Translucent
     {
         public static Request CreateRequest
         (
-            Reusable.Data.Option<RequestMethod> method,
+            Option<RequestMethod> method,
             Selector selector,
             object? value = default,
             Action<ConfigRequest>? requestAction = default
@@ -44,7 +45,7 @@ namespace Reusable.Translucent
 
             if (resource?.Controller is {} controller)
             {
-                request.ControllerName = new ComplexName { controller };
+                request.ControllerName = controller;
             }
 
             requestAction?.Invoke(request);

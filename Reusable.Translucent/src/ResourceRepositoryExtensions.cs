@@ -1,6 +1,7 @@
 using System;
 using System.Threading.Tasks;
 using Reusable.Extensions;
+using Reusable.Translucent.Data;
 
 namespace Reusable.Translucent
 {

@@ -15,7 +15,7 @@ namespace Reusable.OmniLog.Nodes
     /// <summary>
     /// Breaks a compound object into its component objects and create a log-entry for each one.
     /// </summary>
-    public class OneToManyNode : LoggerNode
+    public class DestructureNode : LoggerNode
     {
         protected override void invoke(LogEntry request)
         {

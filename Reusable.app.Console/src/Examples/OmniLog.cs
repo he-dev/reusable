@@ -7,8 +7,8 @@ using Reusable.OmniLog.Abstractions.Data;
 using Reusable.OmniLog.Nodes;
 using Reusable.OmniLog.Rx;
 using Reusable.OmniLog.Rx.ConsoleRenderers;
-using Reusable.OmniLog.Scalars;
 using Reusable.OmniLog.SemanticExtensions;
+using Reusable.OmniLog.Services;
 using Reusable.Utilities.NLog.LayoutRenderers;
 
 namespace Reusable
@@ -23,15 +23,6 @@ namespace Reusable
             {
                 Nodes =
                 {
-                    // Adds constant values to each log-entry.
-                    new ConstantNode
-                    {
-                        Values =
-                        {
-                            { "Environment", "Demo" },
-                            { "Product", "Reusable.app.Console" }
-                        }
-                    },
                     // Adds elapsed time to each log-entry. Can be enabled with logger.UseStopwatch(). Dispose to disable.
 //                    new StopwatchNode
 //                    {
@@ -39,16 +30,18 @@ namespace Reusable
 //                        GetValue = elapsed => elapsed.TotalMilliseconds
 //                    },
                     // Adds computed properties to each log-entry.
-                    new ScalarNode
+                    new ServiceNode
                     {
-                        Functions =
+                        Services =
                         {
+                            new Constant("Environment", "Demo"),
+                            new Constant("Product", "Reusable.app.Console"),
                             // Adds utc timestamp to each log-entry.
                             new Timestamp<DateTimeUtc>()
                         }
                     },
                     // Adds support for logger.Log(log => ..) overload.
-                    new LambdaNode(),
+                    new DelegateNode(),
                     // Adds Correlation object to each log-entry.
                     //new CorrelationNode(),
                     new ScopeNode(),
@@ -56,15 +49,15 @@ namespace Reusable
                     // Contains properties Layer and Category and Meta#Dump.
                     new BuilderNode(),
                     // Explodes objects and dictionaries into multiple log-entries. One per each property/item.
-                    new OneToManyNode(),
+                    new DestructureNode(),
                     // Converts #Serializable items. Objects and dictionaries are treated as collections of KeyValuePairs.
                     // They are added as Variable & #Serializable to each log-entry.
-                    new MapperNode
+                    new ObjectMapperNode
                     {
                         // Maps Person to a different type.
                         Mappings =
                         {
-                            MapperNode.Mapping.For<Person>(x => new { FullName = $"{x.LastName}, {x.FirstName}".ToUpper() })
+                            ObjectMapperNode.Mapping.For<Person>(x => new { FullName = $"{x.LastName}, {x.FirstName}".ToUpper() })
                         }
                     },
                     // Serializes every #Serializable item in the log-entry and adds it as #Property.
@@ -72,7 +65,7 @@ namespace Reusable
                     // Filters log-entries and short-circuits the pipeline when False.
                     new FilterNode(logEntry => true),
                     // Renames properties.
-                    new RenameNode
+                    new PropertyMapperNode
                     {
                         Mappings =
                         {

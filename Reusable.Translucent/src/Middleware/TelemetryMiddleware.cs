@@ -31,10 +31,9 @@ namespace Reusable.Translucent.Middleware
                     await _next(context);
                     _logger.Log(Abstraction.Layer.IO().Meta(new
                     {
-                        requestUri,
-                        statusCode = context.Response.StatusCode,
+                        path = requestUri,
                         required = context.Request.Required,
-                        //exists = context.Response?.Exists()
+                        statusCode = context.Response.StatusCode,
                     }, "Resource"));
                 }
                 catch (Exception inner)

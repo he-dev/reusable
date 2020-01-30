@@ -7,8 +7,13 @@ using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.Extensions.Caching.Memory;
 using Reusable.Extensions;
+using Reusable.OmniLog;
+using Reusable.OmniLog.Abstractions;
+using Reusable.OmniLog.SemanticExtensions;
 using Reusable.Translucent.Annotations;
 using Reusable.Translucent.Controllers;
+using Reusable.Translucent.Data;
+using Reusable.Translucent.Extensions;
 
 namespace Reusable.Translucent.Middleware
 {
@@ -26,54 +31,57 @@ namespace Reusable.Translucent.Middleware
             ResourceControllerFilters.FilterByUriPath,
         };
 
-        private readonly IImmutableList<IResourceController> _controllers;
-        private readonly RequestDelegate<ResourceContext> _next;
-        private readonly IMemoryCache _cache;
+        private readonly IImmutableList<IResourceController> controllers;
+        private readonly RequestDelegate<ResourceContext> next;
+        private readonly ILogger<ResourceMiddleware> logger;
+        private readonly IMemoryCache cache;
 
-        public ResourceMiddleware(RequestDelegate<ResourceContext> next, IResourceCollection controllers)
+        public ResourceMiddleware(RequestDelegate<ResourceContext> next, IResourceCollection controllers, ILogger<ResourceMiddleware> logger)
         {
-            _next = next;
-            _controllers = controllers.ToImmutableList();
-            _cache = new MemoryCache(new MemoryCacheOptions { });
+            this.next = next;
+            this.logger = logger;
+            this.controllers = controllers.ToImmutableList();
+            cache = new MemoryCache(new MemoryCacheOptions { });
         }
 
         public async Task InvokeAsync(ResourceContext context)
         {
-            await _next(context);
+            await next(context);
 
             var providerKey = context.Request.Uri.ToString();
 
             // Used cached provider if already resolved.
-            if (_cache.TryGetValue<IResourceController>(providerKey, out var entry))
+            if (cache.TryGetValue<IResourceController>(providerKey, out var entry))
             {
                 context.Response = await InvokeMethodAsync(entry, context.Request);
             }
             else
             {
-                var controllers = Filters.Aggregate(_controllers.AsEnumerable(), (providers, filter) => filter(providers, context.Request));
+                var candidates = Filters.Aggregate(controllers.AsEnumerable(), (providers, filter) => filter(providers, context.Request));
 
                 // GET can search multiple providers.
                 if (context.Request.Method == RequestMethod.Get)
                 {
                     context.Response = Response.NotFound();
-                    foreach (var controller in controllers)
+                    foreach (var controller in candidates)
                     {
-                        context.Response.HandledBy.Add(controller);
-                        
                         if (await InvokeMethodAsync(controller, context.Request) is var response && response.Exists())
                         {
-                            response.HandledBy.AddRange(context.Response.HandledBy);
                             context.Response = response;
-                            
-                            _cache.Set(providerKey, controller);
+                            cache.Set(providerKey, controller);
+                            logger.Log(Abstraction.Layer.IO().Meta(new { statusCode = ResourceStatusCode.OK }));
                             break;
+                        }
+                        else
+                        {
+                            logger.Log(Abstraction.Layer.IO().Meta(new { statusCode = ResourceStatusCode.NotFound }));
                         }
                     }
                 }
                 // Other methods are allowed to use only a single controller.
                 else
                 {
-                    var controller = _cache.Set(providerKey, controllers.SingleOrThrow(onEmpty: ($"{nameof(ResourceController)}NotFound", $"Could not find controller for resource '{context.Request.Uri}'.")));
+                    var controller = cache.Set(providerKey, candidates.SingleOrThrow(onEmpty: ($"{nameof(ResourceController)}NotFound", $"Could not find controller for resource '{context.Request.Uri}'.")));
                     context.Response = await InvokeMethodAsync(controller, context.Request);
                 }
             }

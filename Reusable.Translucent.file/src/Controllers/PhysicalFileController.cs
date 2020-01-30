@@ -3,6 +3,8 @@ using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Reusable.Extensions;
 using Reusable.Translucent.Annotations;
+using Reusable.Translucent.Data;
+using Reusable.Translucent.Extensions;
 
 namespace Reusable.Translucent.Controllers
 {
@@ -10,7 +12,7 @@ namespace Reusable.Translucent.Controllers
     [Handles(typeof(FileRequest))]
     public class PhysicalFileController : ResourceController
     {
-        public PhysicalFileController(ComplexName name, string? basePath = default) : base(name, basePath, UriSchemes.Known.File) { }
+        public PhysicalFileController(ControllerName controllerName, string? basePath = default) : base(controllerName, basePath, UriSchemes.Known.File) { }
 
 
         [ResourceGet]

@@ -1,13 +1,14 @@
 using System;
 using System.IO;
 using System.Threading.Tasks;
+using Reusable.Translucent.Extensions;
 using Xunit;
 
 namespace Reusable.Translucent.Controllers
 {
     public class PhysicalFileControllerTest
     {
-        private static readonly IResourceRepository Resources = ResourceRepository.Create((c, _) => c.AddPhysicalFile(ComplexName.Empty));
+        private static readonly IResourceRepository Resources = ResourceRepository.Create((c, _) => c.AddPhysicalFile(ControllerName.Empty));
 
         [Fact]
         public async Task Can_handle_file_methods()

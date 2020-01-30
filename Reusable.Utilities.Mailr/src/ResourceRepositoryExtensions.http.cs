@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Reusable.Utilities.Mailr.Models;
 using Reusable.Translucent;
+using Reusable.Translucent.Extensions;
 
 namespace Reusable.Utilities.Mailr
 {
@@ -13,15 +14,15 @@ namespace Reusable.Utilities.Mailr
             this IResourceRepository resourceRepository,
             UriString uri,
             Email email,
-            Action<HttpRequest>? requestAction = default
+            Action<HttpRequest>? configureRequest = default
         )
         {
             using var response = await resourceRepository.PostAsync<HttpRequest>(uri, email, request =>
             {
-                request.ControllerName = new ComplexName { "Mailr" };
+                request.ControllerName = "Mailr";
                 request.ContentType = "application/json";
                 request.HeaderActions.Add(headers => { headers.AcceptHtml(); });
-                requestAction?.Invoke(request);
+                configureRequest?.Invoke(request);
             });
             return await response.DeserializeTextAsync();
         }

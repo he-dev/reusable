@@ -1,9 +1,12 @@
 using System;
 
-namespace Reusable.OmniLog.SemanticExtensions.AspNetCore.Helpers {
+namespace Reusable.OmniLog.SemanticExtensions.AspNetCore.Helpers
+{
     public static class HttpHelper
     {
-        
+        /// <summary>
+        /// Maps http-status-code to OmiLog log-level.
+        /// </summary>
         public static Func<int, Reusable.Data.Option<LogLevel>> MapStatusCode { get; set; } = statusCode =>
         {
             return statusCode switch

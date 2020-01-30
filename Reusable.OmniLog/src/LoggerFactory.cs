@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using JetBrains.Annotations;
 using Reusable.OmniLog.Abstractions;
 using Reusable.OmniLog.Nodes;
+using Reusable.OmniLog.Services;
 
 namespace Reusable.OmniLog
 {
@@ -21,10 +22,10 @@ namespace Reusable.OmniLog
         {
             var logger = new Logger
             {
-                Next = new ConstantNode { Values = { [nameof(Logger)] = loggerName } }
+                Next = new ServiceNode { Services = { new Constant(nameof(Logger), loggerName) } }
             };
             var current = logger.Next;
-            
+
             foreach (var node in Nodes)
             {
                 current = current.AddAfter(node);

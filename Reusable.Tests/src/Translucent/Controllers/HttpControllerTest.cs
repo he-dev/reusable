@@ -46,11 +46,11 @@ namespace Reusable.Translucent.Controllers
                 Body = new { Greeting = "Hallo Mailr!" }
             };
 
-            var resources = ResourceRepository.Create((c, _) => c.AddHttp(new ComplexName { "Mailr" }, "http://localhost:30002/api"));
+            var resources = ResourceRepository.Create((c, _) => c.AddHttp("Mailr", "http://localhost:30002/api"));
             var response = await resources.SendEmailAsync("mailr/messages/test", email, http =>
             {
                 http.HeaderActions.Add(headers => headers.UserAgent("xunit", "1.0"));
-                http.ControllerName = new ComplexName { "Mailr" };
+                http.ControllerName = "Mailr";
             });
 
             serverContext.Assert();

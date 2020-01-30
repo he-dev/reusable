@@ -4,6 +4,7 @@ using JetBrains.Annotations;
 using Reusable.OneTo1;
 using Reusable.Translucent.Annotations;
 using Reusable.Translucent.Converters;
+using Reusable.Translucent.Data;
 using Reusable.Utilities.SqlClient;
 
 namespace Reusable.Translucent.Controllers
@@ -15,7 +16,7 @@ namespace Reusable.Translucent.Controllers
 
         public const string DefaultTable = "Setting";
 
-        public SqlServerController(ComplexName name, string connectionString) : base(name)
+        public SqlServerController(ControllerName controllerName, string connectionString) : base(controllerName)
         {
             ConnectionString = connectionString;
             Converter = new JsonSettingConverter();

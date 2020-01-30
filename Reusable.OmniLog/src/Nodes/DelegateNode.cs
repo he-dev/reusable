@@ -4,7 +4,7 @@ using Reusable.OmniLog.Abstractions.Data;
 
 namespace Reusable.OmniLog.Nodes
 {
-    public class LambdaNode : LoggerNode
+    public class DelegateNode : LoggerNode
     {
         public override bool Enabled => AsyncScope<Item>.Any;
 
@@ -36,9 +36,9 @@ namespace Reusable.OmniLog.Nodes
 
     public static class LoggerLambdaHelper
     {
-        public static void UseLambda(this ILogger logger, AlterLogEntryDelegate alter)
+        public static void UseDelegate(this ILogger logger, AlterLogEntryDelegate alter)
         {
-            LambdaNode.Push(new LambdaNode.Item(alter));
+            DelegateNode.Push(new DelegateNode.Item(alter));
         }
     }
 }

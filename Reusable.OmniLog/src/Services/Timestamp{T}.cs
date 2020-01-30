@@ -1,9 +1,9 @@
 ﻿using Reusable.OmniLog.Abstractions;
 using Reusable.OmniLog.Abstractions.Data;
 
-namespace Reusable.OmniLog.Scalars
+namespace Reusable.OmniLog.Services
 {
-    public class Timestamp<T> : Computable where T : IDateTime, new()
+    public class Timestamp<T> : Service where T : IDateTime, new()
     {
         private readonly IDateTime _dateTime;
 
@@ -13,7 +13,7 @@ namespace Reusable.OmniLog.Scalars
             _dateTime = new T();
         }
 
-        public override object? Compute(LogEntry logEntry)
+        public override object? GetValue(LogEntry logEntry)
         {
             return _dateTime.Now();
         }

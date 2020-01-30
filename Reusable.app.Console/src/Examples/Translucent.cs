@@ -48,7 +48,7 @@ namespace Reusable
 
         public static async Task SendEmailViaMailr()
         {
-            var resources = ResourceRepository.Create((c, _) => c.AddHttp(new ComplexName { "Mailr" }, "http://localhost:7000/api"));
+            var resources = ResourceRepository.Create((c, _) => c.AddHttp("Mailr", "http://localhost:7000/api"));
 
             await resources.SendEmailAsync
             (

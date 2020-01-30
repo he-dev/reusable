@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using Reusable.OmniLog.Abstractions;
 using Reusable.OmniLog.Abstractions.Data;
 
-namespace Reusable.OmniLog.Scalars
+namespace Reusable.OmniLog.Services
 {
-    public class Timestamp : Computable, IDisposable
+    public class Timestamp : Service, IDisposable
     {
         private int _timestampCount;
 
@@ -19,7 +19,7 @@ namespace Reusable.OmniLog.Scalars
             _timestamps = timestamps.GetEnumerator();
         }
 
-        public override object? Compute(LogEntry logEntry)
+        public override object? GetValue(LogEntry logEntry)
         {
             if (_timestamps.MoveNext())
             {

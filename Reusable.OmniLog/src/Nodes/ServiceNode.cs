@@ -9,17 +9,17 @@ namespace Reusable.OmniLog.Nodes
     /// <summary>
     /// Computes a single value and adds to the log.
     /// </summary>
-    public class ScalarNode : LoggerNode
+    public class ServiceNode : LoggerNode
     {
-        public override bool Enabled => base.Enabled && Functions.Any();
+        public override bool Enabled => base.Enabled && Services.Any();
 
-        public List<IComputable> Functions { get; set; } = new List<IComputable>();
+        public List<IService> Services { get; set; } = new List<IService>();
 
         protected override void invoke(LogEntry request)
         {
-            foreach (var computable in Functions.Where(x => x.Enabled))
+            foreach (var computable in Services.Where(x => x.Enabled))
             {
-                request.Add<Log>(computable.Name, computable.Compute(request));
+                request.Add<Log>(computable.Name, computable.GetValue(request));
             }
 
             invokeNext(request);

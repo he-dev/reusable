@@ -3,6 +3,7 @@ using System.Reflection;
 using System.Threading.Tasks;
 using Reusable.Extensions;
 using Reusable.Translucent.Annotations;
+using Reusable.Translucent.Data;
 
 namespace Reusable.Translucent.Controllers
 {
@@ -11,7 +12,7 @@ namespace Reusable.Translucent.Controllers
     {
         private readonly Assembly _assembly;
 
-        public EmbeddedFileController(ComplexName name, string basePath, Assembly assembly) : base(name, basePath, UriSchemes.Known.File)
+        public EmbeddedFileController(ControllerName controllerName, string basePath, Assembly assembly) : base(controllerName, basePath, UriSchemes.Known.File)
         {
             _assembly = assembly;
         }
@@ -36,10 +37,10 @@ namespace Reusable.Translucent.Controllers
 
     public class EmbeddedFileController<T> : EmbeddedFileController
     {
-        public EmbeddedFileController(ComplexName name, string? baseUri = default) : base(name, baseUri ?? typeof(T).Namespace, typeof(T).Assembly) { }
+        public EmbeddedFileController(ControllerName controllerName, string? baseUri = default) : base(controllerName, baseUri ?? typeof(T).Namespace, typeof(T).Assembly) { }
 
-        public static IResourceController Default { get; } = new EmbeddedFileController(ComplexName.Empty, typeof(T).Namespace, typeof(T).Assembly);
+        public static IResourceController Default { get; } = new EmbeddedFileController(ControllerName.Empty, typeof(T).Namespace, typeof(T).Assembly);
 
-        public static IResourceController Create(ComplexName name, string basePath) => new EmbeddedFileController(name, basePath, typeof(T).Assembly);
+        public static IResourceController Create(ControllerName controllerName, string basePath) => new EmbeddedFileController(controllerName, basePath, typeof(T).Assembly);
     }
 }

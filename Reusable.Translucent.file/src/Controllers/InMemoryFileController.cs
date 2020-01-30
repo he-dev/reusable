@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Reusable.Extensions;
 using Reusable.Translucent.Annotations;
+using Reusable.Translucent.Data;
 
 namespace Reusable.Translucent.Controllers
 {
@@ -12,7 +13,7 @@ namespace Reusable.Translucent.Controllers
     {
         private readonly IDictionary<UriString, object?> _items = new Dictionary<UriString, object?>();
 
-        public InMemoryFileController(ComplexName? name = default) : base(name ?? ComplexName.Empty, UriSchemes.Known.File) { }
+        public InMemoryFileController(ControllerName? name = default) : base(name ?? ControllerName.Empty, UriSchemes.Known.File) { }
 
         [ResourceGet]
         public Task<Response> GetAsync(Request request)

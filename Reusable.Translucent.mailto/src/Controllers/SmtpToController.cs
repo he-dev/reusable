@@ -8,13 +8,15 @@ using MimeKit;
 using MimeKit.Text;
 using Reusable.Extensions;
 using Reusable.Translucent.Annotations;
+using Reusable.Translucent.Data;
+using Reusable.Translucent.Extensions;
 using ContentDisposition = MimeKit.ContentDisposition;
 
 namespace Reusable.Translucent.Controllers
 {
     public class SmtpToController : MailToController
     {
-        public SmtpToController(ComplexName name) : base(name) { }
+        public SmtpToController(ControllerName controllerName) : base(controllerName) { }
 
         [ResourcePost]
         public async Task<Response> SendEmailAsync(Request request)

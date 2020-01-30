@@ -1,4 +1,5 @@
 using JetBrains.Annotations;
+using Reusable.Translucent.Data;
 
 namespace Reusable.Translucent
 {

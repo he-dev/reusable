@@ -2,8 +2,9 @@ using System;
 using System.IO;
 using System.Threading.Tasks;
 using Reusable.Extensions;
+using Reusable.Translucent.Data;
 
-namespace Reusable.Translucent
+namespace Reusable.Translucent.Extensions
 {
     public static class ResponseExtensions
     {

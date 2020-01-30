@@ -8,6 +8,7 @@ using JetBrains.Annotations;
 using Reusable.Exceptionize;
 using Reusable.Extensions;
 using Reusable.Translucent.Controllers;
+using Reusable.Translucent.Data;
 
 namespace Reusable.Translucent.Middleware
 {

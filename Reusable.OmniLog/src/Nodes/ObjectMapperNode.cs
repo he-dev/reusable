@@ -9,13 +9,10 @@ using Reusable.OmniLog.Abstractions.Data.LogPropertyActions;
 
 namespace Reusable.OmniLog.Nodes
 {
-    // when #Dump is Dictionary --> call Next() for each pair where Key: Identifier and Value: #Serializable
-    // when #Dump is object --> call Next() for each property and its value where PropertyName: Identifier and Value: #Serializable
-    // when #Dump is string --> call Next() once where Key.Name: Identifier and Value: #Dump as #Serializable
     /// <summary>
-    /// Breaks a compound object into its component objects and create a log-entry for each one.
+    /// Maps one object into a different one.
     /// </summary>
-    public class MapperNode : LoggerNode
+    public class ObjectMapperNode : LoggerNode
     {
         public MappingCollection Mappings { get; set; } = new MappingCollection();
 

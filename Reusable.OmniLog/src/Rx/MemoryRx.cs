@@ -22,7 +22,7 @@ namespace Reusable.OmniLog.Rx
 
         public int Capacity { get; }
 
-        public LogEntry this[int index] => this.ElementAtOrDefault(index) ?? throw DynamicException.Create("LogIndexOutOfRange", $"There is no log at {index}.");
+        public LogEntry? this[int index] => this.ElementAtOrDefault(index);// ?? throw DynamicException.Create("LogIndexOutOfRange", $"There is no log at {index}.");
 
         public void Log(LogEntry logEntry)
         {

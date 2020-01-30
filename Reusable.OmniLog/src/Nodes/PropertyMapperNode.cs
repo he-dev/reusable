@@ -6,8 +6,10 @@ using Reusable.OmniLog.Abstractions.Data.LogPropertyActions;
 
 namespace Reusable.OmniLog.Nodes
 {
-    // Reroutes items from one property to the other: Meta#Dump --> Snapshot#Dump 
-    public class RenameNode : LoggerNode
+    /// <summary>
+    /// Renames log properties.
+    /// </summary>
+    public class PropertyMapperNode : LoggerNode
     {
         public Dictionary<SoftString, string> Mappings { get; set; } = new Dictionary<SoftString, string>();
 

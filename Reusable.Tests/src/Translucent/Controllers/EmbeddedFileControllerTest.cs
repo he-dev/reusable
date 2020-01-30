@@ -1,4 +1,6 @@
 using System.Threading.Tasks;
+using Reusable.Translucent.Data;
+using Reusable.Translucent.Extensions;
 using Xunit;
 
 namespace Reusable.Translucent.Controllers

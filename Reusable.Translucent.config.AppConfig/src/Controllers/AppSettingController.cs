@@ -5,12 +5,13 @@ using JetBrains.Annotations;
 using Reusable.Extensions;
 using Reusable.OneTo1;
 using Reusable.Translucent.Annotations;
+using Reusable.Translucent.Data;
 
 namespace Reusable.Translucent.Controllers
 {
     public class AppSettingController : ConfigController
     {
-        public AppSettingController(ComplexName name) : base(name) { }
+        public AppSettingController(ControllerName controllerName) : base(controllerName) { }
 
         [ResourceGet]
         public Task<Response> GetSettingAsync(Request request)

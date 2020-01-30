@@ -3,6 +3,7 @@ using Microsoft.Extensions.Configuration;
 using Reusable.Extensions;
 using Reusable.Translucent.Annotations;
 using Reusable.Translucent.Converters;
+using Reusable.Translucent.Data;
 
 namespace Reusable.Translucent.Controllers
 {
@@ -13,7 +14,7 @@ namespace Reusable.Translucent.Controllers
     {
         private readonly IConfiguration _configuration;
 
-        public JsonFileController(ComplexName name, string basePath, string fileName) : base(name)
+        public JsonFileController(ControllerName controllerName, string basePath, string fileName) : base(controllerName)
         {
             _configuration =
                 new ConfigurationBuilder()

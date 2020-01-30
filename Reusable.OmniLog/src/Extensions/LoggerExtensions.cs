@@ -57,14 +57,14 @@ namespace Reusable.OmniLog
 
         public static void Log(this ILogger logger, AlterLogEntryDelegate alter)
         {
-            logger.UseLambda(alter);
+            logger.UseDelegate(alter);
             logger.Log(new LogEntry());
         }
 
         private static void Log
         (
             this ILogger logger,
-            Reusable.Data.Option<LogLevel> level,
+            Option<LogLevel> level,
             string? message,
             Exception? exception,
             AlterLogEntryDelegate? alter

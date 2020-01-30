@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using Reusable.Translucent.Controllers;
+using Reusable.Translucent.Data;
 
 namespace Reusable.Translucent
 {
@@ -11,15 +12,20 @@ namespace Reusable.Translucent
     {
         public static IEnumerable<IResourceController> FilterByControllerName(this IEnumerable<IResourceController> controllers, Request request)
         {
-            if (request.ControllerName is {})
+            if (request.ControllerName.Equals(ControllerName.Empty))
             {
                 return
                     from c in controllers
-                    where c.Name.Equals(request.ControllerName)
+                    where c.ControllerName.Tags.Overlaps(request.ControllerName.Tags)
                     select c;
             }
-
-            return controllers;
+            else
+            {
+                return
+                    from c in controllers
+                    where c.ControllerName.Equals(request.ControllerName)
+                    select c;
+            }
         }
 
         public static IEnumerable<IResourceController> FilterByRequest(this IEnumerable<IResourceController> controllers, Request request)

@@ -6,7 +6,7 @@ using Reusable.OmniLog.Abstractions.Data;
 using Reusable.OmniLog.Abstractions.Data.LogPropertyActions;
 using Reusable.OmniLog.Nodes;
 using Reusable.OmniLog.Rx;
-using Reusable.OmniLog.Scalars;
+using Reusable.OmniLog.Services;
 using Xunit;
 
 //using Reusable.OmniLog.Attachments;
@@ -51,8 +51,8 @@ namespace Reusable.OmniLog
                 Nodes =
                 {
                     new StopwatchNode(),
-                    new ScalarNode(),
-                    new LambdaNode(),
+                    new ServiceNode(),
+                    new DelegateNode(),
                     new ScopeNode(),
                     new SerializerNode(),
                     //new LoggerFilter()
@@ -80,8 +80,8 @@ namespace Reusable.OmniLog
                 Nodes =
                 {
                     new StopwatchNode(),
-                    new ScalarNode(),
-                    new LambdaNode(),
+                    new ServiceNode(),
+                    new DelegateNode(),
                     new ScopeNode(),
                     new SerializerNode(),
                     //new LoggerFilter()
@@ -128,10 +128,10 @@ namespace Reusable.OmniLog
                 Nodes =
                 {
                     new StopwatchNode(),
-                    new ScalarNode(),
-                    new LambdaNode(),
+                    new ServiceNode(),
+                    new DelegateNode(),
                     new ScopeNode(),
-                    new OneToManyNode(),
+                    new DestructureNode(),
                     new SerializerNode(),
                     //new LoggerFilter()
                     //new BufferNode(),
@@ -164,14 +164,14 @@ namespace Reusable.OmniLog
             {
                 Nodes =
                 {
-                    new ScalarNode
+                    new ServiceNode
                     {
-                        Functions =
+                        Services =
                         {
                             new Timestamp(new[] { timestamp })
                         }
                     },
-                    new LambdaNode(),
+                    new DelegateNode(),
                     new EchoNode
                     {
                         Rx = { rx },
@@ -199,9 +199,9 @@ namespace Reusable.OmniLog
             {
                 Nodes =
                 {
-                    new ScalarNode { Functions = { new Timestamp(new[] { timestamp }) } },
-                    new LambdaNode(),
-                    new OneToManyNode(),
+                    new ServiceNode { Services = { new Timestamp(new[] { timestamp }) } },
+                    new DelegateNode(),
+                    new DestructureNode(),
                     new EchoNode { Rx = { rx }, }
                 },
             };
@@ -229,20 +229,20 @@ namespace Reusable.OmniLog
             {
                 Nodes =
                 {
-                    new ScalarNode
+                    new ServiceNode
                     {
-                        Functions =
+                        Services =
                         {
                             new Timestamp(new[] { timestamp })
                         }
                     },
-                    new LambdaNode(),
-                    new OneToManyNode(),
-                    new MapperNode
+                    new DelegateNode(),
+                    new DestructureNode(),
+                    new ObjectMapperNode
                     {
                         Mappings =
                         {
-                            MapperNode.Mapping.For<Person>(p => new { FullName = p.LastName + ", " + p.FirstName })
+                            ObjectMapperNode.Mapping.For<Person>(p => new { FullName = p.LastName + ", " + p.FirstName })
                         }
                     },
                     new EchoNode

@@ -6,24 +6,24 @@ namespace Reusable.Translucent
 {
     public static class EmbeddedFileControllerExtensions
     {
-        public static IResourceCollection AddEmbeddedFile<T>(this IResourceCollection controllers, ComplexName name, string? basePath = default)
+        public static IResourceCollection AddEmbeddedFile<T>(this IResourceCollection controllers, ControllerName controllerName, string? basePath = default)
         {
-            return controllers.Add(new EmbeddedFileController<T>(name, basePath));
+            return controllers.Add(new EmbeddedFileController<T>(controllerName, basePath));
         }
 
-        public static IResourceCollection AddEmbeddedFile(this IResourceCollection controllers, ComplexName name, string basePath, Type assemblyProvider)
+        public static IResourceCollection AddEmbeddedFile(this IResourceCollection controllers, ControllerName controllerName, string basePath, Type assemblyProvider)
         {
-            return controllers.Add(new EmbeddedFileController(name, basePath ?? assemblyProvider.Namespace, assemblyProvider.Assembly));
+            return controllers.Add(new EmbeddedFileController(controllerName, basePath ?? assemblyProvider.Namespace, assemblyProvider.Assembly));
         }
 
-        public static IResourceCollection AddPhysicalFile(this IResourceCollection controllers, ComplexName name, string? basePath = default)
+        public static IResourceCollection AddPhysicalFile(this IResourceCollection controllers, ControllerName controllerName, string? basePath = default)
         {
-            return controllers.Add(new PhysicalFileController(name, basePath));
+            return controllers.Add(new PhysicalFileController(controllerName, basePath));
         }
 
-        public static IResourceCollection UseInMemoryFile(this IResourceCollection controllers, ComplexName name)
+        public static IResourceCollection UseInMemoryFile(this IResourceCollection controllers, ControllerName controllerName)
         {
-            return controllers.Add(new InMemoryFileController(name));
+            return controllers.Add(new InMemoryFileController(controllerName));
         }
     }
 }

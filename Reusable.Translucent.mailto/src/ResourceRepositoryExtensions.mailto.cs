@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Reusable.Translucent.Controllers;
+using Reusable.Translucent.Data;
 using Reusable.Translucent.Models;
 
 namespace Reusable.Translucent

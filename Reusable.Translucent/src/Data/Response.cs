@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 
-namespace Reusable.Translucent
+namespace Reusable.Translucent.Data
 {
     public class Response : IDisposable
     {
@@ -14,12 +14,7 @@ namespace Reusable.Translucent
         /// True if Body was retrieved from cache.
         /// </summary>
         public bool Cached { get; set; }
-
-        /// <summary>
-        /// Gets or sets the controllers that handled this request. In case of a GET request there might be more than one. In case of a success the last controller is the owner of this response.
-        /// </summary>
-        public List<object> HandledBy { get; } = new List<object>();
-
+        
         // ReSharper disable once InconsistentNaming
         public static Response OK() => new Response { StatusCode = ResourceStatusCode.OK };
         

@@ -8,14 +8,14 @@ namespace Reusable.Translucent
 {
     public static class HttpControllerExtensions
     {
-        public static IResourceCollection AddHttp(this IResourceCollection controllers, ComplexName name, string baseUri, Action<HttpController>? configureController = default)
+        public static IResourceCollection AddHttp(this IResourceCollection controllers, ControllerName controllerName, string baseUri, Action<HttpController>? configureController = default)
         {
-            return controllers.Add(HttpController.FromBaseUri(name, baseUri).Pipe(configureController));
+            return controllers.Add(HttpController.FromBaseUri(controllerName, baseUri).Pipe(configureController));
         }
 
-        public static IResourceCollection AddHttp(this IResourceCollection controllers, ComplexName name, HttpClient httpClient, Action<HttpController>? configureController = default)
+        public static IResourceCollection AddHttp(this IResourceCollection controllers, ControllerName controllerName, HttpClient httpClient, Action<HttpController>? configureController = default)
         {
-            return controllers.Add(new HttpController(name, httpClient).Pipe(configureController));
+            return controllers.Add(new HttpController(controllerName, httpClient).Pipe(configureController));
         }
     }
 }
