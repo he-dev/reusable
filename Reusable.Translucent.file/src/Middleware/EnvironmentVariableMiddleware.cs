@@ -31,11 +31,11 @@ namespace Reusable.Translucent.Middleware
         }
     }
 
-    public static class EnvironmentVariableMiddlewareHelper
-    {
-        public static IPipelineBuilder<TContext> UseEnvironmentVariable<TContext>(this IPipelineBuilder<TContext> builder)
-        {
-            return builder.UseMiddleware<EnvironmentVariableMiddleware>();
-        }
-    }
+    // public static class EnvironmentVariableMiddlewareHelper
+    // {
+    //     public static IPipelineBuilder<TContext> UseEnvironmentVariable<TContext>(this IPipelineBuilder<TContext> builder)
+    //     {
+    //         return builder.UseMiddleware<EnvironmentVariableMiddleware>();
+    //     }
+    // }
 }

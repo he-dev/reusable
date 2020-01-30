@@ -37,5 +37,6 @@
         <Compile Remove="src\ResourceRepositoryBuilder - Copy.cs" />
         <Compile Remove="src\ResourceCollection.cs" />
         <Compile Remove="src\PipelineBuilderExtensions.cs" />
+        <Compile Remove="src\PipelineBuilder.cs" />
     </ItemGroup>
 </Project>

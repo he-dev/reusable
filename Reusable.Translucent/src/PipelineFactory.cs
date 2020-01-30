@@ -8,14 +8,15 @@ using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Reusable.Exceptionize;
 using Reusable.Extensions;
+using Reusable.Translucent.Data;
 
 namespace Reusable.Translucent
 {
     public static class PipelineFactory
     {
-        public static RequestDelegate<TContext> CreatePipeline<TContext>(IEnumerable<IMiddlewareInfo<TContext>> middleware, IServiceProvider services)
+        public static RequestDelegate<TContext> CreatePipeline<TContext>(IEnumerable<IMiddlewareInfo> middleware, IServiceProvider services)
         {
-            var pipeline = new Stack<IMiddlewareInfo<TContext>>(middleware);
+            var pipeline = new Stack<IMiddlewareInfo>(middleware);
 
             if (!pipeline.Any())
             {

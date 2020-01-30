@@ -8,8 +8,10 @@ using Xunit;
 
 namespace Reusable.Teapot
 {
-    public class UseCaseTest //: IClassFixture<TeapotServerFixture>
+    public class UseCaseTest : IClassFixture<TestHelperFixture>
+//: IClassFixture<TeapotServerFixture>
     {
+        private readonly TestHelperFixture _testHelper;
         private const string BaseUri = "http://localhost:30001";
 
         //private readonly TeapotServer _teapot;
@@ -23,6 +25,11 @@ namespace Reusable.Teapot
 //            //_http = HttpProvider.FromBaseUri($"{BaseUri}/api");
 //            _resources = ResourceRepository.Create((c, _) => c.AddHttp(default, $"{BaseUri}/api"));
 //        }
+
+        public UseCaseTest(TestHelperFixture testHelper)
+        {
+            _testHelper = testHelper;
+        }
 
         [Fact]
         public async Task Can_post_json()
@@ -52,7 +59,13 @@ namespace Reusable.Teapot
             //{
             // Request made by the application somewhere deep down the rabbit hole
 
-            var resources = ResourceRepository.Builder().Add(HttpController.FromBaseUri(ControllerName.Empty, $"{BaseUri}/api")).Build(ImmutableServiceProvider.Empty);
+            var resources =
+                ResourceRepository
+                    .Builder()
+                    .Add(HttpController.FromBaseUri(ControllerName.Empty, $"{BaseUri}/api"))
+                    .Register(TestHelper.CreateCache())
+                    .Register(_testHelper.LoggerFactory)
+                    .Build(ImmutableServiceProvider.Empty);
             var response = await resources.PostAsync<HttpRequest.Json>("test?param=true", new { Greeting = "Hallo" }, http =>
             {
                 http.HeaderActions.Add(headers =>

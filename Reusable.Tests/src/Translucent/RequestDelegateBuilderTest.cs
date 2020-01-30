@@ -1,25 +1,26 @@
 using System.Threading.Tasks;
+using Reusable.Translucent.Data;
 using Xunit;
 
 namespace Reusable.Translucent
 {
     public class RequestDelegateBuilderTest
     {
-        [Fact]
-        public void Can_build_pipeline()
-        {
-            var builder = new PipelineBuilder<Context>();
-
-            var invoke = builder.UseMiddleware<M1>().UseMiddleware<M1>().UseMiddleware<M1>().Build(ImmutableServiceProvider.Empty);
-            var context = new Context();
-            invoke(context);
-            Assert.Equal(3, context.Counter);
-        }
+        // [Fact]
+        // public void Can_build_pipeline()
+        // {
+        //     var builder = new PipelineBuilder<Context>();
+        //
+        //     var invoke = builder.UseMiddleware<M1>().UseMiddleware<M1>().UseMiddleware<M1>().Build(ImmutableServiceProvider.Empty);
+        //     var context = new Context();
+        //     invoke(context);
+        //     Assert.Equal(3, context.Counter);
+        // }
         
         [Fact]
         public void Can_build_pipeline2()
         {
-            var invoke = PipelineFactory.CreatePipeline(new []
+            var invoke = PipelineFactory.CreatePipeline<Context>(new []
             {
                 MiddlewareInfo<Context>.Create<M1>(),
                 MiddlewareInfo<Context>.Create<M1>(),

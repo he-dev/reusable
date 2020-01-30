@@ -44,11 +44,11 @@ namespace Reusable.Translucent.Middleware
         }
     }
 
-    public static class TelemetryMiddlewareHelper
-    {
-        public static IPipelineBuilder<TContext> UseTelemetry<TContext>(this IPipelineBuilder<TContext> builder, ILogger<TelemetryMiddleware> logger)
-        {
-            return builder.UseMiddleware<TelemetryMiddleware>(logger);
-        }
-    }
+    // public static class TelemetryMiddlewareHelper
+    // {
+    //     public static IPipelineBuilder<TContext> UseTelemetry<TContext>(this IPipelineBuilder<TContext> builder, ILogger<TelemetryMiddleware> logger)
+    //     {
+    //         return builder.UseMiddleware<TelemetryMiddleware>(logger);
+    //     }
+    // }
 }

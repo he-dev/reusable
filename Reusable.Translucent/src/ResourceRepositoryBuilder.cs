@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using Reusable.Translucent.Controllers;
+using Reusable.Translucent.Data;
 using Reusable.Translucent.Middleware;
 
 namespace Reusable.Translucent
@@ -8,7 +9,7 @@ namespace Reusable.Translucent
     public class ResourceRepositoryBuilder
     {
         private readonly List<IResourceController> _controllers = new List<IResourceController>();
-        private readonly List<IMiddlewareInfo<ResourceContext>> _middleware = new List<IMiddlewareInfo<ResourceContext>>();
+        private readonly List<IMiddlewareInfo> _middleware = new List<IMiddlewareInfo>();
         private readonly List<KeyValuePair<Type, object>> _services = new List<KeyValuePair<Type, object>>();
 
         public ResourceRepositoryBuilder Add(params IResourceController[] controllers)
@@ -23,7 +24,7 @@ namespace Reusable.Translucent
             _middleware.Add(new MiddlewareInfo<ResourceContext> { Type = type, Args = args });
             return this;
         }
-        
+
         public ResourceRepositoryBuilder Register<T>(T instance)
         {
             _services.Add(new KeyValuePair<Type, object>(typeof(T), instance));
@@ -34,17 +35,23 @@ namespace Reusable.Translucent
         {
             services = new ImmutableServiceProvider(_services, services ?? ImmutableServiceProvider.Empty).Add<IEnumerable<IResourceController>>(_controllers);
 
-            var pipelineBuilder = new PipelineBuilder<ResourceContext>();
+            //var pipelineBuilder = new PipelineBuilder<ResourceContext>();
 
-            foreach (var (type, args) in _middleware)
+            //foreach (var (type, args) in _middleware)
             {
-                pipelineBuilder.UseMiddleware(type, args);
+                //  pipelineBuilder.UseMiddleware(type, args);
+                //}
+
+                // This is the default middleware that is always the last one.
+                //pipelineBuilder.UseMiddleware<ResourceMiddleware>();
+
+                _middleware.Add(MiddlewareInfo<ResourceContext>.Create<ResourceMiddleware>());
+
+                //return new ResourceRepository(pipelineBuilder.Build(services));
+
+                var pipeline = PipelineFactory.CreatePipeline<ResourceContext>(_middleware, services);
+                return new ResourceRepository(pipeline);
             }
-
-            // This is the default middleware that is always the last one.
-            pipelineBuilder.UseMiddleware<ResourceMiddleware>();
-
-            return new ResourceRepository(pipelineBuilder.Build(services));
         }
     }
 
