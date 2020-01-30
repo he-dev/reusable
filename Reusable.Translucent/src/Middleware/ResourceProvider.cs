@@ -68,12 +68,28 @@ namespace Reusable.Translucent.Middleware
                         {
                             context.Response = response;
                             cache.Set(providerKey, controller);
-                            logger.Log(Abstraction.Layer.IO().Meta(new { statusCode = ResourceStatusCode.OK }));
+                            logger.Log(Abstraction.Layer.IO().Meta(new
+                            {
+                                resource = new
+                                {
+                                    controller = controller.GetType().ToPrettyString(),
+                                    name = controller.ControllerName,
+                                    statusCode = ResourceStatusCode.OK
+                                }
+                            }));
                             break;
                         }
                         else
                         {
-                            logger.Log(Abstraction.Layer.IO().Meta(new { statusCode = ResourceStatusCode.NotFound }));
+                            logger.Log(Abstraction.Layer.IO().Meta(new
+                            {
+                                resource = new
+                                {
+                                    controller = controller.GetType().ToPrettyString(),
+                                    name = controller.ControllerName,
+                                    statusCode = ResourceStatusCode.NotFound
+                                }
+                            }));
                         }
                     }
                 }

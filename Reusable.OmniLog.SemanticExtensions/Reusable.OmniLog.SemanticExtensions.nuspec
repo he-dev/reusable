@@ -2,7 +2,7 @@
 <package>
   <metadata>
     <id>Reusable.OmniLog.SemanticExtensions</id>
-    <version>17.1.2</version>
+    <version>17.1.4</version>
     <title>Reusable.OmniLog.SemanticExtensions</title>
     <authors>He-Dev</authors>
     <owners>He-Dev</owners>
@@ -14,9 +14,9 @@
     <tags>Utility Extension</tags>
     <dependencies>
       <dependency id="JetBrains.Annotations" version="2019.1.3" />
-      <dependency id="Reusable.OmniLog.Abstractions" version="17.1.2" />
-      <dependency id="Reusable.OmniLog" version="17.1.2" />
-      <dependency id="Reusable.Utilities.JsonNet" version="17.1.2" />
+      <dependency id="Reusable.OmniLog.Abstractions" version="17.1.4" />
+      <dependency id="Reusable.OmniLog" version="17.1.4" />
+      <dependency id="Reusable.Utilities.JsonNet" version="17.1.4" />
     </dependencies>
   </metadata>
   <files>

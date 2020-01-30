@@ -15,7 +15,7 @@ namespace Reusable.Translucent.Middleware
     {
         private readonly ILogger _logger;
 
-        public ResourceTelemetry(RequestDelegate<ResourceContext> next, IServiceProvider services) :base(next, services)
+        public ResourceTelemetry(RequestDelegate<ResourceContext> next, IServiceProvider services) : base(next, services)
         {
             _logger = services.GetService<ILoggerFactory>().CreateLogger<ResourceTelemetry>();
         }
@@ -27,13 +27,15 @@ namespace Reusable.Translucent.Middleware
                 var requestUri = context.Request.Uri.ToString();
                 try
                 {
-                    await InvokeNext(context);
                     _logger.Log(Abstraction.Layer.IO().Meta(new
                     {
-                        path = requestUri,
-                        required = context.Request.Required,
-                        statusCode = context.Response.StatusCode,
-                    }, "Resource"));
+                        resource = new
+                        {
+                            path = requestUri,
+                            required = context.Request.Required,
+                        }
+                    }));
+                    await InvokeNext(context);
                 }
                 catch (Exception inner)
                 {

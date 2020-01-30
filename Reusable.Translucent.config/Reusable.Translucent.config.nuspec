@@ -2,7 +2,7 @@
 <package>
   <metadata>
     <id>Reusable.Translucent.Config</id>
-    <version>17.1.2</version>
+    <version>17.1.4</version>
     <title>Reusable.Translucent.Config</title>
     <authors>He-Dev</authors>
     <owners>He-Dev</owners>
@@ -17,8 +17,8 @@
       <dependency id="System.Memory" version="4.5.3" />
       <dependency id="System.ValueTuple" version="4.5.0" />
       <dependency id="System.Collections.Immutable" version="1.6.0" />
-      <dependency id="Reusable.Core" version="17.1.2" />
-      <dependency id="Reusable.Translucent" version="17.1.2" />
+      <dependency id="Reusable.Core" version="17.1.4" />
+      <dependency id="Reusable.Translucent" version="17.1.4" />
     </dependencies>
   </metadata>
   <files>
