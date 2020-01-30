@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Linq;
 using JetBrains.Annotations;
 using Reusable.Extensions;
 using Reusable.OmniLog.Abstractions;
@@ -13,9 +14,12 @@ namespace Reusable.OmniLog
     public class LoggerFactory : ILoggerFactory, IEnumerable<ILoggerNode>
     {
         private readonly IEnumerable<ILoggerNode> _nodes;
+        
         private readonly ConcurrentDictionary<SoftString, ILogger> _loggers = new ConcurrentDictionary<SoftString, ILogger>();
 
         public LoggerFactory(IEnumerable<ILoggerNode> nodes) => _nodes = nodes;
+        
+        public static ILoggerFactory Empty() => new LoggerFactory(Enumerable.Empty<ILoggerNode>());
         
         public static LoggerFactoryBuilder Builder() => new LoggerFactoryBuilder();
 
