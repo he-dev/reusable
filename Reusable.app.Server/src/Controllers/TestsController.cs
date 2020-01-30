@@ -2,6 +2,7 @@
 using Reusable.OmniLog;
 using Reusable.OmniLog.Abstractions;
 using Reusable.OmniLog.SemanticExtensions;
+using Reusable.OmniLog.SemanticExtensions.AspNetCore.Mvc.Filters;
 
 
 namespace Reusable.Apps.Server.Controllers
@@ -10,7 +11,7 @@ namespace Reusable.Apps.Server.Controllers
     [Route("/api/[controller]")]
     public class TestsController : Controller
     {
-        private readonly ILogger<TestsController> _logger;
+        private readonly ILogger _logger;
 
         public TestsController(ILogger<TestsController> logger)
         {
@@ -18,6 +19,7 @@ namespace Reusable.Apps.Server.Controllers
         }
 
         [HttpGet]
+        [ServiceFilter(typeof(LogResponseBody))]
         public IActionResult Get(string message)
         {
             _logger.Log(Abstraction.Layer.Service().Meta(new { TestMeta = 123 }));

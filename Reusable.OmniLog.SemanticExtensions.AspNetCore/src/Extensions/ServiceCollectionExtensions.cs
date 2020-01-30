@@ -1,18 +1,24 @@
 using System;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using Reusable.Extensions;
 using Reusable.OmniLog.Abstractions;
+using Reusable.OmniLog.SemanticExtensions.AspNetCore.Mvc.Filters;
 
 namespace Reusable.OmniLog.SemanticExtensions.AspNetCore.Extensions
 {
     public static class ServiceCollectionExtensions
     {
+        /// <summary>
+        /// Adds OmniLog service to the container.
+        /// </summary>
         public static IServiceCollection AddOmniLog(this IServiceCollection services, Action<LoggerFactory> setupAction)
         {
-            var loggerFactory = new LoggerFactory();
-            setupAction(loggerFactory);
-            services.TryAddSingleton<ILoggerFactory>(loggerFactory);
-            return services;
+            return 
+                services
+                    .AddSingleton<ILoggerFactory>(new LoggerFactory().Pipe(setupAction))
+                    .AddSingleton(typeof(ILogger<>), typeof(Logger<>))
+                    .AddScoped<LogResponseBody>();
         }
     }
 }

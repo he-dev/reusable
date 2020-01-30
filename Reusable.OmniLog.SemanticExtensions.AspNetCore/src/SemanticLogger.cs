@@ -6,7 +6,6 @@ using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.AspNetCore.Http;
 using Reusable.Beaver;
-using Reusable.Data;
 using Reusable.Extensions;
 using Reusable.OmniLog.Abstractions;
 using Reusable.OmniLog.Nodes;
@@ -36,11 +35,9 @@ namespace Reusable.OmniLog.SemanticExtensions.AspNetCore
 
         public async Task Invoke(HttpContext context, IFeatureToggle featureToggle)
         {
-            using (_logger.BeginScope(_config.GetCorrelationId(context)).WithCorrelationHandle("HandleRequest").UseStopwatch())
+            using (_logger.BeginScope(_config.GetCorrelationId(context)).WithCorrelationHandle(_config.GetCorrelationHandle(context)).UseStopwatch())
             {
-                _logger.Log(Abstraction.Layer.Network().Subject(new { Path = context.Request.Path.ToString() }));
-                _logger.Log(Abstraction.Layer.Service().Meta(new { UserAgent = context.Request.Headers.TryGetValue("User-Agent", out var userAgent) ? userAgent.First() : "Unknown" }));
-                _logger.Log(Abstraction.Layer.Network().Meta(new { Request = _config.CreateRequestSnapshot(context) }));
+                _config.LogRequest(_logger, context);
 
                 try
                 {
@@ -67,35 +64,14 @@ namespace Reusable.OmniLog.SemanticExtensions.AspNetCore
                         }
                     }
 
-                    _logger.Log(Abstraction.Layer.Network().Meta(new
-                    {
-                        Response = _config.CreateResponseSnapshot(context)
-                    }), log =>
-                    {
-                        log.Level(MapStatusCode(context.Response.StatusCode));
-                        if (body is {})
-                        {
-                            log.Message(body);
-                        }
-                    });
+                    _config.LogResponse(_logger, context, featureToggle.Use(nameof(LogResponseBody), body));
                 }
                 catch (Exception inner)
                 {
-                    _logger.Log(Abstraction.Layer.Network().Routine("Request").Faulted(), inner);
+                    _config.LogError(_logger, context, inner);
                     throw;
                 }
             }
-        }
-
-        private static Reusable.Data.Option<LogLevel> MapStatusCode(int statusCode)
-        {
-            return statusCode switch
-            {
-                var x when x >= 500 => LogLevel.Fatal,
-                var x when x >= 400 => LogLevel.Error,
-                var x when x >= 300 => LogLevel.Warning,
-                _ => LogLevel.Information,
-            };
         }
     }
 }

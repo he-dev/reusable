@@ -21,7 +21,7 @@ namespace Reusable.Beaver
         private readonly IContainer<Feature, IFeaturePolicy> policies;
         private readonly string fallback;
 
-        public FeatureToggle(IContainer<Feature, IFeaturePolicy> policies, string fallback = "")
+        public FeatureToggle(IContainer<Feature, IFeaturePolicy> policies, string fallback = FeaturePolicy.Fallback)
         {
             this.policies = policies;
             this.fallback = fallback;

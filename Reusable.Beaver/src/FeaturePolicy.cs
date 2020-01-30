@@ -30,7 +30,10 @@ namespace Reusable.Beaver
 
         public static readonly IFeaturePolicy Remove = new Remove();
 
-        public static readonly string Fallback = string.Empty;
+        /// <summary>
+        /// Gets the name of the fallback feature.
+        /// </summary>
+        public const string Fallback = nameof(Fallback);
     }
 
     public interface IFinalizable
