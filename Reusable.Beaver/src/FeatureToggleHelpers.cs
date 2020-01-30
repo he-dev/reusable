@@ -9,25 +9,25 @@ namespace Reusable.Beaver
     [PublicAPI]
     public static class FeatureToggleHelpers
     {
-        public static FeatureState State(this IFeatureToggle toggle, Feature feature, object? parameter = default) => toggle[feature].State(new FeatureContext(toggle, feature, parameter));
+        public static FeatureState State(this IFeatureToggle toggle, string name, object? parameter = default) => toggle[name].Policy.State(new FeatureContext(toggle, name, parameter));
 
-        public static bool IsEnabled(this IFeatureToggle toggle, Feature feature, object? parameter = default) => toggle[feature].IsEnabled(new FeatureContext(toggle, feature, parameter));
+        public static bool IsEnabled(this IFeatureToggle toggle, string name, object? parameter = default) => toggle[name].Policy.IsEnabled(new FeatureContext(toggle, name, parameter));
 
-        public static bool IsLocked(this IFeatureToggle toggle, Feature feature) => (toggle[feature] as Lock) is {};
+        public static bool IsLocked(this IFeatureToggle toggle, string name) => (toggle[name].Policy as Lock) is {};
 
-        public static IFeatureToggle Enable(this IFeatureToggle toggle, Feature feature) => toggle.SetOrUpdate(feature, FeaturePolicy.AlwaysOn);
+        public static IFeatureToggle Enable(this IFeatureToggle toggle, string name) => toggle.SetOrUpdate(name, FeaturePolicy.AlwaysOn);
 
-        public static IFeatureToggle Disable(this IFeatureToggle toggle, Feature feature) => toggle.SetOrUpdate(feature, FeaturePolicy.AlwaysOff);
+        public static IFeatureToggle Disable(this IFeatureToggle toggle, string name) => toggle.SetOrUpdate(name, FeaturePolicy.AlwaysOff);
 
-        public static IFeatureToggle Lock(this IFeatureToggle toggle, Feature feature) => toggle.SetOrUpdate(feature, toggle[feature].Lock());
+        public static IFeatureToggle Lock(this IFeatureToggle toggle, string name) => toggle.SetOrUpdate(name, toggle[name].Policy.Lock());
 
         #region Use
 
-        public static async Task<FeatureResult<object>> Use(this IFeatureAgent toggle, Feature feature, Func<Task> body, Func<Task>? fallback = default, object? parameter = default)
+        public static async Task<FeatureResult<object>> Use(this IFeatureAgent toggle, string name, Func<Task> body, Func<Task>? fallback = default, object? parameter = default)
         {
             return await toggle.Use<object>
             (
-                feature,
+                name,
                 async () =>
                 {
                     await body();
@@ -42,13 +42,13 @@ namespace Reusable.Beaver
             );
         }
 
-        public static FeatureResult<T> Use<T>(this IFeatureAgent toggle, Feature feature, Func<T> body, Func<T>? fallback = default, object? parameter = default)
+        public static FeatureResult<T> Use<T>(this IFeatureAgent toggle, string name, Func<T> body, Func<T>? fallback = default, object? parameter = default)
         {
             return
                 toggle
                     .Use
                     (
-                        feature,
+                        name,
                         () => body().ToTask(),
                         () => (fallback ?? (() => default))().ToTask(),
                         parameter
@@ -57,13 +57,13 @@ namespace Reusable.Beaver
                     .GetResult();
         }
 
-        public static FeatureResult<object> Use(this IFeatureAgent toggle, Feature feature, Action body, Action? fallback = default, object? parameter = default)
+        public static FeatureResult<object> Use(this IFeatureAgent toggle, string name, Action body, Action? fallback = default, object? parameter = default)
         {
             return
                 toggle
                     .Use
                     (
-                        feature,
+                        name,
                         () =>
                         {
                             body();
@@ -80,24 +80,34 @@ namespace Reusable.Beaver
                     .GetResult();
         }
 
-        public static FeatureResult<T> Use<T>(this IFeatureAgent toggle, Feature feature, T value, T fallback = default, object? parameter = default)
+        public static FeatureResult<T> Use<T>(this IFeatureAgent toggle, string name, T value, T fallback = default, object? parameter = default)
         {
-            return toggle.Use(feature, () => value, () => fallback, parameter);
+            return toggle.Use(name, () => value, () => fallback, parameter);
         }
 
         #endregion
 
         // --------
 
-        public static IFeatureToggle SetOrUpdate(this IFeatureToggle toggle, Feature feature, IFeaturePolicy policy)
+        public static IFeatureToggle SetOrUpdate(this IFeatureToggle toggle, string name, IFeaturePolicy policy)
         {
-            toggle[feature] = policy;
+            var feature = toggle[name];
+
+            if (feature is Feature.Fallback)
+            {
+                toggle[name] = new Feature(name) { Policy = policy };
+            }
+            else
+            {
+                feature.Policy = policy;
+            }
+
             return toggle;
         }
 
-        public static IFeatureToggle Remove(this IFeatureToggle toggle, Feature feature)
+        public static IFeatureToggle Remove(this IFeatureToggle toggle, string name)
         {
-            toggle[feature] = FeaturePolicy.Remove;
+            toggle[name] = new Feature(name) { Policy = FeaturePolicy.Remove };
             return toggle;
         }
     }

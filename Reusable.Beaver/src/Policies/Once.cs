@@ -3,9 +3,9 @@ namespace Reusable.Beaver.Policies
     /// <summary>
     /// Disables a feature after a single usage.
     /// </summary>
-    public class Once : IFeaturePolicy, IFinalizable
+    public class Once : FeaturePolicy, IFinalizable
     {
-        public FeatureState State(FeatureContext context) => FeatureState.Enabled;
+        public override FeatureState State(FeatureContext context) => FeatureState.Enabled;
 
         public void Finally(FeatureContext context, FeatureState after)
         {

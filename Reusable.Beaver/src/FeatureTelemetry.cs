@@ -22,23 +22,15 @@ namespace Reusable.Beaver
 
         public IFeatureToggle FeatureToggle => _agent.FeatureToggle;
 
-        public async Task<FeatureResult<T>> Use<T>(Feature feature, Func<Task<T>> ifEnabled, Func<Task<T>>? ifDisabled = default, object? parameter = default)
+        public async Task<FeatureResult<T>> Use<T>(string feature, Func<Task<T>> ifEnabled, Func<Task<T>>? ifDisabled = default, object? parameter = default)
         {
             using (_logger.BeginScope().WithCorrelationHandle("UseFeature").UseStopwatch())
             {
                 return await _agent.Use(feature, ifEnabled, ifDisabled, parameter).ContinueWith(t =>
                 {
-                    if (t.Result.Feature.Tags.Contains("Telemetry"))
+                    if (FeatureToggle.IsEnabled($"{feature}.Telemetry"))
                     {
-                        _logger.Log(Abstraction.Layer.Service().Meta(new
-                        {
-                            FeatureTelemetry = new
-                            {
-                                name = t.Result.Feature.Name,
-                                state = t.Result.State,
-                                policy = t.Result.Policy.GetType().ToPrettyString()
-                            }
-                        }), log => log.Exception(t.Exception));
+                        _logger.Log(Abstraction.Layer.Service().Meta(new { feature }), log => log.Exception(t.Exception));
                     }
 
                     return t.Result;

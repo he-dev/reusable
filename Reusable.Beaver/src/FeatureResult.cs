@@ -8,8 +8,6 @@ namespace Reusable.Beaver
 
         public Feature Feature { get; set; }
 
-        public IFeaturePolicy Policy { get; set; }
-
         public FeatureState State { get; set; }
 
         public static implicit operator T(FeatureResult<T> result) => result.Value;

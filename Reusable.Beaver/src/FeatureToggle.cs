@@ -14,41 +14,36 @@ namespace Reusable.Beaver
         /// <summary>
         /// Gets or sets feature policy. Use 'Remove' policy to reset a feature. Throws when trying to set policy for a locked feature.
         /// </summary>
-        IFeaturePolicy this[Feature feature] { get; set; }
+        Feature this[string name] { get; set; }
     }
 
-    public partial class FeatureToggle : IFeatureToggle
+    public class FeatureToggle : IFeatureToggle
     {
-        private readonly IContainer<Feature, IFeaturePolicy> policies;
-        private readonly string fallback;
+        private readonly IContainer<string, Feature> policies;
+        private readonly Feature fallback;
 
-        public FeatureToggle(IContainer<Feature, IFeaturePolicy> policies, string fallback = FeaturePolicy.Fallback)
+        public FeatureToggle(IContainer<string, Feature> policies, IFeaturePolicy fallbackPolicy)
         {
             this.policies = policies;
-            this.fallback = fallback;
+            this.fallback = new Feature.Fallback { Policy = fallbackPolicy };
         }
 
-        public FeatureToggle(IFeaturePolicy fallback) : this(new FeaturePolicyContainer { { FeaturePolicy.Fallback, fallback } }) { }
+        public FeatureToggle(IFeaturePolicy fallbackPolicy) : this(new FeaturePolicyContainer(), fallbackPolicy) { }
 
-        public IFeaturePolicy this[Feature feature]
+        public Feature this[string name]
         {
-            get
-            {
-                return
-                    policies.GetItem(feature).SingleOrDefault() ??
-                    policies.GetItem(fallback).SingleOrDefault() ?? throw DynamicException.Create($"FeaturePolicyNotFound", $"Could not find policy for '{feature}'.");
-            }
+            get => policies.GetItem(name).SingleOrDefault() ?? fallback;
             set
             {
-                if (this.IsLocked(feature)) throw new InvalidOperationException($"Feature '{feature}' is locked and cannot be changed.");
+                if (this.IsLocked(name)) throw new InvalidOperationException($"Feature '{name}' is locked and cannot be changed.");
 
-                switch (value)
+                switch (value.Policy)
                 {
                     case Remove _:
-                        policies.RemoveItem(feature);
+                        policies.RemoveItem(name);
                         break;
                     default:
-                        policies.AddOrUpdateItem(feature, value);
+                        policies.AddOrUpdateItem(name, value);
                         break;
                 }
             }

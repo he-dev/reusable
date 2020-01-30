@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using Reusable.Beaver.Policies;
+using Reusable.Extensions;
 
 namespace Reusable.Beaver
 {
@@ -9,7 +10,7 @@ namespace Reusable.Beaver
         FeatureState State(FeatureContext context);
     }
 
-    public static class FeaturePolicy
+    public abstract class FeaturePolicy : IFeaturePolicy
     {
         public static readonly IEnumerable<Type> BuiltIn = new[]
         {
@@ -34,6 +35,10 @@ namespace Reusable.Beaver
         /// Gets the name of the fallback feature.
         /// </summary>
         public const string Fallback = nameof(Fallback);
+
+        public abstract FeatureState State(FeatureContext context);
+
+        public override string ToString() => GetType().ToPrettyString();
     }
 
     public interface IFinalizable

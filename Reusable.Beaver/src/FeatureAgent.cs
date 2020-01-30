@@ -8,7 +8,7 @@ namespace Reusable.Beaver
     {
         IFeatureToggle FeatureToggle { get; }
 
-        Task<FeatureResult<T>> Use<T>(Feature feature, Func<Task<T>> ifEnabled, Func<Task<T>>? ifDisabled = default, object? parameter = default);
+        Task<FeatureResult<T>> Use<T>(string name, Func<Task<T>> ifEnabled, Func<Task<T>>? ifDisabled = default, object? parameter = default);
     }
 
     public class FeatureAgent : IFeatureAgent
@@ -20,18 +20,18 @@ namespace Reusable.Beaver
 
         public IFeatureToggle FeatureToggle { get; }
 
-        public async Task<FeatureResult<T>> Use<T>(Feature feature, Func<Task<T>> ifEnabled, Func<Task<T>>? ifDisabled = default, object? parameter = default)
+        public async Task<FeatureResult<T>> Use<T>(string name, Func<Task<T>> ifEnabled, Func<Task<T>>? ifDisabled = default, object? parameter = default)
         {
             ifDisabled ??= () => Task.FromResult<T>(default);
 
             // Not catching exceptions because the caller should handle them.
 
-            var context = new FeatureContext(FeatureToggle, feature, parameter);
-            var policy = FeatureToggle[feature];
+            var context = new FeatureContext(FeatureToggle, name, parameter);
+            var feature = FeatureToggle[name];
 
             try
             {
-                var state = policy.State(context);
+                var state = feature.Policy.State(context);
                 try
                 {
                     var result = await (state == FeatureState.Enabled ? ifEnabled : ifDisabled)().ConfigureAwait(false);
@@ -39,7 +39,6 @@ namespace Reusable.Beaver
                     {
                         Value = result,
                         Feature = feature,
-                        Policy = policy,
                         State = state,
                     };
                 }
@@ -54,12 +53,12 @@ namespace Reusable.Beaver
                 }
                 finally
                 {
-                    (policy as IFinalizable)?.Finally(context, state);
+                    (feature.Policy as IFinalizable)?.Finally(context, state);
                 }
             }
             finally
             {
-                (policy as IFinalizable)?.Finally(context, FeatureState.Any);
+                (feature.Policy as IFinalizable)?.Finally(context, FeatureState.Any);
             }
         }
     }
