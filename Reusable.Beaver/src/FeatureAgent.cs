@@ -4,21 +4,25 @@ using Reusable.Exceptionize;
 
 namespace Reusable.Beaver
 {
-    public interface IFeatureAgent
+    public interface IFeatureAgent : IFeatureToggle
     {
-        IFeatureToggle FeatureToggle { get; }
-
         Task<FeatureResult<T>> Use<T>(string name, Func<Task<T>> ifEnabled, Func<Task<T>>? ifDisabled = default, object? parameter = default);
     }
 
     public class FeatureAgent : IFeatureAgent
     {
+        private readonly IFeatureToggle _featureToggle;
+
         public FeatureAgent(IFeatureToggle featureToggle)
         {
-            FeatureToggle = featureToggle;
+            _featureToggle = featureToggle;
         }
 
-        public IFeatureToggle FeatureToggle { get; }
+        public Feature this[string name]
+        {
+            get => _featureToggle[name];
+            set => _featureToggle[name] = value;
+        }
 
         public async Task<FeatureResult<T>> Use<T>(string name, Func<Task<T>> ifEnabled, Func<Task<T>>? ifDisabled = default, object? parameter = default)
         {
@@ -26,8 +30,8 @@ namespace Reusable.Beaver
 
             // Not catching exceptions because the caller should handle them.
 
-            var context = new FeatureContext(FeatureToggle, name, parameter);
-            var feature = FeatureToggle[name];
+            var context = new FeatureContext(this, name, parameter);
+            var feature = this[name];
 
             try
             {

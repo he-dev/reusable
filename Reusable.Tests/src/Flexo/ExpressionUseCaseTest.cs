@@ -43,10 +43,11 @@ namespace Reusable.Flexo
         // ReSharper disable once MemberCanBePrivate.Global - no - xunit requires it to be public
         public static IEnumerable<object> GetExpressionUseCases()
         {
-            using var helper = new ExpressionFixture();
+            using var expressionFixture = new ExpressionFixture();
+            using var testHelperFixture = new TestHelperFixture();
             var packages = new List<IExpression>
             {
-                helper.ReadExpressionFile<IExpression>(_testHelper.Resources, "Packages.IsPositive.json")
+                expressionFixture.ReadExpressionFile<IExpression>(testHelperFixture.Resources, "Packages.IsPositive.json")
             };
             var scope =
                 ImmutableContainer
@@ -54,7 +55,7 @@ namespace Reusable.Flexo
                     .SetItem(ExpressionContext.Packages, new PackageContainer(packageId => packages.Single(p => p.Id == packageId) as Package))
                     .SetItem("Product", new Product());
 
-            var useCases = helper.ReadExpressionFile<List<ExpressionUseCase>>(_testHelper.Resources, "ExpressionUseCases.json");
+            var useCases = expressionFixture.ReadExpressionFile<List<ExpressionUseCase>>(testHelperFixture.Resources, "ExpressionUseCases.json");
 
             foreach (var useCase in useCases)
             {

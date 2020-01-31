@@ -13,13 +13,15 @@ namespace Reusable.Beaver
 
         public static bool IsEnabled(this IFeatureToggle toggle, string name, object? parameter = default) => toggle[name].Policy.IsEnabled(new FeatureContext(toggle, name, parameter));
 
-        public static bool IsLocked(this IFeatureToggle toggle, string name) => (toggle[name].Policy as Lock) is {};
+        public static bool IsLocked(this IFeatureToggle toggle, string name) => toggle[name].Policy is Lock;
 
-        public static IFeatureToggle Enable(this IFeatureToggle toggle, string name) => toggle.SetOrUpdate(name, FeaturePolicy.AlwaysOn);
+        public static IFeatureToggle Enable(this IFeatureToggle toggle, string name) => toggle.SetPolicy(name, FeaturePolicy.AlwaysOn);
 
-        public static IFeatureToggle Disable(this IFeatureToggle toggle, string name) => toggle.SetOrUpdate(name, FeaturePolicy.AlwaysOff);
+        public static IFeatureToggle Disable(this IFeatureToggle toggle, string name) => toggle.SetPolicy(name, FeaturePolicy.AlwaysOff);
 
-        public static IFeatureToggle Lock(this IFeatureToggle toggle, string name) => toggle.SetOrUpdate(name, toggle[name].Policy.Lock());
+        public static IFeatureToggle Lock(this IFeatureToggle toggle, string name) => toggle.SetPolicy(name, toggle[name].Policy.Lock());
+        
+        public static IFeatureToggle Telemetry(this IFeatureToggle toggle, string name, bool telemetry) => toggle.SetPolicy($"{name}.{nameof(Telemetry)}", telemetry ? FeaturePolicy.AlwaysOn : FeaturePolicy.AlwaysOff);
 
         #region Use
 
@@ -89,7 +91,7 @@ namespace Reusable.Beaver
 
         // --------
 
-        public static IFeatureToggle SetOrUpdate(this IFeatureToggle toggle, string name, IFeaturePolicy policy)
+        public static IFeatureToggle SetPolicy(this IFeatureToggle toggle, string name, IFeaturePolicy policy, bool telemetry = true)
         {
             var feature = toggle[name];
 
@@ -107,7 +109,7 @@ namespace Reusable.Beaver
 
         public static IFeatureToggle Remove(this IFeatureToggle toggle, string name)
         {
-            toggle[name] = new Feature(name) { Policy = FeaturePolicy.Remove };
+            toggle[name] = new Feature.Remove();
             return toggle;
         }
     }

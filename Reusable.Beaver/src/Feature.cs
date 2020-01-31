@@ -13,6 +13,7 @@ namespace Reusable.Beaver
     public class Feature : IEquatable<Feature>, IEquatable<string>
     {
         private IFeaturePolicy _policy = FeaturePolicy.AlwaysOff;
+        
         private Feature() => Tags = new HashSet<string>(SoftString.Comparer);
 
         public Feature(string name) : this() => Name = name;
@@ -52,7 +53,15 @@ namespace Reusable.Beaver
 
         public class Fallback : Feature
         {
-            public Fallback() : base(nameof(Fallback)) { }
+            public Fallback() : base(nameof(Fallback))
+            {
+                Policy = FeaturePolicy.AlwaysOff;
+            }
+        }
+
+        public class Remove : Feature
+        {
+            public Remove() : base(nameof(Remove)) { }
         }
     }
 }

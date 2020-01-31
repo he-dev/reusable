@@ -12,40 +12,31 @@ namespace Reusable.Beaver
     public interface IFeatureToggle
     {
         /// <summary>
-        /// Gets or sets feature policy. Use 'Remove' policy to reset a feature. Throws when trying to set policy for a locked feature.
+        /// Gets or sets feature. Use 'Feature.Remove' to reset a feature. Throws when trying to set a locked feature.
         /// </summary>
         Feature this[string name] { get; set; }
     }
 
     public class FeatureToggle : IFeatureToggle
     {
-        private readonly IContainer<string, Feature> policies;
-        private readonly Feature fallback;
+        private readonly IFeatureCollection features;
 
-        public FeatureToggle(IContainer<string, Feature> policies, IFeaturePolicy fallbackPolicy)
+        public FeatureToggle(IFeaturePolicy fallbackPolicy, IFeatureCollection features)
         {
-            this.policies = policies;
-            this.fallback = new Feature.Fallback { Policy = fallbackPolicy };
+            this.features = features;
+            this.features.Add(new Feature.Fallback { Policy = fallbackPolicy });
         }
 
-        public FeatureToggle(IFeaturePolicy fallbackPolicy) : this(new FeaturePolicyContainer(), fallbackPolicy) { }
+        public FeatureToggle(IFeaturePolicy fallbackPolicy) : this(fallbackPolicy, new FeatureCollection()) { }
 
         public Feature this[string name]
         {
-            get => policies.GetItem(name).SingleOrDefault() ?? fallback;
+            get => features[name] ?? features[new Feature.Fallback()]!;
             set
             {
                 if (this.IsLocked(name)) throw new InvalidOperationException($"Feature '{name}' is locked and cannot be changed.");
 
-                switch (value.Policy)
-                {
-                    case Remove _:
-                        policies.RemoveItem(name);
-                        break;
-                    default:
-                        policies.AddOrUpdateItem(name, value);
-                        break;
-                }
+                features[name] = value is Feature.Remove ? default : value;
             }
         }
     }

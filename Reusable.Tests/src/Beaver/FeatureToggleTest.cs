@@ -17,13 +17,11 @@ namespace Reusable.Beaver
             // var c = FeatureConfiguration.FromJson(json);
             // var t = FeatureToggle.FromConfiguration(c);
         }
-
-        private static readonly Feature FallbackOff = new Feature(FeaturePolicy.Fallback) { Policy = FeaturePolicy.AlwaysOff };
-
+        
         [Fact]
         public void Invokes_main_when_enabled()
         {
-            var t = new FeatureAgent(new FeatureToggle(FeaturePolicy.AlwaysOff).SetOrUpdate("test", FeaturePolicy.AlwaysOn));
+            var t = new FeatureAgent(new FeatureToggle(FeaturePolicy.AlwaysOff).SetPolicy("test", FeaturePolicy.AlwaysOn));
 
 
             var a = 0;
@@ -62,7 +60,7 @@ namespace Reusable.Beaver
         [Fact]
         public void Once_disables_itself_after_first_invoke()
         {
-            var t = new FeatureAgent(new FeatureToggle(FeaturePolicy.AlwaysOff).SetOrUpdate("test", FeaturePolicy.Once));
+            var t = new FeatureAgent(new FeatureToggle(FeaturePolicy.AlwaysOff).SetPolicy("test", FeaturePolicy.Once));
             var a = 0;
             var b = 0;
             var c = t.Use("test", () => ++a, () => ++b);
@@ -84,7 +82,7 @@ namespace Reusable.Beaver
             var q = 0;
             var a = 0;
             var b = 0;
-            var t = new FeatureAgent(new FeatureToggle(FeaturePolicy.AlwaysOff).SetOrUpdate("test", FeaturePolicy.Ask(f => q++ < 1)));
+            var t = new FeatureAgent(new FeatureToggle(FeaturePolicy.AlwaysOff).SetPolicy("test", FeaturePolicy.Ask(f => q++ < 1)));
             var c = t.Use("test", () => ++a, () => ++b);
             var d = t.Use("test", () => ++a, () => ++b);
             Assert.Equal(2, q);
@@ -101,9 +99,9 @@ namespace Reusable.Beaver
         [Fact]
         public void Throws_when_modifying_locked_feature()
         {
-            var t = new FeatureToggle(FeaturePolicy.AlwaysOff).SetOrUpdate("test", FeaturePolicy.AlwaysOn.Lock());
+            var t = new FeatureToggle(FeaturePolicy.AlwaysOff).SetPolicy("test", FeaturePolicy.AlwaysOn.Lock());
             //t.SetOrUpdate("test", FeaturePolicy.AlwaysOff);
-            Assert.Throws<InvalidOperationException>(() => t.SetOrUpdate("test", FeaturePolicy.AlwaysOff));
+            Assert.Throws<InvalidOperationException>(() => t.SetPolicy("test", FeaturePolicy.AlwaysOff));
         }
     }
 }

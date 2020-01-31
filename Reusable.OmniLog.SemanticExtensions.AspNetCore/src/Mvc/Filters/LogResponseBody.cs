@@ -10,16 +10,17 @@ namespace Reusable.OmniLog.SemanticExtensions.AspNetCore.Mvc.Filters
     [UsedImplicitly]
     public class LogResponseBody : ActionFilterAttribute
     {
-        private readonly IFeatureToggle _featureToggle;
+        private readonly IFeatureAgent _featureToggle;
 
-        public LogResponseBody(IFeatureToggle featureToggle)
+        public LogResponseBody(IFeatureAgent featureToggle)
         {
             _featureToggle = featureToggle;
         }
 
         public override void OnActionExecuting(ActionExecutingContext context)
         {
-            _featureToggle.SetOrUpdate(Features.LogResponseBody, FeaturePolicy.AlwaysOn);
+            _featureToggle.SetPolicy(Features.LogResponseBody, FeaturePolicy.AlwaysOn);
+            _featureToggle.Telemetry(Features.LogResponseBody, true);
         }
     }
 }

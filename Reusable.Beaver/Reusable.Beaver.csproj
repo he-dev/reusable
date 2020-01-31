@@ -23,13 +23,7 @@
   <ItemGroup>
     <Compile Remove="src/FeatureOptionRepository.cs" />
     <Compile Remove="src\FeatureToggle.Factory.cs" />
-    <Compile Remove="src\Json\**" />
     <Compile Remove="src\FeatureConfiguration.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Remove="src\Json\**" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Remove="src\Json\**" />
+    <Compile Remove="src\Json\**" />
   </ItemGroup>
 </Project>
