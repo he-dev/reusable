@@ -5,6 +5,7 @@ using System.Linq.Custom;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.Internal;
 using Reusable.Beaver;
 using Reusable.Extensions;
 using Reusable.OmniLog.Abstractions;
@@ -37,7 +38,20 @@ namespace Reusable.OmniLog.SemanticExtensions.AspNetCore
         {
             using (_logger.BeginScope(_config.GetCorrelationId(context)).WithCorrelationHandle(_config.GetCorrelationHandle(context)).UseStopwatch())
             {
-                _config.LogRequest(_logger, context);
+                var requestBody = default(string);
+                
+                if (_config.CanLogRequestBody(context) && context.Request.ContentLength > 0)
+                {
+                    using var requestCopy = new MemoryStream();
+                    using var requestReader = new StreamReader(requestCopy);
+                    context.Request.EnableRewind();
+                    await context.Request.Body.CopyToAsync(requestCopy);
+                    requestCopy.Rewind();
+                    requestBody = await requestReader.ReadToEndAsync();
+                    context.Request.Body.Rewind();
+                }
+
+                _config.LogRequest(_logger, context, requestBody);
 
                 try
                 {

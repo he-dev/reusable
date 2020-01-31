@@ -1,4 +1,5 @@
 using System;
+using System.IO;
 using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.AspNetCore.Http;
@@ -15,7 +16,11 @@ namespace Reusable.OmniLog.SemanticExtensions.AspNetCore
 
         public Func<HttpContext, object> GetCorrelationHandle { get; set; } = _ => "HttpRequest";
 
-        public Action<ILogger, HttpContext> LogRequest { get; set; } = (logger, context) =>
+        public Func<HttpContext, bool> CanLogRequestBody { get; set; } = _ => true;
+        
+        public Func<HttpContext, bool> CanLogResponseBody { get; set; } = _ => true;
+
+        public Action<ILogger, HttpContext, string> LogRequest { get; set; } = (logger, context, body) =>
         {
             logger.Log(Abstraction.Layer.Network().Subject(new
             {
@@ -32,7 +37,13 @@ namespace Reusable.OmniLog.SemanticExtensions.AspNetCore
                     context.Request.Protocol,
                     context.Request.QueryString,
                 }
-            }));
+            }), log =>
+            {
+                if (body is {})
+                {
+                    log.Message(body);
+                }
+            });
         };
 
         public Action<ILogger, HttpContext, string> LogResponse { get; set; } = (logger, context, body) =>
@@ -56,9 +67,6 @@ namespace Reusable.OmniLog.SemanticExtensions.AspNetCore
             });
         };
 
-        public Action<ILogger, HttpContext, Exception> LogError { get; set; } = (logger, context, exception) =>
-        {
-            logger.Log(Abstraction.Layer.Network().Routine("HttpRequest").Faulted(), exception);
-        };
+        public Action<ILogger, HttpContext, Exception> LogError { get; set; } = (logger, context, exception) => { logger.Log(Abstraction.Layer.Network().Routine("HttpRequest").Faulted(), exception); };
     }
 }
