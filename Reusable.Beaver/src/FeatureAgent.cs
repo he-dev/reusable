@@ -1,4 +1,6 @@
 using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Reusable.Exceptionize;
 
@@ -18,11 +20,11 @@ namespace Reusable.Beaver
             _featureToggle = featureToggle;
         }
 
-        public Feature this[string name]
-        {
-            get => _featureToggle[name];
-            set => _featureToggle[name] = value;
-        }
+        public Feature this[string name] => _featureToggle[name];
+
+        public void AddOrUpdate(Feature feature) => _featureToggle.AddOrUpdate(feature);
+
+        public bool TryRemove(string name, out Feature feature) => _featureToggle.TryRemove(name, out feature);
 
         public async Task<FeatureResult<T>> Use<T>(string name, Func<Task<T>> ifEnabled, Func<Task<T>>? ifDisabled = default, object? parameter = default)
         {
@@ -65,5 +67,9 @@ namespace Reusable.Beaver
                 (feature.Policy as IFinalizable)?.Finally(context, FeatureState.Any);
             }
         }
+
+        public IEnumerator<Feature> GetEnumerator() => _featureToggle.GetEnumerator();
+
+        IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable)_featureToggle).GetEnumerator();
     }
 }

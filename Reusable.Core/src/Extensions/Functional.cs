@@ -26,7 +26,7 @@ namespace Reusable.Extensions
         /// <summary>
         /// Allows to pipe an action on the current object in a functional way.
         /// </summary>
-        [JetBrains.Annotations.MustUseReturnValue]
+        [MustUseReturnValue]
         public static T Pipe<T>(this T obj, Action<T>? next)
         {
             next?.Invoke(obj);
@@ -36,7 +36,7 @@ namespace Reusable.Extensions
         /// <summary>
         /// Allows to pipe an action on the current object in a functional way and return a different object.
         /// </summary>
-        public static TOut Pipe<TIn, TOut>(this TIn input, Func<TIn, TOut> pipe) => pipe(input);
+        public static TOut Map<TIn, TOut>(this TIn input, Func<TIn, TOut> pipe) => pipe(input);
 
         /// <summary>
         /// Returns the same value.

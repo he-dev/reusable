@@ -12,7 +12,7 @@ namespace Reusable.Beaver.Policies
             switch (after)
             {
                 case FeatureState.Enabled:
-                    context.Toggle.Remove(context.Feature);
+                    context.Toggle.TryRemove(context.Feature.Name, out _);
                     break;
             }
         }

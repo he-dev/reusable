@@ -1,43 +1,43 @@
 using System;
-using System.Linq;
-using System.Threading.Tasks;
+using System.Collections;
+using System.Collections.Generic;
 using JetBrains.Annotations;
-using Reusable.Beaver.Policies;
-using Reusable.Data;
-using Reusable.Exceptionize;
 
 namespace Reusable.Beaver
 {
     [PublicAPI]
-    public interface IFeatureToggle
-    {
-        /// <summary>
-        /// Gets or sets feature. Use 'Feature.Remove' to reset a feature. Throws when trying to set a locked feature.
-        /// </summary>
-        Feature this[string name] { get; set; }
-    }
+    public interface IFeatureToggle : IFeatureCollection { }
 
     public class FeatureToggle : IFeatureToggle
     {
-        private readonly IFeatureCollection features;
+        private readonly IFeatureCollection _features;
 
         public FeatureToggle(IFeaturePolicy fallbackPolicy, IFeatureCollection features)
         {
-            this.features = features;
-            this.features.Add(new Feature.Fallback { Policy = fallbackPolicy });
+            _features = features;
+            _features.AddOrUpdate(new Feature.Fallback(fallbackPolicy));
         }
 
         public FeatureToggle(IFeaturePolicy fallbackPolicy) : this(fallbackPolicy, new FeatureCollection()) { }
 
-        public Feature this[string name]
-        {
-            get => features[name] ?? features[new Feature.Fallback()]!;
-            set
-            {
-                if (this.IsLocked(name)) throw new InvalidOperationException($"Feature '{name}' is locked and cannot be changed.");
+        /// <summary>
+        /// Gets feature or fallback.
+        /// </summary>
+        public Feature this[string name] => _features[name] ?? _features[nameof(Feature.Fallback)]!;
 
-                features[name] = value is Feature.Remove ? default : value;
-            }
+        /// <summary>
+        /// Adds or updates feature. Throws when trying to set a locked feature.
+        /// </summary>
+        public void AddOrUpdate(Feature feature)
+        {
+            if (this.IsLocked(feature.Name)) throw new InvalidOperationException($"Feature '{feature.Name}' is locked and cannot be changed.");
+            _features.AddOrUpdate(feature);
         }
+
+        public bool TryRemove(string name, out Feature feature) => _features.TryRemove(name, out feature);
+
+        public IEnumerator<Feature> GetEnumerator() => _features.GetEnumerator();
+
+        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
     }
 }

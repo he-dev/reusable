@@ -2,7 +2,7 @@
 <package>
   <metadata>
     <id>Reusable.Utilities.MSTest</id>
-    <version>17.1.4</version>
+    <version>17.1.6</version>
     <title>Reusable.Utilities.MSTest</title>
     <authors>He-Dev</authors>
     <owners>He-Dev</owners>
@@ -17,8 +17,8 @@
       <dependency id="Microsoft.NET.Test.Sdk" version="16.4.0" />
       <dependency id="MSTest.TestAdapter" version="2.0.0" />
       <dependency id="MSTest.TestFramework" version="2.0.0" />
-      <dependency id="Reusable.Core" version="17.1.4" />
-      <dependency id="Reusable.OmniLog" version="17.1.4" />
+      <dependency id="Reusable.Core" version="17.1.6" />
+      <dependency id="Reusable.OmniLog" version="17.1.6" />
     </dependencies>
   </metadata>
   <files>

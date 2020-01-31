@@ -1,4 +1,6 @@
 using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Reusable.Extensions;
 using Reusable.OmniLog;
@@ -20,11 +22,11 @@ namespace Reusable.Beaver
             _logger = logger;
         }
 
-        public Feature this[string name]
-        {
-            get => _agent[name];
-            set => _agent[name] = value;
-        }
+        public Feature this[string name] => _agent[name];
+        
+        public void AddOrUpdate(Feature feature) => _agent.AddOrUpdate(feature);
+
+        public bool TryRemove(string name, out Feature feature) => _agent.TryRemove(name, out feature);
 
         public async Task<FeatureResult<T>> Use<T>(string name, Func<Task<T>> ifEnabled, Func<Task<T>>? ifDisabled = default, object? parameter = default)
         {
@@ -32,7 +34,7 @@ namespace Reusable.Beaver
             {
                 return await _agent.Use(name, ifEnabled, ifDisabled, parameter).ContinueWith(t =>
                 {
-                    if (this.IsEnabled($"{name}.Telemetry"))
+                    if (this.IsEnabled(Feature.Telemetry.CreateName(name)))
                     {
                         var feature = this[name];
                         _logger.Log(Abstraction.Layer.Service().Meta(new
@@ -50,5 +52,9 @@ namespace Reusable.Beaver
                 });
             }
         }
+
+        public IEnumerator<Feature> GetEnumerator() => _agent.GetEnumerator();
+
+        IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable)_agent).GetEnumerator();
     }
 }

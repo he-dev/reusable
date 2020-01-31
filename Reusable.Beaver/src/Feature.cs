@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using JetBrains.Annotations;
 using Newtonsoft.Json;
 using Reusable.Beaver.Annotations;
@@ -13,10 +14,15 @@ namespace Reusable.Beaver
     public class Feature : IEquatable<Feature>, IEquatable<string>
     {
         private IFeaturePolicy _policy = FeaturePolicy.AlwaysOff;
-        
+
         private Feature() => Tags = new HashSet<string>(SoftString.Comparer);
 
-        public Feature(string name) : this() => Name = name;
+        public Feature(string name, IFeaturePolicy policy, IEnumerable<string>? tags = default) : this()
+        {
+            Name = name;
+            Policy = policy;
+            Tags.UnionWith(tags ?? Enumerable.Empty<string>());
+        }
 
         public string Name { get; }
 
@@ -45,23 +51,20 @@ namespace Reusable.Beaver
 
         public bool Equals(string? other) => SoftString.Comparer.Equals(Name, other);
 
-        public static implicit operator Feature(string name) => new Feature(name);
-
-        public static implicit operator Feature(Selector selector) => new Feature(selector.ToString());
+        public static implicit operator Feature(string name) => new Feature(name, FeaturePolicy.AlwaysOff);
 
         public static implicit operator string(Feature feature) => feature.ToString();
 
         public class Fallback : Feature
         {
-            public Fallback() : base(nameof(Fallback))
-            {
-                Policy = FeaturePolicy.AlwaysOff;
-            }
+            public Fallback(IFeaturePolicy policy) : base(nameof(Fallback), policy) { }
         }
 
-        public class Remove : Feature
+        public class Telemetry : Feature
         {
-            public Remove() : base(nameof(Remove)) { }
+            public Telemetry(string name, IFeaturePolicy policy) : base(CreateName(name), policy) { }
+
+            public static string CreateName(string name) => $"{name}.{nameof(Telemetry)}";
         }
     }
 }

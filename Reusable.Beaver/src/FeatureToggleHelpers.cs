@@ -15,14 +15,20 @@ namespace Reusable.Beaver
 
         public static bool IsLocked(this IFeatureToggle toggle, string name) => toggle[name].Policy is Lock;
 
-        public static IFeatureToggle Enable(this IFeatureToggle toggle, string name) => toggle.SetPolicy(name, FeaturePolicy.AlwaysOn);
+        public static IFeatureToggle Enable(this IFeatureToggle toggle, string name) => toggle.Pipe(t => t[name].Policy = FeaturePolicy.AlwaysOn);
 
-        public static IFeatureToggle Disable(this IFeatureToggle toggle, string name) => toggle.SetPolicy(name, FeaturePolicy.AlwaysOff);
+        public static IFeatureToggle Disable(this IFeatureToggle toggle, string name) => toggle.Pipe(t => t[name].Policy = FeaturePolicy.AlwaysOff);
 
-        public static IFeatureToggle Lock(this IFeatureToggle toggle, string name) => toggle.SetPolicy(name, toggle[name].Policy.Lock());
+        public static IFeatureToggle Lock(this IFeatureToggle toggle, string name) => toggle.Pipe(t => t[name].Policy = t[name].Policy.Lock());
+
+        public static IFeatureToggle Telemetry(this IFeatureToggle toggle, string name, bool telemetry)
+        {
+            toggle.AddOrUpdate(new Feature.Telemetry(name, telemetry ? FeaturePolicy.AlwaysOn : FeaturePolicy.AlwaysOff));
+            return toggle;
+        }
+
+        #region FeatureAgent
         
-        public static IFeatureToggle Telemetry(this IFeatureToggle toggle, string name, bool telemetry) => toggle.SetPolicy($"{name}.{nameof(Telemetry)}", telemetry ? FeaturePolicy.AlwaysOn : FeaturePolicy.AlwaysOff);
-
         #region Use
 
         public static async Task<FeatureResult<object>> Use(this IFeatureAgent toggle, string name, Func<Task> body, Func<Task>? fallback = default, object? parameter = default)
@@ -89,28 +95,6 @@ namespace Reusable.Beaver
 
         #endregion
 
-        // --------
-
-        public static IFeatureToggle SetPolicy(this IFeatureToggle toggle, string name, IFeaturePolicy policy, bool telemetry = true)
-        {
-            var feature = toggle[name];
-
-            if (feature is Feature.Fallback)
-            {
-                toggle[name] = new Feature(name) { Policy = policy };
-            }
-            else
-            {
-                feature.Policy = policy;
-            }
-
-            return toggle;
-        }
-
-        public static IFeatureToggle Remove(this IFeatureToggle toggle, string name)
-        {
-            toggle[name] = new Feature.Remove();
-            return toggle;
-        }
+        #endregion
     }
 }

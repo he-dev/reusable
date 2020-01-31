@@ -7,9 +7,11 @@ namespace Reusable.Beaver
 {
     public interface IFeatureCollection : IEnumerable<Feature>
     {
-        Feature? this[string name] { get; set; }
+        Feature? this[string name] { get; }
 
-        void Add(Feature feature);
+        void AddOrUpdate(Feature feature);
+
+        bool TryRemove(string name, out Feature feature);
     }
 
     /// <summary>
@@ -19,26 +21,22 @@ namespace Reusable.Beaver
     {
         private readonly ConcurrentDictionary<string, Feature> _features = new ConcurrentDictionary<string, Feature>(SoftString.Comparer);
 
-        public Feature? this[string name]
-        {
-            get => _features.TryGetValue(name, out var feature) ? feature : default;
-            set
-            {
-                if (value is null)
-                {
-                    _features.TryRemove(name, out _);
-                }
-                else
-                {
-                    _features[name] = value;
-                }
-            }
-        }
+        public Feature? this[string name] => _features.TryGetValue(name, out var feature) ? feature : default;
 
-        public void Add(Feature feature) => this[feature.Name] = feature;
-        
+        public void AddOrUpdate(Feature feature) => _features.AddOrUpdate(feature.Name, name => feature, (n, f) => feature);
+
+        public bool TryRemove(string name, out Feature feature) => _features.TryRemove(name, out feature);
+
         public IEnumerator<Feature> GetEnumerator() => _features.Values.GetEnumerator();
 
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+    }
+
+    public static class FeatureCollectionExtensions
+    {
+        public static void AddOrUpdate(this IFeatureCollection features, string name, IFeaturePolicy policy, params string[] tags)
+        {
+            features.AddOrUpdate(new Feature(name, policy, tags));
+        }
     }
 }

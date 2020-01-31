@@ -17,11 +17,12 @@ namespace Reusable.Beaver
             // var c = FeatureConfiguration.FromJson(json);
             // var t = FeatureToggle.FromConfiguration(c);
         }
-        
+
         [Fact]
         public void Invokes_main_when_enabled()
         {
-            var t = new FeatureAgent(new FeatureToggle(FeaturePolicy.AlwaysOff).SetPolicy("test", FeaturePolicy.AlwaysOn));
+            var t = new FeatureAgent(new FeatureToggle(FeaturePolicy.AlwaysOff));
+            t.AddOrUpdate("test", FeaturePolicy.AlwaysOn);
 
 
             var a = 0;
@@ -60,7 +61,8 @@ namespace Reusable.Beaver
         [Fact]
         public void Once_disables_itself_after_first_invoke()
         {
-            var t = new FeatureAgent(new FeatureToggle(FeaturePolicy.AlwaysOff).SetPolicy("test", FeaturePolicy.Once));
+            var t = new FeatureAgent(new FeatureToggle(FeaturePolicy.AlwaysOff));
+            t.AddOrUpdate("test", FeaturePolicy.Once);
             var a = 0;
             var b = 0;
             var c = t.Use("test", () => ++a, () => ++b);
@@ -80,28 +82,33 @@ namespace Reusable.Beaver
         public void Ask_requests_permission_to_invoke()
         {
             var q = 0;
-            var a = 0;
-            var b = 0;
-            var t = new FeatureAgent(new FeatureToggle(FeaturePolicy.AlwaysOff).SetPolicy("test", FeaturePolicy.Ask(f => q++ < 1)));
-            var c = t.Use("test", () => ++a, () => ++b);
-            var d = t.Use("test", () => ++a, () => ++b);
+            var t = new FeatureAgent(new FeatureToggle(FeaturePolicy.AlwaysOff));
+            t.AddOrUpdate("test", FeaturePolicy.Ask(_ => q++ < 1));
+
+            var m = 0;
+            var f = 0;
+            var a = t.Use("test", () => ++m, () => ++f);
+            var b = t.Use("test", () => ++m, () => ++f);
             Assert.Equal(2, q);
+            Assert.Equal(1, m);
+            Assert.Equal(1, f);
             Assert.Equal(1, a);
             Assert.Equal(1, b);
-            Assert.Equal(1, c);
-            Assert.Equal(1, d);
-            Assert.Equal(FeatureState.Enabled, c.State);
-            Assert.Equal(FeatureState.Disabled, d.State);
-            Assert.IsType<Ask>(c.Feature.Policy);
-            Assert.Equal("test", c.Feature.Name);
+            Assert.Equal(FeatureState.Enabled, a.State);
+            Assert.Equal(FeatureState.Disabled, b.State);
+            Assert.IsType<Ask>(a.Feature.Policy);
+            Assert.IsType<Ask>(b.Feature.Policy);
+            Assert.Equal("test", a.Feature.Name);
+            Assert.Equal("test", b.Feature.Name);
         }
 
         [Fact]
         public void Throws_when_modifying_locked_feature()
         {
-            var t = new FeatureToggle(FeaturePolicy.AlwaysOff).SetPolicy("test", FeaturePolicy.AlwaysOn.Lock());
+            var t = new FeatureToggle(FeaturePolicy.AlwaysOff);
+            t.AddOrUpdate("test", FeaturePolicy.AlwaysOn.Lock());
             //t.SetOrUpdate("test", FeaturePolicy.AlwaysOff);
-            Assert.Throws<InvalidOperationException>(() => t.SetPolicy("test", FeaturePolicy.AlwaysOff));
+            Assert.Throws<InvalidOperationException>(() => t["test"].Policy = FeaturePolicy.AlwaysOff);
         }
     }
 }
