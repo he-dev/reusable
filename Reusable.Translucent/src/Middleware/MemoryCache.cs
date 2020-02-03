@@ -17,7 +17,7 @@ namespace Reusable.Translucent.Middleware
 
         public MemoryCache(RequestDelegate<ResourceContext> next, IServiceProvider services) : base(next, services)
         {
-            _memoryCache = Services.GetService<IMemoryCache>();
+            _memoryCache = Services.GetRequiredService<IMemoryCache>();
         }
 
         public override async Task InvokeAsync(ResourceContext context)
@@ -25,14 +25,14 @@ namespace Reusable.Translucent.Middleware
             // Only GET requests are cacheable.
             if (!context.Request.Method.Equals(RequestMethod.Get))
             {
-                await Next(context);
+                await InvokeNext(context);
                 return;
             }
 
             // Only requests with non-zero MaxAge are cacheable.
             if (context.Request.MaxAge == TimeSpan.Zero)
             {
-                await Next(context);
+                await InvokeNext(context);
                 return;
             }
 
@@ -43,7 +43,7 @@ namespace Reusable.Translucent.Middleware
             }
             else
             {
-                await Next(context);
+                await InvokeNext(context);
                 _memoryCache.Set(key, context.Response, context.Request.MaxAge);
             }
         }

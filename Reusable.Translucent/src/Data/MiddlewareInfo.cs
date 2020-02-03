@@ -39,13 +39,13 @@ namespace Reusable.Translucent.Data
 
         public ConstructorInfo GetConstructor()
         {
-            var ctors =
+            var constructors =
                 from ctor in Type.GetConstructors()
                 let parameters = ctor.GetParameters()
                 where parameters.Any() && typeof(RequestDelegate<TContext>).IsAssignableFrom(ctor.GetParameters().First().ParameterType)
                 select ctor;
 
-            var match = ctors.SingleOrThrow
+            var match = constructors.SingleOrThrow
             (
                 onEmpty: ("ConstructorNotFound", $"Type '{Type.ToPrettyString()}' does not have a constructor with the first parameter '{typeof(RequestDelegate<TContext>).ToPrettyString()}'."),
                 onMany: ("AmbiguousConstructorsFound", $"Type '{Type.ToPrettyString()}' has more than one constructor with the first parameter '{typeof(RequestDelegate<TContext>).ToPrettyString()}'.")
@@ -96,7 +96,7 @@ namespace Reusable.Translucent.Data
                 throw DynamicException.Create
                 (
                     "InvokeSignature",
-                    $"{Type.ToPrettyString()} Invoke's first parameters must be of type '{typeof(TContext).ToPrettyString()}'."
+                    $"{Type.ToPrettyString()} Invoke's first parameter must be of type '{typeof(TContext).ToPrettyString()}'."
                 );
             }
 
