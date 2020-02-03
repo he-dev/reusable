@@ -13,18 +13,20 @@ namespace Reusable.Beaver
 
     public class FeatureAgent : IFeatureAgent
     {
-        private readonly IFeatureToggle _featureToggle;
+        private readonly IFeatureToggle _toggle;
 
-        public FeatureAgent(IFeatureToggle featureToggle)
+        public FeatureAgent(IFeatureToggle toggle)
         {
-            _featureToggle = featureToggle;
+            _toggle = toggle;
         }
 
-        public Feature this[string name] => _featureToggle[name];
+        public Feature this[string name] => _toggle[name];
 
-        public void AddOrUpdate(Feature feature) => _featureToggle.AddOrUpdate(feature);
+        public bool TryGet(string name, out Feature feature) => _toggle.TryGet(name, out feature);
+        
+        public void AddOrUpdate(Feature feature) => _toggle.AddOrUpdate(feature);
 
-        public bool TryRemove(string name, out Feature feature) => _featureToggle.TryRemove(name, out feature);
+        public bool TryRemove(string name, out Feature feature) => _toggle.TryRemove(name, out feature);
 
         public async Task<FeatureResult<T>> Use<T>(string name, Func<Task<T>> ifEnabled, Func<Task<T>>? ifDisabled = default, object? parameter = default)
         {
@@ -68,8 +70,8 @@ namespace Reusable.Beaver
             }
         }
 
-        public IEnumerator<Feature> GetEnumerator() => _featureToggle.GetEnumerator();
+        public IEnumerator<Feature> GetEnumerator() => _toggle.GetEnumerator();
 
-        IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable)_featureToggle).GetEnumerator();
+        IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable)_toggle).GetEnumerator();
     }
 }

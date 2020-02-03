@@ -15,13 +15,11 @@ namespace Reusable.Beaver
     {
         private IFeaturePolicy _policy = FeaturePolicy.AlwaysOff;
 
-        private Feature() => Tags = new HashSet<string>(SoftString.Comparer);
-
-        public Feature(string name, IFeaturePolicy policy, IEnumerable<string>? tags = default) : this()
+        public Feature(string name, IFeaturePolicy policy, IEnumerable<string>? tags = default)
         {
             Name = name;
             Policy = policy;
-            Tags.UnionWith(tags ?? Enumerable.Empty<string>());
+            Tags = new SortedSet<string>(tags ?? Enumerable.Empty<string>(), SoftString.Comparer);
         }
 
         public string Name { get; }

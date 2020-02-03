@@ -34,24 +34,11 @@ namespace Reusable.Translucent
         public IResourceRepository Build(IServiceProvider? services = default)
         {
             services = new ImmutableServiceProvider(_services, services ?? ImmutableServiceProvider.Empty).Add<IEnumerable<IResourceController>>(_controllers);
+            
+            _middleware.Add(MiddlewareInfo<ResourceContext>.Create<ResourceProvider>());
 
-            //var pipelineBuilder = new PipelineBuilder<ResourceContext>();
-
-            //foreach (var (type, args) in _middleware)
-            {
-                //  pipelineBuilder.UseMiddleware(type, args);
-                //}
-
-                // This is the default middleware that is always the last one.
-                //pipelineBuilder.UseMiddleware<ResourceMiddleware>();
-
-                _middleware.Add(MiddlewareInfo<ResourceContext>.Create<ResourceProvider>());
-
-                //return new ResourceRepository(pipelineBuilder.Build(services));
-
-                var pipeline = PipelineFactory.CreatePipeline<ResourceContext>(_middleware, services);
-                return new ResourceRepository(pipeline);
-            }
+            var pipeline = PipelineFactory.CreatePipeline<ResourceContext>(_middleware, services);
+            return new ResourceRepository(pipeline);
         }
     }
 

@@ -1,7 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
-<!--        <TargetFrameworks>netcoreapp2.2;net47</TargetFrameworks>-->
-        <TargetFramework>netcoreapp3.0</TargetFramework>
+        <TargetFramework>netcoreapp3.1</TargetFramework>
         <RootNamespace>Reusable</RootNamespace>
         <Nullable>enable</Nullable>
     </PropertyGroup>

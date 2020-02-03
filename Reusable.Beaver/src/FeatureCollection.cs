@@ -7,7 +7,9 @@ namespace Reusable.Beaver
 {
     public interface IFeatureCollection : IEnumerable<Feature>
     {
-        Feature? this[string name] { get; }
+        Feature this[string name] { get; }
+
+        bool TryGet(string name, out Feature feature);
 
         void AddOrUpdate(Feature feature);
 
@@ -21,7 +23,9 @@ namespace Reusable.Beaver
     {
         private readonly ConcurrentDictionary<string, Feature> _features = new ConcurrentDictionary<string, Feature>(SoftString.Comparer);
 
-        public Feature? this[string name] => _features.TryGetValue(name, out var feature) ? feature : default;
+        public Feature this[string name] => _features[name]; // .TryGetValue(name, out var feature) ? feature : default;
+
+        public bool TryGet(string name, out Feature feature) => _features.TryGetValue(name, out feature);
 
         public void AddOrUpdate(Feature feature) => _features.AddOrUpdate(feature.Name, name => feature, (n, f) => feature);
 

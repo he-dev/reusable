@@ -23,7 +23,9 @@ namespace Reusable.Beaver
         /// <summary>
         /// Gets feature or fallback.
         /// </summary>
-        public Feature this[string name] => _features[name] ?? _features[nameof(Feature.Fallback)]!;
+        public Feature this[string name] => _features.TryGet(name, out var feature) ? feature : _features[nameof(Feature.Fallback)];
+        
+        public bool TryGet(string name, out Feature feature) => _features.TryGet(name, out feature);
 
         /// <summary>
         /// Adds or updates feature. Throws when trying to set a locked feature.

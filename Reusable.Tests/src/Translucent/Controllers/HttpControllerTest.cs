@@ -55,8 +55,8 @@ namespace Reusable.Translucent.Controllers
                 ResourceRepository
                     .Builder()
                     .Add(HttpController.FromBaseUri("Mailr", "http://localhost:30002/api"))
-                    .Register(TestHelper.CreateCache())
-                    .Register(_testHelper.LoggerFactory)
+                    //.Register(TestHelper.CreateCache())
+                    //.Register(_testHelper.LoggerFactory)
                     .Build();
             var response = await resources.SendEmailAsync("mailr/messages/test", email, http =>
             {

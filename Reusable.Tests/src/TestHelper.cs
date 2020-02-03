@@ -12,7 +12,7 @@ namespace Reusable
 
         public static IMemoryCache CreateCache() => new MemoryCache(new MemoryCacheOptions());
 
-        public static ILoggerFactory CreateLoggerFactory(ILogRx logRx)
+        public static ILoggerFactory CreateLoggerFactory(params ILogRx[] logRx)
         {
             return
                 LoggerFactory

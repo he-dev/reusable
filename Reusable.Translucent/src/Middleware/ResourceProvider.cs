@@ -33,14 +33,14 @@ namespace Reusable.Translucent.Middleware
         };
 
         private readonly IImmutableList<IResourceController> controllers;
-        private readonly ILogger logger;
+        private readonly ILogger? logger;
         private readonly IMemoryCache cache;
 
         public ResourceProvider(RequestDelegate<ResourceContext> next, IServiceProvider services) : base(next, services)
         {
-            logger = services.GetService<ILoggerFactory>().CreateLogger<ResourceProvider>();
+            logger = services.GetService<ILoggerFactory>()?.CreateLogger<ResourceProvider>();
             controllers = services.GetService<IEnumerable<IResourceController>>().ToImmutableList();
-            cache = services.GetService<IMemoryCache>();
+            cache = services.GetService<IMemoryCache>() ?? new Microsoft.Extensions.Caching.Memory.MemoryCache(new MemoryCacheOptions());
         }
 
         public override async Task InvokeAsync(ResourceContext context)
@@ -68,7 +68,7 @@ namespace Reusable.Translucent.Middleware
                         {
                             context.Response = response;
                             cache.Set(providerKey, controller);
-                            logger.Log(Abstraction.Layer.IO().Meta(new
+                            logger?.Log(Abstraction.Layer.IO().Meta(new
                             {
                                 resource = new
                                 {
@@ -81,7 +81,7 @@ namespace Reusable.Translucent.Middleware
                         }
                         else
                         {
-                            logger.Log(Abstraction.Layer.IO().Meta(new
+                            logger?.Log(Abstraction.Layer.IO().Meta(new
                             {
                                 resource = new
                                 {

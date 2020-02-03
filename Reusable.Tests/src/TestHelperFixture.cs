@@ -14,8 +14,7 @@ namespace Reusable
     {
         public TestHelperFixture()
         {
-            Logs = new MemoryRx();
-            LoggerFactory = CreateLoggerFactory(Logs);
+            LoggerFactory = CreateLoggerFactory(new MemoryRx());
             Cache = CreateCache();
             
             Resources =
@@ -26,9 +25,6 @@ namespace Reusable
                             .Add(Cache)
                             .Add(LoggerFactory));
         }
-
-        
-        public MemoryRx Logs { get; }
 
         public ILoggerFactory LoggerFactory { get; }
 

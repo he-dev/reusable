@@ -10,7 +10,6 @@ using Reusable.Beaver;
 using Reusable.Extensions;
 using Reusable.OmniLog.Abstractions;
 using Reusable.OmniLog.Nodes;
-using Reusable.OmniLog.SemanticExtensions.AspNetCore.Mvc.Filters;
 
 namespace Reusable.OmniLog.SemanticExtensions.AspNetCore
 {
@@ -38,18 +37,11 @@ namespace Reusable.OmniLog.SemanticExtensions.AspNetCore
         {
             using (_logger.BeginScope(_config.GetCorrelationId(context)).WithCorrelationHandle(_config.GetCorrelationHandle(context)).UseStopwatch())
             {
-                var requestBody = default(string);
-                
-                if (_config.CanLogRequestBody(context) && context.Request.ContentLength > 0)
-                {
-                    using var requestCopy = new MemoryStream();
-                    using var requestReader = new StreamReader(requestCopy);
-                    context.Request.EnableRewind();
-                    await context.Request.Body.CopyToAsync(requestCopy);
-                    requestCopy.Rewind();
-                    requestBody = await requestReader.ReadToEndAsync();
-                    context.Request.Body.Rewind();
-                }
+                var requestBody =
+                    _config.CanLogRequestBody(context)
+                        ? await _config.SerializeRequestBody(context)
+                        : default;
+
 
                 _config.LogRequest(_logger, context, requestBody);
 

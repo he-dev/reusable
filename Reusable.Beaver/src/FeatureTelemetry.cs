@@ -24,6 +24,8 @@ namespace Reusable.Beaver
 
         public Feature this[string name] => _agent[name];
         
+        public bool TryGet(string name, out Feature feature) => _agent.TryGet(name, out feature);
+        
         public void AddOrUpdate(Feature feature) => _agent.AddOrUpdate(feature);
 
         public bool TryRemove(string name, out Feature feature) => _agent.TryRemove(name, out feature);
