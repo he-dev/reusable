@@ -30,6 +30,7 @@
   <ItemGroup>
     <Compile Remove="src\Option.cs" />
     <Compile Remove="src\Flawless\**" />
+    <Compile Remove="src\Exceptionize\DynamicExceptionTemplate.cs" />
   </ItemGroup>
 
   <ItemGroup>
