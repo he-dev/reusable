@@ -32,11 +32,11 @@ namespace Reusable.OmniLog.Nodes
         /// <summary>
         /// Activates a new stopwatch and returns it.
         /// </summary>
-        public static ILoggerScope UseStopwatch(this ILoggerScope scope) => scope.AddMiddleware(new StopwatchNode());
+        public static ILoggerScope UseStopwatch(this ILoggerScope scope) => scope.AddNode(new StopwatchNode());
 
         /// <summary>
         /// Gets the stopwatch in current scope.
         /// </summary>
-        public static StopwatchNode? Stopwatch(this ScopeNode.Item scope) => scope.EnumerateNext().OfType<StopwatchNode>().FirstOrDefault();
+        public static StopwatchNode? Stopwatch(this ScopeNode.FirstNode scope) => scope.EnumerateNext().OfType<StopwatchNode>().FirstOrDefault();
     }
 }

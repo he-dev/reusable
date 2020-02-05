@@ -17,20 +17,20 @@ namespace Reusable.OmniLog.Nodes
         /// </summary>
         public Func<object> NextCorrelationId { get; set; } = () => Guid.NewGuid().ToString("N");
 
-        public Item? Current => AsyncScope<Item>.Current?.Value;
+        public FirstNode? Current => AsyncScope<FirstNode>.Current?.Value;
 
-        public Item Push(object? correlationId)
+        public FirstNode Push(object? correlationId)
         {
-            return AsyncScope<Item>.Push(new Item(correlationId ?? NextCorrelationId(), Next)).Value;
+            return AsyncScope<FirstNode>.Push(new FirstNode(correlationId ?? NextCorrelationId(), Next)).Value;
         }
 
         protected override void invoke(LogEntry request)
         {
-            if (AsyncScope<Item>.Any)
+            if (AsyncScope<FirstNode>.Any)
             {
-                var scopes = AsyncScope<Item>.Current!.Enumerate().Select(x => x.Value).ToList();
+                var scopes = AsyncScope<FirstNode>.Current!.Enumerate().Select(x => x.Value).ToList();
                 request.Add<Serialize>(LogEntry.Names.Scope, scopes);
-                AsyncScope<Item>.Current!.Value.Invoke(request);
+                AsyncScope<FirstNode>.Current!.Value.Invoke(request);
             }
             else
             {
@@ -39,9 +39,9 @@ namespace Reusable.OmniLog.Nodes
         }
 
         [JsonObject(MemberSerialization.OptIn)]
-        public class Item : ILoggerNode
+        public class FirstNode : ILoggerNode
         {
-            public Item(object correlationId, ILoggerNode? next) => (CorrelationId, Next) = (correlationId, new TerminatorMiddleware { Prev = this, Next = next });
+            public FirstNode(object correlationId, ILoggerNode? next) => (CorrelationId, Next) = (correlationId, new LastNode { Prev = this, Next = next });
 
             [JsonProperty]
             public object CorrelationId { get; }
@@ -60,23 +60,24 @@ namespace Reusable.OmniLog.Nodes
             public void Dispose()
             {
                 Next?.Dispose();
-                AsyncScope<Item>.Current?.Dispose();
+                AsyncScope<FirstNode>.Current?.Dispose();
+            }
+        }
+
+        public class LastNode : LoggerNode
+        {
+            protected override void invoke(LogEntry request)
+            {
+                invokeNext(request);
+            }
+
+            public override void Dispose()
+            {
+                // Terminate the Dispose chain.
             }
         }
     }
 
-    public class TerminatorMiddleware : LoggerNode
-    {
-        protected override void invoke(LogEntry request)
-        {
-            invokeNext(request);
-        }
-
-        public override void Dispose()
-        {
-            // Terminate the Dispose chain.
-        }
-    }
 
     public static class ScopeNodeHelper
     {
@@ -103,17 +104,17 @@ namespace Reusable.OmniLog.Nodes
             return scope.WithScope(s => s.CorrelationHandle = correlationHandle);
         }
 
-        public static ILoggerScope AddMiddleware(this ILoggerScope scope, ILoggerNode node)
+        public static ILoggerScope AddNode(this ILoggerScope scope, ILoggerNode node)
         {
-            return scope.WithScope(s => s.EnumerateNext().OfType<TerminatorMiddleware>().Single().AddBefore(node));
+            return scope.WithScope(s => s.EnumerateNext().OfType<ScopeNode.LastNode>().Single().AddBefore(node));
         }
 
         /// <summary>
         /// Gets the current correlation scope.
         /// </summary>
-        public static ScopeNode.Item? Scope(this ILogger logger) => logger.Node<ScopeNode>().Current;
+        public static ScopeNode.FirstNode? Scope(this ILogger logger) => logger.Node<ScopeNode>().Current;
 
-        public static ILoggerScope WithScope(this ILoggerScope scope, Action<ScopeNode.Item> scopeAction)
+        public static ILoggerScope WithScope(this ILoggerScope scope, Action<ScopeNode.FirstNode> scopeAction)
         {
             return scope.Pipe(s => scopeAction(s.Scope() ?? throw new InvalidOperationException("Cannot use scope right now because there is none.")));
         }

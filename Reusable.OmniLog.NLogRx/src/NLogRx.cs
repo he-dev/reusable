@@ -32,7 +32,7 @@ namespace Reusable.OmniLog
         {
             var logEventInfo = new NLog.LogEventInfo
             {
-                Level = LogLevels[logEntry.GetPropertyOrDefault<Log>(LogEntry.Names.Level).ValueOrDefault<Reusable.Data.Option<LogLevel>>()],
+                Level = LogLevels[logEntry.GetPropertyOrDefault<Log>(LogEntry.Names.Level).ValueOrDefault<Option<LogLevel>>()],
                 LoggerName = logEntry.GetPropertyOrDefault<Log>(LogEntry.Names.Logger).ValueOrDefault<string>(),
                 Message = logEntry.GetPropertyOrDefault<Log>(LogEntry.Names.Message).ValueOrDefault<string>(),
                 Exception = logEntry.GetPropertyOrDefault<Log>(LogEntry.Names.Exception).ValueOrDefault<Exception>(),

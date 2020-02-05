@@ -244,6 +244,39 @@ namespace Reusable.OmniLog
             //Assert.Equal(timestamp, rx.First()["Timestamp"]);
         }
 
+        [Fact]
+        public void Can_log_to_memory()
+        {
+            using var lf = new LoggerFactoryBuilder
+            {
+                new DelegateNode(),
+                new ScopeNode(),
+                new EchoNode
+                {
+                    Rx = { new MemoryRx() },
+                }
+            }.Build();
+
+            var l = lf.CreateLogger("test");
+            using var s = l.BeginScope().UseMemory();
+            
+            l.Log(e => e.Message("Hallo!"));
+
+            var rx = lf.Receivers().OfType<MemoryRx>().Single();
+            var mn = l.Scope().Memory();
+            
+            Assert.Same(rx.First(), mn.First());
+
+            var e = rx.First();
+
+            Assert.Equal(1, rx.Count());
+            Assert.Equal("Hallo!", e.GetPropertyOrDefault<Log>("Message").Value);
+
+            using var dt = mn.ToDataTable();
+            
+            Assert.Equal(1, dt.Rows.Count);
+        }
+
         private class Person
         {
             public string FirstName { get; set; }
