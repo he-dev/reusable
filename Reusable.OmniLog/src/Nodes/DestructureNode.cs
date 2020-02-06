@@ -20,7 +20,7 @@ namespace Reusable.OmniLog.Nodes
         protected override void invoke(LogEntry request)
         {
             var explodable =
-                from p in request.Action<Explode>()
+                from p in request.Action<Destructure>()
                 from x in p.Value.EnumerateProperties().Where(x => x.Value is {})
                 select x;
 

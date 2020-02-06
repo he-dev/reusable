@@ -24,8 +24,4 @@
     <ProjectReference Include="..\Reusable.Utilities.JsonNet\Reusable.Utilities.JsonNet.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="src\Middleware" />
-  </ItemGroup>
-
 </Project>

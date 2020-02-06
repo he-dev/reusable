@@ -73,6 +73,11 @@ namespace Reusable.OmniLog.Abstractions.Data
             property = default;
             return false;
         }
+        
+        public LogProperty? LastOf(SoftString name)
+        {
+            return _data.TryGetValue(name, out var propertyVersions) ? propertyVersions.Last() : default;
+        }
 
         public override string ToString()
         {

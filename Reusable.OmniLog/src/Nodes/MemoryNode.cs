@@ -9,7 +9,7 @@ using Reusable.OmniLog.Abstractions.Data.LogPropertyActions;
 namespace Reusable.OmniLog.Nodes
 {
     /// <summary>
-    /// This nodes caches logs in memory.
+    /// This node caches logs in memory.
     /// </summary>
     public class MemoryNode : LoggerNode, IEnumerable<LogEntry>
     {

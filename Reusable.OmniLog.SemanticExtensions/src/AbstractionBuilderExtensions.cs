@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 using System.Runtime.CompilerServices;
-using Reusable.Data;
 using Reusable.OmniLog.Abstractions;
 using Reusable.OmniLog.Abstractions.Data;
 using Reusable.OmniLog.Abstractions.Data.LogPropertyActions;
@@ -151,7 +150,7 @@ namespace Reusable.OmniLog.SemanticExtensions
                     .Add<Serialize>(LogEntry.Names.Snapshot, snapshot),
                 _ =>
                 logEntry
-                    .Add<Explode>(LogEntry.Names.Snapshot, snapshot)
+                    .Add<Destructure>(LogEntry.Names.Snapshot, snapshot)
             };
         }
 

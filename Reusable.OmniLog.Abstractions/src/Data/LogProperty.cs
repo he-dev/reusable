@@ -41,7 +41,7 @@ namespace Reusable.OmniLog.Abstractions.Data
         /// <summary>
         /// Item needs to be exploded.
         /// </summary>
-        public readonly struct Explode : ILogPropertyAction { }
+        public readonly struct Destructure : ILogPropertyAction { }
 
         /// <summary>
         /// Item needs to be mapped or serialized.

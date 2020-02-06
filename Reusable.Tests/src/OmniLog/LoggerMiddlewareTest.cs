@@ -135,7 +135,7 @@ namespace Reusable.OmniLog
             using (lf)
             {
                 var logger = lf.CreateLogger("test");
-                logger.Log(l => l.Message("Hallo!").Snapshot<Explode>(new { Greeting = "Hi!" }));
+                logger.Log(l => l.Message("Hallo!").Snapshot<Destructure>(new { Greeting = "Hi!" }));
             }
 
             Assert.Equal(1, rx.Count());
@@ -193,7 +193,7 @@ namespace Reusable.OmniLog
             using (lf)
             {
                 var logger = lf.CreateLogger("test");
-                logger.Log(l => l.Snapshot<Explode>(new Person { FirstName = "John", LastName = "Doe" }));
+                logger.Log(l => l.Snapshot<Destructure>(new Person { FirstName = "John", LastName = "Doe" }));
             }
 
             Assert.Equal(2, rx.Count());

@@ -8,7 +8,7 @@ namespace Reusable.OmniLog.Rx.ConsoleRenderers
 {
     public class SimpleConsoleRenderer : PlainConsoleRenderer
     {
-        public IReadOnlyDictionary<Reusable.Data.Option<LogLevel>, ConsoleColor> LogLevelColor { get; set; } = new Dictionary<Reusable.Data.Option<LogLevel>, ConsoleColor>
+        public IReadOnlyDictionary<Option<LogLevel>, ConsoleColor> LogLevelColor { get; set; } = new Dictionary<Option<LogLevel>, ConsoleColor>
         {
             [LogLevel.Trace] = ConsoleColor.DarkGray,
             [LogLevel.Debug] = ConsoleColor.DarkGray,
@@ -22,7 +22,7 @@ namespace Reusable.OmniLog.Rx.ConsoleRenderers
         {
             using (Disposable.Create(Console.ResetColor))
             {
-                var logLevel = logEntry.GetPropertyOrDefault<Log>(LogEntry.Names.Level).ValueOrDefault<Reusable.Data.Option<LogLevel>>();
+                var logLevel = logEntry.GetPropertyOrDefault<Log>(LogEntry.Names.Level).ValueOrDefault<Option<LogLevel>>();
                 if (LogLevelColor.TryGetValue(logLevel, out var consoleColor))
                 {
                     Console.ForegroundColor = consoleColor;
