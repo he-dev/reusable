@@ -3,7 +3,6 @@ using System.Diagnostics;
 using System.Linq;
 using Reusable.OmniLog.Abstractions;
 using Reusable.OmniLog.Abstractions.Data;
-using Reusable.OmniLog.Abstractions.Data.LogPropertyActions;
 
 namespace Reusable.OmniLog.Nodes
 {
@@ -16,7 +15,7 @@ namespace Reusable.OmniLog.Nodes
 
         protected override void invoke(LogEntry request)
         {
-            request.Add<Log>(LogEntry.Names.Elapsed, (long)GetValue(Elapsed));
+            request.Add(LogEntry.Names.Elapsed, (long)GetValue(Elapsed), m => m.ProcessWith<EchoNode>());
             invokeNext(request);
         }
 

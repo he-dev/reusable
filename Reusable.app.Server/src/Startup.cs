@@ -15,7 +15,7 @@ using Reusable.OmniLog.Abstractions;
 using Reusable.OmniLog.Abstractions.Data;
 using Reusable.OmniLog.Nodes;
 using Reusable.OmniLog.Rx;
-using Reusable.OmniLog.Rx.ConsoleRenderers;
+using Reusable.OmniLog.Rx.Consoles;
 using Reusable.OmniLog.SemanticExtensions;
 using Reusable.OmniLog.SemanticExtensions.AspNetCore;
 using Reusable.OmniLog.SemanticExtensions.AspNetCore.Extensions;
@@ -80,12 +80,9 @@ namespace Reusable.Apps.Server
 #if DEBUG
                     .UseEcho(
                         new NLogRx(),
-                        new ConsoleRx
+                        new SimpleConsoleRx
                         {
-                            Renderer = new SimpleConsoleRenderer
-                            {
-                                Template = @"[{Timestamp:HH:mm:ss:fff}] [{Level:u}] {Layer} | {Category} | {Identifier}: {Snapshot} {Elapsed}ms | {Message} {Exception}"
-                            }
+                            Template = @"[{Timestamp:HH:mm:ss:fff}] [{Level:u}] {Layer} | {Category} | {Identifier}: {Snapshot} {Elapsed}ms | {Message} {Exception}"
                         });
 #else
                     .UseEcho(new NLogRx());
@@ -99,7 +96,7 @@ namespace Reusable.Apps.Server
 
             services
                 .AddScoped<IFeatureToggle>(_ => new FeatureToggle(FeaturePolicy.AlwaysOff));
-            
+
             services
                 .AddScoped<IFeatureAgent>(s =>
                 {

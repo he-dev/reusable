@@ -1,7 +1,6 @@
 using System.Linq;
 using Reusable.OmniLog.Abstractions;
 using Reusable.OmniLog.Abstractions.Data;
-using Reusable.OmniLog.Abstractions.Data.LogPropertyActions;
 
 namespace Reusable.OmniLog.Nodes
 {
@@ -9,21 +8,17 @@ namespace Reusable.OmniLog.Nodes
     {
         protected override void invoke(LogEntry request)
         {
-            var builders = 
-                request
-                    .Action<Copy>()
-                    .Select(p => p.ValueOrDefault<ILogEntryBuilder>())
-                    .ToList();
-
+            var builders = request.Properties(m => m.ProcessWith(this)).Select(p => p.Value).Cast<ILogEntryBuilder>().ToList();
             var logEntries =
                 from b in builders
                 from l in b.Build()
-                select l;
+                from v in l.Value
+                select v;
 
             // Copy all items to the main log.
             foreach (var item in logEntries)
             {
-                request.Add(item.Key, item.Value);
+                request.Add(item);
             }
 
             invokeNext(request);

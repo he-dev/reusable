@@ -3,7 +3,6 @@ using System.Linq;
 using System.Threading;
 using Reusable.OmniLog.Abstractions;
 using Reusable.OmniLog.Abstractions.Data;
-using Reusable.OmniLog.Abstractions.Data.LogPropertyActions;
 using Reusable.OmniLog.Nodes;
 using Reusable.OmniLog.Rx;
 using Reusable.OmniLog.Services;
@@ -63,7 +62,7 @@ namespace Reusable.OmniLog
             var logger = lf.CreateLogger("test");
             logger.Log(l => l.Message("Hallo!"));
             Assert.Equal(1, rx.Count());
-            Assert.Equal("Hallo!", rx.First().GetPropertyOrDefault<Log>("Message").Value);
+            Assert.Equal("Hallo!", rx.First().GetPropertyFor<EchoNode>("Message")?.Value as string);
         }
 
         [Fact]

@@ -5,7 +5,6 @@ using Newtonsoft.Json;
 using Reusable.Extensions;
 using Reusable.OmniLog.Abstractions;
 using Reusable.OmniLog.Abstractions.Data;
-using Reusable.OmniLog.Abstractions.Data.LogPropertyActions;
 
 namespace Reusable.OmniLog.Nodes
 {
@@ -29,7 +28,7 @@ namespace Reusable.OmniLog.Nodes
             if (AsyncScope<FirstNode>.Any)
             {
                 var scopes = AsyncScope<FirstNode>.Current!.Enumerate().Select(x => x.Value).ToList();
-                request.Add<Serialize>(LogEntry.Names.Scope, scopes);
+                request.Add(LogEntry.Names.Scope, scopes, m => m.ProcessWith<SerializerNode>());
                 AsyncScope<FirstNode>.Current!.Value.Invoke(request);
             }
             else

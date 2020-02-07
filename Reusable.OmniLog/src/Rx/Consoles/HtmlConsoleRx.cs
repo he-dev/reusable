@@ -1,14 +1,18 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using JetBrains.Annotations;
 using Reusable.MarkupBuilder.Html;
+using Reusable.OmniLog.Abstractions;
 using Reusable.OmniLog.Abstractions.Data;
-using Reusable.OmniLog.Abstractions.Data.LogPropertyActions;
+using Reusable.OmniLog.Helpers;
+using Reusable.OmniLog.Nodes;
 using Reusable.OmniLog.Utilities;
 
-namespace Reusable.OmniLog.Rx.ConsoleRenderers
+namespace Reusable.OmniLog.Rx.Consoles
 {
-    public class HtmlConsoleRenderer : IConsoleRenderer
+    [PublicAPI]
+    public class HtmlConsoleRx : ILogRx
     {
         public static readonly ConsoleStyle DefaultStyle = new ConsoleStyle(ConsoleColor.Black, ConsoleColor.Gray);
 
@@ -16,18 +20,18 @@ namespace Reusable.OmniLog.Rx.ConsoleRenderers
 
         public IConsoleStyle Style { get; set; } = DefaultStyle;
 
-        public ConsoleTemplateBuilder<HtmlElement>? TemplateBuilder { get; set; }
+        public IConsoleTemplateBuilder<HtmlElement>? TemplateBuilder { get; set; }
 
         /// <summary>
         /// Renders the Html to the console. This method is thread-safe.
         /// </summary>
-        public void Render(LogEntry logEntry)
+        public void Log(LogEntry entry)
         {
             lock (_syncLock)
             {
-                var builder = logEntry.TryGetProperty<Build>(LogEntry.Names.MessageBuilder, out var property) switch
+                var builder = entry.TryGetProperty(LogEntry.Names.Message, m => m.ProcessWith<EchoNode>().LogWith(this), out var property) switch
                 {
-                    true => property.ValueOrDefault<ConsoleTemplateBuilder<HtmlElement>>(),
+                    true => property.Value as IHtmlConsoleTemplateBuilder,
                     false => TemplateBuilder
                 };
 
@@ -36,7 +40,7 @@ namespace Reusable.OmniLog.Rx.ConsoleRenderers
                     return;
                 }
 
-                var template = builder.Build(logEntry);
+                var template = builder.Build(entry);
 
                 using (ConsoleStyle.From(template).Apply())
                 {

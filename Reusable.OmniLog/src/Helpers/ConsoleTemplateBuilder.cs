@@ -6,39 +6,31 @@ using Reusable.MarkupBuilder.Html;
 using Reusable.OmniLog.Abstractions.Data;
 using Reusable.OmniLog.Utilities;
 
-namespace Reusable.OmniLog.Rx.ConsoleRenderers
+namespace Reusable.OmniLog.Helpers
 {
-    public delegate HtmlElement BuildConsoleTemplateFunc(HtmlElement builder, LogEntry logEntry);
-
-    [PublicAPI]
-    public abstract class ConsoleTemplateBuilder<T>
+    public interface IConsoleTemplateBuilder<out T>
     {
-        public abstract T Build(LogEntry logEntry);
-
-        //public virtual BuildConsoleTemplateFunc? Build() => default!;
-
-        //public static ConsoleTemplateBuilder? Null { get; } = default!;
+        T Build(LogEntry logEntry);
     }
 
+    public interface IHtmlConsoleTemplateBuilder : IConsoleTemplateBuilder<HtmlElement> { }
+
     [PublicAPI]
-    public class HtmlConsoleTemplateBuilder : ConsoleTemplateBuilder<HtmlElement>
+    public class HtmlConsoleTemplateBuilder : List<IHtmlConsoleTemplateBuilder>, IHtmlConsoleTemplateBuilder
     {
-        public HtmlConsoleTemplateBuilder(bool isParagraph, IConsoleStyle style, IEnumerable<ConsoleTemplateBuilder<HtmlElement>> builders)
+        public HtmlConsoleTemplateBuilder(bool isParagraph, IConsoleStyle style, IEnumerable<IHtmlConsoleTemplateBuilder> builders) : base(builders)
         {
             IsParagraph = isParagraph;
             Style = style;
-            Builders = builders;
         }
 
         public IConsoleStyle Style { get; }
 
         public bool IsParagraph { get; }
 
-        public IEnumerable<ConsoleTemplateBuilder<HtmlElement>> Builders { get; }
-
-        public override HtmlElement Build(LogEntry logEntry)
+        public HtmlElement Build(LogEntry logEntry)
         {
-            var elements = Builders.Select(b => b.Build(logEntry));
+            var elements = this.Select(b => b.Build(logEntry));
             return
                 IsParagraph
                     ? HtmlElement.Builder.p(x => x.Append(elements).SetConsoleStyle(Style))

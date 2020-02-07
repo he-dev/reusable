@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq.Custom;
 using Reusable.MarkupBuilder.Html;
 using Reusable.OmniLog.Abstractions.Data;
-using Reusable.OmniLog.Rx.ConsoleRenderers;
+using Reusable.OmniLog.Helpers;
 
 // ReSharper disable once CheckNamespace
 namespace Reusable.Commander.ConsoleTemplates
@@ -20,7 +20,7 @@ namespace Reusable.Commander.ConsoleTemplates
 //                .span(span => span.text($"[{Timestamp:yyyy-MM-dd HH:mm:ss}]>"));
 //    }
 
-    public class Indent : ConsoleTemplateBuilder<HtmlElement>
+    public class Indent : IHtmlConsoleTemplateBuilder
     {
         private readonly int _depth;
 
@@ -31,7 +31,7 @@ namespace Reusable.Commander.ConsoleTemplates
 
         public int Width { get; set; } = 1;
 
-        public override HtmlElement Build(LogEntry logEntry) =>
+        public HtmlElement Build(LogEntry logEntry) =>
             HtmlElement
                 .Builder
                 .span(x => x.text(new string(' ', Width * _depth)));
@@ -39,11 +39,11 @@ namespace Reusable.Commander.ConsoleTemplates
 
     namespace Help
     {
-        public class TableRow : ConsoleTemplateBuilder<HtmlElement>
+        public class TableRow : IHtmlConsoleTemplateBuilder
         {
             public IEnumerable<string> Cells { get; set; } = default!;
 
-            public override HtmlElement Build(LogEntry logEntry) =>
+            public HtmlElement Build(LogEntry logEntry) =>
                 HtmlElement
                     .Builder
                     .span(x => x
@@ -52,11 +52,11 @@ namespace Reusable.Commander.ConsoleTemplates
     }
 
 
-    public class Error : ConsoleTemplateBuilder<HtmlElement>
+    public class Error : IHtmlConsoleTemplateBuilder
     {
         public string Text { get; set; } = default!;
 
-        public override HtmlElement Build(LogEntry logEntry) =>
+        public HtmlElement Build(LogEntry logEntry) =>
             HtmlElement
                 .Builder
                 .span(x => x

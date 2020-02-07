@@ -5,7 +5,6 @@ using System.Linq;
 using System.Linq.Expressions;
 using Reusable.OmniLog.Abstractions;
 using Reusable.OmniLog.Abstractions.Data;
-using Reusable.OmniLog.Abstractions.Data.LogPropertyActions;
 
 namespace Reusable.OmniLog.Nodes
 {
@@ -18,13 +17,13 @@ namespace Reusable.OmniLog.Nodes
 
         protected override void invoke(LogEntry request)
         {
-            foreach (var property in request.Action<Serialize>().ToList())
+            foreach (var property in request.Properties(m => m.ProcessWith<SerializerNode>()).ToList())
             {
                 // Do we have a custom mapping for the dump?
                 if (property.Value is {} && Mappings.TryGetMapping(property.Value.GetType(), out var map))
                 {
                     var obj = map(property.Value);
-                    request.Add<Serialize>(property.Name, obj); // Replace the original object.
+                    request.Add(property.Name, obj, m => m.ProcessWith<SerializerNode>()); // Replace the original object.
                 }
             }
 

@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Diagnostics;
@@ -33,50 +34,28 @@ namespace Reusable.OmniLog.Abstractions.Data
             set => _data[key] = value;
         }
 
-        public LogEntry Add<T>(SoftString name, object? value) where T : struct, ILogPropertyAction
+        public LogEntry Add(LogProperty property)
         {
-            var current = _data.TryGetValue(name, out var property) ? property : ImmutableList<LogProperty>.Empty;
-            _data[name] = current.Add(new LogProperty(name, value, default(T)));
+            var current = _data.TryGetValue(property.Name, out var versions) ? versions : ImmutableList<LogProperty>.Empty;
+            _data[property.Name] = current.Add(property);
             return this;
-        }
-        
-        public LogEntry Add<T>(string name, object? value) where T : struct, ILogPropertyAction
-        {
-            return Add<T>(name.ToSoftString()!, value);
         }
 
-        public LogEntry Add(SoftString name, IEnumerable<LogProperty> properties)
-        {
-            var current = _data.TryGetValue(name, out var versions) ? versions : ImmutableList<LogProperty>.Empty;
-            _data[name] = current.AddRange(properties);
-            return this;
-        }
 
         public LogEntry Copy() => new LogEntry(_data);
 
-        public LogProperty GetPropertyOrDefault<T>(SoftString name) where T : struct, ILogPropertyAction
+        public bool TryGetProperty(SoftString name, out LogProperty property)
         {
-            return
-                TryGetProperty<T>(name, out var property)
-                    ? property
-                    : default;
-        }
-
-        public bool TryGetProperty<T>(SoftString name, out LogProperty property) where T : struct, ILogPropertyAction
-        {
-            if (_data.TryGetValue(name, out var propertyVersions))
+            if (_data.TryGetValue(name, out var versions))
             {
-                property = propertyVersions.LastOrDefault() is {} version && version.Action.Equals(default(T)) ? version : default;
-                return !property.IsEmpty;
+                property = versions.Last();
+                return true;
             }
-
-            property = default;
-            return false;
-        }
-        
-        public LogProperty? LastOf(SoftString name)
-        {
-            return _data.TryGetValue(name, out var propertyVersions) ? propertyVersions.Last() : default;
+            else
+            {
+                property = default;
+                return false;
+            }
         }
 
         public override string ToString()
@@ -96,7 +75,6 @@ namespace Reusable.OmniLog.Abstractions.Data
             public static readonly SoftString Logger = nameof(Logger)!;
             public static readonly SoftString Level = nameof(Level)!;
             public static readonly SoftString Message = nameof(Message)!;
-            public static readonly SoftString MessageBuilder = nameof(MessageBuilder)!;
             public static readonly SoftString Exception = nameof(Exception)!;
             public static readonly SoftString CallerMemberName = nameof(CallerMemberName)!;
             public static readonly SoftString CallerLineNumber = nameof(CallerLineNumber)!;
@@ -112,25 +90,35 @@ namespace Reusable.OmniLog.Abstractions.Data
 
     public static class LogEntryExtensions
     {
-        /// <summary>
-        /// Enumerates log-properties where the specified action is the last one.
-        /// </summary>
-        public static IEnumerable<LogProperty> Action<T>(this LogEntry entry) where T : struct, ILogPropertyAction
+        public static bool TryGetProperty(this LogEntry entry, SoftString name, Action<LogPropertyMeta.LogPropertyMetaBuilder> meta, out LogProperty property)
         {
-            foreach (var name in entry.Select(x => x.Key))
+            if (entry.TryGetProperty(name, out property) && property.Meta.Contains(LogPropertyMeta.Builder.Pipe(meta)))
             {
-                if (entry.TryGetProperty<T>(name, out var property))
-                {
-                    yield return property;
-                }
+                return true;
+            }
+            else
+            {
+                property = default;
+                return false;
             }
         }
-        
-        public static IEnumerable<LogProperty> PropertiesHandledBy<T>(this LogEntry entry) where T : ILoggerNode
+
+        public static LogProperty? GetProperty(this LogEntry entry, SoftString name, Action<LogPropertyMeta.LogPropertyMetaBuilder> buildMeta)
         {
-            foreach (var name in entry.Select(x => x.Key))
+            return entry.TryGetProperty(name, buildMeta, out var property) ? property : default;
+        }
+
+        public static LogEntry Add(this LogEntry entry, SoftString name, object? value, Action<LogPropertyMeta.LogPropertyMetaBuilder> buildMeta)
+        {
+            return entry.Add(new LogProperty(name, value, LogPropertyMeta.Builder.Pipe(buildMeta)));
+        }
+
+        public static IEnumerable<LogProperty> Properties(this LogEntry entry, Action<LogPropertyMeta.LogPropertyMetaBuilder> buildMeta)
+        {
+            var meta = LogPropertyMeta.Builder.Pipe(buildMeta).Build();
+            foreach (var property in entry.Select(x => x.Value))
             {
-                if (entry.LastOf(name) is {} last && last.Action is T)
+                if (property.Last() is var last && last.Meta.Contains(meta))
                 {
                     yield return last;
                 }

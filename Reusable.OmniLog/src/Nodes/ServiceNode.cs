@@ -2,7 +2,6 @@ using System.Collections.Generic;
 using System.Linq;
 using Reusable.OmniLog.Abstractions;
 using Reusable.OmniLog.Abstractions.Data;
-using Reusable.OmniLog.Abstractions.Data.LogPropertyActions;
 
 namespace Reusable.OmniLog.Nodes
 {
@@ -19,7 +18,7 @@ namespace Reusable.OmniLog.Nodes
         {
             foreach (var computable in Services.Where(x => x.Enabled))
             {
-                request.Add<Log>(computable.Name, computable.GetValue(request));
+                request.Add(computable.Name, computable.GetValue(request), m => m.ProcessWith<EchoNode>());
             }
 
             invokeNext(request);

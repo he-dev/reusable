@@ -6,7 +6,7 @@ using Reusable.OmniLog;
 using Reusable.OmniLog.Abstractions.Data;
 using Reusable.OmniLog.Nodes;
 using Reusable.OmniLog.Rx;
-using Reusable.OmniLog.Rx.ConsoleRenderers;
+using Reusable.OmniLog.Rx.Consoles;
 using Reusable.OmniLog.SemanticExtensions;
 using Reusable.OmniLog.Services;
 using Reusable.Utilities.NLog.LayoutRenderers;
@@ -88,14 +88,10 @@ namespace Reusable
                     Rx =
                     {
                         new NLogRx(), // Use NLog.
-                        new ConsoleRx // Use console.
+                        new SimpleConsoleRx // Use console.
                         {
-                            // Use simple console renderer with color per line. This is the default.
-                            Renderer = new SimpleConsoleRenderer
-                            {
-                                // Render output with this template. This is the default.
-                                Template = @"[{Timestamp:HH:mm:ss:fff}] [{Level:u}] {Layer} | {Category} | {Identifier}: {Snapshot} {Elapsed}ms | {Message} {Exception}"
-                            }
+                            // Render output with this template. This is the default.
+                            Template = @"[{Timestamp:HH:mm:ss:fff}] [{Level:u}] {Layer} | {Category} | {Identifier}: {Snapshot} {Elapsed}ms | {Message} {Exception}"
                         }
                     },
                 }

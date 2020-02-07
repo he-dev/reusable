@@ -4,7 +4,6 @@ using System.Data;
 using System.Linq;
 using Reusable.OmniLog.Abstractions;
 using Reusable.OmniLog.Abstractions.Data;
-using Reusable.OmniLog.Abstractions.Data.LogPropertyActions;
 
 namespace Reusable.OmniLog.Nodes
 {
@@ -55,7 +54,7 @@ namespace Reusable.OmniLog.Nodes
             foreach (var logEntry in memoryNode)
             {
                 var row = dt.NewRow();
-                foreach (var item in logEntry.Action<Log>())
+                foreach (var item in logEntry.Properties(m => m.ProcessWith<EchoNode>()))
                 {
                     if (!dt.Columns.Contains(item.Name.ToString()))
                     {

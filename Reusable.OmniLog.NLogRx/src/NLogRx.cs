@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using Reusable.Data;
 using Reusable.OmniLog.Abstractions;
 using Reusable.OmniLog.Abstractions.Data;
-using Reusable.OmniLog.Abstractions.Data.LogPropertyActions;
+using Reusable.OmniLog.Nodes;
 
 namespace Reusable.OmniLog
 {
@@ -12,7 +12,7 @@ namespace Reusable.OmniLog
     {
         private readonly ConcurrentDictionary<SoftString, NLog.Logger> _cache = new ConcurrentDictionary<SoftString, NLog.Logger>();
 
-        private static readonly IDictionary<Reusable.Data.Option<LogLevel>, NLog.LogLevel> LogLevels = new Dictionary<Reusable.Data.Option<LogLevel>, NLog.LogLevel>
+        private static readonly IDictionary<Option<LogLevel>, NLog.LogLevel> LogLevels = new Dictionary<Option<LogLevel>, NLog.LogLevel>
         {
             [LogLevel.Trace] = NLog.LogLevel.Trace,
             [LogLevel.Debug] = NLog.LogLevel.Debug,
@@ -24,7 +24,7 @@ namespace Reusable.OmniLog
 
         public void Log(LogEntry logEntry)
         {
-            var loggerName = logEntry.GetPropertyOrDefault<Log>(LogEntry.Names.Logger).ValueOrDefault<string>();
+            var loggerName = logEntry.GetProperty(LogEntry.Names.Logger, m => m.ProcessWith<EchoNode>()).ValueOrDefault<string>();
             GetLogger(loggerName).Log(CreateLogEventInfo(logEntry));
         }
 
@@ -32,14 +32,14 @@ namespace Reusable.OmniLog
         {
             var logEventInfo = new NLog.LogEventInfo
             {
-                Level = LogLevels[logEntry.GetPropertyOrDefault<Log>(LogEntry.Names.Level).ValueOrDefault<Option<LogLevel>>()],
-                LoggerName = logEntry.GetPropertyOrDefault<Log>(LogEntry.Names.Logger).ValueOrDefault<string>(),
-                Message = logEntry.GetPropertyOrDefault<Log>(LogEntry.Names.Message).ValueOrDefault<string>(),
-                Exception = logEntry.GetPropertyOrDefault<Log>(LogEntry.Names.Exception).ValueOrDefault<Exception>(),
-                TimeStamp = logEntry.GetPropertyOrDefault<Log>(LogEntry.Names.Timestamp).ValueOrDefault<DateTime>(),
+                Level = LogLevels[logEntry.GetProperty(LogEntry.Names.Level, m => m.ProcessWith<EchoNode>()).ValueOrDefault<Option<LogLevel>>()],
+                LoggerName = logEntry.GetProperty(LogEntry.Names.Logger, m => m.ProcessWith<EchoNode>()).ValueOrDefault<string>(),
+                Message = logEntry.GetProperty(LogEntry.Names.Message, m => m.ProcessWith<EchoNode>()).ValueOrDefault<string>(),
+                Exception = logEntry.GetProperty(LogEntry.Names.Exception, m => m.ProcessWith<EchoNode>()).ValueOrDefault<Exception>(),
+                TimeStamp = logEntry.GetProperty(LogEntry.Names.Timestamp, m => m.ProcessWith<EchoNode>()).ValueOrDefault<DateTime>(),
             };
 
-            foreach (var item in logEntry.Action<Log>())
+            foreach (var item in logEntry.Properties(m => m.ProcessWith<EchoNode>().LogWith<NLogRx>()))
             {
                 logEventInfo.Properties.Add(item.Name.ToString(), item.Value);
             }

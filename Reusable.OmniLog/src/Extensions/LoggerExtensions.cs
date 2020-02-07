@@ -11,9 +11,10 @@ using Reusable.Extensions;
 using Reusable.MarkupBuilder.Html;
 using Reusable.OmniLog.Abstractions;
 using Reusable.OmniLog.Abstractions.Data;
-using Reusable.OmniLog.Abstractions.Data.LogPropertyActions;
+using Reusable.OmniLog.Helpers;
 using Reusable.OmniLog.Nodes;
-using Reusable.OmniLog.Rx.ConsoleRenderers;
+using Reusable.OmniLog.Rx;
+using Reusable.OmniLog.Rx.Consoles;
 using Reusable.OmniLog.Utilities;
 
 // ReSharper disable ExplicitCallerInfoArgument - yes, we want to explicitly set it via overloads.
@@ -98,7 +99,7 @@ namespace Reusable.OmniLog
         /// <param name="console">The logger to log.</param>
         /// <param name="style">Overrides the default console style.</param>
         /// <param name="builders">Console template builders used to render the output.</param>
-        public static void Write(this ILogger console, IConsoleStyle style, params ConsoleTemplateBuilder<HtmlElement>[] builders)
+        public static void Write(this ILogger console, IConsoleStyle style, params IHtmlConsoleTemplateBuilder[] builders)
         {
             console.Log(log => log.ConsoleTemplateBuilder(false, style, builders));
         }
@@ -109,14 +110,14 @@ namespace Reusable.OmniLog
         /// <param name="console">The logger to log.</param>
         /// <param name="style">Overrides the default console style.</param>
         /// <param name="builders">Console template builders used to render the output.</param>
-        public static void WriteLine(this ILogger console, IConsoleStyle style, params ConsoleTemplateBuilder<HtmlElement>[] builders)
+        public static void WriteLine(this ILogger console, IConsoleStyle style, params IHtmlConsoleTemplateBuilder[] builders)
         {
             console.Log(log => log.ConsoleTemplateBuilder(true, style, builders));
         }
 
-        private static LogEntry ConsoleTemplateBuilder(this LogEntry logEntry, bool isParagraph, IConsoleStyle style, IEnumerable<ConsoleTemplateBuilder<HtmlElement>> builders)
+        private static LogEntry ConsoleTemplateBuilder(this LogEntry logEntry, bool isParagraph, IConsoleStyle style, IEnumerable<IHtmlConsoleTemplateBuilder> builders)
         {
-            return logEntry.Add<Build>(LogEntry.Names.MessageBuilder, new HtmlConsoleTemplateBuilder(isParagraph, style, builders));
+            return logEntry.Add(LogEntry.Names.Message, new HtmlConsoleTemplateBuilder(isParagraph, style, builders), m => m.ProcessWith<EchoNode>().LogWith<HtmlConsoleRx>());
         }
 
         #endregion
@@ -151,10 +152,10 @@ namespace Reusable.OmniLog
         {
             logger.Log(log =>
             {
-                log.Add<Copy>(context.Name!, context);
-                log.Add<Log>(LogEntry.Names.CallerMemberName, callerMemberName);
-                log.Add<Log>(LogEntry.Names.CallerLineNumber, callerLineNumber);
-                log.Add<Log>(LogEntry.Names.CallerFilePath, Path.GetFileName(callerFilePath));
+                log.Add(context.Name!, context, m => m.ProcessWith<BuilderNode>());
+                log.Add(LogEntry.Names.CallerMemberName, callerMemberName, m => m.ProcessWith<EchoNode>());
+                log.Add(LogEntry.Names.CallerLineNumber, callerLineNumber, m => m.ProcessWith<EchoNode>());
+                log.Add(LogEntry.Names.CallerFilePath, Path.GetFileName(callerFilePath), m => m.ProcessWith<EchoNode>());
                 alter?.Invoke(log);
             });
         }

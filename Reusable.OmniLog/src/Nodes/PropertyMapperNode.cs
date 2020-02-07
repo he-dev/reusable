@@ -2,7 +2,6 @@ using System.Collections.Generic;
 using System.Linq;
 using Reusable.OmniLog.Abstractions;
 using Reusable.OmniLog.Abstractions.Data;
-using Reusable.OmniLog.Abstractions.Data.LogPropertyActions;
 
 namespace Reusable.OmniLog.Nodes
 {
@@ -17,10 +16,9 @@ namespace Reusable.OmniLog.Nodes
         {
             foreach (var (key, value) in Mappings.Select(x => (x.Key, x.Value)))
             {
-                if (request.TryGetProperty<Log>(key, out var property))
+                if (request.TryGetProperty(key, m => m.ProcessWith<EchoNode>(), out var property))
                 {
-                    request.Add<Delete>(key!, default);
-                    request.Add<Log>(value!, property.Value);
+                    request.Add(value!, property.Value, m => m.ProcessWith<EchoNode>());
                 }
             }
 

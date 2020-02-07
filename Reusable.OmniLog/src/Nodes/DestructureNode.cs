@@ -5,7 +5,6 @@ using System.Reflection;
 using Reusable.Exceptionize;
 using Reusable.OmniLog.Abstractions;
 using Reusable.OmniLog.Abstractions.Data;
-using Reusable.OmniLog.Abstractions.Data.LogPropertyActions;
 
 namespace Reusable.OmniLog.Nodes
 {
@@ -20,7 +19,7 @@ namespace Reusable.OmniLog.Nodes
         protected override void invoke(LogEntry request)
         {
             var explodable =
-                from p in request.Action<Destructure>()
+                from p in request.Properties(m => m.ProcessWith(this))
                 from x in p.Value.EnumerateProperties().Where(x => x.Value is {})
                 select x;
 
@@ -30,8 +29,8 @@ namespace Reusable.OmniLog.Nodes
                 {
                     var copy = request.Copy();
 
-                    copy.Add<Log>(LogEntry.Names.SnapshotName, name);
-                    copy.Add<Serialize>(LogEntry.Names.Snapshot, value);
+                    copy.Add(LogEntry.Names.SnapshotName, name, m => m.ProcessWith<EchoNode>());
+                    copy.Add(LogEntry.Names.Snapshot, value, m => m.ProcessWith<SerializerNode>());
 
                     invokeNext(copy);
                 }
