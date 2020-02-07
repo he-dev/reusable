@@ -125,5 +125,16 @@ namespace Reusable.OmniLog.Abstractions.Data
                 }
             }
         }
+        
+        public static IEnumerable<LogProperty> PropertiesHandledBy<T>(this LogEntry entry) where T : ILoggerNode
+        {
+            foreach (var name in entry.Select(x => x.Key))
+            {
+                if (entry.LastOf(name) is {} last && last.Action is T)
+                {
+                    yield return last;
+                }
+            }
+        }
     }
 }
