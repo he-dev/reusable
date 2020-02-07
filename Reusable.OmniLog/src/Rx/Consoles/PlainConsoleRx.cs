@@ -3,9 +3,8 @@ using JetBrains.Annotations;
 using Reusable.Extensions;
 using Reusable.FormatProviders;
 using Reusable.OmniLog.Abstractions;
-using Reusable.OmniLog.Nodes;
 
-namespace Reusable.OmniLog.Rx.Consoles
+namespace Reusable.OmniLog
 {
     [PublicAPI]
     public class PlainConsoleRx : ILogRx

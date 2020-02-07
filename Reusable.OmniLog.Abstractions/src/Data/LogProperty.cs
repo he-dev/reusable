@@ -3,8 +3,10 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using JetBrains.Annotations;
+using Reusable.OmniLog.Abstractions;
 
-namespace Reusable.OmniLog.Abstractions
+// ReSharper disable once CheckNamespace
+namespace Reusable.OmniLog
 {
     [PublicAPI]
     public readonly struct LogProperty

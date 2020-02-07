@@ -1,4 +1,4 @@
-using System.Collections;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Reusable.OmniLog.Abstractions;
@@ -11,38 +11,18 @@ namespace Reusable.OmniLog.Nodes
 
         public List<ILogRx> Rx { get; set; } = new List<ILogRx>();
 
+        public Func<ILogEntry, ILogEntry> CreateLogEntryView { get; set; } = entry => new LogEntryView<EchoNode>(entry);
+
         protected override void invoke(ILogEntry request)
         {
-            var echo = new LogEntryEcho(request);
+            var view = CreateLogEntryView(request);
 
             foreach (var rx in Rx)
             {
-                rx.Log(echo);
+                rx.Log(view);
             }
 
             Next?.Invoke(request);
-        }
-
-        private class LogEntryEcho : ILogEntry
-        {
-            private readonly ILogEntry _entry;
-
-            public LogEntryEcho(ILogEntry entry) => _entry = entry;
-
-            public LogProperty? this[SoftString name] => TryGetProperty(name, out var property) ? property : default;
-
-            public void Add(LogProperty property) => _entry.Add(property);
-
-            public bool TryGetProperty(SoftString name, out LogProperty property)
-            {
-                return _entry.TryGetProperty(name, out property) && LogProperty.CanProcess.With<EchoNode>()(property);
-            }
-
-            public ILogEntry Copy() => _entry.Copy();
-
-            public IEnumerator<LogProperty> GetEnumerator() => _entry.Where(LogProperty.CanProcess.With<EchoNode>()).GetEnumerator();
-
-            IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable)_entry).GetEnumerator();
         }
     }
 }

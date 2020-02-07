@@ -43,15 +43,18 @@ namespace Reusable.OmniLog.Utilities
             declarations.TryGetValue("color", out var foregroundColor);
             declarations.TryGetValue("background-color", out var backgroundColor);
 
-            return
-                new ConsoleStyle(
-                    Enum.TryParse(backgroundColor, true, out ConsoleColor consoleBackgroundColor)
-                        ? consoleBackgroundColor
-                        : Console.BackgroundColor,
-                    Enum.TryParse(foregroundColor, true, out ConsoleColor consoleForegroundColor)
-                        ? consoleForegroundColor
-                        : Console.ForegroundColor);
+            return Parse(backgroundColor, foregroundColor);
         }
+
+        public static ConsoleStyle Parse(string backgroundColor, string foregroundColor)
+        {
+            return new ConsoleStyle
+            (
+                Enum.TryParse(backgroundColor, true, out ConsoleColor consoleBackgroundColor) ? consoleBackgroundColor : Console.BackgroundColor,
+                Enum.TryParse(foregroundColor, true, out ConsoleColor consoleForegroundColor) ? consoleForegroundColor : Console.ForegroundColor
+            );
+        }
+
 
         public static ConsoleStyle From(HtmlElement htmlElement)
         {
@@ -65,14 +68,7 @@ namespace Reusable.OmniLog.Utilities
             declarations.TryGetValue("color", out var foregroundColor);
             declarations.TryGetValue("background-color", out var backgroundColor);
 
-            return
-                new ConsoleStyle(
-                    Enum.TryParse(backgroundColor, true, out ConsoleColor consoleBackgroundColor)
-                        ? consoleBackgroundColor
-                        : Console.BackgroundColor,
-                    Enum.TryParse(foregroundColor, true, out ConsoleColor consoleForegroundColor)
-                        ? consoleForegroundColor
-                        : Console.ForegroundColor);
+            return Parse(backgroundColor, foregroundColor);
         }
 
         public IDisposable Apply()

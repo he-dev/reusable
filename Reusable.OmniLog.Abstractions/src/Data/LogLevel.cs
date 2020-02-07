@@ -1,6 +1,7 @@
 using Reusable.Data;
 
-namespace Reusable.OmniLog.Abstractions
+// ReSharper disable once CheckNamespace
+namespace Reusable.OmniLog
 {
     public abstract class LogLevel
     {

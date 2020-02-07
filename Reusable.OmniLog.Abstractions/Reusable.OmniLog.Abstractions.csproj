@@ -1,10 +1,9 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <!--<TargetFramework>net47</TargetFramework>-->
     <TargetFrameworks>netcoreapp2.2;net47</TargetFrameworks>
-    <Configurations>Debug;Release;Debug.csproj</Configurations>
-    <Platforms>AnyCPU;x64</Platforms>
+    <Configurations>Debug;Release</Configurations>
+    <Platforms>AnyCPU</Platforms>
     <Nullable>enable</Nullable>
     <LangVersion>latest</LangVersion>
   </PropertyGroup>
@@ -17,19 +16,6 @@
   <ItemGroup>
     <ProjectReference Include="..\Reusable.Core\Reusable.Core.csproj" />
     <ProjectReference Include="..\Reusable.Data\Reusable.Data.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Reference Include="System.Configuration" />
-  </ItemGroup>
-  
-  <ItemGroup>
-    <Compile Remove="src\ILinkedListNode.cs" />
-    <Compile Remove="src\ILoggerNodeScope.cs" />
-  </ItemGroup>
-  
-  <ItemGroup>
-    <Folder Include="src\Data" />
   </ItemGroup>
 
 </Project>

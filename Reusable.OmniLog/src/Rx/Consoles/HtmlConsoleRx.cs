@@ -5,10 +5,9 @@ using JetBrains.Annotations;
 using Reusable.MarkupBuilder.Html;
 using Reusable.OmniLog.Abstractions;
 using Reusable.OmniLog.Helpers;
-using Reusable.OmniLog.Nodes;
 using Reusable.OmniLog.Utilities;
 
-namespace Reusable.OmniLog.Rx.Consoles
+namespace Reusable.OmniLog
 {
     [PublicAPI]
     public class HtmlConsoleRx : ILogRx

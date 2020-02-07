@@ -2,9 +2,8 @@ using System;
 using System.Collections.Generic;
 using Reusable.Data;
 using Reusable.OmniLog.Abstractions;
-using Reusable.OmniLog.Nodes;
 
-namespace Reusable.OmniLog.Rx.Consoles
+namespace Reusable.OmniLog
 {
     public class SimpleConsoleRx : PlainConsoleRx
     {

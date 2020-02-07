@@ -8,12 +8,9 @@ using JetBrains.Annotations;
 using Reusable.Data;
 using Reusable.Exceptionize;
 using Reusable.Extensions;
-using Reusable.MarkupBuilder.Html;
 using Reusable.OmniLog.Abstractions;
 using Reusable.OmniLog.Helpers;
 using Reusable.OmniLog.Nodes;
-using Reusable.OmniLog.Rx;
-using Reusable.OmniLog.Rx.Consoles;
 using Reusable.OmniLog.Utilities;
 
 // ReSharper disable ExplicitCallerInfoArgument - yes, we want to explicitly set it via overloads.

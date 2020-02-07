@@ -1,7 +1,9 @@
 ﻿using System;
 using Reusable.Extensions;
+using Reusable.OmniLog.Abstractions;
 
-namespace Reusable.OmniLog.Abstractions
+// ReSharper disable once CheckNamespace
+namespace Reusable.OmniLog
 {
     public static class LogEntryExtensions
     {

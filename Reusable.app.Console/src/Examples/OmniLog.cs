@@ -6,7 +6,6 @@ using Reusable.OmniLog;
 using Reusable.OmniLog.Abstractions;
 using Reusable.OmniLog.Nodes;
 using Reusable.OmniLog.Rx;
-using Reusable.OmniLog.Rx.Consoles;
 using Reusable.OmniLog.SemanticExtensions;
 using Reusable.OmniLog.Services;
 using Reusable.Utilities.NLog.LayoutRenderers;

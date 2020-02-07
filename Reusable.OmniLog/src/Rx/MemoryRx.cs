@@ -2,10 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
-using Reusable.Exceptionize;
 using Reusable.OmniLog.Abstractions;
 
-namespace Reusable.OmniLog.Rx
+namespace Reusable.OmniLog
 {
     [PublicAPI]
     public class MemoryRx : ILogRx, IEnumerable<ILogEntry>

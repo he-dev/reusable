@@ -61,7 +61,7 @@ namespace Reusable.OmniLog
             var logger = lf.CreateLogger("test");
             logger.Log(l => l.Message("Hallo!"));
             Assert.Equal(1, rx.Count());
-            Assert.Equal("Hallo!", rx.First().GetProperty("Message", m => m.ProcessWith<EchoNode>())?.Value as string);
+            Assert.Equal("Hallo!", rx.First()["Message"]?.Value as string);
         }
 
         [Fact]
@@ -93,7 +93,7 @@ namespace Reusable.OmniLog
                     var scope1 = logger.Scope();
                     logger.Log(l => l.Message("Hallo!"));
                     Assert.Same(outerCorrelationId, scope1.CorrelationId);
-                    Assert.NotNull(rx[0][LogEntry.Names.Scope]);
+                    Assert.NotNull(rx[0][LogProperty.Names.Scope]);
 
                     var innerCorrelationId = "test-id-2";
                     using (logger.BeginScope(innerCorrelationId))
@@ -101,13 +101,13 @@ namespace Reusable.OmniLog
                         var scope2 = logger.Scope();
                         logger.Log(l => l.Message("Hi!"));
                         Assert.Same(innerCorrelationId, scope2.CorrelationId);
-                        Assert.NotNull(rx[1][LogEntry.Names.Scope]);
+                        Assert.NotNull(rx[1][LogProperty.Names.Scope]);
                     }
                 }
 
                 Assert.Equal(2, rx.Count());
-                Assert.Equal("Hallo!", rx[0].GetProperty("Message", m => m.ProcessWith<EchoNode>())?.Value);
-                Assert.Equal("Hi!", rx[1].GetProperty("Message", m => m.ProcessWith<EchoNode>())?.Value);
+                Assert.Equal("Hallo!", rx[0]["Message"]?.Value);
+                Assert.Equal("Hi!", rx[1]["Message"]?.Value);
             }
         }
 
@@ -133,13 +133,13 @@ namespace Reusable.OmniLog
             using (lf)
             {
                 var logger = lf.CreateLogger("test");
-                logger.Log(l => l.Message("Hallo!").Snapshot<Destructure>(new { Greeting = "Hi!" }));
+                logger.Log(l => l.Message("Hallo!").Snapshot(new { Greeting = "Hi!" }, m => m.ProcessWith<DestructureNode>()));
             }
 
             Assert.Equal(1, rx.Count());
-            Assert.Equal("Hallo!", rx.First().GetProperty("Message", m => m.ProcessWith<EchoNode>())?.Value);
-            Assert.Equal("Greeting", rx.First().GetProperty(LogEntry.Names.SnapshotName, m => m.ProcessWith<EchoNode>())?.Value);
-            Assert.Equal("\"Hi!\"", rx.First().GetProperty(LogEntry.Names.Snapshot, m => m.ProcessWith<EchoNode>())?.Value);
+            Assert.Equal("Hallo!", rx.First()["Message"]?.Value);
+            Assert.Equal("Greeting", rx.First()[LogProperty.Names.SnapshotName]?.Value);
+            Assert.Equal("\"Hi!\"", rx.First()[LogProperty.Names.Snapshot]?.Value);
             //Assert.Equal("{\"Greeting\":\"Hi!\"}", rx.First()["Snapshot"]);
         }
 
@@ -171,8 +171,8 @@ namespace Reusable.OmniLog
             }
 
             Assert.Equal(1, rx.Count());
-            Assert.Equal("Hallo!", rx.First().GetProperty("Message", m => m.ProcessWith<EchoNode>())?.Value);
-            Assert.Equal(timestamp, rx.First().GetProperty("Timestamp", m => m.ProcessWith<EchoNode>())?.Value);
+            Assert.Equal("Hallo!", rx.First()["Message"]?.Value);
+            Assert.Equal(timestamp, rx.First()["Timestamp"]?.Value);
         }
 
         [Fact]
@@ -186,19 +186,19 @@ namespace Reusable.OmniLog
                 new ServiceNode { Services = { new Timestamp(new[] { timestamp }) } },
                 new DelegateNode(),
                 new DestructureNode(),
-                new EchoNode { Rx = { rx }, }
+                new EchoNode { Rx = { rx }, CreateLogEntryView = e => e }
             }.Build();
             using (lf)
             {
                 var logger = lf.CreateLogger("test");
-                logger.Log(l => l.Snapshot<Destructure>(new Person { FirstName = "John", LastName = "Doe" }));
+                logger.Log(l => l.Snapshot(new Person { FirstName = "John", LastName = "Doe" }, m => m.ProcessWith<DestructureNode>()));
             }
 
             Assert.Equal(2, rx.Count());
-            Assert.Equal("FirstName", rx[0].GetPropertyOrDefault<Log>(LogEntry.Names.SnapshotName).Value);
-            Assert.Equal("John", rx[0].GetPropertyOrDefault<Serialize>(LogEntry.Names.Snapshot).Value);
-            Assert.Equal("LastName", rx[1].GetPropertyOrDefault<Log>(LogEntry.Names.SnapshotName).Value);
-            Assert.Equal("Doe", rx[1].GetPropertyOrDefault<Serialize>(LogEntry.Names.Snapshot).Value);
+            Assert.Equal("FirstName", rx[0][LogProperty.Names.SnapshotName]?.Value);
+            Assert.Equal("John", rx[0][LogProperty.Names.Snapshot]?.Value);
+            Assert.Equal("LastName", rx[1][LogProperty.Names.SnapshotName]?.Value);
+            Assert.Equal("Doe", rx[1][LogProperty.Names.Snapshot]?.Value);
             //Assert.Equal(timestamp, rx.First()["Timestamp"]);
         }
 
@@ -234,7 +234,7 @@ namespace Reusable.OmniLog
             using (lf)
             {
                 var logger = lf.CreateLogger("test");
-                logger.Log(l => l.Snapshot<Log>(new Person { FirstName = "John", LastName = "Doe" }));
+                logger.Log(l => l.Snapshot(new Person { FirstName = "John", LastName = "Doe" }, m => m.ProcessWith<EchoNode>()));
             }
 
             Assert.Equal(1, rx.Count());
@@ -263,12 +263,12 @@ namespace Reusable.OmniLog
             var rx = lf.Receivers().OfType<MemoryRx>().Single();
             var mn = l.Scope().Memory();
 
-            Assert.Same(rx.First(), mn.First());
+            //Assert.Same(rx.First(), mn.First());
 
             var e = rx.First();
 
             Assert.Equal(1, rx.Count());
-            Assert.Equal("Hallo!", e.GetPropertyOrDefault<Log>("Message").Value);
+            Assert.Equal("Hallo!", e["Message"]?.Value);
 
             using var dt = mn.ToDataTable();
 

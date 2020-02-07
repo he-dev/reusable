@@ -7,6 +7,7 @@ using JetBrains.Annotations;
 using Reusable.Extensions;
 using Reusable.OmniLog.Abstractions;
 
+// ReSharper disable once CheckNamespace
 namespace Reusable.OmniLog
 {
     [PublicAPI]

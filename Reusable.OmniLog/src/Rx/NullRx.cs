@@ -1,6 +1,6 @@
 using Reusable.OmniLog.Abstractions;
 
-namespace Reusable.OmniLog.Rx
+namespace Reusable.OmniLog
 {
     public class NullRx : ILogRx
     {
