@@ -3,7 +3,6 @@ using System.Linq;
 using System.Threading;
 using Reusable.OmniLog.Abstractions;
 using Reusable.OmniLog.Nodes;
-using Reusable.OmniLog.Rx;
 using Reusable.OmniLog.Services;
 using Xunit;
 

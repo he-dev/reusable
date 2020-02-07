@@ -1,10 +1,6 @@
-using System;
 using System.Threading.Tasks;
 using Reusable.Exceptionize;
 using Reusable.Extensions;
-using Reusable.OmniLog;
-using Reusable.OmniLog.Abstractions;
-using Reusable.OmniLog.Rx;
 using Reusable.Translucent.Annotations;
 using Reusable.Translucent.Controllers;
 using Reusable.Translucent.Data;

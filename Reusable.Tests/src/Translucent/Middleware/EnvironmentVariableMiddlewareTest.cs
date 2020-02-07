@@ -1,8 +1,6 @@
 using System;
 using System.Threading.Tasks;
 using Reusable.Extensions;
-using Reusable.OmniLog;
-using Reusable.OmniLog.Rx;
 using Reusable.Translucent.Data;
 using Telerik.JustMock;
 using Telerik.JustMock.Helpers;

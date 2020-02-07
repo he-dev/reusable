@@ -3,7 +3,7 @@ using Reusable.Extensions;
 using Reusable.OmniLog.Abstractions;
 
 // ReSharper disable once CheckNamespace
-namespace Reusable.OmniLog.Rx
+namespace Reusable.OmniLog
 {
     public class DebugRx : ILogRx
     {
