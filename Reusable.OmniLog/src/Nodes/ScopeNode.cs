@@ -4,7 +4,6 @@ using JetBrains.Annotations;
 using Newtonsoft.Json;
 using Reusable.Extensions;
 using Reusable.OmniLog.Abstractions;
-using Reusable.OmniLog.Abstractions.Data;
 
 namespace Reusable.OmniLog.Nodes
 {
@@ -23,12 +22,12 @@ namespace Reusable.OmniLog.Nodes
             return AsyncScope<FirstNode>.Push(new FirstNode(correlationId ?? NextCorrelationId(), Next)).Value;
         }
 
-        protected override void invoke(LogEntry request)
+        protected override void invoke(ILogEntry request)
         {
             if (AsyncScope<FirstNode>.Any)
             {
                 var scopes = AsyncScope<FirstNode>.Current!.Enumerate().Select(x => x.Value).ToList();
-                request.Add(LogEntry.Names.Scope, scopes, m => m.ProcessWith<SerializerNode>());
+                request.Add(LogProperty.Names.Scope, scopes, m => m.ProcessWith<SerializerNode>());
                 AsyncScope<FirstNode>.Current!.Value.Invoke(request);
             }
             else
@@ -54,7 +53,7 @@ namespace Reusable.OmniLog.Nodes
 
             public ILoggerNode? Next { get; set; }
 
-            public void Invoke(LogEntry request) => Next?.Invoke(request);
+            public void Invoke(ILogEntry request) => Next?.Invoke(request);
 
             public void Dispose()
             {
@@ -65,7 +64,7 @@ namespace Reusable.OmniLog.Nodes
 
         public class LastNode : LoggerNode
         {
-            protected override void invoke(LogEntry request)
+            protected override void invoke(ILogEntry request)
             {
                 invokeNext(request);
             }

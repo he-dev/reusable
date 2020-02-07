@@ -1,19 +1,17 @@
 using System.Linq;
 using Reusable.OmniLog.Abstractions;
-using Reusable.OmniLog.Abstractions.Data;
 
 namespace Reusable.OmniLog.Nodes
 {
     public class BuilderNode : LoggerNode
     {
-        protected override void invoke(LogEntry request)
+        protected override void invoke(ILogEntry request)
         {
-            var builders = request.Properties(m => m.ProcessWith(this)).Select(p => p.Value).Cast<ILogEntryBuilder>().ToList();
+            var builders = request.Where(LogProperty.CanProcess.With(this)).Select(p => p.Value).Cast<ILogEntryBuilder>().ToList();
             var logEntries =
                 from b in builders
-                from l in b.Build()
-                from v in l.Value
-                select v;
+                from p in b.Build()
+                select p;
 
             // Copy all items to the main log.
             foreach (var item in logEntries)

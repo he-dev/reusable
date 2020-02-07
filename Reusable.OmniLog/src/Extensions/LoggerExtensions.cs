@@ -10,7 +10,6 @@ using Reusable.Exceptionize;
 using Reusable.Extensions;
 using Reusable.MarkupBuilder.Html;
 using Reusable.OmniLog.Abstractions;
-using Reusable.OmniLog.Abstractions.Data;
 using Reusable.OmniLog.Helpers;
 using Reusable.OmniLog.Nodes;
 using Reusable.OmniLog.Rx;
@@ -115,9 +114,9 @@ namespace Reusable.OmniLog
             console.Log(log => log.ConsoleTemplateBuilder(true, style, builders));
         }
 
-        private static LogEntry ConsoleTemplateBuilder(this LogEntry logEntry, bool isParagraph, IConsoleStyle style, IEnumerable<IHtmlConsoleTemplateBuilder> builders)
+        private static ILogEntry ConsoleTemplateBuilder(this ILogEntry logEntry, bool isParagraph, IConsoleStyle style, IEnumerable<IHtmlConsoleTemplateBuilder> builders)
         {
-            return logEntry.Add(LogEntry.Names.Message, new HtmlConsoleTemplateBuilder(isParagraph, style, builders), m => m.ProcessWith<EchoNode>().LogWith<HtmlConsoleRx>());
+            return logEntry.Add(LogProperty.Names.Message, new HtmlConsoleTemplateBuilder(isParagraph, style, builders), m => m.ProcessWith<EchoNode>().LogWith<HtmlConsoleRx>());
         }
 
         #endregion
@@ -153,9 +152,9 @@ namespace Reusable.OmniLog
             logger.Log(log =>
             {
                 log.Add(context.Name!, context, m => m.ProcessWith<BuilderNode>());
-                log.Add(LogEntry.Names.CallerMemberName, callerMemberName, m => m.ProcessWith<EchoNode>());
-                log.Add(LogEntry.Names.CallerLineNumber, callerLineNumber, m => m.ProcessWith<EchoNode>());
-                log.Add(LogEntry.Names.CallerFilePath, Path.GetFileName(callerFilePath), m => m.ProcessWith<EchoNode>());
+                log.Add(LogProperty.Names.CallerMemberName, callerMemberName, m => m.ProcessWith<EchoNode>());
+                log.Add(LogProperty.Names.CallerLineNumber, callerLineNumber, m => m.ProcessWith<EchoNode>());
+                log.Add(LogProperty.Names.CallerFilePath, Path.GetFileName(callerFilePath), m => m.ProcessWith<EchoNode>());
                 alter?.Invoke(log);
             });
         }

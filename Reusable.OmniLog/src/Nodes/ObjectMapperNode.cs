@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using Reusable.OmniLog.Abstractions;
-using Reusable.OmniLog.Abstractions.Data;
 
 namespace Reusable.OmniLog.Nodes
 {
@@ -15,9 +14,9 @@ namespace Reusable.OmniLog.Nodes
     {
         public MappingCollection Mappings { get; set; } = new MappingCollection();
 
-        protected override void invoke(LogEntry request)
+        protected override void invoke(ILogEntry request)
         {
-            foreach (var property in request.Properties(m => m.ProcessWith<SerializerNode>()).ToList())
+            foreach (var property in request.Where(LogProperty.CanProcess.With<SerializerNode>()).ToList())
             {
                 // Do we have a custom mapping for the dump?
                 if (property.Value is {} && Mappings.TryGetMapping(property.Value.GetType(), out var map))

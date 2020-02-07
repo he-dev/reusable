@@ -1,7 +1,6 @@
 ﻿using System.Diagnostics;
 using Reusable.Extensions;
 using Reusable.OmniLog.Abstractions;
-using Reusable.OmniLog.Abstractions.Data;
 
 // ReSharper disable once CheckNamespace
 namespace Reusable.OmniLog.Rx
@@ -12,7 +11,7 @@ namespace Reusable.OmniLog.Rx
 
         public string Template { get; set; } = @"[{Timestamp:HH:mm:ss:fff}] [{Logger:u}] {Message}";
 
-        public void Log(LogEntry logEntry)
+        public void Log(ILogEntry logEntry)
         {
             Debug.WriteLine(Template.Format(logEntry));
         }

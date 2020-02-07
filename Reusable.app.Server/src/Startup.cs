@@ -12,7 +12,6 @@ using Reusable.Beaver;
 using Reusable.Data;
 using Reusable.OmniLog;
 using Reusable.OmniLog.Abstractions;
-using Reusable.OmniLog.Abstractions.Data;
 using Reusable.OmniLog.Nodes;
 using Reusable.OmniLog.Rx;
 using Reusable.OmniLog.Rx.Consoles;
@@ -74,9 +73,9 @@ namespace Reusable.Apps.Server
                     .UseSerializer()
                     .UsePropertyMapper
                     (
-                        (LogEntry.Names.SnapshotName, "Identifier")
+                        (LogProperty.Names.SnapshotName, "Identifier")
                     )
-                    .UseFallback((LogEntry.Names.Level, LogLevel.Information))
+                    .UseFallback((LogProperty.Names.Level, LogLevel.Information))
 #if DEBUG
                     .UseEcho(
                         new NLogRx(),

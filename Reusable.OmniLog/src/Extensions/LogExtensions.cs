@@ -1,7 +1,6 @@
 ﻿using System;
 using Reusable.Data;
 using Reusable.OmniLog.Abstractions;
-using Reusable.OmniLog.Abstractions.Data;
 using Reusable.OmniLog.Nodes;
 
 namespace Reusable.OmniLog
@@ -10,15 +9,15 @@ namespace Reusable.OmniLog
     {
         #region Log properties
 
-        public static LogEntry Logger(this LogEntry logEntry, string value) => logEntry.Add(LogEntry.Names.Logger, value, m => m.ProcessWith<EchoNode>());
+        public static ILogEntry Logger(this ILogEntry logEntry, string value) => logEntry.Add(LogProperty.Names.Logger, value, m => m.ProcessWith<EchoNode>());
 
-        public static LogEntry Timestamp(this LogEntry logEntry, DateTime value) => logEntry.Add(LogEntry.Names.Timestamp, value, m => m.ProcessWith<EchoNode>());
+        public static ILogEntry Timestamp(this ILogEntry logEntry, DateTime value) => logEntry.Add(LogProperty.Names.Timestamp, value, m => m.ProcessWith<EchoNode>());
 
-        public static LogEntry Level(this LogEntry logEntry, Option<LogLevel> value) => logEntry.Add(LogEntry.Names.Level, value, m => m.ProcessWith<EchoNode>());
+        public static ILogEntry Level(this ILogEntry logEntry, Option<LogLevel> value) => logEntry.Add(LogProperty.Names.Level, value, m => m.ProcessWith<EchoNode>());
 
-        public static LogEntry Exception(this LogEntry logEntry, Exception? value)
+        public static ILogEntry Exception(this ILogEntry logEntry, Exception? value)
         {
-            logEntry.Add(LogEntry.Names.Exception, value, m => m.ProcessWith<EchoNode>());
+            logEntry.Add(LogProperty.Names.Exception, value, m => m.ProcessWith<EchoNode>());
             if (value is {})
             {
                 logEntry.Level(LogLevel.Error);
@@ -27,11 +26,11 @@ namespace Reusable.OmniLog
             return logEntry;
         }
 
-        public static LogEntry Message(this LogEntry logEntry, string value) => logEntry.Add(LogEntry.Names.Message, value, m => m.ProcessWith<EchoNode>());
+        public static ILogEntry Message(this ILogEntry logEntry, string value) => logEntry.Add(LogProperty.Names.Message, value, m => m.ProcessWith<EchoNode>());
 
-        public static LogEntry Snapshot(this LogEntry logEntry, object value, Action<LogPropertyMeta.LogPropertyMetaBuilder> buildMeta)
+        public static ILogEntry Snapshot(this ILogEntry logEntry, object value, Action<LogPropertyMeta.LogPropertyMetaBuilder> buildMeta)
         {
-            return logEntry.Add(LogEntry.Names.Snapshot, value, buildMeta);
+            return logEntry.Add(LogProperty.Names.Snapshot, value, buildMeta);
         }
 
         #endregion

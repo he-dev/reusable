@@ -4,16 +4,15 @@ using System.Linq;
 using JetBrains.Annotations;
 using Reusable.Exceptionize;
 using Reusable.OmniLog.Abstractions;
-using Reusable.OmniLog.Abstractions.Data;
 
 namespace Reusable.OmniLog.Rx
 {
     [PublicAPI]
-    public class MemoryRx : ILogRx, IEnumerable<LogEntry>
+    public class MemoryRx : ILogRx, IEnumerable<ILogEntry>
     {
         public const int DefaultCapacity = 1_000;
 
-        private readonly LinkedList<LogEntry> _logs = new LinkedList<LogEntry>();
+        private readonly LinkedList<ILogEntry> _logs = new LinkedList<ILogEntry>();
 
         public MemoryRx(int capacity = DefaultCapacity)
         {
@@ -22,9 +21,9 @@ namespace Reusable.OmniLog.Rx
 
         public int Capacity { get; }
 
-        public LogEntry? this[int index] => this.ElementAtOrDefault(index);// ?? throw DynamicException.Create("LogIndexOutOfRange", $"There is no log at {index}.");
+        public ILogEntry? this[int index] => this.ElementAtOrDefault(index);// ?? throw DynamicException.Create("LogIndexOutOfRange", $"There is no log at {index}.");
 
-        public void Log(LogEntry logEntry)
+        public void Log(ILogEntry logEntry)
         {
             lock (_logs)
             {
@@ -38,7 +37,7 @@ namespace Reusable.OmniLog.Rx
 
         public static MemoryRx Create(int capacity = DefaultCapacity) => new MemoryRx(capacity);
 
-        public IEnumerator<LogEntry> GetEnumerator()
+        public IEnumerator<ILogEntry> GetEnumerator()
         {
             lock (_logs)
             {

@@ -3,7 +3,6 @@ using JetBrains.Annotations;
 using Reusable.Extensions;
 using Reusable.FormatProviders;
 using Reusable.OmniLog.Abstractions;
-using Reusable.OmniLog.Abstractions.Data;
 using Reusable.OmniLog.Nodes;
 
 namespace Reusable.OmniLog.Rx.Consoles
@@ -20,11 +19,11 @@ namespace Reusable.OmniLog.Rx.Consoles
             new TypeFormatProvider()
         };
 
-        public virtual void Log(LogEntry entry)
+        public virtual void Log(ILogEntry entry)
         {
             Console.WriteLine(Template.Format((string name, out object? value) =>
             {
-                if (entry.TryGetProperty(name!, m => m.ProcessWith<EchoNode>(), out var property))
+                if (entry.TryGetProperty(name, out var property))
                 {
                     value = property.Value;
                     return true;

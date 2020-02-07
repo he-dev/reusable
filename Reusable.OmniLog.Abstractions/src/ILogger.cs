@@ -1,10 +1,8 @@
-using Reusable.OmniLog.Abstractions.Data;
-
 namespace Reusable.OmniLog.Abstractions
 {
     public interface ILogger : ILoggerNode
     {
-        void Log(LogEntry logEntry);
+        void Log(ILogEntry logEntry);
     }
 
     // ReSharper disable once UnusedTypeParameter - This is required for dependency-injection.

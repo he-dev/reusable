@@ -4,7 +4,6 @@ using System.Linq;
 using JetBrains.Annotations;
 using Reusable.MarkupBuilder.Html;
 using Reusable.OmniLog.Abstractions;
-using Reusable.OmniLog.Abstractions.Data;
 using Reusable.OmniLog.Helpers;
 using Reusable.OmniLog.Nodes;
 using Reusable.OmniLog.Utilities;
@@ -25,17 +24,11 @@ namespace Reusable.OmniLog.Rx.Consoles
         /// <summary>
         /// Renders the Html to the console. This method is thread-safe.
         /// </summary>
-        public void Log(LogEntry entry)
+        public void Log(ILogEntry entry)
         {
             lock (_syncLock)
             {
-                var builder = entry.TryGetProperty(LogEntry.Names.Message, m => m.ProcessWith<EchoNode>().LogWith(this), out var property) switch
-                {
-                    true => property.Value as IHtmlConsoleTemplateBuilder,
-                    false => TemplateBuilder
-                };
-
-                if (builder is null)
+                if (!(entry[LogProperty.Names.Message]?.Value is IHtmlConsoleTemplateBuilder builder))
                 {
                     return;
                 }

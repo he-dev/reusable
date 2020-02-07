@@ -1,7 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using Reusable.OmniLog.Abstractions;
-using Reusable.OmniLog.Abstractions.Data;
 
 namespace Reusable.OmniLog.Nodes
 {
@@ -14,7 +13,7 @@ namespace Reusable.OmniLog.Nodes
 
         public List<IService> Services { get; set; } = new List<IService>();
 
-        protected override void invoke(LogEntry request)
+        protected override void invoke(ILogEntry request)
         {
             foreach (var computable in Services.Where(x => x.Enabled))
             {

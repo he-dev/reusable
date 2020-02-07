@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 using Reusable.Data;
-using Reusable.OmniLog.Abstractions.Data;
+using Reusable.OmniLog.Abstractions;
 using Reusable.OmniLog.Nodes;
 
 namespace Reusable.OmniLog.Rx.Consoles
@@ -18,7 +18,7 @@ namespace Reusable.OmniLog.Rx.Consoles
             [LogLevel.Fatal] = ConsoleColor.Red,
         };
 
-        public override void Log(LogEntry entry)
+        public override void Log(ILogEntry entry)
         {
             using (Disposable.Create(Console.ResetColor))
             {
@@ -27,19 +27,14 @@ namespace Reusable.OmniLog.Rx.Consoles
             }
         }
 
-        private ConsoleColor GetConsoleColor(LogEntry entry)
+        private ConsoleColor GetConsoleColor(ILogEntry entry)
         {
-            if (!entry.TryGetProperty(LogEntry.Names.Level, m => m.ProcessWith<EchoNode>(), out var property))
+            if (entry[LogProperty.Names.Level]?.Value is Option<LogLevel> logLevel && LogLevelColor.TryGetValue(logLevel, out var consoleColor))
             {
-                return Console.ForegroundColor;
+                return consoleColor;
             }
 
-            if (!LogLevelColor.TryGetValue(property.Value as Option<LogLevel> ?? LogLevel.Information, out var consoleColor))
-            {
-                return Console.ForegroundColor;
-            }
-
-            return consoleColor;
+            return Console.ForegroundColor;
         }
     }
 }

@@ -1,6 +1,5 @@
 using System;
 using Reusable.OmniLog.Abstractions;
-using Reusable.OmniLog.Abstractions.Data;
 
 namespace Reusable.OmniLog.Nodes
 {
@@ -10,7 +9,7 @@ namespace Reusable.OmniLog.Nodes
 
         public static void Push(Item item) => AsyncScope<Item>.Push(item);
 
-        protected override void invoke(LogEntry request)
+        protected override void invoke(ILogEntry request)
         {
             while (Enabled)
             {

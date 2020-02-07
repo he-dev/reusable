@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq.Custom;
 using Reusable.MarkupBuilder.Html;
-using Reusable.OmniLog.Abstractions.Data;
+using Reusable.OmniLog.Abstractions;
 using Reusable.OmniLog.Helpers;
 
 // ReSharper disable once CheckNamespace
@@ -31,7 +31,7 @@ namespace Reusable.Commander.ConsoleTemplates
 
         public int Width { get; set; } = 1;
 
-        public HtmlElement Build(LogEntry logEntry) =>
+        public HtmlElement Build(ILogEntry logEntry) =>
             HtmlElement
                 .Builder
                 .span(x => x.text(new string(' ', Width * _depth)));
@@ -43,7 +43,7 @@ namespace Reusable.Commander.ConsoleTemplates
         {
             public IEnumerable<string> Cells { get; set; } = default!;
 
-            public HtmlElement Build(LogEntry logEntry) =>
+            public HtmlElement Build(ILogEntry logEntry) =>
                 HtmlElement
                     .Builder
                     .span(x => x
@@ -56,7 +56,7 @@ namespace Reusable.Commander.ConsoleTemplates
     {
         public string Text { get; set; } = default!;
 
-        public HtmlElement Build(LogEntry logEntry) =>
+        public HtmlElement Build(ILogEntry logEntry) =>
             HtmlElement
                 .Builder
                 .span(x => x

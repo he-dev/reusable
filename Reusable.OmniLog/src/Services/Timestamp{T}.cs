@@ -1,5 +1,4 @@
 ﻿using Reusable.OmniLog.Abstractions;
-using Reusable.OmniLog.Abstractions.Data;
 
 namespace Reusable.OmniLog.Services
 {
@@ -13,7 +12,7 @@ namespace Reusable.OmniLog.Services
             _dateTime = new T();
         }
 
-        public override object? GetValue(LogEntry logEntry)
+        public override object? GetValue(ILogEntry logEntry)
         {
             return _dateTime.Now();
         }

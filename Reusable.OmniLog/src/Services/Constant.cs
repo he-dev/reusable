@@ -1,5 +1,4 @@
 using Reusable.OmniLog.Abstractions;
-using Reusable.OmniLog.Abstractions.Data;
 
 namespace Reusable.OmniLog.Services
 {
@@ -12,6 +11,6 @@ namespace Reusable.OmniLog.Services
             this.value = value;
         }
 
-        public override object? GetValue(LogEntry logEntry) => value;
+        public override object? GetValue(ILogEntry logEntry) => value;
     }
 }

@@ -1,7 +1,6 @@
 using Microsoft.Extensions.Caching.Memory;
 using Reusable.OmniLog;
 using Reusable.OmniLog.Abstractions;
-using Reusable.OmniLog.Abstractions.Data;
 using Reusable.OmniLog.Services;
 
 namespace Reusable
@@ -32,9 +31,9 @@ namespace Reusable
                     .UseSerializer()
                     .UsePropertyMapper
                     (
-                        (LogEntry.Names.SnapshotName, "Identifier")
+                        (LogProperty.Names.SnapshotName, "Identifier")
                     )
-                    .UseFallback((LogEntry.Names.Level, LogLevel.Information))
+                    .UseFallback((LogProperty.Names.Level, LogLevel.Information))
                     .UseEcho(logRx)
                     .Build();
         }

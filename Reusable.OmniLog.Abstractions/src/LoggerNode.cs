@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using Reusable.OmniLog.Abstractions.Data;
 
 namespace Reusable.OmniLog.Abstractions
 {
@@ -15,7 +14,7 @@ namespace Reusable.OmniLog.Abstractions
     {
         bool Enabled { get; set; }
         
-        void Invoke(LogEntry request);
+        void Invoke(ILogEntry request);
     }
 
     public static class LinkedListExtensions
@@ -70,7 +69,7 @@ namespace Reusable.OmniLog.Abstractions
         public virtual ILoggerNode? Next { get; set; }
 
         // This being virtual makes testing easier.
-        public virtual void Invoke(LogEntry request)
+        public virtual void Invoke(ILogEntry request)
         {
             if (Enabled)
             {
@@ -83,10 +82,10 @@ namespace Reusable.OmniLog.Abstractions
         }
 
         // ReSharper disable once InconsistentNaming
-        protected abstract void invoke(LogEntry request);
+        protected abstract void invoke(ILogEntry request);
 
         // ReSharper disable once InconsistentNaming
-        protected void invokeNext(LogEntry request) => Next?.Invoke(request);
+        protected void invokeNext(ILogEntry request) => Next?.Invoke(request);
 
         public virtual void Dispose() => Next?.Dispose();
     }

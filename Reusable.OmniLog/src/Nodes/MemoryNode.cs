@@ -3,20 +3,19 @@ using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using Reusable.OmniLog.Abstractions;
-using Reusable.OmniLog.Abstractions.Data;
 
 namespace Reusable.OmniLog.Nodes
 {
     /// <summary>
     /// This node caches logs in memory.
     /// </summary>
-    public class MemoryNode : LoggerNode, IEnumerable<LogEntry>
+    public class MemoryNode : LoggerNode, IEnumerable<ILogEntry>
     {
-        private readonly LinkedList<LogEntry> _entries = new LinkedList<LogEntry>();
+        private readonly LinkedList<ILogEntry> _entries = new LinkedList<ILogEntry>();
 
         public int Capacity { get; set; } = 10_000;
 
-        protected override void invoke(LogEntry request)
+        protected override void invoke(ILogEntry request)
         {
             lock (_entries)
             {
@@ -31,7 +30,7 @@ namespace Reusable.OmniLog.Nodes
             invokeNext(request);
         }
 
-        public IEnumerator<LogEntry> GetEnumerator() => _entries.GetEnumerator();
+        public IEnumerator<ILogEntry> GetEnumerator() => _entries.GetEnumerator();
 
         IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable)_entries).GetEnumerator();
     }
@@ -54,7 +53,7 @@ namespace Reusable.OmniLog.Nodes
             foreach (var logEntry in memoryNode)
             {
                 var row = dt.NewRow();
-                foreach (var item in logEntry.Properties(m => m.ProcessWith<EchoNode>()))
+                foreach (var item in logEntry.Where(LogProperty.CanProcess.With<EchoNode>()))
                 {
                     if (!dt.Columns.Contains(item.Name.ToString()))
                     {

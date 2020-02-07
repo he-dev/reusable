@@ -12,6 +12,7 @@
   <ItemGroup>
     <Compile Remove="src\Expressions.cs" />
     <Compile Remove="src\Nodes\ConstantNode.cs" />
+    <Compile Remove="cfg\**" />
   </ItemGroup>
 
   <ItemGroup>
@@ -21,8 +22,9 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Reusable.Core\Reusable.Core.csproj" />
-    <ProjectReference Include="..\Reusable.Flexo\Reusable.Flexo.csproj" />
     <ProjectReference Include="..\Reusable.MarkupBuilder\Reusable.MarkupBuilder.csproj" />
+    <ProjectReference Include="..\Reusable.OmniLog.Abstractions\Reusable.OmniLog.Abstractions.csproj" />
+    <ProjectReference Include="..\Reusable.Utilities.JsonNet\Reusable.Utilities.JsonNet.csproj" />
   </ItemGroup>
 
   <ItemGroup>
@@ -31,6 +33,14 @@
   
   <ItemGroup>
     <Compile Remove="src\Nodes\CorrelationNode.cs" />
+  </ItemGroup>
+  
+  <ItemGroup>
+    <EmbeddedResource Remove="cfg\**" />
+  </ItemGroup>
+  
+  <ItemGroup>
+    <None Remove="cfg\**" />
   </ItemGroup>
 
 </Project>

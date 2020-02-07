@@ -1,9 +1,10 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
+using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using JetBrains.Annotations;
 
-namespace Reusable.OmniLog.Abstractions.Data
+namespace Reusable.OmniLog.Abstractions
 {
     [PublicAPI]
     public readonly struct LogProperty
@@ -20,6 +21,46 @@ namespace Reusable.OmniLog.Abstractions.Data
         public object? Value { get; }
 
         public LogPropertyMeta Meta { get; }
+
+        public static class CanProcess
+        {
+            public static Func<LogProperty, bool> With<T>(T node = default) where T : ILoggerNode
+            {
+                return property => property.Meta.Processors.Count == 0 || property.Meta.Processors.Contains(typeof(T));
+            }
+        }
+        
+        public static class CanLog
+        {
+            public static Func<LogProperty, bool> With<T>() where T : ILogRx
+            {
+                return property => property.Meta.Loggers.Count == 0 || property.Meta.Loggers.Contains(typeof(T));
+            }
+        }
+        
+        public static class ValueIs
+        {
+            public static Func<LogProperty, bool> NotNull() => property => property.Value is {};
+        }
+        
+        [SuppressMessage("ReSharper", "ConvertToConstant.Global")]
+        public static class Names
+        {
+            public static readonly SoftString Timestamp = nameof(Timestamp)!;
+            public static readonly SoftString Logger = nameof(Logger)!;
+            public static readonly SoftString Level = nameof(Level)!;
+            public static readonly SoftString Message = nameof(Message)!;
+            public static readonly SoftString Exception = nameof(Exception)!;
+            public static readonly SoftString CallerMemberName = nameof(CallerMemberName)!;
+            public static readonly SoftString CallerLineNumber = nameof(CallerLineNumber)!;
+            public static readonly SoftString CallerFilePath = nameof(CallerFilePath)!;
+
+            public static readonly SoftString SnapshotName = nameof(SnapshotName)!;
+            public static readonly SoftString Snapshot = nameof(Snapshot)!;
+
+            public static readonly SoftString Scope = nameof(Scope)!;
+            public static readonly SoftString Elapsed = nameof(Stopwatch.Elapsed)!;
+        }
     }
 
     public static class LogPropertyExtensions
@@ -27,6 +68,16 @@ namespace Reusable.OmniLog.Abstractions.Data
         public static T ValueOrDefault<T>(this LogProperty? property, T defaultValue = default)
         {
             return property?.Value switch { T t => t, _ => defaultValue };
+        }
+
+        public static bool CanProcessWith<T>(this LogProperty property) where T : ILoggerNode
+        {
+            return property.Meta.Processors.Contains(typeof(T));
+        }
+        
+        public static bool CanLogWith<T>(this LogProperty property) where T : ILoggerNode
+        {
+            return property.Meta.Loggers.Contains(typeof(T));
         }
     }
 

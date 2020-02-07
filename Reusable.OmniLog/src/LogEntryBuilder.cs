@@ -1,14 +1,13 @@
 using Reusable.Extensions;
 using Reusable.OmniLog.Abstractions;
-using Reusable.OmniLog.Abstractions.Data;
 
 namespace Reusable.OmniLog
 {
     public readonly struct LogEntryBuilder<T> : ILogEntryBuilder<T>
     {
-        private readonly LogEntry _logEntry;
+        private readonly ILogEntry _logEntry;
 
-        public LogEntryBuilder(LogEntry logEntry, string name)
+        public LogEntryBuilder(ILogEntry logEntry, string name)
         {
             _logEntry = logEntry;
             Name = name;
@@ -24,6 +23,6 @@ namespace Reusable.OmniLog
 
         public ILogEntryBuilder<T> Update(AlterLogEntryDelegate alterLogEntry) => this.Pipe(self => alterLogEntry(self._logEntry));
 
-        public LogEntry Build() => _logEntry ?? LogEntry.Empty();
+        public ILogEntry Build() => _logEntry ?? LogEntry.Empty();
     }
 }

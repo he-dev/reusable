@@ -51,6 +51,7 @@
         <ProjectReference Include="..\Reusable.Cryptography\Reusable.Cryptography.csproj" />
         <ProjectReference Include="..\Reusable.Deception\Reusable.Deception.csproj" />
         <ProjectReference Include="..\Reusable.Flawless\Reusable.Flawless.csproj" />
+        <ProjectReference Include="..\Reusable.Flexo\Reusable.Flexo.csproj" />
         <ProjectReference Include="..\Reusable.Translucent\Reusable.Translucent.csproj" />
         <ProjectReference Include="..\Reusable.Translucent.config\Reusable.Translucent.config.csproj" />
         <ProjectReference Include="..\Reusable.Translucent.config.AppConfig\Reusable.Translucent.config.AppConfig.csproj" />

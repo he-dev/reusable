@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using Reusable.Apps;
 using Reusable.Exceptionize;
 using Reusable.OmniLog;
-using Reusable.OmniLog.Abstractions.Data;
+using Reusable.OmniLog.Abstractions;
 using Reusable.OmniLog.Nodes;
 using Reusable.OmniLog.Rx;
 using Reusable.OmniLog.Rx.Consoles;
@@ -68,7 +68,7 @@ namespace Reusable
                     Mappings =
                     {
                         //{ LogEntry.Names.Scope, "Scope" },
-                        { LogEntry.Names.SnapshotName, "Identifier" },
+                        { LogProperty.Names.SnapshotName, "Identifier" },
                         //{ LogEntry.Names.Snapshot, "Snapshot" },
                     }
                 },
@@ -77,7 +77,7 @@ namespace Reusable
                 {
                     Defaults =
                     {
-                        [LogEntry.Names.Level] = LogLevel.Information
+                        [LogProperty.Names.Level] = LogLevel.Information
                     }
                 },
                 // When activated, buffers log-entries until committed. Can be enabled with logger.UseTransaction(). Dispose to disable.

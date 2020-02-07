@@ -1,19 +1,18 @@
 using System;
 using Reusable.OmniLog.Abstractions;
-using Reusable.OmniLog.Abstractions.Data;
 
 namespace Reusable.OmniLog.Nodes
 {
     public class FilterNode : LoggerNode
     {
-        private readonly Func<LogEntry, bool> _canLog;
+        private readonly Func<ILogEntry, bool> _canLog;
 
-        public FilterNode(Func<LogEntry, bool> canLog)
+        public FilterNode(Func<ILogEntry, bool> canLog)
         {
             _canLog = canLog;
         }
 
-        protected override void invoke(LogEntry request)
+        protected override void invoke(ILogEntry request)
         {
             if (_canLog(request))
             {

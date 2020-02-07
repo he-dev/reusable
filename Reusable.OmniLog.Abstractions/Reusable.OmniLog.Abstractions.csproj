@@ -27,5 +27,9 @@
     <Compile Remove="src\ILinkedListNode.cs" />
     <Compile Remove="src\ILoggerNodeScope.cs" />
   </ItemGroup>
+  
+  <ItemGroup>
+    <Folder Include="src\Data" />
+  </ItemGroup>
 
 </Project>

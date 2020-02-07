@@ -2,7 +2,6 @@ using System;
 using JetBrains.Annotations;
 using Reusable.Collections;
 using Reusable.Diagnostics;
-using Reusable.OmniLog.Abstractions.Data;
 
 namespace Reusable.OmniLog.Abstractions
 {
@@ -13,7 +12,7 @@ namespace Reusable.OmniLog.Abstractions
         [AutoEqualityProperty]
         SoftString Name { get; }
 
-        object? GetValue(LogEntry logEntry);
+        object? GetValue(ILogEntry logEntry);
     }
 
     public abstract class Service : IService
@@ -26,7 +25,7 @@ namespace Reusable.OmniLog.Abstractions
 
         public SoftString Name { get; }
 
-        public abstract object? GetValue(LogEntry logEntry);
+        public abstract object? GetValue(ILogEntry logEntry);
 
         #region IEquatable
 

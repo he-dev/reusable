@@ -1,10 +1,9 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Linq;
 using Reusable.Data;
 using Reusable.OmniLog.Abstractions;
-using Reusable.OmniLog.Abstractions.Data;
-using Reusable.OmniLog.Nodes;
 
 namespace Reusable.OmniLog
 {
@@ -22,24 +21,24 @@ namespace Reusable.OmniLog
             [LogLevel.Fatal] = NLog.LogLevel.Fatal,
         };
 
-        public void Log(LogEntry logEntry)
+        public void Log(ILogEntry logEntry)
         {
-            var loggerName = logEntry.GetProperty(LogEntry.Names.Logger, m => m.ProcessWith<EchoNode>()).ValueOrDefault<string>();
+            var loggerName = logEntry[LogProperty.Names.Logger]?.Value as string;
             GetLogger(loggerName).Log(CreateLogEventInfo(logEntry));
         }
 
-        private static NLog.LogEventInfo CreateLogEventInfo(LogEntry logEntry)
+        private static NLog.LogEventInfo CreateLogEventInfo(ILogEntry logEntry)
         {
             var logEventInfo = new NLog.LogEventInfo
             {
-                Level = LogLevels[logEntry.GetProperty(LogEntry.Names.Level, m => m.ProcessWith<EchoNode>()).ValueOrDefault<Option<LogLevel>>()],
-                LoggerName = logEntry.GetProperty(LogEntry.Names.Logger, m => m.ProcessWith<EchoNode>()).ValueOrDefault<string>(),
-                Message = logEntry.GetProperty(LogEntry.Names.Message, m => m.ProcessWith<EchoNode>()).ValueOrDefault<string>(),
-                Exception = logEntry.GetProperty(LogEntry.Names.Exception, m => m.ProcessWith<EchoNode>()).ValueOrDefault<Exception>(),
-                TimeStamp = logEntry.GetProperty(LogEntry.Names.Timestamp, m => m.ProcessWith<EchoNode>()).ValueOrDefault<DateTime>(),
+                Level = LogLevels[logEntry[LogProperty.Names.Level]?.Value as Option<LogLevel> ?? LogLevel.Information],
+                LoggerName = logEntry[LogProperty.Names.Logger]?.Value as string,
+                Message = logEntry[LogProperty.Names.Message]?.Value as string,
+                Exception = logEntry[LogProperty.Names.Exception]?.Value as Exception,
+                TimeStamp = logEntry[LogProperty.Names.Timestamp]?.Value is DateTime dt ? dt : DateTime.UtcNow,
             };
 
-            foreach (var item in logEntry.Properties(m => m.ProcessWith<EchoNode>().LogWith<NLogRx>()))
+            foreach (var item in logEntry.Where(LogProperty.CanLog.With<NLogRx>()))
             {
                 logEventInfo.Properties.Add(item.Name.ToString(), item.Value);
             }

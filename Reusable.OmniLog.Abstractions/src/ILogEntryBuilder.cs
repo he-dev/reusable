@@ -1,14 +1,12 @@
-using Reusable.OmniLog.Abstractions.Data;
-
 namespace Reusable.OmniLog.Abstractions
 {
-    public delegate void AlterLogEntryDelegate(LogEntry logEntry);
+    public delegate void AlterLogEntryDelegate(ILogEntry logEntry);
 
     public interface ILogEntryBuilder
     {
         string Name { get; }
 
-        LogEntry Build();
+        ILogEntry Build();
     }
 
     // Base interface for the first tier "layer"

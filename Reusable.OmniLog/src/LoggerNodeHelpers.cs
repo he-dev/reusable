@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using Reusable.Extensions;
 using Reusable.OmniLog.Abstractions;
-using Reusable.OmniLog.Abstractions.Data;
 using Reusable.OmniLog.Nodes;
 
 namespace Reusable.OmniLog
@@ -20,7 +19,7 @@ namespace Reusable.OmniLog
         public static LoggerFactoryBuilder UseEcho(this LoggerFactoryBuilder builder, IEnumerable<ILogRx> rx) => builder.Use<EchoNode>(n => n.Rx.AddRange(rx));
         public static LoggerFactoryBuilder UseFallback(this LoggerFactoryBuilder builder, Action<FallbackNode> configure) => builder.Use(configure);
         public static LoggerFactoryBuilder UseFallback(this LoggerFactoryBuilder builder, params (SoftString Name, object Value)[] defaults) => builder.Use<FallbackNode>(n => n.Defaults.AddRangeSafely(defaults));
-        public static LoggerFactoryBuilder UseFilter(this LoggerFactoryBuilder builder, Func<LogEntry, bool> filter) => builder.Use(new FilterNode(filter));
+        public static LoggerFactoryBuilder UseFilter(this LoggerFactoryBuilder builder, Func<ILogEntry, bool> filter) => builder.Use(new FilterNode(filter));
         public static LoggerFactoryBuilder UseDelegate(this LoggerFactoryBuilder builder, Action<DelegateNode>? configure = default) => builder.Use(configure);
         public static LoggerFactoryBuilder UseObjectMapper(this LoggerFactoryBuilder builder, Action<ObjectMapperNode> configure) => builder.Use(configure);
         public static LoggerFactoryBuilder UseObjectMapper(this LoggerFactoryBuilder builder, params ObjectMapperNode.Mapping[] mappings) => builder.Use<ObjectMapperNode>(n => n.Mappings.AddRange(mappings));

@@ -1,6 +1,5 @@
 using System.Linq;
 using Reusable.OmniLog.Abstractions;
-using Reusable.OmniLog.Abstractions.Data;
 using Reusable.OmniLog.Utilities;
 
 namespace Reusable.OmniLog.Nodes
@@ -17,9 +16,9 @@ namespace Reusable.OmniLog.Nodes
         /// Gets or sets serializable properties. If empty then all items are scanned.
         /// </summary>
         //public HashSet<string> SerializableProperties { get; set; } = new HashSet<string>(SoftString.Comparer);
-        protected override void invoke(LogEntry request)
+        protected override void invoke(ILogEntry request)
         {
-            foreach (var property in request.Properties(m => m.ProcessWith(this)).Where(property => property.Value is {}).ToList())
+            foreach (var property in request.Where(LogProperty.CanProcess.With(this)).Where(LogProperty.ValueIs.NotNull()).ToList())
             {
                 request.Add(property.Name, _serializer.Serialize(property.Value!), m => m.ProcessWith<EchoNode>());
             }

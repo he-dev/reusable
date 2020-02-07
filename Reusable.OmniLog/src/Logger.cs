@@ -1,15 +1,14 @@
 using System;
 using Reusable.Extensions;
 using Reusable.OmniLog.Abstractions;
-using Reusable.OmniLog.Abstractions.Data;
 
 namespace Reusable.OmniLog
 {
     public class Logger : LoggerNode, ILogger
     {
-        public virtual void Log(LogEntry logEntry) => invokeNext(logEntry);
+        public virtual void Log(ILogEntry logEntry) => invokeNext(logEntry);
 
-        protected override void invoke(LogEntry request) => Log(request);
+        protected override void invoke(ILogEntry request) => Log(request);
     }
 
     public class Logger<T> : Logger, ILogger<T>
@@ -27,7 +26,7 @@ namespace Reusable.OmniLog
 
         public override ILoggerNode? Next { get => _logger.Next; set => _logger.Next = value; }
 
-        public override void Log(LogEntry logEntry) => _logger.Log(logEntry);
+        public override void Log(ILogEntry logEntry) => _logger.Log(logEntry);
 
         private class EmptyLogger : Logger, ILogger<T> { }
     }
@@ -43,7 +42,7 @@ namespace Reusable.OmniLog
             _scope = configureNode(logger.Node<T>());
         }
 
-        public void Log(LogEntry logEntry) => _logger.Log(logEntry);
+        public void Log(ILogEntry logEntry) => _logger.Log(logEntry);
 
         public bool Enabled
         {
@@ -63,7 +62,7 @@ namespace Reusable.OmniLog
             set => _logger.Next = value;
         }
 
-        public void Invoke(LogEntry request)
+        public void Invoke(ILogEntry request)
         {
             _logger.Invoke(request);
         }

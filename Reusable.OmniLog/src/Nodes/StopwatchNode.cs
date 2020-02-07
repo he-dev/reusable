@@ -2,7 +2,6 @@ using System;
 using System.Diagnostics;
 using System.Linq;
 using Reusable.OmniLog.Abstractions;
-using Reusable.OmniLog.Abstractions.Data;
 
 namespace Reusable.OmniLog.Nodes
 {
@@ -13,9 +12,9 @@ namespace Reusable.OmniLog.Nodes
     {
         private readonly Stopwatch _stopwatch = Stopwatch.StartNew();
 
-        protected override void invoke(LogEntry request)
+        protected override void invoke(ILogEntry request)
         {
-            request.Add(LogEntry.Names.Elapsed, (long)GetValue(Elapsed), m => m.ProcessWith<EchoNode>());
+            request.Add(LogProperty.Names.Elapsed, (long)GetValue(Elapsed), m => m.ProcessWith<EchoNode>());
             invokeNext(request);
         }
 

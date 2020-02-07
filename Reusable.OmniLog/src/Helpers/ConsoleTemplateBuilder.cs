@@ -3,14 +3,14 @@ using System.Linq;
 using JetBrains.Annotations;
 using Reusable.MarkupBuilder;
 using Reusable.MarkupBuilder.Html;
-using Reusable.OmniLog.Abstractions.Data;
+using Reusable.OmniLog.Abstractions;
 using Reusable.OmniLog.Utilities;
 
 namespace Reusable.OmniLog.Helpers
 {
     public interface IConsoleTemplateBuilder<out T>
     {
-        T Build(LogEntry logEntry);
+        T Build(ILogEntry logEntry);
     }
 
     public interface IHtmlConsoleTemplateBuilder : IConsoleTemplateBuilder<HtmlElement> { }
@@ -28,7 +28,7 @@ namespace Reusable.OmniLog.Helpers
 
         public bool IsParagraph { get; }
 
-        public HtmlElement Build(LogEntry logEntry)
+        public HtmlElement Build(ILogEntry logEntry)
         {
             var elements = this.Select(b => b.Build(logEntry));
             return

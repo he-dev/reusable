@@ -1,7 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using Reusable.OmniLog.Abstractions;
-using Reusable.OmniLog.Abstractions.Data;
 
 namespace Reusable.OmniLog.Nodes
 {
@@ -10,9 +9,9 @@ namespace Reusable.OmniLog.Nodes
     /// </summary>
     public class BufferNode : LoggerNode
     {
-        private readonly Queue<LogEntry> _buffer = new Queue<LogEntry>();
+        private readonly Queue<ILogEntry> _buffer = new Queue<ILogEntry>();
 
-        protected override void invoke(LogEntry request)
+        protected override void invoke(ILogEntry request)
         {
             _buffer.Enqueue(request);
             // Don't call Next until Flush.
