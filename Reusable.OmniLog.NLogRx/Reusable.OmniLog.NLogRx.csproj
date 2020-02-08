@@ -19,7 +19,6 @@
     <ProjectReference Include="..\Reusable.Core\Reusable.Core.csproj" />
     <ProjectReference Include="..\Reusable.Data\Reusable.Data.csproj" />
     <ProjectReference Include="..\Reusable.OmniLog.Abstractions\Reusable.OmniLog.Abstractions.csproj" />
-    <ProjectReference Include="..\Reusable.OmniLog\Reusable.OmniLog.Abstractions.csproj" />
   </ItemGroup>
 
 </Project>
