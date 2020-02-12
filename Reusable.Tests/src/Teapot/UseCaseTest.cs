@@ -60,7 +60,7 @@ namespace Reusable.Teapot
             // Request made by the application somewhere deep down the rabbit hole
 
             var resources =
-                ResourceRepository
+                Resource
                     .Builder()
                     .Add(HttpController.FromBaseUri(ControllerName.Empty, $"{BaseUri}/api"))
                     .Register(TestHelper.CreateCache())

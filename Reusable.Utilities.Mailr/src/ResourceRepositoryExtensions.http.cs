@@ -11,13 +11,13 @@ namespace Reusable.Utilities.Mailr
     {
         public static async Task<string> SendEmailAsync
         (
-            this IResourceRepository resourceRepository,
+            this IResource resource,
             UriString uri,
             Email email,
             Action<HttpRequest>? configureRequest = default
         )
         {
-            using var response = await resourceRepository.PostAsync<HttpRequest>(uri, email, request =>
+            using var response = await resource.PostAsync<HttpRequest>(uri, email, request =>
             {
                 request.ControllerName = "Mailr";
                 request.ContentType = "application/json";

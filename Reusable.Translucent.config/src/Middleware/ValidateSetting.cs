@@ -24,14 +24,14 @@ namespace Reusable.Translucent.Middleware
         {
             var configRequest = context.Request as ConfigRequest;
 
-            if (context.Request.Method.In(RequestMethod.Post, RequestMethod.Put) && configRequest is {})
+            if (context.Request.Method.In(ResourceMethod.Post, ResourceMethod.Put) && configRequest is {})
             {
                 Validate(context.Request.Uri, context.Request.Body, configRequest.ValidationAttributes);
             }
 
             await InvokeNext(context);
 
-            if (context.Request.Method == RequestMethod.Get && configRequest is {})
+            if (context.Request.Method == ResourceMethod.Get && configRequest is {})
             {
                 Validate(context.Request.Uri, context.Response.Body, configRequest.ValidationAttributes);
             }

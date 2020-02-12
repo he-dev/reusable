@@ -5,28 +5,28 @@ namespace Reusable.Translucent.Annotations
 {
     public abstract class ResourceActionAttribute : Attribute
     {
-        protected ResourceActionAttribute(Reusable.Data.Option<RequestMethod> method) => Method = method;
+        protected ResourceActionAttribute(Reusable.Data.Option<ResourceMethod> method) => Method = method;
 
-        public Reusable.Data.Option<RequestMethod> Method { get; }
+        public Reusable.Data.Option<ResourceMethod> Method { get; }
     }
 
     public class ResourceGetAttribute : ResourceActionAttribute
     {
-        public ResourceGetAttribute() : base(RequestMethod.Get) { }
+        public ResourceGetAttribute() : base(ResourceMethod.Get) { }
     }
 
     public class ResourcePostAttribute : ResourceActionAttribute
     {
-        public ResourcePostAttribute() : base(RequestMethod.Post) { }
+        public ResourcePostAttribute() : base(ResourceMethod.Post) { }
     }
 
     public class ResourcePutAttribute : ResourceActionAttribute
     {
-        public ResourcePutAttribute() : base(RequestMethod.Put) { }
+        public ResourcePutAttribute() : base(ResourceMethod.Put) { }
     }
 
     public class ResourceDeleteAttribute : ResourceActionAttribute
     {
-        public ResourceDeleteAttribute() : base(RequestMethod.Delete) { }
+        public ResourceDeleteAttribute() : base(ResourceMethod.Delete) { }
     }
 }

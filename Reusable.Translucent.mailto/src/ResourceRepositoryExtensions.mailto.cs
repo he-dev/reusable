@@ -13,12 +13,12 @@ namespace Reusable.Translucent
     {
         public static async Task<Response> SendEmailAsync
         (
-            this IResourceRepository resourceRepository,
+            this IResource resource,
             IEmail<IEmailSubject, IEmailBody> email,
             Action<SmtpRequest>? requestAction = default
         )
         {
-            return await resourceRepository.PostAsync<SmtpRequest>($"{UriSchemes.Known.MailTo}:john.doe@email.com", email.Body.Value, request =>
+            return await resource.PostAsync<SmtpRequest>($"{UriSchemes.Known.MailTo}:john.doe@email.com", email.Body.Value, request =>
             {
                 request.From = email.From;
                 request.To = email.To;

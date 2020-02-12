@@ -26,7 +26,7 @@ namespace Reusable.Translucent.Middleware
             c.Arrange(x => x.Get(Arg.Matches<Request>(y => y.Uri.Path.Decoded.ToString().Equals(@"I:/test/this/path/test.txt")))).Returns(new Response().ToTask()).OccursOnce();
             
             var r = 
-                ResourceRepository
+                Resource
                     .Builder()
                     .Add(c)
                     .Use<EnvironmentVariableMiddleware>()

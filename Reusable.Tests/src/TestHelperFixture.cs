@@ -18,7 +18,7 @@ namespace Reusable
             Cache = CreateCache();
             
             Resources =
-                ResourceRepository
+                Resource
                     .From<TestResourceSetup>(
                         ImmutableServiceProvider
                             .Empty
@@ -28,7 +28,7 @@ namespace Reusable
 
         public ILoggerFactory LoggerFactory { get; }
 
-        public IResourceRepository Resources { get; }
+        public IResource Resources { get; }
         
         public IMemoryCache Cache { get; }
 

@@ -51,7 +51,7 @@ namespace Reusable.Flexo
         
         //public IList<IExpression> Packages => _expressions.GetOrAdd("Packages.IsPositive.json", fileName => new List<IExpression> { ReadExpressionFile<IExpression>(fileName) });
 
-        public T ReadExpressionFile<T>(IResourceRepository resources, string fileName)
+        public T ReadExpressionFile<T>(IResource resources, string fileName)
         {
             var json = resources.ReadTextFile(fileName);
             return Serializer.Deserialize<T>(json);

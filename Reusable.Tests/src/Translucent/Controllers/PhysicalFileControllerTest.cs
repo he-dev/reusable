@@ -21,7 +21,7 @@ namespace Reusable.Translucent.Controllers
         public async Task Can_handle_file_methods()
         {
             var resources =
-                ResourceRepository
+                Resource
                     .Builder()
                     .Add(new PhysicalFileController(ControllerName.Empty))
                     .Register(TestHelper.CreateCache())
@@ -54,7 +54,7 @@ namespace Reusable.Translucent.Controllers
         public async Task Can_read_and_write_text_file_from_share()
         {
             var resources =
-                ResourceRepository
+                Resource
                     .Builder()
                     .Add(new PhysicalFileController(ControllerName.Empty))
                     .Register(TestHelper.CreateCache())

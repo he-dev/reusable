@@ -52,7 +52,7 @@ namespace Reusable.Translucent.Controllers
             };
 
             var resources = 
-                ResourceRepository
+                Resource
                     .Builder()
                     .Add(HttpController.FromBaseUri("Mailr", "http://localhost:30002/api"))
                     //.Register(TestHelper.CreateCache())

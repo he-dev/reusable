@@ -10,34 +10,34 @@ namespace Reusable.Translucent
     {
         // file:///
 
-        public static Task<Response> GetFileAsync(this IResourceRepository resources, string path, Action<FileRequest>? configureRequest = default)
+        public static Task<Response> GetFileAsync(this IResource resources, string path, Action<FileRequest>? configureRequest = default)
         {
             return resources.GetAsync(CreateUri(path), default, configureRequest);
         }
 
-        public static async Task<string> ReadTextFileAsync(this IResourceRepository resourceRepository, string path, Action<FileRequest>? configureRequest = default)
+        public static async Task<string> ReadTextFileAsync(this IResource resource, string path, Action<FileRequest>? configureRequest = default)
         {
-            using var file = await resourceRepository.GetFileAsync(path, configureRequest);
+            using var file = await resource.GetFileAsync(path, configureRequest);
             return await file.DeserializeTextAsync();
         }
 
-        public static string ReadTextFile(this IResourceRepository resources, string path, Action<FileRequest>? configureRequest = default)
+        public static string ReadTextFile(this IResource resources, string path, Action<FileRequest>? configureRequest = default)
         {
             using var file = resources.GetFileAsync(path, configureRequest).GetAwaiter().GetResult();
             return file.DeserializeTextAsync().GetAwaiter().GetResult();
         }
 
-        public static async Task WriteTextFileAsync(this IResourceRepository resources, string path, string value, Action<FileRequest>? configureRequest = default)
+        public static async Task WriteTextFileAsync(this IResource resources, string path, string value, Action<FileRequest>? configureRequest = default)
         {
             using (await resources.PutAsync(CreateUri(path), value, configureRequest)) { }
         }
 
-        public static async Task WriteFileAsync(this IResourceRepository resources, string path, CreateBodyStreamDelegate createBodyStream, Action<FileRequest>? configureRequest = default)
+        public static async Task WriteFileAsync(this IResource resources, string path, CreateBodyStreamDelegate createBodyStream, Action<FileRequest>? configureRequest = default)
         {
             using (await resources.PutAsync(CreateUri(path), createBodyStream, configureRequest)) { }
         }
 
-        public static async Task DeleteFileAsync(this IResourceRepository resources, string path, Action<FileRequest>? configureRequest = default)
+        public static async Task DeleteFileAsync(this IResource resources, string path, Action<FileRequest>? configureRequest = default)
         {
             using (await resources.DeleteAsync(CreateUri(path), default, configureRequest)) { }
         }

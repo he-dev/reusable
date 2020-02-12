@@ -5,14 +5,22 @@ using Reusable.Translucent.Data;
 
 namespace Reusable.Translucent
 {
-    public interface IResourceRepositorySetup
+    public interface IResourceControllerSetup
     {
         IEnumerable<IResourceController> Controllers(IServiceProvider services);
-
-        IEnumerable<IMiddlewareInfo> Middleware(IServiceProvider services);
     }
     
-    public abstract class ResourceRepositorySetup : IResourceRepositorySetup
+    public interface IResourceMiddlewareSetup
+    {
+        IEnumerable<IResourceController> Controllers(IServiceProvider services);
+    }
+
+    public interface IResourceSetup : IResourceControllerSetup
+    {
+        IEnumerable<IMiddlewareInfo> Middleware(IServiceProvider services);
+    }
+
+    public abstract class ResourceSetup : IResourceSetup
     {
         public abstract IEnumerable<IResourceController> Controllers(IServiceProvider services);
 

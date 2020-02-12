@@ -69,8 +69,6 @@ namespace Reusable.Data
         [NotNull, ItemNotNull]
         public static IEnumerable<Option<T>> Bits => Options.Values.Where(o => o.IsFlag);
 
-        #region IOption<T>
-
         public SoftString Name
         {
             [DebuggerStepThrough]
@@ -81,8 +79,6 @@ namespace Reusable.Data
         /// Gets value indicating whether this option has only a single value.
         /// </summary>
         public bool IsFlag => _values.Count == 1;
-
-        #endregion
 
         #region Factories
 

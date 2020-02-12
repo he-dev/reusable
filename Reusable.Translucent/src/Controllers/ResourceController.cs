@@ -11,26 +11,18 @@ namespace Reusable.Translucent.Controllers
     [PublicAPI]
     public interface IResourceController : IDisposable
     {
-        ControllerName ControllerName { get; }
+        ControllerName Name { get; }
 
         UriString? BaseUri { get; }
-
-        /// <summary>
-        /// Gets a collection of supported schemes. 
-        /// </summary>
-        ISet<SoftString> Schemes { get; }
-
-        bool SupportsRelativeUri { get; }
     }
 
     [DebuggerDisplay(DebuggerDisplayString.DefaultNoQuotes)]
     public abstract class ResourceController : IResourceController
     {
-        protected ResourceController(ControllerName controllerName, string? basePath, params SoftString[] schemes)
+        protected ResourceController(ControllerName controllerName, string? basePath)
         {
-            ControllerName = controllerName;
+            Name = controllerName;
             BaseUri = basePath is {} uri ? new UriString(uri) : default;
-            Schemes = new HashSet<SoftString>(schemes);
         }
 
         private string DebuggerDisplay => this.ToDebuggerDisplayString(builder =>
@@ -41,13 +33,9 @@ namespace Reusable.Translucent.Controllers
             //builder.DisplayValue(x => x.Schemes);
         });
 
-        public ControllerName ControllerName { get; }
+        public ControllerName Name { get; }
 
         public UriString? BaseUri { get; }
-
-        public ISet<SoftString> Schemes { get; }
-
-        public bool SupportsRelativeUri => BaseUri is {};
 
         // ReSharper disable once InconsistentNaming
         protected static Response OK<T>(object? body = default, Action<T>? responseAction = default) where T : Response, new()

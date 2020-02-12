@@ -23,9 +23,9 @@ namespace Reusable.Translucent.Middleware
     /// Handles requests and determines which resource-controller to use to get a resources. Controllers determined with a GET requests are cached.
     /// </summary>
     [UsedImplicitly]
-    public class ResourceProvider : MiddlewareBase
+    public class ResourceControllerSwitch : MiddlewareBase
     {
-        private static readonly IEnumerable<ResourceControllerFilterCallback> Filters = new ResourceControllerFilterCallback[]
+        private static readonly IEnumerable<ResourceControllerFilterDelegate> Filters = new ResourceControllerFilterDelegate[]
         {
             ResourceControllerFilters.FilterByControllerName,
             ResourceControllerFilters.FilterByRequest,
@@ -36,9 +36,9 @@ namespace Reusable.Translucent.Middleware
         private readonly ILogger? logger;
         private readonly IMemoryCache cache;
 
-        public ResourceProvider(RequestDelegate<ResourceContext> next, IServiceProvider services) : base(next, services)
+        public ResourceControllerSwitch(RequestDelegate<ResourceContext> next, IServiceProvider services) : base(next, services)
         {
-            logger = services.GetService<ILoggerFactory>()?.CreateLogger<ResourceProvider>();
+            logger = services.GetService<ILoggerFactory>()?.CreateLogger<ResourceControllerSwitch>();
             controllers = services.GetService<IEnumerable<IResourceController>>().ToImmutableList();
             cache = services.GetService<IMemoryCache>() ?? new Microsoft.Extensions.Caching.Memory.MemoryCache(new MemoryCacheOptions());
         }
@@ -59,7 +59,7 @@ namespace Reusable.Translucent.Middleware
                 var candidates = Filters.Aggregate(controllers.AsEnumerable(), (providers, filter) => filter(providers, context.Request));
 
                 // GET can search multiple providers.
-                if (context.Request.Method == RequestMethod.Get)
+                if (context.Request.Method == ResourceMethod.Get)
                 {
                     context.Response = Response.NotFound();
                     foreach (var controller in candidates)
@@ -73,7 +73,7 @@ namespace Reusable.Translucent.Middleware
                                 resource = new
                                 {
                                     controller = controller.GetType().ToPrettyString(),
-                                    name = controller.ControllerName,
+                                    name = controller.Name,
                                     statusCode = ResourceStatusCode.OK
                                 }
                             }));
@@ -86,7 +86,7 @@ namespace Reusable.Translucent.Middleware
                                 resource = new
                                 {
                                     controller = controller.GetType().ToPrettyString(),
-                                    name = controller.ControllerName,
+                                    name = controller.Name,
                                     statusCode = ResourceStatusCode.NotFound
                                 }
                             }));

@@ -10,7 +10,7 @@ using Reusable.Translucent.Middleware;
 namespace Reusable
 {
     [UsedImplicitly]
-    internal class TestResourceSetup : ResourceRepositorySetup
+    internal class TestResourceSetup : ResourceSetup
     {
         public override IEnumerable<IResourceController> Controllers(IServiceProvider services)
         {

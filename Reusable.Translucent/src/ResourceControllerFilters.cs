@@ -6,7 +6,7 @@ using Reusable.Translucent.Data;
 
 namespace Reusable.Translucent
 {
-    public delegate IEnumerable<IResourceController> ResourceControllerFilterCallback(IEnumerable<IResourceController> controllers, Request request);
+    public delegate IEnumerable<IResourceController> ResourceControllerFilterDelegate(IEnumerable<IResourceController> controllers, Request request);
 
     public static class ResourceControllerFilters
     {
@@ -18,7 +18,7 @@ namespace Reusable.Translucent
                 {
                     return
                         from c in controllers
-                        where c.ControllerName.Tags.Overlaps(request.ControllerName.Tags)
+                        where c.Name.Tags.Overlaps(request.ControllerName.Tags)
                         select c;
                 }
                 else
@@ -30,7 +30,7 @@ namespace Reusable.Translucent
             {
                 return
                     from c in controllers
-                    where c.ControllerName.Equals(request.ControllerName)
+                    where c.Name.Equals(request.ControllerName)
                     select c;
             }
         }
@@ -52,7 +52,7 @@ namespace Reusable.Translucent
 
             return
                 from c in controllers
-                where c.SupportsRelativeUri
+                where c.BaseUri is {}
                 select c;
         }
     }

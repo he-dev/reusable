@@ -16,7 +16,7 @@ namespace Reusable.Translucent
             Services = services;
         }
 
-        protected RequestDelegate<ResourceContext> Next { get; }
+        private RequestDelegate<ResourceContext> Next { get; }
 
         protected IServiceProvider Services { get; }
 

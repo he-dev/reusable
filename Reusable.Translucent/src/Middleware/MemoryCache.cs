@@ -23,7 +23,7 @@ namespace Reusable.Translucent.Middleware
         public override async Task InvokeAsync(ResourceContext context)
         {
             // Only GET requests are cacheable.
-            if (!context.Request.Method.Equals(RequestMethod.Get))
+            if (!context.Request.Method.Equals(ResourceMethod.Get))
             {
                 await InvokeNext(context);
                 return;

@@ -6,24 +6,24 @@ using Reusable.Translucent.Data;
 namespace Reusable.Translucent
 {
     [PublicAPI]
-    public interface IResourceRepository
+    public interface IResource
     {
         Task<Response> InvokeAsync(Request request);
     }
 
     [PublicAPI]
-    public class ResourceRepository : IResourceRepository //<TSetup> : IResourceRepository where TSetup : new()
+    public class Resource : IResource //<TSetup> : IResourceRepository where TSetup : new()
     {
         private readonly RequestDelegate<ResourceContext> _requestDelegate;
 
-        internal ResourceRepository(RequestDelegate<ResourceContext> requestDelegate)
+        internal Resource(RequestDelegate<ResourceContext> requestDelegate)
         {
             _requestDelegate = requestDelegate;
         }
 
-        public static ResourceRepositoryBuilder Builder() => new ResourceRepositoryBuilder();
+        public static ResourceBuilder Builder() => new ResourceBuilder();
 
-        public static IResourceRepository From<TSetup>(IServiceProvider services) where TSetup : IResourceRepositorySetup, new()
+        public static IResource From<TSetup>(IServiceProvider services) where TSetup : IResourceSetup, new()
         {
             var setup = new TSetup();
 

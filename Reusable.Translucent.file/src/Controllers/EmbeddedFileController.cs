@@ -12,7 +12,7 @@ namespace Reusable.Translucent.Controllers
     {
         private readonly Assembly _assembly;
 
-        public EmbeddedFileController(ControllerName controllerName, string basePath, Assembly assembly) : base(controllerName, basePath, UriSchemes.Known.File)
+        public EmbeddedFileController(ControllerName controllerName, string basePath, Assembly assembly) : base(controllerName, basePath)
         {
             _assembly = assembly;
         }

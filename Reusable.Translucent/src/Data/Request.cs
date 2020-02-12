@@ -8,7 +8,7 @@ namespace Reusable.Translucent.Data
     {
         public UriString Uri { get; set; } = default!;// = new UriString($"{UriSchemes.Custom.IOnymous}:///");
 
-        public Reusable.Data.Option<RequestMethod> Method { get; set; } = RequestMethod.None;
+        public Reusable.Data.Option<ResourceMethod> Method { get; set; } = ResourceMethod.None;
 
         /// <summary>
         /// Gets or sets the object that should be handled. Can be anything or a Stream.
@@ -29,10 +29,10 @@ namespace Reusable.Translucent.Data
 
         #endregion
 
-        public static T CreateGet<T>(UriString uri, object? body = default) where T : Request, new() => new T { Method = RequestMethod.Get, Uri = uri, Body = body };
-        public static T CreatePost<T>(UriString uri, object? body = default) where T : Request, new() => new T { Method = RequestMethod.Post, Uri = uri, Body = body };
-        public static T CreatePut<T>(UriString uri, object? body = default) where T : Request, new() => new T { Method = RequestMethod.Put, Uri = uri, Body = body };
-        public static T CreateDelete<T>(UriString uri, object? body = default) where T : Request, new() => new T { Method = RequestMethod.Delete, Uri = uri, Body = body };
+        public static T CreateGet<T>(UriString uri, object? body = default) where T : Request, new() => new T { Method = ResourceMethod.Get, Uri = uri, Body = body };
+        public static T CreatePost<T>(UriString uri, object? body = default) where T : Request, new() => new T { Method = ResourceMethod.Post, Uri = uri, Body = body };
+        public static T CreatePut<T>(UriString uri, object? body = default) where T : Request, new() => new T { Method = ResourceMethod.Put, Uri = uri, Body = body };
+        public static T CreateDelete<T>(UriString uri, object? body = default) where T : Request, new() => new T { Method = ResourceMethod.Delete, Uri = uri, Body = body };
 
         public void Dispose()
         {

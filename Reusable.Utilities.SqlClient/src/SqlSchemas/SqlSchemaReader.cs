@@ -21,7 +21,7 @@ namespace Reusable.Utilities.SqlClient.SqlSchemas
         static SqlSchemaReader()
         {
             var resources = 
-                ResourceRepository
+                Resource
                     .Builder()
                     .Add(new EmbeddedFileController(ControllerName.Empty, @"Reusable\Utilities\SqlClient\sql", typeof(SqlSchemaReader).Assembly))
                     .Build(ImmutableServiceProvider.Empty);

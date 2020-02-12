@@ -22,7 +22,7 @@ namespace Reusable.Translucent.Controllers
     {
         private readonly HttpClient _client;
 
-        public HttpController(ControllerName controllerName, HttpClient httpClient) : base(controllerName, httpClient.BaseAddress.ToString(), UriSchemes.Known.Http, UriSchemes.Known.Https)
+        public HttpController(ControllerName controllerName, HttpClient httpClient) : base(controllerName, httpClient.BaseAddress.ToString())
         {
             _client = httpClient;
             _client.DefaultRequestHeaders.Clear();

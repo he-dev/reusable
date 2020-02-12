@@ -19,7 +19,7 @@ namespace Reusable.Translucent.Middleware
         {
             await InvokeNext(context);
 
-            if (context.Request.Method == RequestMethod.Get && context.Request.Required && !context.Response.Exists())
+            if (context.Request.Method == ResourceMethod.Get && context.Request.Required && !context.Response.Exists())
             {
                 throw DynamicException.Create("ResourceNotFound", $"Could not find resource '{context.Request.Uri}'.");
             }

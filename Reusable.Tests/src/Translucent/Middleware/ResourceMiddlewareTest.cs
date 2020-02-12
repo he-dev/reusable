@@ -30,7 +30,7 @@ namespace Reusable.Translucent.Middleware
             Mock.Arrange(() => c2.Get(Arg.IsAny<Request>())).Returns(new Response { StatusCode = ResourceStatusCode.OK }.ToTask()).OccursOnce();
             Mock.Arrange(() => c3.Get(Arg.IsAny<Request>())).OccursNever();
 
-            var resources = ResourceRepository.Builder().Add(c1, c2, c3).Register(TestHelper.CreateCache()).Register(_testHelper.LoggerFactory).Build();
+            var resources = Resource.Builder().Add(c1, c2, c3).Register(TestHelper.CreateCache()).Register(_testHelper.LoggerFactory).Build();
 
             await resources.InvokeAsync(Request.CreateGet<FileRequest>("file:///foo"));
 
@@ -50,7 +50,7 @@ namespace Reusable.Translucent.Middleware
             Mock.Arrange(() => c2.Get(Arg.IsAny<Request>())).Returns(new Response { StatusCode = ResourceStatusCode.OK }.ToTask()).OccursOnce();
             Mock.Arrange(() => c3.Get(Arg.IsAny<Request>())).OccursNever();
 
-            var resources = ResourceRepository.Builder().Add(c1, c2, c3).Register(TestHelper.CreateCache()).Register(_testHelper.LoggerFactory).Build();
+            var resources = Resource.Builder().Add(c1, c2, c3).Register(TestHelper.CreateCache()).Register(_testHelper.LoggerFactory).Build();
 
             await resources.InvokeAsync(Request.CreateGet<FileRequest>("file:///foo").Pipe(r => { r.ControllerName = new ControllerName("b"); }));
 
@@ -70,7 +70,7 @@ namespace Reusable.Translucent.Middleware
             Mock.Arrange(() => c2.Get(Arg.IsAny<Request>())).Returns(new Response { StatusCode = ResourceStatusCode.OK }.ToTask()).OccursOnce();
             Mock.Arrange(() => c3.Get(Arg.IsAny<Request>())).OccursNever();
 
-            var resources = ResourceRepository.Builder().Add(c1, c2, c3).Register(TestHelper.CreateCache()).Register(_testHelper.LoggerFactory).Build();
+            var resources = Resource.Builder().Add(c1, c2, c3).Register(TestHelper.CreateCache()).Register(_testHelper.LoggerFactory).Build();
 
             await resources.InvokeAsync(Request.CreateGet<HttpRequest>("///foo"));
 
@@ -88,7 +88,7 @@ namespace Reusable.Translucent.Middleware
             Mock.Arrange(() => c1.Get(Arg.IsAny<Request>())).CallOriginal().OccursNever();
             Mock.Arrange(() => c2.Get(Arg.IsAny<Request>())).CallOriginal().OccursOnce();
 
-            var resources = ResourceRepository.Builder().Add(c1, c2).Register(TestHelper.CreateCache()).Register(_testHelper.LoggerFactory).Build();
+            var resources = Resource.Builder().Add(c1, c2).Register(TestHelper.CreateCache()).Register(_testHelper.LoggerFactory).Build();
 
             await resources.InvokeAsync(Request.CreateGet<FileRequest>("file:///foo").Pipe(r => { r.ControllerName = new ControllerName("b"); }));
 
@@ -107,7 +107,7 @@ namespace Reusable.Translucent.Middleware
             Mock.Arrange(() => c2.Get(Arg.IsAny<Request>())).OccursNever();
             Mock.Arrange(() => c3.Get(Arg.IsAny<Request>())).OccursNever();
 
-            var resources = ResourceRepository.Builder().Add(c1, c2, c3).Register(TestHelper.CreateCache()).Register(_testHelper.LoggerFactory).Build();
+            var resources = Resource.Builder().Add(c1, c2, c3).Register(TestHelper.CreateCache()).Register(_testHelper.LoggerFactory).Build();
 
             await Assert.ThrowsAnyAsync<DynamicException>(async () => await resources.InvokeAsync(Request.CreatePut<FileRequest>("file:///foo")));
 

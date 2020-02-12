@@ -14,7 +14,7 @@ namespace Reusable.Translucent
     {
         public static Request CreateRequest
         (
-            Option<RequestMethod> method,
+            Option<ResourceMethod> method,
             Selector selector,
             object? value = default,
             Action<ConfigRequest>? requestAction = default

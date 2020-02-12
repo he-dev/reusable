@@ -68,9 +68,9 @@ namespace Reusable.Translucent.Controllers
     [PlainSelectorFormatter]
     public class TestDto
     {
-        private readonly IResourceRepository _resources;
+        private readonly IResource _resources;
 
-        public TestDto(IResourceRepository resources) => _resources = resources;
+        public TestDto(IResource resources) => _resources = resources;
 
         public string String
         {

@@ -12,7 +12,7 @@ namespace Reusable.Translucent.Controllers
     [Handles(typeof(FileRequest))]
     public class PhysicalFileController : ResourceController
     {
-        public PhysicalFileController(ControllerName controllerName, string? basePath = default) : base(controllerName, basePath, UriSchemes.Known.File) { }
+        public PhysicalFileController(ControllerName controllerName, string? basePath = default) : base(controllerName, basePath) { }
 
 
         [ResourceGet]
