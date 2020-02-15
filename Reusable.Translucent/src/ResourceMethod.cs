@@ -1,6 +1,6 @@
 using Reusable.Data;
 
-namespace Reusable.Translucent.Data
+namespace Reusable.Translucent
 {
     public abstract class ResourceMethod
     {

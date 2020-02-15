@@ -1,5 +1,6 @@
 using System;
 using Reusable.OneTo1;
+using Reusable.Translucent.Abstractions;
 
 namespace Reusable.Translucent.Controllers
 {
@@ -7,7 +8,7 @@ namespace Reusable.Translucent.Controllers
     /// This is the base class for controllers handling the 'config' scheme.
     /// </summary>
     [Handles(typeof(ConfigRequest))]
-    public abstract class ConfigController : Controller
+    public abstract class ConfigController : ResourceController
     {
         protected ConfigController(ControllerName name) : base(name, default) { }
 

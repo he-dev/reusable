@@ -10,6 +10,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Reusable.Exceptionize;
 using Reusable.OmniLog;
 using Reusable.OmniLog.Abstractions;
+using Reusable.Translucent.Abstractions;
 using Reusable.Translucent.Data;
 using Reusable.Translucent.Middleware;
 
@@ -24,7 +25,7 @@ namespace Reusable.Translucent
     [PublicAPI]
     public class Resource : IResource
     {
-        private readonly IMiddleware _middleware;
+        private readonly IResourceMiddleware _resourceMiddleware;
 
         public Resource(IServiceProvider serviceProvider, ControllerFactory controllerFactory, MiddlewareFactory? middlewareFactory = default)
         {
@@ -33,13 +34,13 @@ namespace Reusable.Translucent
             var controllerFactories = controllerFactory(serviceProvider);
             var middlewareFactories =
                 middlewareFactory(serviceProvider)
-                    .Prepend(next => new ResourceControllerSwitch(
+                    .Prepend(next => new ResourceProvider(
                         next,
-                        (serviceProvider.GetService<ILoggerFactory>() ?? LoggerFactory.Empty()).CreateLogger<ResourceControllerSwitch>(),
+                        (serviceProvider.GetService<ILoggerFactory>() ?? LoggerFactory.Empty()).CreateLogger<ResourceProvider>(),
                         (serviceProvider.GetService<IMemoryCache>() ?? new MemoryCache(new MemoryCacheOptions())),
                         controllerFactories.Select(f => f())));
 
-            _middleware = middlewareFactories.Aggregate(default(IMiddleware?), (previous, factory) =>
+            _resourceMiddleware = middlewareFactories.Aggregate(default(IResourceMiddleware?), (previous, factory) =>
             {
                 try
                 {
@@ -47,7 +48,7 @@ namespace Reusable.Translucent
                 }
                 catch (Exception inner)
                 {
-                    throw DynamicException.Create("MiddlewareActivation", $"Could not activate middleware. See the inner exception for details", inner);
+                    throw DynamicException.Create("ResourceMiddlewareActivation", $"Could not activate middleware. See the inner exception for details", inner);
                 }
             });
         }
@@ -61,7 +62,7 @@ namespace Reusable.Translucent
                 Request = request
             };
 
-            await _middleware.InvokeAsync(context);
+            await _resourceMiddleware.InvokeAsync(context);
 
             return context.Response;
         }

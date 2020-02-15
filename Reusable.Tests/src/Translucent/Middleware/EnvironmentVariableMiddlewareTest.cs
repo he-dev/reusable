@@ -29,7 +29,7 @@ namespace Reusable.Translucent.Middleware
                 Resource
                     .Builder()
                     .UseController(c)
-                    .UseMiddleware(_ => next => new EnvironmentVariableMiddleware(next))
+                    .UseMiddleware(_ => next => new EnvironmentVariableResourceMiddleware(next))
                     .Build(ImmutableServiceProvider.Empty.Add(_testHelper.Cache).Add(_testHelper.LoggerFactory));
 
             await r.InvokeAsync(Request.CreateGet<FileRequest>(@"%TEST_VARIABLE%\test.txt"));

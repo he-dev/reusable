@@ -33,7 +33,7 @@
         <Reference Include="System.Runtime.Extensions" />
     </ItemGroup>
     <ItemGroup>
-        <Compile Remove="src\ResourceHelper.cs" />
+        <Compile Remove="src\ResourceHelper___.cs" />
         <Compile Remove="src\ResourceRepositoryBuilder - Copy.cs" />
         <Compile Remove="src\ResourceCollection.cs" />
         <Compile Remove="src\PipelineBuilderExtensions.cs" />

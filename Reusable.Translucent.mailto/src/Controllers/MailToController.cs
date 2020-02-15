@@ -1,10 +1,11 @@
 using System.IO;
 using System.Threading.Tasks;
+using Reusable.Translucent.Abstractions;
 
 namespace Reusable.Translucent.Controllers
 {
     [Handles(typeof(MailToRequest))]
-    public abstract class MailToController : Controller
+    public abstract class MailToController : ResourceController
     {
         protected MailToController(ControllerName name) : base(name) { }
 

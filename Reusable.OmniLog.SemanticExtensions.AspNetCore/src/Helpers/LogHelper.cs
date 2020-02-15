@@ -24,7 +24,7 @@ namespace Reusable.OmniLog.SemanticExtensions.AspNetCore.Helpers
             };
         };
 
-        public static void LogRequest(ILogger logger, HttpContext context, string body)
+        public static void LogRequest(ILogger logger, HttpContext context, string? body)
         {
             logger.Log(Abstraction.Layer.Network().Subject(new
             {
@@ -50,7 +50,7 @@ namespace Reusable.OmniLog.SemanticExtensions.AspNetCore.Helpers
             });
         }
 
-        public static void LogResponse(ILogger logger, HttpContext context, string body)
+        public static void LogResponse(ILogger logger, HttpContext context, string? body)
         {
             logger.Log(Abstraction.Layer.Network().Meta(new
             {
@@ -77,7 +77,7 @@ namespace Reusable.OmniLog.SemanticExtensions.AspNetCore.Helpers
         }
 
 
-        public static async Task<string> SerializeRequestBody(this HttpContext context)
+        public static async Task<string?> SerializeRequestBody(this HttpContext context)
         {
             if (context.Request.ContentLength > 0)
             {

@@ -23,7 +23,7 @@ namespace Reusable.OmniLog
 
         public void Log(ILogEntry logEntry)
         {
-            var loggerName = logEntry[LogProperty.Names.Logger]?.Value as string;
+            var loggerName = logEntry[LogProperty.Names.Logger]?.Value as string ?? "Undefined";
             GetLogger(loggerName).Log(CreateLogEventInfo(logEntry));
         }
 

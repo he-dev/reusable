@@ -1,15 +1,14 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using JetBrains.Annotations;
 using Reusable.Diagnostics;
 using Reusable.Extensions;
 using Reusable.Translucent.Data;
 
-namespace Reusable.Translucent.Controllers
+namespace Reusable.Translucent.Abstractions
 {
     [PublicAPI]
-    public interface IController : IDisposable
+    public interface IResourceController : IDisposable
     {
         ControllerName Name { get; }
 
@@ -17,9 +16,9 @@ namespace Reusable.Translucent.Controllers
     }
 
     [DebuggerDisplay(DebuggerDisplayString.DefaultNoQuotes)]
-    public abstract class Controller : IController
+    public abstract class ResourceController : IResourceController
     {
-        protected Controller(ControllerName? name, string? baseUri = default)
+        protected ResourceController(ControllerName? name, string? baseUri = default)
         {
             Name = name ?? ControllerName.Empty;
             BaseUri = baseUri;

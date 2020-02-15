@@ -27,7 +27,7 @@ namespace Reusable.Utilities.SqlClient
 
         public const char NameSeparator = '.';
 
-        public SqlFourPartName([NotNull] string objectName)
+        public SqlFourPartName(string? objectName)
         {
             ObjectName = objectName ?? throw new ArgumentNullException(nameof(objectName));
         }

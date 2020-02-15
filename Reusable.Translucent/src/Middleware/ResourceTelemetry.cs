@@ -1,35 +1,42 @@
 using System;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
+using Reusable.Exceptionize;
 using Reusable.Extensions;
 using Reusable.OmniLog;
 using Reusable.OmniLog.Abstractions;
 using Reusable.OmniLog.Nodes;
 using Reusable.OmniLog.SemanticExtensions;
+using Reusable.Translucent.Abstractions;
 
 namespace Reusable.Translucent.Middleware
 {
+    [PublicAPI]
     [UsedImplicitly]
-    public class ResourceTelemetry : MiddlewareBase
+    public class ResourceTelemetry : ResourceMiddleware
     {
         private readonly ILogger _logger;
-        private readonly IResourceTelemetryFilter _filter;
 
-        public ResourceTelemetry(RequestDelegate<ResourceContext> next, ILogger<ResourceTelemetry> logger, IResourceTelemetryFilter filter) : base(next)
+        public ResourceTelemetry(RequestDelegate<ResourceContext> next, ILogger<ResourceTelemetry> logger) : base(next)
         {
             _logger = logger;
-            _filter = filter;
         }
+
+        public Action<ILogger, ResourceContext> LogRequest { get; set; } = ResourceTelemetryHelper.LogRequest;
+
+        public Action<ILogger, ResourceContext> LogResponse { get; set; } = ResourceTelemetryHelper.LogResponse;
+
+        public Func<ResourceContext, bool> Filter { get; set; } = _ => true;
 
         public override async Task InvokeAsync(ResourceContext context)
         {
-            if (_filter.CanLog(context))
+            if (Filter(context))
             {
                 await LogTelemetry(context);
             }
             else
             {
-                await InvokeNext(context);
+                await Next(context);
             }
         }
 
@@ -37,44 +44,55 @@ namespace Reusable.Translucent.Middleware
         {
             using (_logger.BeginScope().WithCorrelationHandle("ResourceTelemetry").UseStopwatch())
             {
-                var requestUri = context.Request.ResourceName;
                 try
                 {
-                    _logger.Log(Abstraction.Layer.IO().Meta(new
-                    {
-                        resourceRequest = new
-                        {
-                            method = context.Request.Method.ToString(),
-                            resourceName = context.Request.ResourceName,
-                            controllerName = context.Request.ControllerName.ToString(),
-                            items = context.Request.Items,
-                        }
-                    }));
+                    LogRequest(_logger, context);
 
-                    await InvokeNext(context);
+                    await Next(context);
 
-                    _logger.Log(Abstraction.Layer.IO().Meta(new
-                    {
-                        resourceResponse = new
-                        {
-                            statusCode = context.Response.StatusCode,
-                            cached = context.Response.Cached,
-                            bodyType = context.Response.Body?.GetType().ToPrettyString()
-                        }
-                    }));
+                    LogResponse(_logger, context);
                 }
                 catch (Exception inner)
                 {
-                    _logger.Log(Abstraction.Layer.IO().Routine("ResourceRequest").Faulted(inner), l => l.Message(requestUri));
-                    throw;
+                    throw DynamicException.Create
+                    (
+                        "ResourceRequest",
+                        $"Could not {context.Request.Method.ToString().ToUpper()} '{context.Request.ResourceName}'. See the inner exception for details.",
+                        inner
+                    );
                 }
             }
         }
     }
 
-    public interface IResourceTelemetryFilter
+    public static class ResourceTelemetryHelper
     {
-        bool CanLog(ResourceContext context);
+        public static void LogRequest(ILogger logger, ResourceContext context)
+        {
+            logger.Log(Abstraction.Layer.IO().Meta(new
+            {
+                resourceRequest = new
+                {
+                    method = context.Request.Method.ToString(),
+                    resourceName = context.Request.ResourceName,
+                    controllerName = context.Request.ControllerName.ToString(),
+                    items = context.Request.Items,
+                }
+            }));
+        }
+
+        public static void LogResponse(ILogger logger, ResourceContext context)
+        {
+            logger.Log(Abstraction.Layer.IO().Meta(new
+            {
+                resourceResponse = new
+                {
+                    statusCode = context.Response.StatusCode,
+                    cached = context.Response.Cached,
+                    bodyType = context.Response.Body?.GetType().ToPrettyString()
+                }
+            }));
+        }
     }
 
     // public static class TelemetryMiddlewareHelper

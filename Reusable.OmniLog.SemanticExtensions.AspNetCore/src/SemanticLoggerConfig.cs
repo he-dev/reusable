@@ -21,9 +21,9 @@ namespace Reusable.OmniLog.SemanticExtensions.AspNetCore
         
         public Func<HttpContext, bool> CanLogResponseBody { get; set; } = _ => true;
 
-        public Action<ILogger, HttpContext, string> LogRequest { get; set; } = LogHelper.LogRequest;
+        public Action<ILogger, HttpContext, string?> LogRequest { get; set; } = LogHelper.LogRequest;
 
-        public Action<ILogger, HttpContext, string> LogResponse { get; set; } = LogHelper.LogResponse;
+        public Action<ILogger, HttpContext, string?> LogResponse { get; set; } = LogHelper.LogResponse;
 
         public Action<ILogger, HttpContext, Exception> LogError { get; set; } = LogHelper.LogError;
 

@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.DependencyInjection;
+using Reusable.Translucent.Abstractions;
 using Reusable.Translucent.Data;
 
 namespace Reusable.Translucent.Middleware
@@ -11,7 +12,7 @@ namespace Reusable.Translucent.Middleware
     /// Allows to cache resources for GET requests by specifying the MaxAge in the request.
     /// </summary>
     [UsedImplicitly]
-    public class ResourceMemoryCache : MiddlewareBase
+    public class ResourceMemoryCache : ResourceMiddleware
     {
         private readonly IMemoryCache _memoryCache;
 
@@ -30,7 +31,7 @@ namespace Reusable.Translucent.Middleware
                 {
                     context.Response = await _memoryCache.GetOrCreateAsync(context.Request.ResourceName, async entry =>
                     {
-                        await InvokeNext(context);
+                        await Next(context);
                         // todo - copy stream to memory-stream
                         entry.Value = context.Response;
                         entry.AbsoluteExpirationRelativeToNow = maxAge;
@@ -40,12 +41,12 @@ namespace Reusable.Translucent.Middleware
                 }
                 else
                 {
-                    await InvokeNext(context);
+                    await Next(context);
                 }
             }
             else
             {
-                await InvokeNext(context);
+                await Next(context);
             }
         }
     }

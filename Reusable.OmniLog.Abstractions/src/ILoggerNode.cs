@@ -49,7 +49,7 @@ namespace Reusable.OmniLog.Abstractions
 
         public static IEnumerable<ILoggerNode> EnumeratePrev(this ILoggerNode n, bool includeSelf = true) => n.Enumerate(x => x.Prev, includeSelf);
 
-        private static IEnumerable<ILoggerNode> Enumerate(this ILoggerNode? n, Func<ILoggerNode, ILoggerNode?> direction, bool includeSelf = true)
+        private static IEnumerable<ILoggerNode> Enumerate(this ILoggerNode? n, Func<ILoggerNode?, ILoggerNode?> direction, bool includeSelf = true)
         {
             n = includeSelf ? n : direction(n);
             while (n is {})

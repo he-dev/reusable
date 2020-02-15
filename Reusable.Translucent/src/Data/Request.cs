@@ -7,12 +7,11 @@ using Reusable.Data;
 
 namespace Reusable.Translucent.Data
 {
-    public class Request : IDisposable
+    public abstract class Request : IDisposable
     {
         public Option<ResourceMethod> Method { get; set; } = ResourceMethod.None;
 
         public string ResourceName { get; set; } = default!;
-
 
         /// <summary>
         /// Gets or sets the object that should be handled. Can be anything or a Stream.

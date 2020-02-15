@@ -1,6 +1,6 @@
 using System;
 using System.Collections.Generic;
-using Reusable.Translucent.Controllers;
+using Reusable.Translucent.Abstractions;
 
 namespace Reusable.Translucent
 {
@@ -8,9 +8,9 @@ namespace Reusable.Translucent
 
     public delegate IEnumerable<CreateMiddlewareDelegate> MiddlewareFactory(IServiceProvider services);
 
-    public delegate IController CreateControllerDelegate();
+    public delegate IResourceController CreateControllerDelegate();
 
-    public delegate IMiddleware CreateMiddlewareDelegate(RequestDelegate<ResourceContext> next);
+    public delegate IResourceMiddleware CreateMiddlewareDelegate(RequestDelegate<ResourceContext> next);
 
     public static class CreateControllerHelper
     {

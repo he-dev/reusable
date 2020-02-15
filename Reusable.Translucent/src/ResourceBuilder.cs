@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Reusable.Translucent.Controllers;
+using Reusable.Translucent.Abstractions;
 using Reusable.Translucent.Data;
 using Reusable.Translucent.Middleware;
 
@@ -32,7 +32,7 @@ namespace Reusable.Translucent
 
     public static class RepositoryBuilderExtensions
     {
-        public static ResourceBuilder UseController(this ResourceBuilder builder, IController controller)
+        public static ResourceBuilder UseController(this ResourceBuilder builder, IResourceController controller)
         {
             return builder.UseController(_ => () => controller);
         }

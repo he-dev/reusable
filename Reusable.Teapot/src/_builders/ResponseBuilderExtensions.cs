@@ -9,12 +9,12 @@ namespace Reusable.Teapot
     [PublicAPI]
     public static class ResponseBuilderExtensions
     {
-        public static IResponseFactory Once(this IResponseFactory response, int statusCode, object content, string contentType = default)
+        public static IResponseFactory Once(this IResponseFactory response, int statusCode, object content, string? contentType = default)
         {
             return response.Exactly(statusCode, content, content.DetermineContentType(contentType), 1);
         }
 
-        public static IResponseFactory Always(this IResponseFactory response, int statusCode, object content, string contentType = default)
+        public static IResponseFactory Always(this IResponseFactory response, int statusCode, object content, string? contentType = default)
         {
             return response.Enqueue(request => new ResponseMock(statusCode, content, content.DetermineContentType(contentType)));
         }

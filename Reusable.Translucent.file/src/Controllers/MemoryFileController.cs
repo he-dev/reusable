@@ -3,13 +3,14 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Reusable.Extensions;
+using Reusable.Translucent.Abstractions;
 using Reusable.Translucent.Annotations;
 using Reusable.Translucent.Data;
 
 namespace Reusable.Translucent.Controllers
 {
     [Handles(typeof(FileRequest))]
-    public class MemoryFileController : Controller, IEnumerable<KeyValuePair<string, object?>>
+    public class MemoryFileController : ResourceController, IEnumerable<KeyValuePair<string, object?>>
     {
         private readonly IDictionary<string, object?> _items = new Dictionary<string, object?>();
 

@@ -12,8 +12,8 @@ using Reusable.Extensions;
 using Reusable.OmniLog;
 using Reusable.OmniLog.Abstractions;
 using Reusable.OmniLog.SemanticExtensions;
+using Reusable.Translucent.Abstractions;
 using Reusable.Translucent.Annotations;
-using Reusable.Translucent.Controllers;
 using Reusable.Translucent.Data;
 using Reusable.Translucent.Extensions;
 
@@ -23,25 +23,24 @@ namespace Reusable.Translucent.Middleware
     /// Handles requests and determines which resource-controller to use to get a resources. Controllers determined with a GET requests are cached.
     /// </summary>
     [UsedImplicitly]
-    public class ResourceControllerSwitch : MiddlewareBase
+    public class ResourceProvider : ResourceMiddleware
     {
         private static readonly IEnumerable<ResourceControllerFilterDelegate> Filters = new ResourceControllerFilterDelegate[]
         {
             ResourceControllerFilters.FilterByControllerName,
             ResourceControllerFilters.FilterByRequest,
-            //ResourceControllerFilters.FilterByUriPath,
         };
 
-        private readonly IImmutableList<IController> controllers;
+        private readonly IImmutableList<IResourceController> controllers;
         private readonly ILogger? logger;
         private readonly IMemoryCache cache;
 
-        public ResourceControllerSwitch
+        public ResourceProvider
         (
             RequestDelegate<ResourceContext> next,
-            ILogger<ResourceControllerSwitch> logger,
+            ILogger<ResourceProvider> logger,
             IMemoryCache cache,
-            IEnumerable<IController> controllers
+            IEnumerable<IResourceController> controllers
         ) : base(next)
         {
             this.logger = logger;
@@ -51,12 +50,10 @@ namespace Reusable.Translucent.Middleware
 
         public override async Task InvokeAsync(ResourceContext context)
         {
-            //await InvokeNext(context);
-
             var providerKey = context.Request.ResourceName;
 
             // Used cached provider if already resolved.
-            if (cache.TryGetValue<IController>(providerKey, out var entry))
+            if (cache.TryGetValue<IResourceController>(providerKey, out var entry))
             {
                 context.Response = await InvokeMethodAsync(entry, context.Request);
             }
@@ -76,11 +73,10 @@ namespace Reusable.Translucent.Middleware
                             cache.Set(providerKey, controller);
                             logger?.Log(Abstraction.Layer.IO().Meta(new
                             {
-                                resource = new
+                                resourceOk = new
                                 {
                                     controller = controller.GetType().ToPrettyString(),
                                     name = controller.Name,
-                                    statusCode = ResourceStatusCode.OK
                                 }
                             }));
                             break;
@@ -89,11 +85,10 @@ namespace Reusable.Translucent.Middleware
                         {
                             logger?.Log(Abstraction.Layer.IO().Meta(new
                             {
-                                resource = new
+                                resourceNotFound = new
                                 {
                                     controller = controller.GetType().ToPrettyString(),
                                     name = controller.Name,
-                                    statusCode = ResourceStatusCode.NotFound
                                 }
                             }));
                         }
@@ -102,13 +97,13 @@ namespace Reusable.Translucent.Middleware
                 // Other methods are allowed to use only a single controller.
                 else
                 {
-                    var controller = cache.Set(providerKey, candidates.SingleOrThrow(onEmpty: ($"{nameof(Controller)}NotFound", $"Could not find controller for resource '{context.Request.ResourceName}'.")));
+                    var controller = cache.Set(providerKey, candidates.SingleOrThrow(onEmpty: ($"{nameof(ResourceController)}NotFound", $"Could not find controller for resource '{context.Request.ResourceName}'.")));
                     context.Response = await InvokeMethodAsync(controller, context.Request);
                 }
             }
         }
 
-        private static Task<Response> InvokeMethodAsync(IController controller, Request request)
+        private static Task<Response> InvokeMethodAsync(IResourceController controller, Request request)
         {
             var methods =
                 controller

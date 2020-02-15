@@ -19,7 +19,7 @@ namespace Reusable
     internal static class Program
     {
         [STAThread]
-        private static async Task Main(string[] args)
+        private static void Main(string[] args)
         {
             //Input.Listen().Subscribe(Autocomplete.Create(new[] { "foo", "bar", "baz", "baaz" }));
 

@@ -46,9 +46,9 @@ namespace Reusable
         public static IEnumerable<CreateMiddlewareDelegate> CreateMiddleware(IServiceProvider services)
         {
             yield return next => new ResourceMemoryCache(next, services.GetService<IMemoryCache>() ?? new MemoryCache(new MemoryCacheOptions()));
-            yield return next => new ResourceValidation(next, ResourceValidations.Composite
+            yield return next => new ResourceValidation(next, ResourceValidationHelper.Composite
             (
-                ResourceValidations.Exists,
+                ResourceValidationHelper.ValidateResourceExists,
                 SettingValidations.ValidateByAttributes
             ));
         }

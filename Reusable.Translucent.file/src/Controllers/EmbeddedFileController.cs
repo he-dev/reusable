@@ -4,13 +4,14 @@ using System.Reflection;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Reusable.Extensions;
+using Reusable.Translucent.Abstractions;
 using Reusable.Translucent.Annotations;
 using Reusable.Translucent.Data;
 
 namespace Reusable.Translucent.Controllers
 {
     [Handles(typeof(FileRequest))]
-    public class EmbeddedFileController : Controller
+    public class EmbeddedFileController : ResourceController
     {
         private readonly Assembly _assembly;
 
@@ -41,8 +42,8 @@ namespace Reusable.Translucent.Controllers
     {
         public EmbeddedFileController(ControllerName name, string? baseUri = default) : base(name, baseUri ?? typeof(T).Namespace, typeof(T).Assembly) { }
 
-        public static IController Default { get; } = new EmbeddedFileController(ControllerName.Empty, typeof(T).Namespace, typeof(T).Assembly);
+        public static IResourceController Default { get; } = new EmbeddedFileController(ControllerName.Empty, typeof(T).Namespace, typeof(T).Assembly);
 
-        public static IController Create(ControllerName controllerName, string basePath) => new EmbeddedFileController(controllerName, basePath, typeof(T).Assembly);
+        public static IResourceController Create(ControllerName controllerName, string basePath) => new EmbeddedFileController(controllerName, basePath, typeof(T).Assembly);
     }
 }

@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Reusable.Extensions;
+using Reusable.Translucent.Abstractions;
 using Reusable.Translucent.Annotations;
 using Reusable.Translucent.Data;
 using Reusable.Translucent.Extensions;
@@ -10,9 +11,9 @@ namespace Reusable.Translucent.Controllers
 {
     [PublicAPI]
     [Handles(typeof(FileRequest))]
-    public class PhysicalFileController : Controller
+    public class PhysicalFileResourceController : ResourceController
     {
-        public PhysicalFileController(ControllerName name, string? baseUri = default) : base(name, baseUri) { }
+        public PhysicalFileResourceController(ControllerName name, string? baseUri = default) : base(name, baseUri) { }
 
         [ResourceGet]
         public Task<Response> GetFileAsync(FileRequest request)

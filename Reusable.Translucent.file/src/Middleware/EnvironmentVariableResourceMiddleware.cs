@@ -1,6 +1,7 @@
 using System;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
+using Reusable.Translucent.Abstractions;
 using Reusable.Translucent.Data;
 
 namespace Reusable.Translucent.Middleware
@@ -9,9 +10,9 @@ namespace Reusable.Translucent.Middleware
     /// Resolves environment variables for file requests.
     /// </summary>
     [UsedImplicitly]
-    public class EnvironmentVariableMiddleware : MiddlewareBase
+    public class EnvironmentVariableResourceMiddleware : ResourceMiddleware
     {
-        public EnvironmentVariableMiddleware(RequestDelegate<ResourceContext> next) : base(next) { }
+        public EnvironmentVariableResourceMiddleware(RequestDelegate<ResourceContext> next) : base(next) { }
 
         public override async Task InvokeAsync(ResourceContext context)
         {
@@ -20,7 +21,7 @@ namespace Reusable.Translucent.Middleware
                 fileRequest.ResourceName = Resolve(context.Request);
             }
 
-            await InvokeNext(context);
+            await Next(context);
         }
 
         private static string Resolve(Request request)

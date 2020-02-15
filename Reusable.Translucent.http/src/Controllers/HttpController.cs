@@ -9,6 +9,7 @@ using JetBrains.Annotations;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using Reusable.Extensions;
+using Reusable.Translucent.Abstractions;
 using Reusable.Translucent.Annotations;
 using Reusable.Translucent.Data;
 using Reusable.Utilities.JsonNet.Converters;
@@ -18,7 +19,7 @@ namespace Reusable.Translucent.Controllers
 {
     [PublicAPI]
     [Handles(typeof(HttpRequest))]
-    public class HttpController : Controller
+    public class HttpController : ResourceController
     {
         private readonly HttpClient _client;
 

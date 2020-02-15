@@ -1,16 +1,16 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using Reusable.Translucent.Controllers;
+using Reusable.Translucent.Abstractions;
 using Reusable.Translucent.Data;
 
 namespace Reusable.Translucent
 {
-    public delegate IEnumerable<IController> ResourceControllerFilterDelegate(IEnumerable<IController> controllers, Request request);
+    public delegate IEnumerable<IResourceController> ResourceControllerFilterDelegate(IEnumerable<IResourceController> controllers, Request request);
 
     public static class ResourceControllerFilters
     {
-        public static IEnumerable<IController> FilterByControllerName(this IEnumerable<IController> controllers, Request request)
+        public static IEnumerable<IResourceController> FilterByControllerName(this IEnumerable<IResourceController> controllers, Request request)
         {
             if (request.ControllerName.Equals(ControllerName.Empty))
             {
@@ -35,7 +35,7 @@ namespace Reusable.Translucent
             }
         }
 
-        public static IEnumerable<IController> FilterByRequest(this IEnumerable<IController> controllers, Request request)
+        public static IEnumerable<IResourceController> FilterByRequest(this IEnumerable<IResourceController> controllers, Request request)
         {
             return
                 from c in controllers

@@ -1,6 +1,7 @@
 using System.Threading.Tasks;
 using Reusable.Exceptionize;
 using Reusable.Extensions;
+using Reusable.Translucent.Abstractions;
 using Reusable.Translucent.Annotations;
 using Reusable.Translucent.Controllers;
 using Reusable.Translucent.Data;
@@ -148,7 +149,7 @@ namespace Reusable.Translucent.Middleware
 
     // ReSharper disable once ClassWithVirtualMembersNeverInherited.Global
     [Handles(typeof(FileRequest))]
-    public class TestFileController : Controller
+    public class TestFileController : ResourceController
     {
         public TestFileController(ControllerName controllerName) : base(controllerName, "file") { }
 
@@ -166,7 +167,7 @@ namespace Reusable.Translucent.Middleware
     }
 
     [Handles(typeof(HttpRequest))]
-    public class TestHttpController : Controller
+    public class TestHttpController : ResourceController
     {
         public TestHttpController(ControllerName controllerName) : base(controllerName, "http") { }
 
