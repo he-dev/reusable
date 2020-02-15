@@ -3,20 +3,17 @@ using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Reusable.Extensions;
 using Reusable.Translucent.Abstractions;
-using Reusable.Translucent.Annotations;
 using Reusable.Translucent.Data;
 using Reusable.Translucent.Extensions;
 
 namespace Reusable.Translucent.Controllers
 {
     [PublicAPI]
-    [Handles(typeof(FileRequest))]
-    public class PhysicalFileResourceController : ResourceController
+    public class PhysicalFileResourceController : ResourceController<FileRequest>
     {
         public PhysicalFileResourceController(ControllerName name, string? baseUri = default) : base(name, baseUri) { }
 
-        [ResourceGet]
-        public Task<Response> GetFileAsync(FileRequest request)
+        public override Task<Response> ReadAsync(FileRequest request)
         {
             var path = CreatePath(request.ResourceName);
 
@@ -26,8 +23,7 @@ namespace Reusable.Translucent.Controllers
                     : NotFound<FileResponse>().ToTask<Response>();
         }
 
-        [ResourcePut]
-        public async Task<Response> CreateFileAsync(FileRequest request)
+        public override async Task<Response> CreateAsync(FileRequest request)
         {
             var path = CreatePath(request.ResourceName);
 
@@ -39,8 +35,7 @@ namespace Reusable.Translucent.Controllers
             return OK<FileResponse>();
         }
 
-        [ResourceDelete]
-        public Task<Response> DeleteFileAsync(FileRequest request)
+        public override Task<Response> DeleteAsync(FileRequest request)
         {
             var path = CreatePath(request.ResourceName);
             File.Delete(path);

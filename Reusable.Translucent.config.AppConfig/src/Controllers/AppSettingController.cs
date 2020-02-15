@@ -13,12 +13,10 @@ namespace Reusable.Translucent.Controllers
     {
         public AppSettingController(ControllerName name) : base(name) { }
 
-        [ResourceGet]
-        public Task<Response> GetSettingAsync(Request request)
+        public override Task<Response> ReadAsync(ConfigRequest request)
         {
-            var settingIdentifier = request.ResourceName;
             var exeConfig = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
-            var actualKey = FindActualKey(exeConfig, settingIdentifier) ?? settingIdentifier;
+            var actualKey = FindActualKey(exeConfig, request.ResourceName) ?? request.ResourceName;
             var element = exeConfig.AppSettings.Settings[actualKey];
 
             return
@@ -27,8 +25,7 @@ namespace Reusable.Translucent.Controllers
                     : NotFound<ConfigResponse>().ToTask<Response>();
         }
 
-        [ResourcePut]
-        public Task<Response> SetSettingAsync(Request request)
+        public override Task<Response> CreateAsync(ConfigRequest request)
         {
             var settingIdentifier = request.ResourceName;
             var exeConfig = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
@@ -50,8 +47,7 @@ namespace Reusable.Translucent.Controllers
             return OK<ConfigResponse>().ToTask<Response>();
         }
 
-        [CanBeNull]
-        private static string FindActualKey(Configuration exeConfig, string key)
+        private static string? FindActualKey(Configuration exeConfig, string key)
         {
             return
                 exeConfig

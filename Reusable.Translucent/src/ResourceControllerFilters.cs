@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 using Reusable.Translucent.Abstractions;
 using Reusable.Translucent.Data;
 
@@ -12,7 +11,7 @@ namespace Reusable.Translucent
     {
         public static IEnumerable<IResourceController> FilterByControllerName(this IEnumerable<IResourceController> controllers, Request request)
         {
-            if (request.ControllerName.Equals(ControllerName.Empty))
+            if (request.ControllerName.Equals(ControllerName.Any))
             {
                 if (request.ControllerName.Tags.Any())
                 {
@@ -39,21 +38,8 @@ namespace Reusable.Translucent
         {
             return
                 from c in controllers
-                where c.GetType().GetCustomAttribute<HandlesAttribute>().Type.IsInstanceOfType(request)
+                where c.RequestType.IsInstanceOfType(request)
                 select c;
         }
-
-        // public static IEnumerable<IResourceController> FilterByUriPath(this IEnumerable<IResourceController> controllers, Request request)
-        // {
-        //     if (request.ResourceName.IsAbsolute)
-        //     {
-        //         return controllers;
-        //     }
-        //
-        //     return
-        //         from c in controllers
-        //         where c.BaseUri is {}
-        //         select c;
-        // }
     }
 }

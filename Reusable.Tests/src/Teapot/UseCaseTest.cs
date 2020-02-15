@@ -49,10 +49,10 @@ namespace Reusable.Teapot
             var resources =
                 Resource
                     .Builder()
-                    .UseController(HttpController.FromBaseUri(ControllerName.Empty, $"{BaseUri}/api"))
+                    .UseController(HttpController.FromBaseUri(ControllerName.Any, $"{BaseUri}/api"))
                     .Build(ImmutableServiceProvider.Empty.Add(TestHelper.CreateCache()).Add(_testHelper.LoggerFactory));
 
-            using var response = await resources.PostAsync<HttpRequest.Json>("/test?param=true", new { Greeting = "Hallo" }, http =>
+            using var response = await resources.CreateAsync<HttpRequest.Json>("/test?param=true", new { Greeting = "Hallo" }, http =>
             {
                 http.HeaderActions.Add(headers =>
                 {

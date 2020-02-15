@@ -4,8 +4,7 @@ using Reusable.Translucent.Abstractions;
 
 namespace Reusable.Translucent.Controllers
 {
-    [Handles(typeof(MailToRequest))]
-    public abstract class MailToController : ResourceController
+    public abstract class MailToController<T> : ResourceController<T> where T : MailToRequest
     {
         protected MailToController(ControllerName name) : base(name) { }
 

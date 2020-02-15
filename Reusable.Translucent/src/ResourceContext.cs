@@ -8,7 +8,9 @@ namespace Reusable.Translucent
     {
         public Request Request { get; set; } = default!;
 
-        public Response Response { get; set; } = default!;
+        public Response? Response { get; set; }
+
+        public bool Processed => Response is {};
     }
 
     public delegate Task<Stream> CreateBodyStreamDelegate();

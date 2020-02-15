@@ -15,7 +15,7 @@ namespace Reusable.Translucent
             Tags = new SortedSet<string>(tags ?? Enumerable.Empty<string>(), SoftString.Comparer);
         }
 
-        public static ControllerName Empty => new ControllerName(string.Empty);
+        public static ControllerName Any => new ControllerName("_");
 
         [AutoEqualityProperty]
         public string Value { get; }

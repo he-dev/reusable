@@ -5,13 +5,11 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Reusable.Extensions;
 using Reusable.Translucent.Abstractions;
-using Reusable.Translucent.Annotations;
 using Reusable.Translucent.Data;
 
 namespace Reusable.Translucent.Controllers
 {
-    [Handles(typeof(FileRequest))]
-    public class EmbeddedFileController : ResourceController
+    public class EmbeddedFileController : ResourceController<FileRequest>
     {
         private readonly Assembly _assembly;
 
@@ -20,8 +18,7 @@ namespace Reusable.Translucent.Controllers
             _assembly = assembly;
         }
 
-        [ResourceGet]
-        public Task<Response> GetFileAsync(Request request)
+        public override Task<Response> ReadAsync(FileRequest request)
         {
             var fullName = NormalizeUri(Path.Combine(BaseUri ?? string.Empty, request.ResourceName));
 
@@ -42,7 +39,7 @@ namespace Reusable.Translucent.Controllers
     {
         public EmbeddedFileController(ControllerName name, string? baseUri = default) : base(name, baseUri ?? typeof(T).Namespace, typeof(T).Assembly) { }
 
-        public static IResourceController Default { get; } = new EmbeddedFileController(ControllerName.Empty, typeof(T).Namespace, typeof(T).Assembly);
+        public static IResourceController Default { get; } = new EmbeddedFileController(ControllerName.Any, typeof(T).Namespace, typeof(T).Assembly);
 
         public static IResourceController Create(ControllerName controllerName, string basePath) => new EmbeddedFileController(controllerName, basePath, typeof(T).Assembly);
     }

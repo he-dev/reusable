@@ -8,19 +8,17 @@ using MailKit.Net.Smtp;
 using MimeKit;
 using MimeKit.Text;
 using Reusable.Extensions;
-using Reusable.Translucent.Annotations;
 using Reusable.Translucent.Data;
 using Reusable.Translucent.Extensions;
 using ContentDisposition = MimeKit.ContentDisposition;
 
 namespace Reusable.Translucent.Controllers
 {
-    public class SmtpController : MailToController
+    public class SmtpController : MailToController<SmtpRequest>
     {
         public SmtpController(ControllerName name) : base(name) { }
 
-        [ResourcePost]
-        public async Task<Response> SendEmailAsync(SmtpRequest smtp)
+        public override async Task<Response> CreateAsync(SmtpRequest smtp)
         {
             var message = new MimeMessage();
             message.From.Add(new MailboxAddress(smtp.From));

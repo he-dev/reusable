@@ -32,22 +32,17 @@ namespace Reusable.Translucent.Controllers
 
         public IImmutableDictionary<string, object> Fallback { get; set; } = ImmutableDictionary<string, object>.Empty;
 
-        [ResourceGet]
-        public async Task<Response> GetSettingAsync(Request request)
+        public override async Task<Response> ReadAsync(ConfigRequest request)
         {
-            var configRequest = (ConfigRequest)request;
-
-            var settingIdentifier = request.ResourceName;
-
             return await SqlHelper.ExecuteAsync(ConnectionString, async (connection, token) =>
             {
-                using var command = connection.CreateSelectCommand(TableName, settingIdentifier, ColumnMappings, Where, Fallback);
+                using var command = connection.CreateSelectCommand(TableName, request.ResourceName, ColumnMappings, Where, Fallback);
                 using var settingReader = command.ExecuteReader();
 
                 if (await settingReader.ReadAsync(token))
                 {
                     var value = settingReader[ColumnMappings.MapOrDefault(SqlServerColumn.Value)];
-                    value = Converter.Convert(value, configRequest.SettingType);
+                    value = Converter.Convert(value, request.SettingType);
                     return OK<ConfigResponse>(value);
                 }
                 else
@@ -57,15 +52,13 @@ namespace Reusable.Translucent.Controllers
             }, request.CancellationToken);
         }
 
-        [ResourcePut]
-        public async Task<Response> SetSettingAsync(Request request)
+        public override async Task<Response> CreateAsync(ConfigRequest request)
         {
-            var settingIdentifier = request.ResourceName;
             var value = Converter.Convert(request.Body, typeof(string));
 
             await SqlHelper.ExecuteAsync(ConnectionString, async (connection, token) =>
             {
-                using var cmd = connection.CreateUpdateCommand(TableName, settingIdentifier, ColumnMappings, Where, value);
+                using var cmd = connection.CreateUpdateCommand(TableName, request.ResourceName, ColumnMappings, Where, value);
                 await cmd.ExecuteNonQueryAsync(token);
             }, request.CancellationToken);
 

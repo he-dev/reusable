@@ -11,9 +11,9 @@ namespace Reusable.Diagnostics
     {
         public const string DefaultFormatString = "{0}";
 
-        public const int DefaultEnumerableTake = 10;
+        public const int DefaultEnumerableCount = 10;
 
-        public static string FormatValue<TValue>([CanBeNull] this TValue value, [NotNull] string format)
+        public static string FormatValue<TValue>([CanBeNull] this TValue value, string format)
         {
             if (format == null) throw new ArgumentNullException(nameof(format));
 
@@ -33,21 +33,18 @@ namespace Reusable.Diagnostics
             return value.FormatValue(DefaultFormatString);
         }
 
-        public static string FormatCollection<TValue>([CanBeNull] this IEnumerable<TValue> values, [NotNull] string format, int max)
+        public static string FormatEnumerable<TValue>(this IEnumerable<TValue>? values, string format, int max)
         {
-            if (format == null) throw new ArgumentNullException(nameof(format));
-
-            if (values == null) return "null";
-
             // [1, 2, 3, ...] (max = 10)
-            return $"[{string.Join(", ", values.Select(x => x.FormatValue(format)).Take(max))}, ...] (max {max})"; 
+            return
+                values == null
+                    ? "null"
+                    : $"[{string.Join(", ", values.Select(x => x.FormatValue(format)).Take(max))}, ...]";
         }
 
         // Foo.Bar(..).Baz
-        public static string FormatMemberName([NotNull] this IEnumerable<Expression> expressions)
+        public static string FormatMemberName(this IEnumerable<Expression> expressions)
         {
-            if (expressions == null) throw new ArgumentNullException(nameof(expressions));
-
             return string.Join(".", expressions.GetMemberNames());
         }
 

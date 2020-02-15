@@ -71,12 +71,12 @@ namespace Reusable.Apps
 
             var toString = person.ToDebuggerDisplayString(builder =>
             {
-                builder.DisplayScalar(x => x.FirstName, "{0,8}");
-                builder.DisplayScalar(x => x.LastName);
-                builder.DisplayScalar(x => x.DBNullTest);
-                builder.DisplayScalar(x => x.GraduationYears.Sum());
-                builder.DisplayScalar(x => x.Age, "{0:F2}");
-                builder.DisplayScalar(x => x.GraduationYears.Count);
+                builder.DisplaySingle(x => x.FirstName, "{0,8}");
+                builder.DisplaySingle(x => x.LastName);
+                builder.DisplaySingle(x => x.DBNullTest);
+                builder.DisplaySingle(x => x.GraduationYears.Sum());
+                builder.DisplaySingle(x => x.Age, "{0:F2}");
+                builder.DisplaySingle(x => x.GraduationYears.Count);
                 builder.DisplayEnumerable(x => x.GraduationYears, x => x);
                 builder.DisplayEnumerable(x => x.GraduationYears, x => x, "{0:X2}");
                 builder.DisplayEnumerable(x => x.Nicknames, x => x);
@@ -102,13 +102,13 @@ namespace Reusable.Apps
 
         private string DebuggerDisplay() => this.ToDebuggerDisplayString(builder =>
         {
-            builder.DisplayScalar(x => x.FirstName);
-            builder.DisplayScalar(x => x.LastName);
-            builder.DisplayScalar(x => x._testField);
-            builder.DisplayScalar(x => x.DBNullTest);
-            builder.DisplayScalar(x => x.Age.ToString("F2"));
-            builder.DisplayScalar(x => x.Age, "{0:F2}");
-            builder.DisplayScalar(x => x.GraduationYears.Count);
+            builder.DisplaySingle(x => x.FirstName);
+            builder.DisplaySingle(x => x.LastName);
+            builder.DisplaySingle(x => x._testField);
+            builder.DisplaySingle(x => x.DBNullTest);
+            builder.DisplaySingle(x => x.Age.ToString("F2"));
+            builder.DisplaySingle(x => x.Age, "{0:F2}");
+            builder.DisplaySingle(x => x.GraduationYears.Count);
             builder.DisplayEnumerable(x => x.GraduationYears, x => x);
             builder.DisplayEnumerable(x => x.GraduationYears, x => x, "{0:X2}");
             builder.DisplayEnumerable(x => x.Nicknames, x => x);

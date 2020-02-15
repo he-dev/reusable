@@ -31,15 +31,9 @@ namespace Reusable.Diagnostics
 
         #region IEnumerable<MemberExpression>
 
-        public IEnumerator<Expression> GetEnumerator()
-        {
-            return _members.GetEnumerator();
-        }
+        public IEnumerator<Expression> GetEnumerator() => _members.GetEnumerator();
 
-        IEnumerator IEnumerable.GetEnumerator()
-        {
-            return GetEnumerator();
-        }
+        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
         #endregion
     }

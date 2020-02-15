@@ -45,5 +45,12 @@
         <Compile Remove="src\UriStringPathToStringConverter.cs" />
         <Compile Remove="src\Data\MiddlewareInfo.cs" />
         <Compile Remove="src\PipelineFactory.cs" />
+        <Compile Remove="src\Annotations\**" />
+    </ItemGroup>
+    <ItemGroup>
+      <EmbeddedResource Remove="src\Annotations\**" />
+    </ItemGroup>
+    <ItemGroup>
+      <None Remove="src\Annotations\**" />
     </ItemGroup>
 </Project>

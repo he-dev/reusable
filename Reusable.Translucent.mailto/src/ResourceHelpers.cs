@@ -19,7 +19,7 @@ namespace Reusable.Translucent
             Action<SmtpRequest>? requestAction = default
         )
         {
-            return await resource.PostAsync<SmtpRequest>(string.Empty, email.Body.Value, request =>
+            return await resource.CreateAsync<SmtpRequest>(string.Empty, email.Body.Value, request =>
             {
                 request.From = email.From;
                 request.To = email.To;

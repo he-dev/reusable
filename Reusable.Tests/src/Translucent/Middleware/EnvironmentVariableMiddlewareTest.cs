@@ -22,8 +22,8 @@ namespace Reusable.Translucent.Middleware
         {
             Environment.SetEnvironmentVariable("TEST_VARIABLE", @"I:\test\this\path");
 
-            var c = Mock.Create<TestFileController>(Behavior.CallOriginal, ControllerName.Empty);
-            c.Arrange(x => x.Get(Arg.Matches<Request>(y => y.ResourceName.Equals(@"I:\test\this\path\test.txt")))).Returns(new Response().ToTask()).OccursOnce();
+            var c = Mock.Create<TestFileController>(Behavior.CallOriginal, ControllerName.Any);
+            c.Arrange(x => x.ReadAsync(Arg.Matches<FileRequest>(y => y.ResourceName.Equals(@"I:\test\this\path\test.txt")))).Returns(new Response().ToTask()).OccursOnce();
 
             var r =
                 Resource
@@ -32,7 +32,7 @@ namespace Reusable.Translucent.Middleware
                     .UseMiddleware(_ => next => new EnvironmentVariableResourceMiddleware(next))
                     .Build(ImmutableServiceProvider.Empty.Add(_testHelper.Cache).Add(_testHelper.LoggerFactory));
 
-            await r.InvokeAsync(Request.CreateGet<FileRequest>(@"%TEST_VARIABLE%\test.txt"));
+            await r.InvokeAsync(Request.Read<FileRequest>(@"%TEST_VARIABLE%\test.txt"));
 
             c.Assert();
         }

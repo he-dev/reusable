@@ -3,24 +3,25 @@ using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Reusable.Exceptionize;
 using Reusable.Translucent.Abstractions;
+using Reusable.Translucent.Data;
 
 namespace Reusable.Translucent.Middleware
 {
     [UsedImplicitly]
     public class ResourceValidation : ResourceMiddleware
     {
-        public ResourceValidation(RequestDelegate<ResourceContext> next, ValidateResourceDelegate validate) : base(next)
+        public ResourceValidation(RequestDelegate<ResourceContext> next, IResourceValidator validator) : base(next)
         {
-            Validate = validate;
+            Validator = validator;
         }
 
-        private ValidateResourceDelegate Validate { get; }
+        private IResourceValidator Validator { get; }
 
         public override async Task InvokeAsync(ResourceContext context)
         {
             try
             {
-                Validate(context, PipelineFlow.Request);
+                Validator.Validate(context);
             }
             catch (Exception inner)
             {
@@ -31,7 +32,7 @@ namespace Reusable.Translucent.Middleware
 
             try
             {
-                Validate(context, PipelineFlow.Response);
+                Validator.Validate(context);
             }
             catch (Exception inner)
             {
@@ -40,11 +41,18 @@ namespace Reusable.Translucent.Middleware
         }
     }
 
-    public enum PipelineFlow
+    
+    
+    public static class ResourceValidationHelper
     {
-        Request,
-        Response
-    }
+        public static void Required(this Request request, bool required)
+        {
+            request.Items[nameof(Required)] = required;
+        }
 
-    public delegate void ValidateResourceDelegate(ResourceContext context, PipelineFlow flow);
+        public static bool Required(this Request request)
+        {
+            return request.Items.TryGetValue(nameof(Required), out var value) && value is bool required && required;
+        }
+    }
 }

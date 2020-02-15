@@ -3,11 +3,9 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Reflection;
-using Reusable.Data;
 using Reusable.Extensions;
 using Reusable.Quickey;
 using Reusable.Translucent.Annotations;
-using Reusable.Translucent.Controllers;
 using Reusable.Translucent.Data;
 
 namespace Reusable.Translucent
@@ -20,7 +18,7 @@ namespace Reusable.Translucent
 
         public static Request Create
         (
-            Option<ResourceMethod> method,
+            ResourceMethod method,
             Selector selector,
             object? value = default,
             Action<ConfigRequest>? configure = default

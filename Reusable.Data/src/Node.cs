@@ -21,8 +21,8 @@ namespace Reusable.Data
 
         private string DebuggerDisplay => this.ToDebuggerDisplayString(b =>
         {
-            b.DisplayScalar(x => x.Value);
-            b.DisplayScalar(x => x.Count);
+            b.DisplaySingle(x => x.Value);
+            b.DisplaySingle(x => x.Count);
         });
 
         [NotNull]

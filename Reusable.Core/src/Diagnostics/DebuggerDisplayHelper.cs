@@ -1,5 +1,6 @@
 ﻿using System;
 using JetBrains.Annotations;
+using Reusable.Extensions;
 
 namespace Reusable.Diagnostics
 {
@@ -7,15 +8,13 @@ namespace Reusable.Diagnostics
     {
         private static Func<T, string> _toString;
 
-        public static string ToDebuggerDisplayString([CanBeNull] T obj, Action<DebuggerDisplayBuilder<T>> builderAction)
+        public static string ToDebuggerDisplayString([CanBeNull] T obj, Action<DebuggerDisplayBuilder<T>> configure)
         {
-            if (builderAction == null) throw new ArgumentNullException(nameof(builderAction));
+            if (configure == null) throw new ArgumentNullException(nameof(configure));
 
             if (_toString is null)
             {
-                var builder = new DebuggerDisplayBuilder<T>();
-                builderAction(builder);
-                _toString = builder.Build();
+                _toString = new DebuggerDisplayBuilder<T>().Pipe(configure).Build();
             }
 
             return _toString(obj);

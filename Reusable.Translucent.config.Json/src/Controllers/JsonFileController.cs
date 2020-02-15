@@ -25,11 +25,9 @@ namespace Reusable.Translucent.Controllers
             Converter = new JsonSettingConverter();
         }
 
-        [ResourceGet]
-        public Task<Response> GetSettingAsync(ConfigRequest request)
+        public override Task<Response> ReadAsync(ConfigRequest request)
         {
-            var settingIdentifier = request.ResourceName;
-            var data = _configuration[settingIdentifier];
+            var data = _configuration[request.ResourceName];
 
             return
                 data is {}

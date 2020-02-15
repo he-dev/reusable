@@ -12,7 +12,7 @@ namespace Reusable.Translucent
 
         public static Task<Response> GetFileAsync(this IResource resources, string path, Action<FileRequest>? configureRequest = default)
         {
-            return resources.GetAsync(path, default, configureRequest);
+            return resources.ReadAsync(path, default, configureRequest);
         }
 
         public static async Task<string> ReadTextFileAsync(this IResource resource, string path, Action<FileRequest>? configureRequest = default)
@@ -29,12 +29,12 @@ namespace Reusable.Translucent
 
         public static async Task WriteTextFileAsync(this IResource resources, string path, string value, Action<FileRequest>? configureRequest = default)
         {
-            using (await resources.PutAsync(path, value, configureRequest)) { }
+            using (await resources.CreateAsync(path, value, configureRequest)) { }
         }
 
         public static async Task WriteFileAsync(this IResource resources, string path, CreateBodyStreamDelegate createBodyStream, Action<FileRequest>? configureRequest = default)
         {
-            using (await resources.PutAsync(path, createBodyStream, configureRequest)) { }
+            using (await resources.CreateAsync(path, createBodyStream, configureRequest)) { }
         }
 
         public static async Task DeleteFileAsync(this IResource resources, string path, Action<FileRequest>? configureRequest = default)

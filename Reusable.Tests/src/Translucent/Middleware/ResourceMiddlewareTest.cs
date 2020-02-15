@@ -23,13 +23,13 @@ namespace Reusable.Translucent.Middleware
         [Fact]
         public async Task Gets_first_matching_resource_by_default()
         {
-            var c1 = Mock.Create<TestFileController>(Behavior.CallOriginal, ControllerName.Empty);
-            var c2 = Mock.Create<TestFileController>(Behavior.CallOriginal, ControllerName.Empty);
-            var c3 = Mock.Create<TestFileController>(Behavior.CallOriginal, ControllerName.Empty);
+            var c1 = Mock.Create<TestFileController>(Behavior.CallOriginal, ControllerName.Any);
+            var c2 = Mock.Create<TestFileController>(Behavior.CallOriginal, ControllerName.Any);
+            var c3 = Mock.Create<TestFileController>(Behavior.CallOriginal, ControllerName.Any);
 
-            Mock.Arrange(() => c1.Get(Arg.IsAny<Request>())).Returns(new Response { StatusCode = ResourceStatusCode.NotFound }.ToTask()).OccursOnce();
-            Mock.Arrange(() => c2.Get(Arg.IsAny<Request>())).Returns(new Response { StatusCode = ResourceStatusCode.OK }.ToTask()).OccursOnce();
-            Mock.Arrange(() => c3.Get(Arg.IsAny<Request>())).OccursNever();
+            Mock.Arrange(() => c1.ReadAsync(Arg.IsAny<FileRequest>())).Returns(new Response { StatusCode = ResourceStatusCode.NotFound }.ToTask()).OccursOnce();
+            Mock.Arrange(() => c2.ReadAsync(Arg.IsAny<FileRequest>())).Returns(new Response { StatusCode = ResourceStatusCode.OK }.ToTask()).OccursOnce();
+            Mock.Arrange(() => c3.ReadAsync(Arg.IsAny<FileRequest>())).OccursNever();
 
             var resources = 
                 Resource
@@ -39,7 +39,7 @@ namespace Reusable.Translucent.Middleware
                     .UseController(c3)
                     .Build(ImmutableServiceProvider.Empty.Add(TestHelper.CreateCache()).Add(TestHelper.CreateLoggerFactory()));
 
-            await resources.InvokeAsync(Request.CreateGet<FileRequest>("file:///foo"));
+            await resources.InvokeAsync(Request.Read<FileRequest>("file:///foo"));
 
             c1.Assert();
             c2.Assert();
@@ -53,9 +53,9 @@ namespace Reusable.Translucent.Middleware
             var c2 = Mock.Create<TestFileController>(Behavior.CallOriginal, new ControllerName("b"));
             var c3 = Mock.Create<TestFileController>(Behavior.CallOriginal, new ControllerName("d"));
 
-            Mock.Arrange(() => c1.Get(Arg.IsAny<Request>())).OccursNever();
-            Mock.Arrange(() => c2.Get(Arg.IsAny<Request>())).Returns(new Response { StatusCode = ResourceStatusCode.OK }.ToTask()).OccursOnce();
-            Mock.Arrange(() => c3.Get(Arg.IsAny<Request>())).OccursNever();
+            Mock.Arrange(() => c1.ReadAsync(Arg.IsAny<FileRequest>())).OccursNever();
+            Mock.Arrange(() => c2.ReadAsync(Arg.IsAny<FileRequest>())).Returns(new Response { StatusCode = ResourceStatusCode.OK }.ToTask()).OccursOnce();
+            Mock.Arrange(() => c3.ReadAsync(Arg.IsAny<FileRequest>())).OccursNever();
 
             var resources = 
                 Resource
@@ -65,7 +65,7 @@ namespace Reusable.Translucent.Middleware
                     .UseController(c3)
                     .Build(ImmutableServiceProvider.Empty.Add(_testHelper.Cache).Add(_testHelper.LoggerFactory));
 
-            await resources.InvokeAsync(Request.CreateGet<FileRequest>("file:///foo").Pipe(r => { r.ControllerName = new ControllerName("b"); }));
+            await resources.InvokeAsync(Request.Read<FileRequest>("file:///foo").Pipe(r => { r.ControllerName = new ControllerName("b"); }));
 
             c1.Assert();
             c2.Assert();
@@ -79,9 +79,9 @@ namespace Reusable.Translucent.Middleware
             var c2 = Mock.Create<TestHttpController>(Behavior.CallOriginal, new ControllerName("b"));
             var c3 = Mock.Create<TestFileController>(Behavior.CallOriginal, new ControllerName("d"));
 
-            Mock.Arrange(() => c1.Get(Arg.IsAny<Request>())).OccursNever();
-            Mock.Arrange(() => c2.Get(Arg.IsAny<Request>())).Returns(new Response { StatusCode = ResourceStatusCode.OK }.ToTask()).OccursOnce();
-            Mock.Arrange(() => c3.Get(Arg.IsAny<Request>())).OccursNever();
+            Mock.Arrange(() => c1.ReadAsync(Arg.IsAny<FileRequest>())).OccursNever();
+            Mock.Arrange(() => c2.ReadAsync(Arg.IsAny<HttpRequest>())).Returns(new Response { StatusCode = ResourceStatusCode.OK }.ToTask()).OccursOnce();
+            Mock.Arrange(() => c3.ReadAsync(Arg.IsAny<FileRequest>())).OccursNever();
 
             var resources = 
                 Resource
@@ -91,7 +91,7 @@ namespace Reusable.Translucent.Middleware
                     .UseController(c3)
                     .Build(ImmutableServiceProvider.Empty.Add(_testHelper.Cache).Add(_testHelper.LoggerFactory));
 
-            await resources.InvokeAsync(Request.CreateGet<HttpRequest>("///foo"));
+            await resources.InvokeAsync(Request.Read<HttpRequest>("///foo"));
 
             c1.Assert();
             c2.Assert();
@@ -104,8 +104,8 @@ namespace Reusable.Translucent.Middleware
             var c1 = Mock.Create<TestFileController>(Behavior.CallOriginal, new ControllerName("a"));
             var c2 = Mock.Create<TestFileController>(Behavior.CallOriginal, new ControllerName("b", "bb"));
 
-            Mock.Arrange(() => c1.Get(Arg.IsAny<Request>())).CallOriginal().OccursNever();
-            Mock.Arrange(() => c2.Get(Arg.IsAny<Request>())).CallOriginal().OccursOnce();
+            Mock.Arrange(() => c1.ReadAsync(Arg.IsAny<FileRequest>())).CallOriginal().OccursNever();
+            Mock.Arrange(() => c2.ReadAsync(Arg.IsAny<FileRequest>())).CallOriginal().OccursOnce();
 
             var resources = 
                 Resource
@@ -114,22 +114,22 @@ namespace Reusable.Translucent.Middleware
                     .UseController(c2)
                     .Build(ImmutableServiceProvider.Empty.Add(TestHelper.CreateCache()).Add(TestHelper.CreateLoggerFactory()));
 
-            await resources.InvokeAsync(Request.CreateGet<FileRequest>("file:///foo").Pipe(r => { r.ControllerName = new ControllerName(string.Empty, "bb"); }));
+            await resources.InvokeAsync(Request.Read<FileRequest>("file:///foo").Pipe(r => { r.ControllerName = ControllerName.Any.Pipe(x => x.Tags.Add("bb")); }));
 
             c1.Assert();
             c2.Assert();
         }
 
         [Fact]
-        public async Task Throws_when_PUT_matches_multiple_controllers()
+        public async Task Throws_when_UPDATE_matches_multiple_controllers()
         {
-            var c1 = Mock.Create<TestFileController>(Behavior.CallOriginal, ControllerName.Empty);
-            var c2 = Mock.Create<TestFileController>(Behavior.CallOriginal, ControllerName.Empty);
-            var c3 = Mock.Create<TestFileController>(Behavior.CallOriginal, ControllerName.Empty);
+            var c1 = Mock.Create<TestFileController>(Behavior.CallOriginal, ControllerName.Any);
+            var c2 = Mock.Create<TestFileController>(Behavior.CallOriginal, ControllerName.Any);
+            var c3 = Mock.Create<TestFileController>(Behavior.CallOriginal, ControllerName.Any);
 
-            Mock.Arrange(() => c1.Get(Arg.IsAny<Request>())).OccursNever();
-            Mock.Arrange(() => c2.Get(Arg.IsAny<Request>())).OccursNever();
-            Mock.Arrange(() => c3.Get(Arg.IsAny<Request>())).OccursNever();
+            Mock.Arrange(() => c1.ReadAsync(Arg.IsAny<FileRequest>())).OccursNever();
+            Mock.Arrange(() => c2.ReadAsync(Arg.IsAny<FileRequest>())).OccursNever();
+            Mock.Arrange(() => c3.ReadAsync(Arg.IsAny<FileRequest>())).OccursNever();
 
             var resources = 
                 Resource
@@ -139,7 +139,7 @@ namespace Reusable.Translucent.Middleware
                     .UseController(c3)
                     .Build(ImmutableServiceProvider.Empty.Add(TestHelper.CreateCache()).Add(TestHelper.CreateLoggerFactory()));
 
-            await Assert.ThrowsAnyAsync<DynamicException>(async () => await resources.InvokeAsync(Request.CreatePut<FileRequest>("file:///foo")));
+            await Assert.ThrowsAnyAsync<DynamicException>(async () => await resources.InvokeAsync(Request.Update<FileRequest>("file:///foo")));
 
             c1.Assert();
             c2.Assert();
@@ -148,39 +148,29 @@ namespace Reusable.Translucent.Middleware
     }
 
     // ReSharper disable once ClassWithVirtualMembersNeverInherited.Global
-    [Handles(typeof(FileRequest))]
-    public class TestFileController : ResourceController
+    public class TestFileController : ResourceController<FileRequest>
     {
-        public TestFileController(ControllerName controllerName) : base(controllerName, "file") { }
+        public TestFileController(ControllerName controllerName) : base(controllerName) { }
 
-        [ResourceGet]
-        public virtual Task<Response> Get(Request request) => new Response().ToTask();
+        public override Task<Response> ReadAsync(FileRequest request) => new Response().ToTask();
 
-        [ResourcePost]
-        public virtual Task<Response> Post(Request request) => new Response().ToTask();
+        public override Task<Response> CreateAsync(FileRequest request) => new Response().ToTask();
 
-        [ResourcePut]
-        public virtual Task<Response> Put(Request request) => new Response().ToTask();
+        public override Task<Response> UpdateAsync(FileRequest request) => new Response().ToTask();
 
-        [ResourceDelete]
-        public virtual Task<Response> Delete(Request request) => new Response().ToTask();
+        public override Task<Response> DeleteAsync(FileRequest request) => new Response().ToTask();
     }
 
-    [Handles(typeof(HttpRequest))]
-    public class TestHttpController : ResourceController
+    public class TestHttpController : ResourceController<HttpRequest>
     {
-        public TestHttpController(ControllerName controllerName) : base(controllerName, "http") { }
+        public TestHttpController(ControllerName controllerName) : base(controllerName) { }
 
-        [ResourceGet]
-        public virtual Task<Response> Get(Request request) => new Response().ToTask();
+        public override Task<Response> ReadAsync(HttpRequest request) => new Response().ToTask();
 
-        [ResourcePost]
-        public virtual Task<Response> Post(Request request) => new Response().ToTask();
+        public override Task<Response> CreateAsync(HttpRequest request) => new Response().ToTask();
 
-        [ResourcePut]
-        public virtual Task<Response> Put(Request request) => new Response().ToTask();
+        public override Task<Response> UpdateAsync(HttpRequest request) => new Response().ToTask();
 
-        [ResourceDelete]
-        public virtual Task<Response> Delete(Request request) => new Response().ToTask();
+        public override Task<Response> DeleteAsync(HttpRequest request) => new Response().ToTask();
     }
 }

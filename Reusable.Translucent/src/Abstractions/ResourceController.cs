@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
+using System.Runtime.CompilerServices;
+using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Reusable.Diagnostics;
 using Reusable.Extensions;
@@ -13,28 +15,75 @@ namespace Reusable.Translucent.Abstractions
         ControllerName Name { get; }
 
         string? BaseUri { get; }
+
+        Type RequestType { get; }
+
+        Task<Response> InvokeAsync(Request request);
+
+        Task<Response> CreateAsync(Request request);
+
+        Task<Response> ReadAsync(Request request);
+
+        Task<Response> UpdateAsync(Request request);
+
+        Task<Response> DeleteAsync(Request request);
     }
 
     [DebuggerDisplay(DebuggerDisplayString.DefaultNoQuotes)]
-    public abstract class ResourceController : IResourceController
+    public abstract class ResourceController<T> : IResourceController where T : Request
     {
         protected ResourceController(ControllerName? name, string? baseUri = default)
         {
-            Name = name ?? ControllerName.Empty;
+            Name = name ?? ControllerName.Any;
             BaseUri = baseUri;
         }
 
         private string DebuggerDisplay => this.ToDebuggerDisplayString(builder =>
         {
-            //builder.DisplayEnumerable(p => p.Properties.Tags(), x => x.ToString());
-            //builder.DisplayEnumerable(p => p.Properties.GetSchemes(), x => x.ToString());
-            //builder.DisplayValues(p => Names);
-            //builder.DisplayValue(x => x.Schemes);
+            builder.DisplaySingle(c => c.Name);
+            builder.DisplaySingle(c => c.BaseUri);
+            builder.DisplaySingle(c => c.RequestType, t => t.ToPrettyString());
         });
 
         public ControllerName Name { get; }
 
         public string? BaseUri { get; }
+
+        public Type RequestType => typeof(T);
+
+        public Task<Response> InvokeAsync(Request request)
+        {
+            return request.Method switch
+            {
+                ResourceMethod.Create => CreateAsync(request as T),
+                ResourceMethod.Read => ReadAsync(request as T),
+                ResourceMethod.Update => UpdateAsync(request as T),
+                ResourceMethod.Delete => DeleteAsync(request as T),
+                ResourceMethod.None => throw new InvalidOperationException("You must specify a request method."),
+                _ => throw new NotSupportedException($"Request method '{request.Method}' is not supported.")
+            };
+        }
+
+        Task<Response> IResourceController.CreateAsync(Request request) => CreateAsync(request as T);
+
+        Task<Response> IResourceController.ReadAsync(Request request) => ReadAsync(request as T);
+
+        Task<Response> IResourceController.UpdateAsync(Request request) => UpdateAsync(request as T);
+
+        Task<Response> IResourceController.DeleteAsync(Request request) => DeleteAsync(request as T);
+
+        public virtual Task<Response> CreateAsync(T request) => throw NotSupportedException();
+
+        public virtual Task<Response> ReadAsync(T request) => throw NotSupportedException();
+
+        public virtual Task<Response> UpdateAsync(T request) => throw NotSupportedException();
+
+        public virtual Task<Response> DeleteAsync(T request) => throw NotSupportedException();
+
+        private Exception NotSupportedException([CallerMemberName] string? name = default)
+        {
+            throw new NotSupportedException($"{GetType().ToPrettyString()} ({Name}) does not support '{name}'.");
+        }
 
         // ReSharper disable once InconsistentNaming
         protected static T OK<T>(object? body = default, Action<T>? configure = default) where T : Response, new()
@@ -49,15 +98,5 @@ namespace Reusable.Translucent.Abstractions
 
         // Can be overriden when derived.
         public virtual void Dispose() { }
-    }
-
-    /// <summary>
-    /// Specifies which types of request a controller can handle.
-    /// </summary>
-    public class HandlesAttribute : Attribute
-    {
-        public HandlesAttribute(Type type) => Type = type;
-
-        public Type Type { get; }
     }
 }

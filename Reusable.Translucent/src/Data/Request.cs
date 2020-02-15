@@ -1,15 +1,13 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Text;
 using System.Threading;
-using Reusable.Data;
 
 namespace Reusable.Translucent.Data
 {
     public abstract class Request : IDisposable
     {
-        public Option<ResourceMethod> Method { get; set; } = ResourceMethod.None;
+        public ResourceMethod Method { get; set; } = ResourceMethod.None;
 
         public string ResourceName { get; set; } = default!;
 
@@ -22,14 +20,14 @@ namespace Reusable.Translucent.Data
 
         public IDictionary<string, object> Items { get; } = new Dictionary<string, object>(SoftString.Comparer);
 
-        public ControllerName ControllerName { get; set; } = ControllerName.Empty;
+        public ControllerName ControllerName { get; set; } = ControllerName.Any;
 
         public CancellationToken CancellationToken { get; set; }
 
-        public static T CreateGet<T>(string uri, object? body = default) where T : Request, new() => new T { Method = ResourceMethod.Get, ResourceName = uri, Body = body };
-        public static T CreatePost<T>(string uri, object? body = default) where T : Request, new() => new T { Method = ResourceMethod.Post, ResourceName = uri, Body = body };
-        public static T CreatePut<T>(string uri, object? body = default) where T : Request, new() => new T { Method = ResourceMethod.Put, ResourceName = uri, Body = body };
-        public static T CreateDelete<T>(string uri, object? body = default) where T : Request, new() => new T { Method = ResourceMethod.Delete, ResourceName = uri, Body = body };
+        public static T Read<T>(string uri, object? body = default) where T : Request, new() => new T { Method = ResourceMethod.Read, ResourceName = uri, Body = body };
+        public static T Create<T>(string uri, object? body = default) where T : Request, new() => new T { Method = ResourceMethod.Create, ResourceName = uri, Body = body };
+        public static T Update<T>(string uri, object? body = default) where T : Request, new() => new T { Method = ResourceMethod.Update, ResourceName = uri, Body = body };
+        public static T Delete<T>(string uri, object? body = default) where T : Request, new() => new T { Method = ResourceMethod.Delete, ResourceName = uri, Body = body };
 
         public void Dispose()
         {

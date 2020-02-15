@@ -1,11 +1,8 @@
 using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Reusable.Quickey;
-using Reusable.Translucent.Data;
 
 namespace Reusable.Translucent
 {
@@ -14,14 +11,14 @@ namespace Reusable.Translucent
     {
         public static async Task<object?> ReadSettingAsync(this IResource resource, Selector selector, Action<ConfigRequest>? configure = default)
         {
-            using var request = ConfigRequest.Create(ResourceMethod.Get, selector, default, configure);
+            using var request = ConfigRequest.Create(ResourceMethod.Read, selector, default, configure);
             using var response = await resource.InvokeAsync(request);
             return response.Body;
         }
 
         public static async Task WriteSettingAsync(this IResource resource, Selector selector, object? newValue, Action<ConfigRequest>? requestAction = default)
         {
-            using var request = ConfigRequest.Create(ResourceMethod.Put, selector, newValue, requestAction);
+            using var request = ConfigRequest.Create(ResourceMethod.Create, selector, newValue, requestAction);
             await resource.InvokeAsync(request);
         }
 

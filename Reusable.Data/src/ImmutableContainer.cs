@@ -38,7 +38,7 @@ namespace Reusable.Data
 
         private string DebuggerDisplay => this.ToDebuggerDisplayString(builder =>
         {
-            builder.DisplayScalar(x => x.Count);
+            builder.DisplaySingle(x => x.Count);
             builder.DisplayEnumerable(x => x.Select(y => y.Key));
         });
 

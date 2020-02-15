@@ -28,7 +28,7 @@ namespace Reusable
     {
         public static async Task SendEmailOverSmtp()
         {
-            var resources = new Resource(ImmutableServiceProvider.Empty, services => new CreateControllerDelegate[] { () => new SmtpController(ControllerName.Empty) });
+            var resources = new Resource(ImmutableServiceProvider.Empty, services => new CreateControllerDelegate[] { () => new SmtpController(ControllerName.Any) });
 
             await resources.SendEmailAsync(new Email<EmailSubject, EmailBody>
             {

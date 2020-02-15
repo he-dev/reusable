@@ -10,7 +10,6 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using Reusable.Extensions;
 using Reusable.Translucent.Abstractions;
-using Reusable.Translucent.Annotations;
 using Reusable.Translucent.Data;
 using Reusable.Utilities.JsonNet.Converters;
 using Reusable.Utilities.JsonNet.Extensions;
@@ -18,8 +17,7 @@ using Reusable.Utilities.JsonNet.Extensions;
 namespace Reusable.Translucent.Controllers
 {
     [PublicAPI]
-    [Handles(typeof(HttpRequest))]
-    public class HttpController : ResourceController
+    public class HttpController : ResourceController<HttpRequest>
     {
         private readonly HttpClient _client;
 
@@ -52,19 +50,15 @@ namespace Reusable.Translucent.Controllers
             });
         }
 
-        [ResourceGet]
-        public async Task<Response> GetAsync(Request request) => await InvokeAsync(HttpMethod.Get, request);
+        public override async Task<Response> ReadAsync(HttpRequest request) => await InvokeAsync(HttpMethod.Get, request);
 
-        [ResourcePut]
-        public async Task<Response> PutAsync(Request request) => await InvokeAsync(HttpMethod.Put, request);
+        public override async Task<Response> UpdateAsync(HttpRequest request) => await InvokeAsync(HttpMethod.Put, request);
 
-        [ResourcePost]
-        public async Task<Response> PostAsync(Request request) => await InvokeAsync(HttpMethod.Post, request);
+        public override async Task<Response> CreateAsync(HttpRequest request) => await InvokeAsync(HttpMethod.Post, request);
 
-        [ResourceDelete]
-        public async Task<Response> DeleteAsync(Request request) => await InvokeAsync(HttpMethod.Delete, request);
+        public override async Task<Response> DeleteAsync(HttpRequest request) => await InvokeAsync(HttpMethod.Delete, request);
 
-        public async Task<Response> InvokeAsync(HttpMethod httpMethod, Request request) => await InvokeAsync(httpMethod, (HttpRequest)request);
+        //public async Task<Response> InvokeAsync(HttpMethod httpMethod, Request request) => await InvokeAsync(httpMethod, (HttpRequest)request);
 
         private async Task<Response> InvokeAsync(HttpMethod method, HttpRequest request)
         {

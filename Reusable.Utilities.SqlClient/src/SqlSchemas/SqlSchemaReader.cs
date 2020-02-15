@@ -24,7 +24,7 @@ namespace Reusable.Utilities.SqlClient.SqlSchemas
             var resource =
                 Resource
                     .Builder()
-                    .UseController(new EmbeddedFileController(ControllerName.Empty, @"Reusable\Utilities\SqlClient\sql", typeof(SqlSchemaReader).Assembly))
+                    .UseController(new EmbeddedFileController(ControllerName.Any, @"Reusable\Utilities\SqlClient\sql", typeof(SqlSchemaReader).Assembly))
                     .Build(ImmutableServiceProvider.Empty);
             
             GetIdentityColumnSchemasQuery = resource.ReadTextFile($"sql\\{nameof(GetIdentityColumnSchemas)}.sql");

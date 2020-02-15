@@ -7,6 +7,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Reusable.Translucent;
 using Reusable.Translucent.Controllers;
 using Reusable.Translucent.Middleware;
+using Reusable.Translucent.Middleware.ResourceValidator;
+using Reusable.Translucent.Middleware.ResourceValidators;
 
 namespace Reusable
 {
@@ -17,13 +19,13 @@ namespace Reusable
         {
             var assembly = typeof(TestHelper).Assembly;
 
-            yield return () => new EmbeddedFileController(ControllerName.Empty, @"Reusable/res/Beaver", assembly);
-            yield return () => new EmbeddedFileController(ControllerName.Empty, @"Reusable/res/Translucent", assembly);
-            yield return () => new EmbeddedFileController(ControllerName.Empty, @"Reusable/res/Flexo", assembly);
-            yield return () => new EmbeddedFileController(ControllerName.Empty, @"Reusable/res/Utilities/JsonNet", assembly);
-            yield return () => new EmbeddedFileController(ControllerName.Empty, @"Reusable/sql", assembly);
-            yield return () => new AppSettingController(ControllerName.Empty);
-            yield return () => new SqlServerController(ControllerName.Empty, TestHelper.ConnectionString)
+            yield return () => new EmbeddedFileController(ControllerName.Any, @"Reusable/res/Beaver", assembly);
+            yield return () => new EmbeddedFileController(ControllerName.Any, @"Reusable/res/Translucent", assembly);
+            yield return () => new EmbeddedFileController(ControllerName.Any, @"Reusable/res/Flexo", assembly);
+            yield return () => new EmbeddedFileController(ControllerName.Any, @"Reusable/res/Utilities/JsonNet", assembly);
+            yield return () => new EmbeddedFileController(ControllerName.Any, @"Reusable/sql", assembly);
+            yield return () => new AppSettingController(ControllerName.Any);
+            yield return () => new SqlServerController(ControllerName.Any, TestHelper.ConnectionString)
             {
                 TableName = ("reusable", "TestConfig"),
                 ColumnMappings =
@@ -46,11 +48,13 @@ namespace Reusable
         public static IEnumerable<CreateMiddlewareDelegate> CreateMiddleware(IServiceProvider services)
         {
             yield return next => new ResourceMemoryCache(next, services.GetService<IMemoryCache>() ?? new MemoryCache(new MemoryCacheOptions()));
-            yield return next => new ResourceValidation(next, ResourceValidationHelper.Composite
-            (
-                ResourceValidationHelper.ValidateResourceExists,
-                SettingValidations.ValidateByAttributes
-            ));
+            yield return next => new ResourceValidation(next, new CompositeResourceValidator
+            {
+                new RequestMethodNotNone(),
+                new ResourceNameNotNullOrEmpty(),
+                new RequiredResourceExists(),
+                new SettingAttributeValidator()
+            });
         }
     }
 }

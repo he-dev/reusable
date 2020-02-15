@@ -7,24 +7,24 @@ namespace Reusable.Translucent
 {
     public static class ResourceHelper
     {
-        public static Task<Response> GetAsync<T>(this IResource resources, string uri, object? body = default, Action<T>? configure = default) where T : Request, new()
+        public static Task<Response> CreateAsync<T>(this IResource resources, string uri, object? body = default, Action<T>? configure = default) where T : Request, new()
         {
-            return resources.InvokeAsync(Request.CreateGet<T>(uri, body).Pipe(configure));
+            return resources.InvokeAsync(Request.Create<T>(uri, body).Pipe(configure));
         }
 
-        public static Task<Response> PutAsync<T>(this IResource resources, string uri, object? body = default, Action<T>? configure = default) where T : Request, new()
+        public static Task<Response> ReadAsync<T>(this IResource resources, string uri, object? body = default, Action<T>? configure = default) where T : Request, new()
         {
-            return resources.InvokeAsync(Request.CreatePut<T>(uri, body).Pipe(configure));
+            return resources.InvokeAsync(Request.Read<T>(uri, body).Pipe(configure));
         }
 
-        public static Task<Response> PostAsync<T>(this IResource resources, string uri, object? body = default, Action<T>? configure = default) where T : Request, new()
+        public static Task<Response> UpdateAsync<T>(this IResource resources, string uri, object? body = default, Action<T>? configure = default) where T : Request, new()
         {
-            return resources.InvokeAsync(Request.CreatePost<T>(uri, body).Pipe(configure));
+            return resources.InvokeAsync(Request.Update<T>(uri, body).Pipe(configure));
         }
 
         public static Task<Response> DeleteAsync<T>(this IResource resources, string uri, object? body = default, Action<T>? configure = default) where T : Request, new()
         {
-            return resources.InvokeAsync(Request.CreateDelete<T>(uri, body).Pipe(configure));
+            return resources.InvokeAsync(Request.Delete<T>(uri, body).Pipe(configure));
         }
     }
 }

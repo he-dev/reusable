@@ -7,7 +7,7 @@ namespace Reusable.Translucent
         [Fact]
         public void Equal_when_empty()
         {
-            Assert.Equal(ControllerName.Empty, ControllerName.Empty);
+            Assert.Equal(ControllerName.Any, ControllerName.Any);
         }
 
         [Fact]

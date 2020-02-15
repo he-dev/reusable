@@ -18,7 +18,7 @@ namespace Reusable.Utilities.Mailr
             Action<HttpRequest>? configureRequest = default
         )
         {
-            using var response = await resource.PostAsync<HttpRequest>(uri, email, request =>
+            using var response = await resource.CreateAsync<HttpRequest>(uri, email, request =>
             {
                 request.ControllerName = "Mailr";
                 request.ContentType = "application/json";

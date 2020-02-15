@@ -19,7 +19,7 @@ namespace Reusable.OmniLog.Abstractions
     {
         protected Service(string name) => Name = name!;
 
-        private string DebuggerDisplay() => this.ToDebuggerDisplayString(b => { b.DisplayScalar(x => x.Name); });
+        private string DebuggerDisplay() => this.ToDebuggerDisplayString(b => { b.DisplaySingle(x => x.Name); });
 
         public bool Enabled { get; set; } = true;
 

@@ -12,8 +12,8 @@ namespace Reusable.Translucent.config
         public void Can_create_request()
         {
             var body = new object();
-            var request = ConfigRequest.Create(ResourceMethod.Get, From<Map>.Select(x => x.City), body);
-            Assert.Equal(ResourceMethod.Get, request.Method);
+            var request = ConfigRequest.Create(ResourceMethod.Read, From<Map>.Select(x => x.City), body);
+            Assert.Equal(ResourceMethod.Read, request.Method);
             Assert.Equal("Map.City", request.ResourceName);
             Assert.Same(body, request.Body);
             //Assert.Equal(typeof(string), request.Metadata.GetItem(ResourceProperties.DataType));

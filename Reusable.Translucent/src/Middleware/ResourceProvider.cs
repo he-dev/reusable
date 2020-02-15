@@ -1,19 +1,15 @@
-using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using System.Linq.Custom;
-using System.Reflection;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.Extensions.Caching.Memory;
-using Microsoft.Extensions.DependencyInjection;
 using Reusable.Extensions;
 using Reusable.OmniLog;
 using Reusable.OmniLog.Abstractions;
 using Reusable.OmniLog.SemanticExtensions;
 using Reusable.Translucent.Abstractions;
-using Reusable.Translucent.Annotations;
 using Reusable.Translucent.Data;
 using Reusable.Translucent.Extensions;
 
@@ -53,21 +49,23 @@ namespace Reusable.Translucent.Middleware
             var providerKey = context.Request.ResourceName;
 
             // Used cached provider if already resolved.
-            if (cache.TryGetValue<IResourceController>(providerKey, out var entry))
+            if (cache.TryGetValue<IResourceController>(providerKey, out var controllerFromCache))
             {
-                context.Response = await InvokeMethodAsync(entry, context.Request);
+                //context.Response = await InvokeMethodAsync(entry, context.Request);
+                context.Response = await controllerFromCache.InvokeAsync(context.Request);
             }
             else
             {
                 var candidates = Filters.Aggregate(controllers.AsEnumerable(), (providers, filter) => filter(providers, context.Request));
 
-                // GET can search multiple providers.
-                if (context.Request.Method == ResourceMethod.Get)
+                // READ can search multiple providers.
+                if (context.Request.Method == ResourceMethod.Read)
                 {
                     context.Response = Response.NotFound();
+                    
                     foreach (var controller in candidates)
                     {
-                        if (await InvokeMethodAsync(controller, context.Request) is var response && response.Exists())
+                        if (await controller.InvokeAsync(context.Request) is var response && response.Exists())
                         {
                             context.Response = response;
                             cache.Set(providerKey, controller);
@@ -97,29 +95,14 @@ namespace Reusable.Translucent.Middleware
                 // Other methods are allowed to use only a single controller.
                 else
                 {
-                    var controller = cache.Set(providerKey, candidates.SingleOrThrow(onEmpty: ($"{nameof(ResourceController)}NotFound", $"Could not find controller for resource '{context.Request.ResourceName}'.")));
-                    context.Response = await InvokeMethodAsync(controller, context.Request);
+                    var controller = candidates.SingleOrThrow
+                    (
+                        onEmpty: ($"{nameof(ResourceController<Request>)}NotFound", $"Could not find controller for resource '{context.Request.ResourceName}'.")
+                    );
+                    
+                    context.Response = await cache.Set(providerKey, controller).InvokeAsync(context.Request);
                 }
             }
-        }
-
-        private static Task<Response> InvokeMethodAsync(IResourceController controller, Request request)
-        {
-            var methods =
-                controller
-                    .GetType()
-                    .GetMethods(BindingFlags.Instance | BindingFlags.Public)
-                    .Where(m => m.GetCustomAttribute<ResourceActionAttribute>()?.Method.Equals(request.Method) == true);
-
-            var method = methods.SingleOrThrow
-            (
-                onEmpty: ("MethodNotFound", $"Could not find method '{request.Method}' on controller '{controller.GetType().ToPrettyString()}'"),
-                onMany: ("AmbiguousMethod", $"There is more than one method '{request.Method}' on controller '{controller.GetType().ToPrettyString()}'")
-            );
-
-            var requestType = method.GetParameters().Single().ParameterType;
-            
-            return (Task<Response>)method.Invoke(controller, new object[] { request });
         }
     }
 }
