@@ -10,7 +10,7 @@ namespace Reusable.Teapot
 {
     public interface ITeacupContext : IEnumerable<ApiMock>, IDisposable
     {
-        ApiMock MockApi(HttpMethod method, UriString uri);
+        ApiMock MockApi(HttpMethod method, string uri);
 
         void Assert();
     }
@@ -24,7 +24,7 @@ namespace Reusable.Teapot
             _disposer = disposer;
         }
 
-        public ApiMock MockApi(HttpMethod method, UriString uri)
+        public ApiMock MockApi(HttpMethod method, string uri)
         {
             var mock = new ApiMock(method, uri);
             Add(mock);
@@ -39,7 +39,7 @@ namespace Reusable.Teapot
             }
         }
 
-        public Func<HttpRequest, ResponseMock> GetResponseFactory(HttpMethod method, UriString uri)
+        public Func<HttpRequest, ResponseMock> GetResponseFactory(HttpMethod method, string uri)
         {
             return this.FirstOrDefault(m => m.Method == method && m.Uri == uri)?.GetResponseFactory();
         }

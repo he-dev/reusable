@@ -13,7 +13,7 @@ namespace Reusable.Teapot
     // between the server and the "client".
     public class RequestCopy
     {
-        public UriString Uri { get; set; }
+        public string Uri { get; set; }
 
         public HttpMethod Method { get; set; }
 

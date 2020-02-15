@@ -8,7 +8,7 @@ using Reusable.Translucent;
 namespace Reusable
 {
     using static TestHelper;
-    
+
     [UsedImplicitly]
     public class TestHelperFixture : IDisposable
     {
@@ -16,20 +16,19 @@ namespace Reusable
         {
             LoggerFactory = CreateLoggerFactory(new MemoryRx());
             Cache = CreateCache();
-            
-            Resources =
-                Resource
-                    .From<TestResourceSetup>(
-                        ImmutableServiceProvider
-                            .Empty
-                            .Add(Cache)
-                            .Add(LoggerFactory));
+
+            Resources = new Resource
+            (
+                ImmutableServiceProvider.Empty.Add(Cache).Add(LoggerFactory),
+                TestResourceFactory.CreateControllers,
+                TestResourceFactory.CreateMiddleware
+            );
         }
 
         public ILoggerFactory LoggerFactory { get; }
 
         public IResource Resources { get; }
-        
+
         public IMemoryCache Cache { get; }
 
         public void Dispose()

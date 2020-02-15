@@ -7,18 +7,12 @@ namespace Reusable.Translucent
     {
         Task InvokeAsync(ResourceContext context);
     }
-    
+
     public abstract class MiddlewareBase : IMiddleware
     {
-        protected MiddlewareBase(RequestDelegate<ResourceContext> next, IServiceProvider services)
-        {
-            Next = next;
-            Services = services;
-        }
+        protected MiddlewareBase(RequestDelegate<ResourceContext> next) => Next = next;
 
         private RequestDelegate<ResourceContext> Next { get; }
-
-        protected IServiceProvider Services { get; }
 
         public abstract Task InvokeAsync(ResourceContext context);
 

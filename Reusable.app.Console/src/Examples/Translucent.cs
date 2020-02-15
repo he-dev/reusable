@@ -26,9 +26,9 @@ namespace Reusable
 {
     public static partial class Examples
     {
-        public static async Task SendEmailViaSmtp()
+        public static async Task SendEmailOverSmtp()
         {
-            var resources = Resource.Builder().Add(new SmtpToController(ControllerName.Empty)).Build();
+            var resources = new Resource(ImmutableServiceProvider.Empty, services => new CreateControllerDelegate[] { () => new SmtpController(ControllerName.Empty) });
 
             await resources.SendEmailAsync(new Email<EmailSubject, EmailBody>
             {
@@ -46,9 +46,9 @@ namespace Reusable
             });
         }
 
-        public static async Task SendEmailViaMailr()
+        public static async Task SendEmailOverMailr()
         {
-            var resources = Resource.Builder().Add(HttpController.FromBaseUri("Mailr", "http://localhost:7000/api")).Build();
+            var resources = Resource.Builder().UseController(HttpController.FromBaseUri("Mailr", "http://localhost:7000/api")).Build(ImmutableServiceProvider.Empty);
 
             await resources.SendEmailAsync
             (

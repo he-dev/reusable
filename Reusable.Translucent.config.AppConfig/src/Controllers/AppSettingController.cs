@@ -11,26 +11,26 @@ namespace Reusable.Translucent.Controllers
 {
     public class AppSettingController : ConfigController
     {
-        public AppSettingController(ControllerName controllerName) : base(controllerName) { }
+        public AppSettingController(ControllerName name) : base(name) { }
 
         [ResourceGet]
         public Task<Response> GetSettingAsync(Request request)
         {
-            var settingIdentifier = GetResourceName(request.Uri);
+            var settingIdentifier = request.ResourceName;
             var exeConfig = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
             var actualKey = FindActualKey(exeConfig, settingIdentifier) ?? settingIdentifier;
             var element = exeConfig.AppSettings.Settings[actualKey];
 
             return
                 element is {}
-                    ? OK<ConfigResponse>(element.Value).ToTask()
-                    : NotFound<ConfigResponse>().ToTask();
+                    ? OK<ConfigResponse>(element.Value).ToTask<Response>()
+                    : NotFound<ConfigResponse>().ToTask<Response>();
         }
 
         [ResourcePut]
         public Task<Response> SetSettingAsync(Request request)
         {
-            var settingIdentifier = GetResourceName(request.Uri);
+            var settingIdentifier = request.ResourceName;
             var exeConfig = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
             var actualKey = FindActualKey(exeConfig, settingIdentifier) ?? settingIdentifier;
             var element = exeConfig.AppSettings.Settings[actualKey];
@@ -47,7 +47,7 @@ namespace Reusable.Translucent.Controllers
 
             exeConfig.Save(ConfigurationSaveMode.Minimal);
 
-            return OK<ConfigResponse>().ToTask();
+            return OK<ConfigResponse>().ToTask<Response>();
         }
 
         [CanBeNull]

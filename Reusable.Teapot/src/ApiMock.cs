@@ -15,7 +15,7 @@ namespace Reusable.Teapot
         private readonly IRequestAssert _request;
         private readonly IResponseFactory _responseFactory;
 
-        public ApiMock(HttpMethod method, UriString uri)
+        public ApiMock(HttpMethod method, string uri)
         {
             Method = method;
             Uri = uri;
@@ -26,7 +26,7 @@ namespace Reusable.Teapot
 
         public HttpMethod Method { get; }
 
-        public UriString Uri { get; }
+        public string Uri { get; }
 
         // Allows to configure request asserts.
         public ApiMock ArrangeRequest(Action<IRequestAssert> configure)

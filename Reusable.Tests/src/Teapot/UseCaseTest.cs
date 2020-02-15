@@ -9,22 +9,9 @@ using Xunit;
 namespace Reusable.Teapot
 {
     public class UseCaseTest : IClassFixture<TestHelperFixture>
-//: IClassFixture<TeapotServerFixture>
     {
         private readonly TestHelperFixture _testHelper;
         private const string BaseUri = "http://localhost:30001";
-
-        //private readonly TeapotServer _teapot;
-
-        //private readonly IResourceProvider _http;
-        //private readonly IResourceRepository _resources;
-
-//        public UseCaseTest(TeapotServerFixture teapotServer)
-//        {
-//            _teapot = teapotServer.GetServer(BaseUri);
-//            //_http = HttpProvider.FromBaseUri($"{BaseUri}/api");
-//            _resources = ResourceRepository.Create((c, _) => c.AddHttp(default, $"{BaseUri}/api"));
-//        }
 
         public UseCaseTest(TestHelperFixture testHelper)
         {
@@ -38,7 +25,7 @@ namespace Reusable.Teapot
             using var teacup = teapot.BeginScope();
 
             teacup
-                .MockApi(HttpMethod.Post, "api/test?param=true")
+                .MockApi(HttpMethod.Post, "/api/test?param=true")
                 .ArrangeRequest(assert =>
                 {
                     assert
@@ -62,11 +49,10 @@ namespace Reusable.Teapot
             var resources =
                 Resource
                     .Builder()
-                    .Add(HttpController.FromBaseUri(ControllerName.Empty, $"{BaseUri}/api"))
-                    .Register(TestHelper.CreateCache())
-                    .Register(_testHelper.LoggerFactory)
-                    .Build(ImmutableServiceProvider.Empty);
-            var response = await resources.PostAsync<HttpRequest.Json>("test?param=true", new { Greeting = "Hallo" }, http =>
+                    .UseController(HttpController.FromBaseUri(ControllerName.Empty, $"{BaseUri}/api"))
+                    .Build(ImmutableServiceProvider.Empty.Add(TestHelper.CreateCache()).Add(_testHelper.LoggerFactory));
+
+            using var response = await resources.PostAsync<HttpRequest.Json>("/test?param=true", new { Greeting = "Hallo" }, http =>
             {
                 http.HeaderActions.Add(headers =>
                 {

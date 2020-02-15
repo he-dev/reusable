@@ -1,7 +1,17 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Linq.Custom;
+using System.Reflection;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
+using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.DependencyInjection;
+using Reusable.Exceptionize;
+using Reusable.OmniLog;
+using Reusable.OmniLog.Abstractions;
 using Reusable.Translucent.Data;
+using Reusable.Translucent.Middleware;
 
 namespace Reusable.Translucent
 {
@@ -12,35 +22,37 @@ namespace Reusable.Translucent
     }
 
     [PublicAPI]
-    public class Resource : IResource //<TSetup> : IResourceRepository where TSetup : new()
+    public class Resource : IResource
     {
-        private readonly RequestDelegate<ResourceContext> _requestDelegate;
+        private readonly IMiddleware _middleware;
 
-        internal Resource(RequestDelegate<ResourceContext> requestDelegate)
+        public Resource(IServiceProvider serviceProvider, ControllerFactory controllerFactory, MiddlewareFactory? middlewareFactory = default)
         {
-            _requestDelegate = requestDelegate;
-        }
+            middlewareFactory ??= _ => Enumerable.Empty<CreateMiddlewareDelegate>();
 
+            var controllerFactories = controllerFactory(serviceProvider);
+            var middlewareFactories =
+                middlewareFactory(serviceProvider)
+                    .Prepend(next => new ResourceControllerSwitch(
+                        next,
+                        (serviceProvider.GetService<ILoggerFactory>() ?? LoggerFactory.Empty()).CreateLogger<ResourceControllerSwitch>(),
+                        (serviceProvider.GetService<IMemoryCache>() ?? new MemoryCache(new MemoryCacheOptions())),
+                        controllerFactories.Select(f => f())));
+
+            _middleware = middlewareFactories.Aggregate(default(IMiddleware?), (previous, factory) =>
+            {
+                try
+                {
+                    return factory(request => previous?.InvokeAsync(request) ?? Task.CompletedTask);
+                }
+                catch (Exception inner)
+                {
+                    throw DynamicException.Create("MiddlewareActivation", $"Could not activate middleware. See the inner exception for details", inner);
+                }
+            });
+        }
+        
         public static ResourceBuilder Builder() => new ResourceBuilder();
-
-        public static IResource From<TSetup>(IServiceProvider services) where TSetup : IResourceSetup, new()
-        {
-            var setup = new TSetup();
-
-            var builder = Builder();
-
-            foreach (var controller in setup.Controllers(services))
-            {
-                builder.Add(controller);
-            }
-
-            foreach (var (type, args) in setup.Middleware(services))
-            {
-                builder.Use(type, args);
-            }
-
-            return builder.Build(services);
-        }
 
         public async Task<Response> InvokeAsync(Request request)
         {
@@ -49,7 +61,7 @@ namespace Reusable.Translucent
                 Request = request
             };
 
-            await _requestDelegate(context);
+            await _middleware.InvokeAsync(context);
 
             return context.Response;
         }

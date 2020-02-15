@@ -10,26 +10,25 @@ namespace Reusable.Translucent.Controllers
 {
     [PublicAPI]
     [Handles(typeof(FileRequest))]
-    public class PhysicalFileController : ResourceController
+    public class PhysicalFileController : Controller
     {
-        public PhysicalFileController(ControllerName controllerName, string? basePath = default) : base(controllerName, basePath) { }
-
+        public PhysicalFileController(ControllerName name, string? baseUri = default) : base(name, baseUri) { }
 
         [ResourceGet]
-        public Task<Response> GetFileAsync(Request request)
+        public Task<Response> GetFileAsync(FileRequest request)
         {
-            var path = CreatePath(request.Uri);
+            var path = CreatePath(request.ResourceName);
 
             return
                 File.Exists(path)
-                    ? OK<FileResponse>(File.OpenRead(path)).ToTask()
-                    : NotFound<FileResponse>().ToTask();
+                    ? OK<FileResponse>(File.OpenRead(path)).ToTask<Response>()
+                    : NotFound<FileResponse>().ToTask<Response>();
         }
 
         [ResourcePut]
-        public async Task<Response> CreateFileAsync(Request request)
+        public async Task<Response> CreateFileAsync(FileRequest request)
         {
-            var path = CreatePath(request.Uri);
+            var path = CreatePath(request.ResourceName);
 
             using var fileStream = new FileStream(path, FileMode.CreateNew, FileAccess.Write);
             using var body = await request.CreateBodyStreamAsync();
@@ -40,16 +39,16 @@ namespace Reusable.Translucent.Controllers
         }
 
         [ResourceDelete]
-        public Task<Response> DeleteFileAsync(Request request)
+        public Task<Response> DeleteFileAsync(FileRequest request)
         {
-            var path = CreatePath(request.Uri);
+            var path = CreatePath(request.ResourceName);
             File.Delete(path);
-            return OK<FileResponse>().ToTask();
+            return OK<FileResponse>().ToTask<Response>();
         }
 
-        private string CreatePath(UriString uri)
+        private string CreatePath(string path)
         {
-            var path = uri.ToUnc();
+            //var path = uri.ToUnc();
 
             return
                 Path.IsPathRooted(path)
@@ -59,8 +58,4 @@ namespace Reusable.Translucent.Controllers
                         : path;
         }
     }
-
-    //[UseType, UseMember]
-    //[PlainSelectorFormatter]
-    //public class PhysicalFileControllerProperties : SelectorBuilder<PhysicalFileControllerProperties> { }
 }

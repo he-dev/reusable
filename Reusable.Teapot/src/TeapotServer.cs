@@ -59,13 +59,13 @@ namespace Reusable.Teapot
             FindApiMock(requestCopy.Method, requestCopy.Uri)?.Assert(requestCopy);
         }
 
-        private Func<HttpRequest, ResponseMock> GetResponseFactory(HttpMethod method, UriString uri)
+        private Func<HttpRequest, ResponseMock> GetResponseFactory(HttpMethod method, string uri)
         {
             return FindApiMock(method, uri)?.GetResponseFactory();
         }
 
         // Finds an api-mock that should handle the current request.
-        private ApiMock? FindApiMock(HttpMethod method, UriString uri)
+        private ApiMock? FindApiMock(HttpMethod method, string uri)
         {
             if (_serverContexts.IsEmpty) throw new InvalidOperationException($"Cannot get response without a server-context. Call '{nameof(BeginScope)}' first.");
 

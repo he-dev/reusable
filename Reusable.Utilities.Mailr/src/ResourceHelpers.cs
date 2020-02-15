@@ -1,18 +1,19 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Reusable.Extensions;
 using Reusable.Utilities.Mailr.Models;
 using Reusable.Translucent;
 using Reusable.Translucent.Extensions;
 
 namespace Reusable.Utilities.Mailr
 {
-    public static class ResourceRepositoryExtensions
+    public static class ResourceHelpers
     {
         public static async Task<string> SendEmailAsync
         (
             this IResource resource,
-            UriString uri,
+            string uri,
             Email email,
             Action<HttpRequest>? configureRequest = default
         )
@@ -22,7 +23,7 @@ namespace Reusable.Utilities.Mailr
                 request.ControllerName = "Mailr";
                 request.ContentType = "application/json";
                 request.HeaderActions.Add(headers => { headers.AcceptHtml(); });
-                configureRequest?.Invoke(request);
+                request.Pipe(configureRequest);
             });
             return await response.DeserializeTextAsync();
         }

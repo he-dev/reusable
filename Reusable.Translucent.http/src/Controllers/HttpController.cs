@@ -18,11 +18,11 @@ namespace Reusable.Translucent.Controllers
 {
     [PublicAPI]
     [Handles(typeof(HttpRequest))]
-    public class HttpController : ResourceController
+    public class HttpController : Controller
     {
         private readonly HttpClient _client;
 
-        public HttpController(ControllerName controllerName, HttpClient httpClient) : base(controllerName, httpClient.BaseAddress.ToString())
+        public HttpController(ControllerName name, HttpClient httpClient) : base(name, httpClient.BaseAddress.ToString())
         {
             _client = httpClient;
             _client.DefaultRequestHeaders.Clear();
@@ -67,38 +67,40 @@ namespace Reusable.Translucent.Controllers
 
         private async Task<Response> InvokeAsync(HttpMethod method, HttpRequest request)
         {
-            var uri = BaseUri is {} baseUri && baseUri is {} ? baseUri + request.Uri : request.Uri;
-            using (var requestMessage = new HttpRequestMessage(method, uri))
-            using (var content = (request.Body is {} body ? Serializer.Serialize(body) : Stream.Null))
+            var uri = BaseUri is {} baseUri ? Path.Combine(baseUri, request.ResourceName) : request.ResourceName;
+
+            using var requestMessage = new HttpRequestMessage(method, uri);
+            using var content = (request.Body is {} body ? Serializer.Serialize(body) : Stream.Null);
+
+            if (content != Stream.Null)
             {
-                if (content != Stream.Null)
-                {
-                    requestMessage.Content = new StreamContent(content.Rewind());
-                    requestMessage.Content.Headers.ContentType = new MediaTypeHeaderValue(request.ContentType);
-                }
-
-                foreach (var headerAction in HeaderActions.Concat(request.HeaderActions))
-                {
-                    headerAction(requestMessage.Headers);
-                }
-
-                using (var responseMessage = await _client.SendAsync(requestMessage, HttpCompletionOption.ResponseContentRead, request.CancellationToken).ConfigureAwait(false))
-                {
-                    var responseContentCopy = new MemoryStream();
-
-                    if (responseMessage.Content.Headers.ContentLength > 0)
-                    {
-                        await responseMessage.Content.CopyToAsync(responseContentCopy);
-                    }
-
-                    switch (responseMessage.StatusCode.Class())
-                    {
-                        case HttpStatusCodeClass.Informational:
-                        case HttpStatusCodeClass.Success: return OK<HttpResponse>(responseContentCopy, response => response.ContentType = responseMessage.Content.Headers.ContentType?.MediaType);
-                        default: return NotFound<HttpResponse>(responseContentCopy, response => response.HttpStatusCode = (int)responseMessage.StatusCode);
-                    }
-                }
+                requestMessage.Content = new StreamContent(content.Rewind());
+                requestMessage.Content.Headers.ContentType = new MediaTypeHeaderValue(request.ContentType);
             }
+
+            foreach (var headerAction in HeaderActions.Concat(request.HeaderActions))
+            {
+                headerAction(requestMessage.Headers);
+            }
+
+            using var responseMessage = await _client.SendAsync(requestMessage, HttpCompletionOption.ResponseContentRead, request.CancellationToken).ConfigureAwait(false);
+
+            var responseContentCopy = new MemoryStream();
+
+            if (responseMessage.Content.Headers.ContentLength > 0)
+            {
+                await responseMessage.Content.CopyToAsync(responseContentCopy);
+            }
+
+            var contentType = responseMessage.Content.Headers.ContentType?.MediaType;
+            var statusCode = responseMessage.StatusCode;
+
+            return statusCode.Class() switch
+            {
+                HttpStatusCodeClass.Informational => OK<HttpResponse>(responseContentCopy, response => response.ContentType = contentType),
+                HttpStatusCodeClass.Success => OK<HttpResponse>(responseContentCopy, response => response.ContentType = contentType),
+                _ => NotFound<HttpResponse>(responseContentCopy, response => { response.HttpStatusCode = (int)statusCode; })
+            };
         }
 
         public override void Dispose() => _client.Dispose();

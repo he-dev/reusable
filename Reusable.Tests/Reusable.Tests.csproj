@@ -90,6 +90,9 @@
         <Compile Remove="src\Flexo\ExpressionSerializerTest.cs" />
         <Compile Remove="src\OmniLog\LoggerNodeTest.cs" />
         <Compile Remove="src\Experimental\Scheduler.cs" />
+        <Compile Remove="src\Translucent\UriStringHelperTest.cs" />
+        <Compile Remove="src\Translucent\UriStringTest.cs" />
+        <Compile Remove="src\Translucent\RequestDelegateBuilderTest.cs" />
 <!--        <Compile Remove="src\Commander\**" />-->
     </ItemGroup>
     

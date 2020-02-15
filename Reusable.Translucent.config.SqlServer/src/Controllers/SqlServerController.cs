@@ -16,7 +16,7 @@ namespace Reusable.Translucent.Controllers
 
         public const string DefaultTable = "Setting";
 
-        public SqlServerController(ControllerName controllerName, string connectionString) : base(controllerName)
+        public SqlServerController(ControllerName name, string connectionString) : base(name)
         {
             ConnectionString = connectionString;
             Converter = new JsonSettingConverter();
@@ -37,7 +37,7 @@ namespace Reusable.Translucent.Controllers
         {
             var configRequest = (ConfigRequest)request;
 
-            var settingIdentifier = GetResourceName(request.Uri);
+            var settingIdentifier = request.ResourceName;
 
             return await SqlHelper.ExecuteAsync(ConnectionString, async (connection, token) =>
             {
@@ -60,7 +60,7 @@ namespace Reusable.Translucent.Controllers
         [ResourcePut]
         public async Task<Response> SetSettingAsync(Request request)
         {
-            var settingIdentifier = GetResourceName(request.Uri);
+            var settingIdentifier = request.ResourceName;
             var value = Converter.Convert(request.Body, typeof(string));
 
             await SqlHelper.ExecuteAsync(ConnectionString, async (connection, token) =>

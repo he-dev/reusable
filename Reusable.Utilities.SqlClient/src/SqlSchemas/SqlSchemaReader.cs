@@ -18,15 +18,16 @@ namespace Reusable.Utilities.SqlClient.SqlSchemas
     {
         private static readonly string GetIdentityColumnSchemasQuery;
 
+
         static SqlSchemaReader()
         {
-            var resources = 
+            var resource =
                 Resource
                     .Builder()
-                    .Add(new EmbeddedFileController(ControllerName.Empty, @"Reusable\Utilities\SqlClient\sql", typeof(SqlSchemaReader).Assembly))
+                    .UseController(new EmbeddedFileController(ControllerName.Empty, @"Reusable\Utilities\SqlClient\sql", typeof(SqlSchemaReader).Assembly))
                     .Build(ImmutableServiceProvider.Empty);
-
-            GetIdentityColumnSchemasQuery = resources.ReadTextFile($"sql\\{nameof(GetIdentityColumnSchemas)}.sql");
+            
+            GetIdentityColumnSchemasQuery = resource.ReadTextFile($"sql\\{nameof(GetIdentityColumnSchemas)}.sql");
         }
 
         public static List<SqlTableSchema> GetTableSchemas(this SqlConnection sqlConnection, SqlTableSchema schemaRestriction)

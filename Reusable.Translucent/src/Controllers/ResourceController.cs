@@ -9,20 +9,20 @@ using Reusable.Translucent.Data;
 namespace Reusable.Translucent.Controllers
 {
     [PublicAPI]
-    public interface IResourceController : IDisposable
+    public interface IController : IDisposable
     {
         ControllerName Name { get; }
 
-        UriString? BaseUri { get; }
+        string? BaseUri { get; }
     }
 
     [DebuggerDisplay(DebuggerDisplayString.DefaultNoQuotes)]
-    public abstract class ResourceController : IResourceController
+    public abstract class Controller : IController
     {
-        protected ResourceController(ControllerName controllerName, string? basePath)
+        protected Controller(ControllerName? name, string? baseUri = default)
         {
-            Name = controllerName;
-            BaseUri = basePath is {} uri ? new UriString(uri) : default;
+            Name = name ?? ControllerName.Empty;
+            BaseUri = baseUri;
         }
 
         private string DebuggerDisplay => this.ToDebuggerDisplayString(builder =>
@@ -35,17 +35,17 @@ namespace Reusable.Translucent.Controllers
 
         public ControllerName Name { get; }
 
-        public UriString? BaseUri { get; }
+        public string? BaseUri { get; }
 
         // ReSharper disable once InconsistentNaming
-        protected static Response OK<T>(object? body = default, Action<T>? responseAction = default) where T : Response, new()
+        protected static T OK<T>(object? body = default, Action<T>? configure = default) where T : Response, new()
         {
-            return new T { StatusCode = ResourceStatusCode.OK, Body = body }.Pipe(responseAction);
+            return new T { StatusCode = ResourceStatusCode.OK, Body = body }.Pipe(configure);
         }
 
-        protected static Response NotFound<T>(object? body = default, Action<T>? responseAction = default) where T : Response, new()
+        protected static T NotFound<T>(object? body = default, Action<T>? configure = default) where T : Response, new()
         {
-            return new T { StatusCode = ResourceStatusCode.NotFound, Body = body }.Pipe(responseAction);
+            return new T { StatusCode = ResourceStatusCode.NotFound, Body = body }.Pipe(configure);
         }
 
         // Can be overriden when derived.

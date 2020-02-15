@@ -9,43 +9,43 @@ using Reusable.Translucent.Data;
 namespace Reusable.Translucent.Controllers
 {
     [Handles(typeof(FileRequest))]
-    public class InMemoryFileController : ResourceController, IEnumerable<KeyValuePair<UriString, object?>>
+    public class MemoryFileController : Controller, IEnumerable<KeyValuePair<string, object?>>
     {
-        private readonly IDictionary<UriString, object?> _items = new Dictionary<UriString, object?>();
+        private readonly IDictionary<string, object?> _items = new Dictionary<string, object?>();
 
-        public InMemoryFileController(ControllerName? name = default) : base(name ?? ControllerName.Empty, UriSchemes.Known.File) { }
+        public MemoryFileController(ControllerName? name = default) : base(name) { }
 
         [ResourceGet]
         public Task<Response> GetAsync(Request request)
         {
             return
-                _items.TryGetValue(request.Uri, out var obj)
-                    ? OK<FileResponse>(obj).ToTask()
-                    : NotFound<FileResponse>().ToTask();
+                _items.TryGetValue(request.ResourceName, out var obj)
+                    ? OK<FileResponse>(obj).ToTask<Response>()
+                    : NotFound<FileResponse>().ToTask<Response>();
         }
 
         [ResourcePut]
         public Task<Response> AddAsync(Request request)
         {
-            _items[request.Uri.ToString()] = request.Body;
+            _items[request.ResourceName.ToString()] = request.Body;
 
-            return OK<FileResponse>().ToTask();
+            return OK<FileResponse>().ToTask<Response>();
         }
 
         [ResourceDelete]
         public Task<Response> DeleteAsync(Request request)
         {
             return
-                _items.Remove(request.Uri)
-                    ? OK<FileResponse>().ToTask()
-                    : NotFound<FileResponse>().ToTask();
+                _items.Remove(request.ResourceName)
+                    ? OK<FileResponse>().ToTask<Response>()
+                    : NotFound<FileResponse>().ToTask<Response>();
         }
 
         #region Collection initilizers
 
-        public InMemoryFileController Add((string Name, object Value) item) => Add(item.Name, item.Value);
+        public MemoryFileController Add((string Name, object Value) item) => Add(item.Name, item.Value);
 
-        public InMemoryFileController Add(string name, object value)
+        public MemoryFileController Add(string name, object value)
         {
             _items[name] = value;
             return this;
@@ -53,7 +53,7 @@ namespace Reusable.Translucent.Controllers
 
         #endregion
 
-        public IEnumerator<KeyValuePair<UriString, object?>> GetEnumerator() => _items.GetEnumerator();
+        public IEnumerator<KeyValuePair<string, object?>> GetEnumerator() => _items.GetEnumerator();
 
         IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable)_items).GetEnumerator();
 

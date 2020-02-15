@@ -14,7 +14,7 @@ namespace Reusable.Translucent.Controllers
     {
         private readonly IConfiguration _configuration;
 
-        public JsonFileController(ControllerName controllerName, string basePath, string fileName) : base(controllerName)
+        public JsonFileController(ControllerName name, string basePath, string fileName) : base(name)
         {
             _configuration =
                 new ConfigurationBuilder()
@@ -26,15 +26,15 @@ namespace Reusable.Translucent.Controllers
         }
 
         [ResourceGet]
-        public Task<Response> GetSettingAsync(Request request)
+        public Task<Response> GetSettingAsync(ConfigRequest request)
         {
-            var settingIdentifier = GetResourceName(request.Uri);
+            var settingIdentifier = request.ResourceName;
             var data = _configuration[settingIdentifier];
 
             return
                 data is {}
-                    ? OK<ConfigResponse>(data).ToTask()
-                    : NotFound<ConfigResponse>().ToTask();
+                    ? OK<ConfigResponse>(data).ToTask<Response>()
+                    : NotFound<ConfigResponse>().ToTask<Response>();
         }
     }
 }

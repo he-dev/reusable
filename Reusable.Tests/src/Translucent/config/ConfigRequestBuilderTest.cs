@@ -12,9 +12,9 @@ namespace Reusable.Translucent.config
         public void Can_create_request()
         {
             var body = new object();
-            var request = ConfigRequestBuilder.CreateRequest(ResourceMethod.Get, From<Map>.Select(x => x.City), body);
+            var request = ConfigRequest.Create(ResourceMethod.Get, From<Map>.Select(x => x.City), body);
             Assert.Equal(ResourceMethod.Get, request.Method);
-            Assert.Equal(new UriString("config:settings?name=Map.City"), request.Uri.ToString());
+            Assert.Equal("Map.City", request.ResourceName);
             Assert.Same(body, request.Body);
             //Assert.Equal(typeof(string), request.Metadata.GetItem(ResourceProperties.DataType));
             Assert.Equal("ThisOne", request.ControllerName);

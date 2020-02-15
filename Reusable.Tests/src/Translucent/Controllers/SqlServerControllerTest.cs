@@ -8,6 +8,7 @@ using Reusable.Data;
 using Reusable.Data.Repositories;
 using Reusable.Exceptionize;
 using Reusable.Quickey;
+using Reusable.Translucent.Middleware;
 using Xunit;
 
 namespace Reusable.Translucent.Controllers
@@ -84,7 +85,7 @@ namespace Reusable.Translucent.Controllers
         public decimal Decimal => _resources.ReadSetting(() => Decimal);
         public DateTime DateTime => _resources.ReadSetting(() => DateTime);
         public TimeSpan TimeSpan => _resources.ReadSetting(() => TimeSpan);
-        public List<int> ListOfInt32 => _resources.ReadSetting(() => ListOfInt32, maxAge: TimeSpan.FromSeconds(7));
+        public List<int> ListOfInt32 => _resources.ReadSetting(() => ListOfInt32, configure: req => req.MaxAge(TimeSpan.FromSeconds(7)));
 
         [RegularExpression("Red|Blue")]
         public string Color => _resources.ReadSetting(() => Color);

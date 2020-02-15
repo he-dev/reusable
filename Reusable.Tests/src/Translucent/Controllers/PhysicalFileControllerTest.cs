@@ -9,42 +9,37 @@ namespace Reusable.Translucent.Controllers
 {
     public class PhysicalFileControllerTest : IClassFixture<TestHelperFixture>
     {
-        private readonly TestHelperFixture _testHelper;
-
+        private readonly IResource _resource;
 
         public PhysicalFileControllerTest(TestHelperFixture testHelper)
         {
-            _testHelper = testHelper;
+            _resource =
+                Resource
+                    .Builder()
+                    .UseController(new PhysicalFileController(ControllerName.Empty))
+                    .Build(ImmutableServiceProvider.Empty.Add(testHelper.Cache).Add(testHelper.LoggerFactory));
         }
 
         [Fact]
         public async Task Can_handle_file_methods()
         {
-            var resources =
-                Resource
-                    .Builder()
-                    .Add(new PhysicalFileController(ControllerName.Empty))
-                    .Register(TestHelper.CreateCache())
-                    .Register(_testHelper.LoggerFactory)
-                    .Build();
-
             var tempFileName = GetTempFileName();
 
-            using (var file = await resources.GetFileAsync(tempFileName))
+            using (var file = await _resource.GetFileAsync(tempFileName))
             {
                 Assert.False(file.Exists());
             }
 
-            await resources.WriteTextFileAsync(tempFileName, "Hi!");
-            using (var file = await resources.GetFileAsync(tempFileName))
+            await _resource.WriteTextFileAsync(tempFileName, "Hi!");
+            using (var file = await _resource.GetFileAsync(tempFileName))
             {
                 Assert.True(file.Exists());
                 var value = await file.DeserializeTextAsync();
                 Assert.Equal("Hi!", value);
             }
 
-            await resources.DeleteFileAsync(tempFileName);
-            using (var file = await resources.GetFileAsync(tempFileName))
+            await _resource.DeleteFileAsync(tempFileName);
+            using (var file = await _resource.GetFileAsync(tempFileName))
             {
                 Assert.False(file.Exists());
             }
@@ -53,20 +48,10 @@ namespace Reusable.Translucent.Controllers
         [Fact]
         public async Task Can_read_and_write_text_file_from_share()
         {
-            var resources =
-                Resource
-                    .Builder()
-                    .Add(new PhysicalFileController(ControllerName.Empty))
-                    .Register(TestHelper.CreateCache())
-                    .Register(_testHelper.LoggerFactory)
-                    .Build();
-            
             var tempFileName = "//auth/name";
 
-            using (var file = await resources.GetFileAsync(tempFileName))
-            {
-                Assert.False(file.Exists());
-            }
+            using var file = await _resource.GetFileAsync(tempFileName);
+            Assert.False(file.Exists());
         }
 
         private static string GetTempFileName() => Path.Combine(Path.GetTempPath(), Guid.NewGuid() + ".tmp");

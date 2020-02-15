@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net.Mime;
@@ -14,15 +15,13 @@ using ContentDisposition = MimeKit.ContentDisposition;
 
 namespace Reusable.Translucent.Controllers
 {
-    public class SmtpToController : MailToController
+    public class SmtpController : MailToController
     {
-        public SmtpToController(ControllerName controllerName) : base(controllerName) { }
+        public SmtpController(ControllerName name) : base(name) { }
 
         [ResourcePost]
-        public async Task<Response> SendEmailAsync(Request request)
+        public async Task<Response> SendEmailAsync(SmtpRequest smtp)
         {
-            var smtp = (SmtpRequest)request;
-
             var message = new MimeMessage();
             message.From.Add(new MailboxAddress(smtp.From));
             message.To.AddRange(smtp.To.Where(Conditional.IsNotNullOrEmpty).Select(x => new MailboxAddress(x)));
@@ -36,11 +35,11 @@ namespace Reusable.Translucent.Controllers
             //                }
             //            };
 
-            using (var body = await request.CreateBodyStreamAsync())
+            using (var body = await smtp.CreateBodyStreamAsync())
             {
                 multipart.Add(new TextPart(smtp.IsHtml ? TextFormat.Html : TextFormat.Plain)
                 {
-                    Text = await ReadBodyAsync(body, (MailToRequest)request)
+                    Text = await ReadBodyAsync(body, smtp)
                 });
             }
 
@@ -71,6 +70,18 @@ namespace Reusable.Translucent.Controllers
 
             return OK<SmtpResponse>();
         }
+    }
+
+    [PublicAPI]
+    public abstract class MailToRequest : Request
+    {
+        public string From { get; set; } = default!;
+        public List<string> To { get; set; } = new List<string>();
+        public List<string> CC { get; set; } = new List<string>();
+        public string Subject { get; set; } = default!;
+        public Dictionary<string, byte[]> Attachments { get; set; } = new Dictionary<string, byte[]>();
+        public bool IsHtml { get; set; }
+        public bool IsHighPriority { get; set; }
     }
 
     [PublicAPI]

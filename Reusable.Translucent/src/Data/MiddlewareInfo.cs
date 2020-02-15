@@ -109,4 +109,13 @@ namespace Reusable.Translucent.Data
             args = Args;
         }
     }
+
+    public static class MiddlewareInfo
+    {
+        public static IMiddlewareInfo Create<T>(params object[] args) => MiddlewareInfo<ResourceContext>.Create<T>(args);
+        
+        public static IMiddlewareInfo Create<T>(Action<T>? configure = default) => MiddlewareInfo<ResourceContext>.Create<T>(args);
+        
+        public static IMiddlewareInfo Create<T>(Func<RequestDelegate<ResourceContext>, T> factory) => MiddlewareInfo<ResourceContext>.Create<T>(args);
+    }
 }

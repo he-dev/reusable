@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
+using Reusable.Extensions;
 using Reusable.Translucent.Controllers;
 using Reusable.Translucent.Data;
 using Reusable.Translucent.Models;
@@ -9,7 +10,7 @@ using Reusable.Translucent.Models;
 namespace Reusable.Translucent
 {
     [PublicAPI]
-    public static class ResourceRepositoryExtensions
+    public static class ResourceHelpers
     {
         public static async Task<Response> SendEmailAsync
         (
@@ -18,7 +19,7 @@ namespace Reusable.Translucent
             Action<SmtpRequest>? requestAction = default
         )
         {
-            return await resource.PostAsync<SmtpRequest>($"{UriSchemes.Known.MailTo}:john.doe@email.com", email.Body.Value, request =>
+            return await resource.PostAsync<SmtpRequest>(string.Empty, email.Body.Value, request =>
             {
                 request.From = email.From;
                 request.To = email.To;
@@ -28,20 +29,10 @@ namespace Reusable.Translucent
                 request.From = email.From;
                 request.IsHtml = email.IsHtml;
                 request.IsHighPriority = email.IsHighPriority;
-                requestAction?.Invoke(request);
+                request.Pipe(requestAction);
             });
         }
     }
 
-    [PublicAPI]
-    public abstract class MailToRequest : Request
-    {
-        public string From { get; set; } = default!;
-        public List<string> To { get; set; } = new List<string>();
-        public List<string> CC { get; set; } = new List<string>();
-        public string Subject { get; set; } = default!;
-        public Dictionary<string, byte[]> Attachments { get; set; } = new Dictionary<string, byte[]>();
-        public bool IsHtml { get; set; }
-        public bool IsHighPriority { get; set; }
-    }
+    
 }

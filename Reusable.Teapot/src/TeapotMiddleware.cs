@@ -23,7 +23,7 @@ namespace Reusable.Teapot
     /// <summary>
     /// Provides responses for each request.
     /// </summary>
-    public delegate Func<HttpRequest, ResponseMock>? ResponseMockDelegate(HttpMethod method, UriString path);
+    public delegate Func<HttpRequest, ResponseMock>? ResponseMockDelegate(HttpMethod method, string path);
 
     [UsedImplicitly]
     internal class TeapotMiddleware

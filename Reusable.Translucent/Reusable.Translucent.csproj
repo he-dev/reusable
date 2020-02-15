@@ -38,5 +38,12 @@
         <Compile Remove="src\ResourceCollection.cs" />
         <Compile Remove="src\PipelineBuilderExtensions.cs" />
         <Compile Remove="src\PipelineBuilder.cs" />
+        <Compile Remove="src\UriSchemes.cs" />
+        <Compile Remove="src\UriString.cs" />
+        <Compile Remove="src\UriStringExtensions.cs" />
+        <Compile Remove="src\UriStringHelper.cs" />
+        <Compile Remove="src\UriStringPathToStringConverter.cs" />
+        <Compile Remove="src\Data\MiddlewareInfo.cs" />
+        <Compile Remove="src\PipelineFactory.cs" />
     </ItemGroup>
 </Project>

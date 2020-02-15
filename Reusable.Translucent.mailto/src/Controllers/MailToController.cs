@@ -4,9 +4,9 @@ using System.Threading.Tasks;
 namespace Reusable.Translucent.Controllers
 {
     [Handles(typeof(MailToRequest))]
-    public abstract class MailToController : ResourceController
+    public abstract class MailToController : Controller
     {
-        protected MailToController(ControllerName controllerName) : base(controllerName, UriSchemes.Known.MailTo) { }
+        protected MailToController(ControllerName name) : base(name) { }
 
         protected static async Task<string> ReadBodyAsync(Stream value, MailToRequest request)
         {

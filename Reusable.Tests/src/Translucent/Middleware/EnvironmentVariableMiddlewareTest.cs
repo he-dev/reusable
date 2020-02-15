@@ -16,24 +16,22 @@ namespace Reusable.Translucent.Middleware
         {
             _testHelper = testHelper;
         }
-        
+
         [Fact]
         public async Task Can_resolve_environment_variables()
         {
             Environment.SetEnvironmentVariable("TEST_VARIABLE", @"I:\test\this\path");
 
             var c = Mock.Create<TestFileController>(Behavior.CallOriginal, ControllerName.Empty);
-            c.Arrange(x => x.Get(Arg.Matches<Request>(y => y.Uri.Path.Decoded.ToString().Equals(@"I:/test/this/path/test.txt")))).Returns(new Response().ToTask()).OccursOnce();
-            
-            var r = 
+            c.Arrange(x => x.Get(Arg.Matches<Request>(y => y.ResourceName.Equals(@"I:\test\this\path\test.txt")))).Returns(new Response().ToTask()).OccursOnce();
+
+            var r =
                 Resource
                     .Builder()
-                    .Add(c)
-                    .Use<EnvironmentVariableMiddleware>()
-                    .Register(TestHelper.CreateCache())
-                    .Register(_testHelper.LoggerFactory)
-                    .Build();
-            
+                    .UseController(c)
+                    .UseMiddleware(_ => next => new EnvironmentVariableMiddleware(next))
+                    .Build(ImmutableServiceProvider.Empty.Add(_testHelper.Cache).Add(_testHelper.LoggerFactory));
+
             await r.InvokeAsync(Request.CreateGet<FileRequest>(@"%TEST_VARIABLE%\test.txt"));
 
             c.Assert();

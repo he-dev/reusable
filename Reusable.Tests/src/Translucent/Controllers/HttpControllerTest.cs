@@ -54,10 +54,8 @@ namespace Reusable.Translucent.Controllers
             var resources = 
                 Resource
                     .Builder()
-                    .Add(HttpController.FromBaseUri("Mailr", "http://localhost:30002/api"))
-                    //.Register(TestHelper.CreateCache())
-                    //.Register(_testHelper.LoggerFactory)
-                    .Build();
+                    .UseController(HttpController.FromBaseUri("Mailr", "http://localhost:30002/api"))
+                    .Build(ImmutableServiceProvider.Empty);
             var response = await resources.SendEmailAsync("mailr/messages/test", email, http =>
             {
                 http.HeaderActions.Add(headers => headers.UserAgent("xunit", "1.0"));
