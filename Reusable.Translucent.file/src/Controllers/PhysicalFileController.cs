@@ -19,7 +19,7 @@ namespace Reusable.Translucent.Controllers
 
             return
                 File.Exists(path)
-                    ? OK<FileResponse>(File.OpenRead(path)).ToTask<Response>()
+                    ? Success<FileResponse>(File.OpenRead(path)).ToTask<Response>()
                     : NotFound<FileResponse>().ToTask<Response>();
         }
 
@@ -32,14 +32,14 @@ namespace Reusable.Translucent.Controllers
             await body.Rewind().CopyToAsync(fileStream);
             await fileStream.FlushAsync();
 
-            return OK<FileResponse>();
+            return Success<FileResponse>();
         }
 
         public override Task<Response> DeleteAsync(FileRequest request)
         {
             var path = CreatePath(request.ResourceName);
             File.Delete(path);
-            return OK<FileResponse>().ToTask<Response>();
+            return Success<FileResponse>().ToTask<Response>();
         }
 
         private string CreatePath(string path)
@@ -54,4 +54,6 @@ namespace Reusable.Translucent.Controllers
                         : path;
         }
     }
+    
+    
 }

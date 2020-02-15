@@ -6,9 +6,8 @@ using System.Reflection;
 using Reusable.Extensions;
 using Reusable.Quickey;
 using Reusable.Translucent.Annotations;
-using Reusable.Translucent.Data;
 
-namespace Reusable.Translucent
+namespace Reusable.Translucent.Data
 {
     public class ConfigRequest : Request
     {

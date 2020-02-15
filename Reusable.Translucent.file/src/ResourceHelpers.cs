@@ -8,8 +8,6 @@ namespace Reusable.Translucent
 {
     public static class ResourceHelpers
     {
-        // file:///
-
         public static Task<Response> GetFileAsync(this IResource resources, string path, Action<FileRequest>? configureRequest = default)
         {
             return resources.ReadAsync(path, default, configureRequest);
@@ -41,20 +39,7 @@ namespace Reusable.Translucent
         {
             using (await resources.DeleteAsync(path, default, configureRequest)) { }
         }
-
-        // private static UriString CreateUri(string path)
-        // {
-        //     return
-        //         Path.IsPathRooted(path) || IsUnc(path)
-        //             ? new UriString(UriSchemes.Known.File, path)
-        //             : new UriString(path);
-        // }
-
-        // https://www.pcmag.com/encyclopedia/term/53398/unc
-        private static bool IsUnc(string value) => value.StartsWith("//");
     }
     
-    public class FileRequest : Request { }
-
-    public class FileResponse : Response { }
+    
 }

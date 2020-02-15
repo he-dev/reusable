@@ -18,7 +18,7 @@ namespace Reusable.Translucent.Controllers
         {
             return
                 _items.TryGetValue(request.ResourceName, out var obj)
-                    ? OK<FileResponse>(obj).ToTask<Response>()
+                    ? Success<FileResponse>(obj).ToTask<Response>()
                     : NotFound<FileResponse>().ToTask<Response>();
         }
 
@@ -26,14 +26,14 @@ namespace Reusable.Translucent.Controllers
         {
             _items[request.ResourceName.ToString()] = request.Body;
 
-            return OK<FileResponse>().ToTask<Response>();
+            return Success<FileResponse>().ToTask<Response>();
         }
 
         public override Task<Response> DeleteAsync(T request)
         {
             return
                 _items.Remove(request.ResourceName)
-                    ? OK<Response>().ToTask<Response>()
+                    ? Success<Response>().ToTask<Response>()
                     : NotFound<Response>().ToTask<Response>();
         }
 

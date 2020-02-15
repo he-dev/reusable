@@ -86,14 +86,14 @@ namespace Reusable.Translucent.Abstractions
         }
 
         // ReSharper disable once InconsistentNaming
-        protected static T OK<T>(object? body = default, Action<T>? configure = default) where T : Response, new()
+        protected static TResponse Success<TResponse>(object? body = default, Action<TResponse>? configure = default) where TResponse : Response, new()
         {
-            return new T { StatusCode = ResourceStatusCode.OK, Body = body }.Pipe(configure);
+            return new TResponse { StatusCode = ResourceStatusCode.Success, Body = body }.Pipe(configure);
         }
 
-        protected static T NotFound<T>(object? body = default, Action<T>? configure = default) where T : Response, new()
+        protected static TResponse NotFound<TResponse>(object? body = default, Action<TResponse>? configure = default) where TResponse : Response, new()
         {
-            return new T { StatusCode = ResourceStatusCode.NotFound, Body = body }.Pipe(configure);
+            return new TResponse { StatusCode = ResourceStatusCode.NotFound, Body = body }.Pipe(configure);
         }
 
         // Can be overriden when derived.

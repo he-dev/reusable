@@ -43,7 +43,7 @@ namespace Reusable.Translucent.Controllers
                 {
                     var value = settingReader[ColumnMappings.MapOrDefault(SqlServerColumn.Value)];
                     value = Converter.Convert(value, request.SettingType);
-                    return OK<ConfigResponse>(value);
+                    return Success<ConfigResponse>(value);
                 }
                 else
                 {
@@ -62,7 +62,7 @@ namespace Reusable.Translucent.Controllers
                 await cmd.ExecuteNonQueryAsync(token);
             }, request.CancellationToken);
 
-            return OK<ConfigResponse>();
+            return Success<ConfigResponse>();
         }
     }
 }

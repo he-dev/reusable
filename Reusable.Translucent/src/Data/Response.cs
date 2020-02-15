@@ -15,7 +15,7 @@ namespace Reusable.Translucent.Data
         public bool Cached { get; set; }
         
         // ReSharper disable once InconsistentNaming
-        public static Response OK() => new Response { StatusCode = ResourceStatusCode.OK };
+        public static Response Success() => new Response { StatusCode = ResourceStatusCode.Success };
         
         public static Response NotFound() => new Response { StatusCode = ResourceStatusCode.NotFound };
 
@@ -26,12 +26,5 @@ namespace Reusable.Translucent.Data
                 stream.Dispose();
             }
         }
-    }
-
-    public enum ResourceStatusCode
-    {
-        // ReSharper disable once InconsistentNaming
-        OK,
-        NotFound
     }
 }

@@ -28,7 +28,7 @@ namespace Reusable.Translucent.Middleware
             var c3 = Mock.Create<TestFileController>(Behavior.CallOriginal, ControllerName.Any);
 
             Mock.Arrange(() => c1.ReadAsync(Arg.IsAny<FileRequest>())).Returns(new Response { StatusCode = ResourceStatusCode.NotFound }.ToTask()).OccursOnce();
-            Mock.Arrange(() => c2.ReadAsync(Arg.IsAny<FileRequest>())).Returns(new Response { StatusCode = ResourceStatusCode.OK }.ToTask()).OccursOnce();
+            Mock.Arrange(() => c2.ReadAsync(Arg.IsAny<FileRequest>())).Returns(new Response { StatusCode = ResourceStatusCode.Success }.ToTask()).OccursOnce();
             Mock.Arrange(() => c3.ReadAsync(Arg.IsAny<FileRequest>())).OccursNever();
 
             var resources = 
@@ -54,7 +54,7 @@ namespace Reusable.Translucent.Middleware
             var c3 = Mock.Create<TestFileController>(Behavior.CallOriginal, new ControllerName("d"));
 
             Mock.Arrange(() => c1.ReadAsync(Arg.IsAny<FileRequest>())).OccursNever();
-            Mock.Arrange(() => c2.ReadAsync(Arg.IsAny<FileRequest>())).Returns(new Response { StatusCode = ResourceStatusCode.OK }.ToTask()).OccursOnce();
+            Mock.Arrange(() => c2.ReadAsync(Arg.IsAny<FileRequest>())).Returns(new Response { StatusCode = ResourceStatusCode.Success }.ToTask()).OccursOnce();
             Mock.Arrange(() => c3.ReadAsync(Arg.IsAny<FileRequest>())).OccursNever();
 
             var resources = 
@@ -80,7 +80,7 @@ namespace Reusable.Translucent.Middleware
             var c3 = Mock.Create<TestFileController>(Behavior.CallOriginal, new ControllerName("d"));
 
             Mock.Arrange(() => c1.ReadAsync(Arg.IsAny<FileRequest>())).OccursNever();
-            Mock.Arrange(() => c2.ReadAsync(Arg.IsAny<HttpRequest>())).Returns(new Response { StatusCode = ResourceStatusCode.OK }.ToTask()).OccursOnce();
+            Mock.Arrange(() => c2.ReadAsync(Arg.IsAny<HttpRequest>())).Returns(new Response { StatusCode = ResourceStatusCode.Success }.ToTask()).OccursOnce();
             Mock.Arrange(() => c3.ReadAsync(Arg.IsAny<FileRequest>())).OccursNever();
 
             var resources = 

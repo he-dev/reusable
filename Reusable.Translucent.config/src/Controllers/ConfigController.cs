@@ -1,5 +1,6 @@
 using Reusable.OneTo1;
 using Reusable.Translucent.Abstractions;
+using Reusable.Translucent.Data;
 
 namespace Reusable.Translucent.Controllers
 {

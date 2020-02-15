@@ -27,7 +27,7 @@ namespace Reusable.Translucent.Controllers
 
             return
                 actualName is {}
-                    ? OK<FileResponse>(_assembly.GetManifestResourceStream(actualName)).ToTask<Response>()
+                    ? Success<FileResponse>(_assembly.GetManifestResourceStream(actualName)).ToTask<Response>()
                     : NotFound<FileResponse>().ToTask<Response>();
         }
 

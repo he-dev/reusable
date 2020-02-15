@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading.Tasks;
 using JetBrains.Annotations;
 
 namespace Reusable.Extensions
@@ -30,6 +31,13 @@ namespace Reusable.Extensions
         public static T Pipe<T>(this T obj, Action<T>? next)
         {
             next?.Invoke(obj);
+            return obj;
+        }
+        
+        [MustUseReturnValue]
+        public static async Task<T> Pipe<T>(this T obj, Func<T, Task>? next)
+        {
+            await (next ?? (_ => Task.CompletedTask)).Invoke(obj);
             return obj;
         }
 

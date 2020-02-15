@@ -92,8 +92,8 @@ namespace Reusable.Translucent.Controllers
 
             return statusCode.Class() switch
             {
-                HttpStatusCodeClass.Informational => OK<HttpResponse>(responseContentCopy, response => response.ContentType = contentType),
-                HttpStatusCodeClass.Success => OK<HttpResponse>(responseContentCopy, response => response.ContentType = contentType),
+                HttpStatusCodeClass.Informational => Success<HttpResponse>(responseContentCopy, response => response.ContentType = contentType),
+                HttpStatusCodeClass.Success => Success<HttpResponse>(responseContentCopy, response => response.ContentType = contentType),
                 _ => NotFound<HttpResponse>(responseContentCopy, response => { response.HttpStatusCode = (int)statusCode; })
             };
         }

@@ -21,7 +21,7 @@ namespace Reusable.Translucent.Controllers
 
             return
                 element is {}
-                    ? OK<ConfigResponse>(element.Value).ToTask<Response>()
+                    ? Success<ConfigResponse>(element.Value).ToTask<Response>()
                     : NotFound<ConfigResponse>().ToTask<Response>();
         }
 
@@ -44,7 +44,7 @@ namespace Reusable.Translucent.Controllers
 
             exeConfig.Save(ConfigurationSaveMode.Minimal);
 
-            return OK<ConfigResponse>().ToTask<Response>();
+            return Success<ConfigResponse>().ToTask<Response>();
         }
 
         private static string? FindActualKey(Configuration exeConfig, string key)

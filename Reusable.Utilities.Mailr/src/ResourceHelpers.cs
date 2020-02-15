@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using Reusable.Extensions;
 using Reusable.Utilities.Mailr.Models;
 using Reusable.Translucent;
+using Reusable.Translucent.Data;
 using Reusable.Translucent.Extensions;
 
 namespace Reusable.Utilities.Mailr

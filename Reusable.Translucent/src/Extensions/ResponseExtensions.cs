@@ -8,7 +8,7 @@ namespace Reusable.Translucent.Extensions
 {
     public static class ResponseExtensions
     {
-        public static bool Exists(this Response response) => response.StatusCode == ResourceStatusCode.OK;
+        public static bool Exists(this Response response) => response.StatusCode == ResourceStatusCode.Success;
 
         #region Async
 

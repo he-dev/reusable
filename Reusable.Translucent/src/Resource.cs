@@ -50,18 +50,13 @@ namespace Reusable.Translucent
                 }
             });
         }
-        
+
         public static ResourceBuilder Builder() => new ResourceBuilder();
 
         public async Task<Response> InvokeAsync(Request request)
         {
-            var context = new ResourceContext
-            {
-                Request = request
-            };
-
+            var context = new ResourceContext { Request = request };
             await _resourceMiddleware.InvokeAsync(context);
-
             return context.Response;
         }
     }

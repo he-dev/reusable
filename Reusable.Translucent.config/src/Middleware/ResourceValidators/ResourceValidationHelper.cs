@@ -3,6 +3,7 @@ using System.ComponentModel.DataAnnotations;
 using Reusable.Exceptionize;
 using Reusable.Extensions;
 using Reusable.Translucent.Abstractions;
+using Reusable.Translucent.Data;
 
 namespace Reusable.Translucent.Middleware.ResourceValidators
 {

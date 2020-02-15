@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 using Reusable.Translucent;
 using Reusable.Translucent.Controllers;
+using Reusable.Translucent.Data;
 using Reusable.Translucent.Extensions;
 using Reusable.Utilities.XUnit.Fixtures;
 using Xunit;

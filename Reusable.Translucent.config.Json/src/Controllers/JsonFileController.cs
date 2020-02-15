@@ -31,7 +31,7 @@ namespace Reusable.Translucent.Controllers
 
             return
                 data is {}
-                    ? OK<ConfigResponse>(data).ToTask<Response>()
+                    ? Success<ConfigResponse>(data).ToTask<Response>()
                     : NotFound<ConfigResponse>().ToTask<Response>();
         }
     }

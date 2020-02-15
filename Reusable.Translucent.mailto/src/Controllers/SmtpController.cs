@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net.Mime;
@@ -66,29 +65,7 @@ namespace Reusable.Translucent.Controllers
                 await smtpClient.SendAsync(message);
             }
 
-            return OK<SmtpResponse>();
+            return Success<Translucent.Data.SmtpResponse>();
         }
     }
-
-    [PublicAPI]
-    public abstract class MailToRequest : Request
-    {
-        public string From { get; set; } = default!;
-        public List<string> To { get; set; } = new List<string>();
-        public List<string> CC { get; set; } = new List<string>();
-        public string Subject { get; set; } = default!;
-        public Dictionary<string, byte[]> Attachments { get; set; } = new Dictionary<string, byte[]>();
-        public bool IsHtml { get; set; }
-        public bool IsHighPriority { get; set; }
-    }
-
-    [PublicAPI]
-    public class SmtpRequest : MailToRequest
-    {
-        public string Host { get; set; } = default!;
-        public int Port { get; set; }
-        public bool UseSsl { get; set; }
-    }
-
-    public class SmtpResponse : Response { }
 }
