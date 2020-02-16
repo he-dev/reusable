@@ -21,7 +21,7 @@ namespace Reusable.Beaver
         [Fact]
         public void Invokes_main_when_enabled()
         {
-            var t = new FeatureAgent(new FeatureToggle(FeaturePolicy.AlwaysOff));
+            var t = new FeatureController(new FeatureToggle(FeaturePolicy.AlwaysOff));
             t.AddOrUpdate("test", FeaturePolicy.AlwaysOn);
 
 
@@ -44,7 +44,7 @@ namespace Reusable.Beaver
         [Fact]
         public void Invokes_fallback_when_disabled()
         {
-            var t = new FeatureAgent(new FeatureToggle(FeaturePolicy.AlwaysOff));
+            var t = new FeatureController(new FeatureToggle(FeaturePolicy.AlwaysOff));
             var a = 0;
             var b = 0;
             var c = t.Use("test", () => ++a, () => ++b);
@@ -61,7 +61,7 @@ namespace Reusable.Beaver
         [Fact]
         public void Once_disables_itself_after_first_invoke()
         {
-            var t = new FeatureAgent(new FeatureToggle(FeaturePolicy.AlwaysOff));
+            var t = new FeatureController(new FeatureToggle(FeaturePolicy.AlwaysOff));
             t.AddOrUpdate("test", FeaturePolicy.Once);
             var a = 0;
             var b = 0;
@@ -82,7 +82,7 @@ namespace Reusable.Beaver
         public void Ask_requests_permission_to_invoke()
         {
             var q = 0;
-            var t = new FeatureAgent(new FeatureToggle(FeaturePolicy.AlwaysOff));
+            var t = new FeatureController(new FeatureToggle(FeaturePolicy.AlwaysOff));
             t.AddOrUpdate("test", FeaturePolicy.Ask(_ => q++ < 1));
 
             var m = 0;

@@ -90,10 +90,10 @@ namespace Reusable.Apps.Server
                 .AddScoped<IFeatureToggle>(_ => new FeatureToggle(FeaturePolicy.AlwaysOff));
 
             services
-                .AddScoped<IFeatureAgent>(s =>
+                .AddScoped<IFeatureController>(s =>
                 {
-                    var agent = new FeatureAgent(s.GetService<IFeatureToggle>());
-                    return new FeatureTelemetry(agent, s.GetService<ILogger<FeatureTelemetry>>());
+                    var agent = new FeatureController(s.GetService<IFeatureToggle>());
+                    return new FeatureControllerTelemetry(agent, s.GetService<ILogger<FeatureControllerTelemetry>>());
                 });
 
             services.Configure<RazorViewEngineOptions>(options => { options.ViewLocationExpanders.Add(new RelativeViewLocationExpander("src")); });

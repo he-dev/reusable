@@ -31,6 +31,8 @@ namespace Reusable.Beaver
 
         public bool TryRemove(string name, out Feature feature) => _features.TryRemove(name, out feature);
 
+        public void Add(Feature feature) => AddOrUpdate(feature);
+
         public IEnumerator<Feature> GetEnumerator() => _features.Values.GetEnumerator();
 
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();

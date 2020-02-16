@@ -31,7 +31,7 @@ namespace Reusable.Beaver
         
         #region Use
 
-        public static async Task<FeatureResult<object>> Use(this IFeatureAgent toggle, string name, Func<Task> body, Func<Task>? fallback = default, object? parameter = default)
+        public static async Task<FeatureResult<object>> Use(this IFeatureController toggle, string name, Func<Task> body, Func<Task>? fallback = default, object? parameter = default)
         {
             return await toggle.Use<object>
             (
@@ -50,7 +50,7 @@ namespace Reusable.Beaver
             );
         }
 
-        public static FeatureResult<T> Use<T>(this IFeatureAgent toggle, string name, Func<T> body, Func<T>? fallback = default, object? parameter = default)
+        public static FeatureResult<T> Use<T>(this IFeatureController toggle, string name, Func<T> body, Func<T>? fallback = default, object? parameter = default)
         {
             return
                 toggle
@@ -65,7 +65,7 @@ namespace Reusable.Beaver
                     .GetResult();
         }
 
-        public static FeatureResult<object> Use(this IFeatureAgent toggle, string name, Action body, Action? fallback = default, object? parameter = default)
+        public static FeatureResult<object> Use(this IFeatureController toggle, string name, Action body, Action? fallback = default, object? parameter = default)
         {
             return
                 toggle
@@ -88,7 +88,7 @@ namespace Reusable.Beaver
                     .GetResult();
         }
 
-        public static FeatureResult<T> Use<T>(this IFeatureAgent toggle, string name, T value, T fallback = default, object? parameter = default)
+        public static FeatureResult<T> Use<T>(this IFeatureController toggle, string name, T value, T fallback = default, object? parameter = default)
         {
             return toggle.Use(name, () => value, () => fallback, parameter);
         }

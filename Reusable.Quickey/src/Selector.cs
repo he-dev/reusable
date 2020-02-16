@@ -179,8 +179,7 @@ namespace Reusable.Quickey
             }
         }
 
-        [NotNull]
-        public static Selector<TMember> Select<TMember>([NotNull] Expression<Func<Selector<TMember>>> selector)
+        public static Selector<TMember> Select<TMember>(Expression<Func<Selector<TMember>>> selector)
         {
             return new Selector<TMember>(selector);
         }

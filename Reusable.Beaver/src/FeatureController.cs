@@ -6,16 +6,16 @@ using Reusable.Exceptionize;
 
 namespace Reusable.Beaver
 {
-    public interface IFeatureAgent : IFeatureToggle
+    public interface IFeatureController : IFeatureToggle
     {
-        Task<FeatureResult<T>> Use<T>(string name, Func<Task<T>> ifEnabled, Func<Task<T>>? ifDisabled = default, object? parameter = default);
+        Task<FeatureResult<T>> Use<T>(string name, Func<Task<T>> onEnabled, Func<Task<T>>? onDisabled = default, object? parameter = default);
     }
 
-    public class FeatureAgent : IFeatureAgent
+    public class FeatureController : IFeatureController
     {
         private readonly IFeatureToggle _toggle;
 
-        public FeatureAgent(IFeatureToggle toggle)
+        public FeatureController(IFeatureToggle toggle)
         {
             _toggle = toggle;
         }
@@ -28,9 +28,9 @@ namespace Reusable.Beaver
 
         public bool TryRemove(string name, out Feature feature) => _toggle.TryRemove(name, out feature);
 
-        public async Task<FeatureResult<T>> Use<T>(string name, Func<Task<T>> ifEnabled, Func<Task<T>>? ifDisabled = default, object? parameter = default)
+        public async Task<FeatureResult<T>> Use<T>(string name, Func<Task<T>> onEnabled, Func<Task<T>>? onDisabled = default, object? parameter = default)
         {
-            ifDisabled ??= () => Task.FromResult<T>(default);
+            onDisabled ??= () => Task.FromResult<T>(default);
 
             // Not catching exceptions because the caller should handle them.
 
@@ -42,7 +42,7 @@ namespace Reusable.Beaver
                 var state = feature.Policy.State(context);
                 try
                 {
-                    var result = await (state == FeatureState.Enabled ? ifEnabled : ifDisabled)().ConfigureAwait(false);
+                    var result = await (state == FeatureState.Enabled ? onEnabled : onDisabled)().ConfigureAwait(false);
                     return new FeatureResult<T>
                     {
                         Value = result,

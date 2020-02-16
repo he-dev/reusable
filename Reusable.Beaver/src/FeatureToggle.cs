@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using JetBrains.Annotations;
+using Reusable.Extensions;
 
 namespace Reusable.Beaver
 {
@@ -23,8 +24,17 @@ namespace Reusable.Beaver
         /// <summary>
         /// Gets feature or fallback.
         /// </summary>
-        public Feature this[string name] => _features.TryGet(name, out var feature) ? feature : _features[nameof(Feature.Fallback)];
-        
+        public Feature this[string name]
+        {
+            get
+            {
+                return
+                    _features.TryGet(name, out var feature)
+                        ? feature 
+                        : _features[nameof(Feature.Fallback)].Map(f => new Feature($"{name}@{nameof(Feature.Fallback)}", f.Policy));
+            }
+        }
+
         public bool TryGet(string name, out Feature feature) => _features.TryGet(name, out feature);
 
         /// <summary>

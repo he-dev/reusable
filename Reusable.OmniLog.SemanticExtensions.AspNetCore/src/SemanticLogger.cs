@@ -33,7 +33,7 @@ namespace Reusable.OmniLog.SemanticExtensions.AspNetCore
             _logger = loggerFactory.CreateLogger<SemanticLogger>();
         }
 
-        public async Task Invoke(HttpContext context, IFeatureAgent featureAgent)
+        public async Task Invoke(HttpContext context, IFeatureController featureController)
         {
             using (_logger.BeginScope(_config.GetCorrelationId(context)).WithCorrelationHandle(_config.GetCorrelationHandle(context)).UseStopwatch())
             {
@@ -58,7 +58,7 @@ namespace Reusable.OmniLog.SemanticExtensions.AspNetCore
 
                         using (var reader = new StreamReader(memory.Rewind()))
                         {
-                            body = await featureAgent.Use(Features.LogResponseBody, async () => await reader.ReadToEndAsync());
+                            body = await featureController.Use(Features.LogResponseBody, async () => await reader.ReadToEndAsync());
 
                             // Restore Response.Body
                             if (!context.Response.StatusCode.In(304))
@@ -70,7 +70,7 @@ namespace Reusable.OmniLog.SemanticExtensions.AspNetCore
                         }
                     }
 
-                    _config.LogResponse(_logger, context, featureAgent.Use(Features.LogResponseBody, body));
+                    _config.LogResponse(_logger, context, featureController.Use(Features.LogResponseBody, body));
                 }
                 catch (Exception inner)
                 {
