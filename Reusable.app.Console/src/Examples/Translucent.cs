@@ -28,7 +28,7 @@ namespace Reusable
     {
         public static async Task SendEmailOverSmtp()
         {
-            var resources = new Resource(ImmutableServiceProvider.Empty, services => new CreateControllerDelegate[] { () => new SmtpController(ControllerName.Any) });
+            var resources = Resource.Builder().UseController(new SmtpController()).Build();
 
             await resources.SendEmailAsync(new Email<EmailSubject, EmailBody>
             {
@@ -48,7 +48,7 @@ namespace Reusable
 
         public static async Task SendEmailOverMailr()
         {
-            var resources = Resource.Builder().UseController(HttpController.FromBaseUri("Mailr", "http://localhost:7000/api")).Build(ImmutableServiceProvider.Empty);
+            var resources = Resource.Builder().UseController(HttpController.FromBaseUri("http://localhost:7000/api").Pipe(x => x.Name = "Mailr")).Build(ImmutableServiceProvider.Empty);
 
             await resources.SendEmailAsync
             (

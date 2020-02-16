@@ -7,8 +7,6 @@ namespace Reusable.Translucent.Controllers
 {
     public abstract class MailToController<T> : ResourceController<T> where T : MailRequest
     {
-        protected MailToController(ControllerName name) : base(name) { }
-
         protected static async Task<string> ReadBodyAsync(Stream value, MailRequest request)
         {
             using var bodyReader = new StreamReader(value, request.Encoding);

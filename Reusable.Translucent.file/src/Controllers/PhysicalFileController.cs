@@ -11,7 +11,7 @@ namespace Reusable.Translucent.Controllers
     [PublicAPI]
     public class PhysicalFileResourceController : ResourceController<FileRequest>
     {
-        public PhysicalFileResourceController(ControllerName name, string? baseUri = default) : base(name, baseUri) { }
+        public PhysicalFileResourceController(string? baseUri = default) : base(baseUri) { }
 
         public override Task<Response> ReadAsync(FileRequest request)
         {
@@ -19,8 +19,8 @@ namespace Reusable.Translucent.Controllers
 
             return
                 File.Exists(path)
-                    ? Success<FileResponse>(File.OpenRead(path)).ToTask<Response>()
-                    : NotFound<FileResponse>().ToTask<Response>();
+                    ? Success<FileResponse>(request.ResourceName, File.OpenRead(path)).ToTask()
+                    : NotFound<FileResponse>(request.ResourceName).ToTask();
         }
 
         public override async Task<Response> CreateAsync(FileRequest request)
@@ -32,14 +32,14 @@ namespace Reusable.Translucent.Controllers
             await body.Rewind().CopyToAsync(fileStream);
             await fileStream.FlushAsync();
 
-            return Success<FileResponse>();
+            return Success<FileResponse>(request.ResourceName);
         }
 
         public override Task<Response> DeleteAsync(FileRequest request)
         {
             var path = CreatePath(request.ResourceName);
             File.Delete(path);
-            return Success<FileResponse>().ToTask<Response>();
+            return Success<FileResponse>(request.ResourceName).ToTask<Response>();
         }
 
         private string CreatePath(string path)

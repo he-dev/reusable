@@ -21,7 +21,7 @@ namespace Reusable.Translucent.Controllers
     {
         private readonly HttpClient _client;
 
-        public HttpController(ControllerName name, HttpClient httpClient) : base(name, httpClient.BaseAddress.ToString())
+        public HttpController(HttpClient httpClient) : base(httpClient.BaseAddress.ToString())
         {
             _client = httpClient;
             _client.DefaultRequestHeaders.Clear();
@@ -42,9 +42,9 @@ namespace Reusable.Translucent.Controllers
         /// <summary>
         /// Create a HttpProvider that doesn't use a proxy for requests.
         /// </summary>
-        public static HttpController FromBaseUri(ControllerName controllerName, string baseUri)
+        public static HttpController FromBaseUri(string baseUri)
         {
-            return new HttpController(controllerName, new HttpClient(new HttpClientHandler { UseProxy = false })
+            return new HttpController(new HttpClient(new HttpClientHandler { UseProxy = false })
             {
                 BaseAddress = new Uri(baseUri)
             });
@@ -92,9 +92,9 @@ namespace Reusable.Translucent.Controllers
 
             return statusCode.Class() switch
             {
-                HttpStatusCodeClass.Informational => Success<HttpResponse>(responseContentCopy, response => response.ContentType = contentType),
-                HttpStatusCodeClass.Success => Success<HttpResponse>(responseContentCopy, response => response.ContentType = contentType),
-                _ => NotFound<HttpResponse>(responseContentCopy, response => { response.HttpStatusCode = (int)statusCode; })
+                HttpStatusCodeClass.Informational => Success<HttpResponse>(request.ResourceName, responseContentCopy, response => response.ContentType = contentType),
+                HttpStatusCodeClass.Success => Success<HttpResponse>(request.ResourceName, responseContentCopy, response => response.ContentType = contentType),
+                _ => NotFound<HttpResponse>(request.ResourceName, responseContentCopy, response => { response.HttpStatusCode = (int)statusCode; })
             };
         }
 

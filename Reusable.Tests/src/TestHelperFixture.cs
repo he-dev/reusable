@@ -16,23 +16,12 @@ namespace Reusable
         {
             LoggerFactory = CreateLoggerFactory(new MemoryRx());
             Cache = CreateCache();
-
-            Resources = new Resource
-            (
-                ImmutableServiceProvider.Empty.Add(Cache).Add(LoggerFactory),
-                TestResourceFactory.CreateControllers,
-                TestResourceFactory.CreateMiddleware
-            );
-            
-            Resources =
-                Resource
-                    .Builder()
-                    .UseController()
+            Resource = CreateResource();
         }
 
         public ILoggerFactory LoggerFactory { get; }
 
-        public IResource Resources { get; }
+        public IResource Resource { get; }
 
         public IMemoryCache Cache { get; }
 

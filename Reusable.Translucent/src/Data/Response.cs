@@ -5,6 +5,8 @@ namespace Reusable.Translucent.Data
 {
     public class Response : IDisposable
     {
+        public string ResourceName { get; set; }
+        
         public ResourceStatusCode StatusCode { get; set; }
 
         public object? Body { get; set; }
@@ -17,7 +19,7 @@ namespace Reusable.Translucent.Data
         // ReSharper disable once InconsistentNaming
         public static Response Success() => new Response { StatusCode = ResourceStatusCode.Success };
         
-        public static Response NotFound() => new Response { StatusCode = ResourceStatusCode.NotFound };
+        public static Response NotFound(string resourceName) => new Response { ResourceName = resourceName, StatusCode = ResourceStatusCode.NotFound };
 
         public void Dispose()
         {

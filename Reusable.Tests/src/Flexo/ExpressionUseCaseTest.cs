@@ -28,7 +28,7 @@ namespace Reusable.Flexo
         [Fact]
         public void Can_deserialize_values_into_constants()
         {
-            var useCases = _expressionHelper.ReadExpressionFile<List<ExpressionUseCase>>(_testHelper.Resources, "ExpressionCollection.json");
+            var useCases = _expressionHelper.ReadExpressionFile<List<ExpressionUseCase>>(_testHelper.Resource, "ExpressionCollection.json");
             ExpressionAssert.ExpressionEqual(useCases[0], _output);
             ExpressionAssert.ExpressionEqual(useCases[1], _output);
         }
@@ -47,7 +47,7 @@ namespace Reusable.Flexo
             using var testHelperFixture = new TestHelperFixture();
             var packages = new List<IExpression>
             {
-                expressionFixture.ReadExpressionFile<IExpression>(testHelperFixture.Resources, "Packages.IsPositive.json")
+                expressionFixture.ReadExpressionFile<IExpression>(testHelperFixture.Resource, "Packages.IsPositive.json")
             };
             var scope =
                 ImmutableContainer
@@ -55,7 +55,7 @@ namespace Reusable.Flexo
                     .SetItem(ExpressionContext.Packages, new PackageContainer(packageId => packages.Single(p => p.Id == packageId) as Package))
                     .SetItem("Product", new Product());
 
-            var useCases = expressionFixture.ReadExpressionFile<List<ExpressionUseCase>>(testHelperFixture.Resources, "ExpressionUseCases.json");
+            var useCases = expressionFixture.ReadExpressionFile<List<ExpressionUseCase>>(testHelperFixture.Resource, "ExpressionUseCases.json");
 
             foreach (var useCase in useCases)
             {

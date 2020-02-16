@@ -22,7 +22,7 @@ namespace Reusable.Translucent.Middleware
         {
             Environment.SetEnvironmentVariable("TEST_VARIABLE", @"I:\test\this\path");
 
-            var c = Mock.Create<TestFileController>(Behavior.CallOriginal, ControllerName.Any);
+            var c = Mock.Create<TestFileController>(Behavior.CallOriginal);
             c.Arrange(x => x.ReadAsync(Arg.Matches<FileRequest>(y => y.ResourceName.Equals(@"I:\test\this\path\test.txt")))).Returns(new Response().ToTask()).OccursOnce();
 
             var r =

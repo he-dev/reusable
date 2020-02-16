@@ -1,5 +1,6 @@
 using System;
 using System.Threading.Tasks;
+using Reusable.Extensions;
 using Reusable.Teapot;
 using Reusable.Utilities.Mailr;
 using Reusable.Utilities.Mailr.Models;
@@ -51,10 +52,10 @@ namespace Reusable.Translucent.Controllers
                 Body = new { Greeting = "Hallo Mailr!" }
             };
 
-            var resources = 
+            var resources =
                 Resource
                     .Builder()
-                    .UseController(HttpController.FromBaseUri("Mailr", "http://localhost:30002/api"))
+                    .UseController(HttpController.FromBaseUri("http://localhost:30002/api").Pipe(x => x.Name = "Mailr"))
                     .Build(ImmutableServiceProvider.Empty);
             var response = await resources.SendEmailAsync("mailr/messages/test", email, http =>
             {

@@ -19,6 +19,8 @@ namespace Reusable.Extensions
         [ContractAnnotation("value: null => false; notnull => true")]
         public static bool IsNotNullOrEmpty(this string? value) => !IsNullOrEmpty(value);
 
+        public static bool Not(this bool value) => !value;
+
         #region IIf
 
         public static TResult IIf<TValue, TResult>(this TValue value, [NotNull] Func<TValue, bool> predicate, [NotNull] Func<TValue, TResult> ifTrue, [NotNull] Func<TValue, TResult> ifFalse)

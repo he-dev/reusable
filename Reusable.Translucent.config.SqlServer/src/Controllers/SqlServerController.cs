@@ -16,7 +16,7 @@ namespace Reusable.Translucent.Controllers
 
         public const string DefaultTable = "Setting";
 
-        public SqlServerController(ControllerName name, string connectionString) : base(name)
+        public SqlServerController(string connectionString)
         {
             ConnectionString = connectionString;
             Converter = new JsonSettingConverter();
@@ -43,11 +43,11 @@ namespace Reusable.Translucent.Controllers
                 {
                     var value = settingReader[ColumnMappings.MapOrDefault(SqlServerColumn.Value)];
                     value = Converter.Convert(value, request.SettingType);
-                    return Success<ConfigResponse>(value);
+                    return Success<ConfigResponse>(request.ResourceName, value);
                 }
                 else
                 {
-                    return NotFound<ConfigResponse>();
+                    return NotFound<ConfigResponse>(request.ResourceName);
                 }
             }, request.CancellationToken);
         }
@@ -62,7 +62,7 @@ namespace Reusable.Translucent.Controllers
                 await cmd.ExecuteNonQueryAsync(token);
             }, request.CancellationToken);
 
-            return Success<ConfigResponse>();
+            return Success<ConfigResponse>(request.ResourceName);
         }
     }
 }

@@ -15,8 +15,6 @@ namespace Reusable.Translucent.Controllers
 {
     public class SmtpController : MailToController<SmtpRequest>
     {
-        public SmtpController(ControllerName name) : base(name) { }
-
         public override async Task<Response> CreateAsync(SmtpRequest smtp)
         {
             var message = new MimeMessage();
@@ -65,7 +63,7 @@ namespace Reusable.Translucent.Controllers
                 await smtpClient.SendAsync(message);
             }
 
-            return Success<Translucent.Data.SmtpResponse>();
+            return Success<Translucent.Data.SmtpResponse>(smtp.ResourceName);
         }
     }
 }

@@ -46,6 +46,7 @@
         <Compile Remove="src\Data\MiddlewareInfo.cs" />
         <Compile Remove="src\PipelineFactory.cs" />
         <Compile Remove="src\Annotations\**" />
+        <Compile Remove="src\ControllerName.cs" />
     </ItemGroup>
     <ItemGroup>
       <EmbeddedResource Remove="src\Annotations\**" />

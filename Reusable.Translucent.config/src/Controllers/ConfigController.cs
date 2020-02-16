@@ -9,8 +9,6 @@ namespace Reusable.Translucent.Controllers
     /// </summary>
     public abstract class ConfigController : ResourceController<ConfigRequest>
     {
-        protected ConfigController(ControllerName name) : base(name, default) { }
-
         public ITypeConverter Converter { get; set; } = TypeConverter.PassThru;
     }
 }

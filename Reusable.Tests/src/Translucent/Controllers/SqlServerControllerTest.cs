@@ -26,13 +26,13 @@ namespace Reusable.Translucent.Controllers
         {
             var connectionString = AppConfigHelper.GetConnectionString(TestHelper.ConnectionString);
             await using var conn = new SqlConnection(connectionString);
-            await conn.ExecuteAsync(_testHelper.Resources.ReadTextFile(@"Translucent/Config/seed-test-data.sql"));
+            await conn.ExecuteAsync(_testHelper.Resource.ReadTextFile(@"Translucent/Config/seed-test-data.sql"));
         }
 
         [Fact]
         public void Can_deserialize_various_types()
         {
-            var testDto = new TestDto(_testHelper.Resources);
+            var testDto = new TestDto(_testHelper.Resource);
 
             Assert.Equal("Tower Bridge", testDto.String);
             Assert.Equal(true, testDto.Boolean);
@@ -52,7 +52,7 @@ namespace Reusable.Translucent.Controllers
         [Fact]
         public void Can_update_setting()
         {
-            var testDto = new TestDto(_testHelper.Resources);
+            var testDto = new TestDto(_testHelper.Resource);
             Assert.Equal("Tower Bridge", testDto.String);
             testDto.String = "Tower Bridge new";
             Assert.Equal("Tower Bridge new", testDto.String);

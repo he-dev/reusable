@@ -12,29 +12,27 @@ namespace Reusable.Translucent.Controllers
     {
         private readonly IDictionary<string, object?> _items = new Dictionary<string, object?>();
 
-        public MemoryFileController(ControllerName? name = default) : base(name) { }
-
         public override Task<Response> ReadAsync(T request)
         {
             return
                 _items.TryGetValue(request.ResourceName, out var obj)
-                    ? Success<FileResponse>(obj).ToTask<Response>()
-                    : NotFound<FileResponse>().ToTask<Response>();
+                    ? Success<FileResponse>(request.ResourceName, obj).ToTask()
+                    : NotFound<FileResponse>(request.ResourceName).ToTask();
         }
 
         public override Task<Response> CreateAsync(T request)
         {
-            _items[request.ResourceName.ToString()] = request.Body;
+            _items[request.ResourceName] = request.Body;
 
-            return Success<FileResponse>().ToTask<Response>();
+            return Success<FileResponse>(request.ResourceName).ToTask();
         }
 
         public override Task<Response> DeleteAsync(T request)
         {
             return
                 _items.Remove(request.ResourceName)
-                    ? Success<Response>().ToTask<Response>()
-                    : NotFound<Response>().ToTask<Response>();
+                    ? Success<Response>(request.ResourceName).ToTask()
+                    : NotFound<Response>(request.ResourceName).ToTask();
         }
 
         #region Collection initilizers

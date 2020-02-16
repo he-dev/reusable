@@ -50,7 +50,7 @@ namespace Reusable.Teapot
             var resources =
                 Resource
                     .Builder()
-                    .UseController(HttpController.FromBaseUri(ControllerName.Any, $"{BaseUri}/api"))
+                    .UseController(HttpController.FromBaseUri($"{BaseUri}/api"))
                     .Build(ImmutableServiceProvider.Empty.Add(TestHelper.CreateCache()).Add(_testHelper.LoggerFactory));
 
             using var response = await resources.CreateAsync<HttpRequest.Json>("/test?param=true", new { Greeting = "Hallo" }, http =>

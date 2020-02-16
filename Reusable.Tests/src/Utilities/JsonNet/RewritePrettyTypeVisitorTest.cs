@@ -42,7 +42,7 @@ namespace Reusable.Utilities.JsonNet
         [Fact]
         public void Can_rewrite_non_generic_type()
         {
-            var json = _testHelper.Resources.ReadTextFile("PrettyType0.json");
+            var json = _testHelper.Resource.ReadTextFile("PrettyType0.json");
             var testClass = RewritePrettyTypeVisitor.Visit(json).ToObject<JsonTestClass>(JsonSerializer);
 
             Assert.NotNull(testClass);
@@ -54,7 +54,7 @@ namespace Reusable.Utilities.JsonNet
         [Fact]
         public void Can_rewrite_generic_type_with_one_argument()
         {
-            var json = _testHelper.Resources.ReadTextFile("PrettyType1.json");
+            var json = _testHelper.Resource.ReadTextFile("PrettyType1.json");
             var testClass = RewritePrettyTypeVisitor.Visit(json).ToObject<JsonTestClass>(JsonSerializer);
 
             Assert.NotNull(testClass);
@@ -66,7 +66,7 @@ namespace Reusable.Utilities.JsonNet
         [Fact]
         public void Can_rewrite_generic_type_with_two_arguments()
         {
-            var json = _testHelper.Resources.ReadTextFile("PrettyType2.json");
+            var json = _testHelper.Resource.ReadTextFile("PrettyType2.json");
             var testClass = RewritePrettyTypeVisitor.Visit(json).ToObject<JsonTestClass>(JsonSerializer);
 
             Assert.NotNull(testClass);

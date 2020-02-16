@@ -37,7 +37,7 @@ namespace Reusable.Translucent.Controllers
         [Fact]
         public async Task Can_get_setting()
         {
-            var env = await _testHelper.Resources.ReadSettingAsync(From<IProgramConfig>.Select(x => x.Environment));
+            var env = await _testHelper.Resource.ReadSettingAsync(From<IProgramConfig>.Select(x => x.Environment));
             
             Assert.Equal("test", env);
         }

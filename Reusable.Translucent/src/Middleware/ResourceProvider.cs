@@ -23,7 +23,7 @@ namespace Reusable.Translucent.Middleware
     {
         private static readonly IEnumerable<ResourceControllerFilterDelegate> Filters = new ResourceControllerFilterDelegate[]
         {
-            ResourceControllerFilters.FilterByControllerName,
+            ResourceControllerFilters.FilterByController,
             ResourceControllerFilters.FilterByRequest,
         };
 
@@ -61,7 +61,7 @@ namespace Reusable.Translucent.Middleware
                 // READ can search multiple providers.
                 if (context.Request.Method == ResourceMethod.Read)
                 {
-                    context.Response = Response.NotFound();
+                    context.Response = Response.NotFound(context.Request.ResourceName);
                     
                     foreach (var controller in candidates)
                     {

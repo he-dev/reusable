@@ -20,7 +20,9 @@ namespace Reusable.Translucent.Data
 
         public IDictionary<string, object> Items { get; } = new Dictionary<string, object>(SoftString.Comparer);
 
-        public ControllerName ControllerName { get; set; } = ControllerName.Any;
+        public SoftString? ControllerName { get; set; }
+
+        public ISet<SoftString> ControllerTags { get; set; } = new SortedSet<SoftString>();
 
         public CancellationToken CancellationToken { get; set; }
 

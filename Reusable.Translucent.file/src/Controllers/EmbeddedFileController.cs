@@ -13,7 +13,7 @@ namespace Reusable.Translucent.Controllers
     {
         private readonly Assembly _assembly;
 
-        public EmbeddedFileController(ControllerName name, string baseUri, Assembly assembly) : base(name, baseUri)
+        public EmbeddedFileController(string baseUri, Assembly assembly) : base(baseUri)
         {
             _assembly = assembly;
         }
@@ -27,8 +27,8 @@ namespace Reusable.Translucent.Controllers
 
             return
                 actualName is {}
-                    ? Success<FileResponse>(_assembly.GetManifestResourceStream(actualName)).ToTask<Response>()
-                    : NotFound<FileResponse>().ToTask<Response>();
+                    ? Success<FileResponse>(request.ResourceName, _assembly.GetManifestResourceStream(actualName)).ToTask<Response>()
+                    : NotFound<FileResponse>(request.ResourceName).ToTask<Response>();
         }
 
         // Embedded resource names are separated by '.' so replace the windows separator.
@@ -37,10 +37,10 @@ namespace Reusable.Translucent.Controllers
 
     public class EmbeddedFileController<T> : EmbeddedFileController
     {
-        public EmbeddedFileController(ControllerName name, string? baseUri = default) : base(name, baseUri ?? typeof(T).Namespace, typeof(T).Assembly) { }
+        public EmbeddedFileController(string? baseUri = default) : base(baseUri ?? typeof(T).Namespace, typeof(T).Assembly) { }
 
-        public static IResourceController Default { get; } = new EmbeddedFileController(ControllerName.Any, typeof(T).Namespace, typeof(T).Assembly);
+        public static IResourceController Default { get; } = new EmbeddedFileController(typeof(T).Namespace, typeof(T).Assembly);
 
-        public static IResourceController Create(ControllerName controllerName, string basePath) => new EmbeddedFileController(controllerName, basePath, typeof(T).Assembly);
+        public static IResourceController Create(string basePath) => new EmbeddedFileController(basePath, typeof(T).Assembly);
     }
 }

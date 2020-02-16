@@ -1,18 +1,14 @@
 using System.Configuration;
 using System.Linq;
 using System.Threading.Tasks;
-using JetBrains.Annotations;
 using Reusable.Extensions;
 using Reusable.OneTo1;
-using Reusable.Translucent.Annotations;
 using Reusable.Translucent.Data;
 
 namespace Reusable.Translucent.Controllers
 {
     public class AppSettingController : ConfigController
     {
-        public AppSettingController(ControllerName name) : base(name) { }
-
         public override Task<Response> ReadAsync(ConfigRequest request)
         {
             var exeConfig = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
@@ -21,8 +17,8 @@ namespace Reusable.Translucent.Controllers
 
             return
                 element is {}
-                    ? Success<ConfigResponse>(element.Value).ToTask<Response>()
-                    : NotFound<ConfigResponse>().ToTask<Response>();
+                    ? Success<ConfigResponse>(request.ResourceName, element.Value).ToTask<Response>()
+                    : NotFound<ConfigResponse>(request.ResourceName).ToTask<Response>();
         }
 
         public override Task<Response> CreateAsync(ConfigRequest request)
@@ -44,7 +40,7 @@ namespace Reusable.Translucent.Controllers
 
             exeConfig.Save(ConfigurationSaveMode.Minimal);
 
-            return Success<ConfigResponse>().ToTask<Response>();
+            return Success<ConfigResponse>(request.ResourceName).ToTask<Response>();
         }
 
         private static string? FindActualKey(Configuration exeConfig, string key)

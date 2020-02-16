@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
@@ -12,7 +13,9 @@ namespace Reusable.Translucent.Abstractions
     [PublicAPI]
     public interface IResourceController : IDisposable
     {
-        ControllerName Name { get; }
+        SoftString? Name { get; }
+
+        ISet<SoftString> Tags { get; }
 
         string? BaseUri { get; }
 
@@ -32,20 +35,22 @@ namespace Reusable.Translucent.Abstractions
     [DebuggerDisplay(DebuggerDisplayString.DefaultNoQuotes)]
     public abstract class ResourceController<T> : IResourceController where T : Request
     {
-        protected ResourceController(ControllerName? name, string? baseUri = default)
+        protected ResourceController(string? baseUri = default)
         {
-            Name = name ?? ControllerName.Any;
             BaseUri = baseUri;
         }
 
         private string DebuggerDisplay => this.ToDebuggerDisplayString(builder =>
         {
             builder.DisplaySingle(c => c.Name);
+            builder.DisplayEnumerable(c => c.Tags);
             builder.DisplaySingle(c => c.BaseUri);
             builder.DisplaySingle(c => c.RequestType, t => t.ToPrettyString());
         });
 
-        public ControllerName Name { get; }
+        public SoftString? Name { get; set; }
+
+        public ISet<SoftString> Tags { get; } = new SortedSet<SoftString>();
 
         public string? BaseUri { get; }
 
@@ -86,14 +91,14 @@ namespace Reusable.Translucent.Abstractions
         }
 
         // ReSharper disable once InconsistentNaming
-        protected static TResponse Success<TResponse>(object? body = default, Action<TResponse>? configure = default) where TResponse : Response, new()
+        protected static Response Success<TResponse>(string resourceName, object? body = default, Action<TResponse>? configure = default) where TResponse : Response, new()
         {
-            return new TResponse { StatusCode = ResourceStatusCode.Success, Body = body }.Pipe(configure);
+            return new TResponse { ResourceName = resourceName, StatusCode = ResourceStatusCode.Success, Body = body }.Pipe(configure);
         }
 
-        protected static TResponse NotFound<TResponse>(object? body = default, Action<TResponse>? configure = default) where TResponse : Response, new()
+        protected static Response NotFound<TResponse>(string resourceName, object? body = default, Action<TResponse>? configure = default) where TResponse : Response, new()
         {
-            return new TResponse { StatusCode = ResourceStatusCode.NotFound, Body = body }.Pipe(configure);
+            return new TResponse { ResourceName = resourceName, StatusCode = ResourceStatusCode.NotFound, Body = body }.Pipe(configure);
         }
 
         // Can be overriden when derived.

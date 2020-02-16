@@ -386,6 +386,8 @@ namespace System.Linq.Custom
                 Changed = both.Where(t => !valueComparer.Equals(valueSelector(t.f), valueSelector(t.s))).Select(t => t.s)
             };
         }
+        
+        public static Stack<T> ToStack<T>(this IEnumerable<T> source) => new Stack<T>(source);
 
         //        public static IEnumerable<T> Take<T>(this IEnumerable<T> source, int count)
 //        {

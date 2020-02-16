@@ -1,17 +1,7 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Linq.Custom;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
-using Microsoft.Extensions.Caching.Memory;
-using Microsoft.Extensions.DependencyInjection;
-using Reusable.Exceptionize;
-using Reusable.OmniLog;
-using Reusable.OmniLog.Abstractions;
 using Reusable.Translucent.Abstractions;
 using Reusable.Translucent.Data;
-using Reusable.Translucent.Middleware;
 
 namespace Reusable.Translucent
 {
@@ -37,4 +27,10 @@ namespace Reusable.Translucent
             return context.Response;
         }
     }
+    
+    public delegate Task RequestDelegate(ResourceContext context);
+    
+    public delegate IResourceController CreateControllerDelegate();
+
+    public delegate IResourceMiddleware CreateMiddlewareDelegate(RequestDelegate next);
 }

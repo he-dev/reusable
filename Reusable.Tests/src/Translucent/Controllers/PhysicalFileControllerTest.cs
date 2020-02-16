@@ -16,7 +16,7 @@ namespace Reusable.Translucent.Controllers
             _resource =
                 Resource
                     .Builder()
-                    .UseController(new PhysicalFileResourceController(ControllerName.Any))
+                    .UseController(new PhysicalFileResourceController())
                     .Build(ImmutableServiceProvider.Empty.Add(testHelper.Cache).Add(testHelper.LoggerFactory));
         }
 

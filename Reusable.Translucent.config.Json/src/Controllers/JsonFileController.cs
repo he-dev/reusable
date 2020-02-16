@@ -1,7 +1,6 @@
 using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
 using Reusable.Extensions;
-using Reusable.Translucent.Annotations;
 using Reusable.Translucent.Converters;
 using Reusable.Translucent.Data;
 
@@ -14,7 +13,7 @@ namespace Reusable.Translucent.Controllers
     {
         private readonly IConfiguration _configuration;
 
-        public JsonFileController(ControllerName name, string basePath, string fileName) : base(name)
+        public JsonFileController(string basePath, string fileName)
         {
             _configuration =
                 new ConfigurationBuilder()
@@ -31,8 +30,8 @@ namespace Reusable.Translucent.Controllers
 
             return
                 data is {}
-                    ? Success<ConfigResponse>(data).ToTask<Response>()
-                    : NotFound<ConfigResponse>().ToTask<Response>();
+                    ? Success<ConfigResponse>(request.ResourceName, data).ToTask<Response>()
+                    : NotFound<ConfigResponse>(request.ResourceName).ToTask<Response>();
         }
     }
 }

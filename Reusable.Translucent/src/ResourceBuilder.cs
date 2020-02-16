@@ -30,19 +30,26 @@ namespace Reusable.Translucent
             return this;
         }
 
+        private static IEnumerable<CreateMiddlewareDelegate> CreateDefaultMiddleware(IServiceProvider serviceProvider, IEnumerable<IResourceController> controllers)
+        {
+            yield return next => new ResourceProvider
+            (
+                next,
+                (serviceProvider.GetService<ILoggerFactory>() ?? LoggerFactory.Empty()).CreateLogger<ResourceProvider>(),
+                (serviceProvider.GetService<IMemoryCache>() ?? new MemoryCache(new MemoryCacheOptions())),
+                controllers
+            );
+        }
+
         public IResource Build(IServiceProvider? serviceProvider = default)
         {
-            serviceProvider ??=ImmutableServiceProvider.Empty;
-            
-            var middlewareFactories = _middleware.Select(f => f(serviceProvider)).Append(next => new ResourceProvider
-                (
-                    next,
-                    (serviceProvider.GetService<ILoggerFactory>() ?? LoggerFactory.Empty()).CreateLogger<ResourceProvider>(),
-                    (serviceProvider.GetService<IMemoryCache>() ?? new MemoryCache(new MemoryCacheOptions())),
-                    _controller.Select(f => f(serviceProvider)()))
-            );
+            serviceProvider ??= ImmutableServiceProvider.Empty;
 
-            middlewareFactories = new Stack<CreateMiddlewareDelegate>(middlewareFactories);
+            var middlewareFactories = 
+                _middleware
+                    .Select(f => f(serviceProvider))
+                    .Concat(CreateDefaultMiddleware(serviceProvider, _controller.Select(f => f(serviceProvider)())))
+                    .ToStack();
 
             var resourceMiddleware = middlewareFactories.Aggregate(default(IResourceMiddleware?), (previous, factory) =>
             {

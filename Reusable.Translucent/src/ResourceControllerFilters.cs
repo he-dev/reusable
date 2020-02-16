@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using Reusable.Extensions;
 using Reusable.Translucent.Abstractions;
 using Reusable.Translucent.Data;
 
@@ -9,29 +10,25 @@ namespace Reusable.Translucent
 
     public static class ResourceControllerFilters
     {
-        public static IEnumerable<IResourceController> FilterByControllerName(this IEnumerable<IResourceController> controllers, Request request)
+        public static IEnumerable<IResourceController> FilterByController(this IEnumerable<IResourceController> controllers, Request request)
         {
-            if (request.ControllerName.Equals(ControllerName.Any))
-            {
-                if (request.ControllerName.Tags.Any())
-                {
-                    return
-                        from c in controllers
-                        where c.Name.Tags.Overlaps(request.ControllerName.Tags)
-                        select c;
-                }
-                else
-                {
-                    return controllers;
-                }
-            }
-            else
+            if (request.ControllerName.IsNullOrEmpty().Not())
             {
                 return
                     from c in controllers
-                    where c.Name.Equals(request.ControllerName)
+                    where request.ControllerName.Equals(c.Name)
                     select c;
             }
+
+            if (request.ControllerTags.Any())
+            {
+                return
+                    from c in controllers
+                    where request.ControllerTags.Overlaps(c.Tags)
+                    select c;
+            }
+
+            return controllers;
         }
 
         public static IEnumerable<IResourceController> FilterByRequest(this IEnumerable<IResourceController> controllers, Request request)

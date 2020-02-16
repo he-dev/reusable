@@ -16,7 +16,7 @@ namespace Reusable.Utilities.Mailr.Models
         [Fact]
         public void CanBeSerializedToJson()
         {
-            var expected = _testHelper.Resources.ReadTextFile(@"Http\Mailr\HtmlTable.json");
+            var expected = _testHelper.Resource.ReadTextFile(@"Http\Mailr\HtmlTable.json");
 
             var table = new HtmlTable(HtmlTableColumn.Create(("Name", typeof(string)), ("Age", typeof(int))));
             var row = table.Body.NewRow();
