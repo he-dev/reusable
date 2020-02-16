@@ -33,7 +33,7 @@ namespace Reusable.Translucent.Middleware
 
         public ResourceProvider
         (
-            RequestDelegate<ResourceContext> next,
+            RequestDelegate next,
             ILogger<ResourceProvider> logger,
             IMemoryCache cache,
             IEnumerable<IResourceController> controllers

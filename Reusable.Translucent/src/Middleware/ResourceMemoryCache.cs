@@ -16,7 +16,7 @@ namespace Reusable.Translucent.Middleware
     {
         private readonly IMemoryCache _memoryCache;
 
-        public ResourceMemoryCache(RequestDelegate<ResourceContext> next, IMemoryCache memoryCache) : base(next)
+        public ResourceMemoryCache(RequestDelegate next, IMemoryCache memoryCache) : base(next)
         {
             _memoryCache = memoryCache;
         }

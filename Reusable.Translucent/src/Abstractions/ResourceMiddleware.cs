@@ -9,9 +9,9 @@ namespace Reusable.Translucent.Abstractions
 
     public abstract class ResourceMiddleware : IResourceMiddleware
     {
-        protected ResourceMiddleware(RequestDelegate<ResourceContext> next) => Next = next;
+        protected ResourceMiddleware(RequestDelegate next) => Next = next;
 
-        protected RequestDelegate<ResourceContext> Next { get; }
+        protected RequestDelegate Next { get; }
 
         public abstract Task InvokeAsync(ResourceContext context);
     }

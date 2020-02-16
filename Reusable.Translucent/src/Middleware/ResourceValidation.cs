@@ -10,7 +10,7 @@ namespace Reusable.Translucent.Middleware
     [UsedImplicitly]
     public class ResourceValidation : ResourceMiddleware
     {
-        public ResourceValidation(RequestDelegate<ResourceContext> next, IResourceValidator validator) : base(next)
+        public ResourceValidation(RequestDelegate next, IResourceValidator validator) : base(next)
         {
             Validator = validator;
         }

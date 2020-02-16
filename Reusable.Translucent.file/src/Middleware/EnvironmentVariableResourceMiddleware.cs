@@ -12,7 +12,7 @@ namespace Reusable.Translucent.Middleware
     [UsedImplicitly]
     public class EnvironmentVariableResourceMiddleware : ResourceMiddleware
     {
-        public EnvironmentVariableResourceMiddleware(RequestDelegate<ResourceContext> next) : base(next) { }
+        public EnvironmentVariableResourceMiddleware(RequestDelegate next) : base(next) { }
 
         public override async Task InvokeAsync(ResourceContext context)
         {

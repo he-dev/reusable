@@ -23,6 +23,11 @@ namespace Reusable
                 TestResourceFactory.CreateControllers,
                 TestResourceFactory.CreateMiddleware
             );
+            
+            Resources =
+                Resource
+                    .Builder()
+                    .UseController()
         }
 
         public ILoggerFactory LoggerFactory { get; }

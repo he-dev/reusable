@@ -17,7 +17,7 @@ namespace Reusable.Translucent.Middleware
     {
         private readonly ILogger _logger;
 
-        public ResourceTelemetry(RequestDelegate<ResourceContext> next, ILogger<ResourceTelemetry> logger) : base(next)
+        public ResourceTelemetry(RequestDelegate next, ILogger<ResourceTelemetry> logger) : base(next)
         {
             _logger = logger;
         }
