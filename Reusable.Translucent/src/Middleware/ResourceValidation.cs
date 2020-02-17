@@ -38,8 +38,6 @@ namespace Reusable.Translucent.Middleware
         }
     }
 
-    
-    
     public static class ResourceValidationHelper
     {
         public static void Required(this Request request, bool required)

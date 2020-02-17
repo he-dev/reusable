@@ -47,6 +47,8 @@ namespace Reusable.Translucent.Middleware
 
                     await InvokeNext(context);
 
+                    context.Response!.Log = context.Log;
+
                     LogResponse(_logger, context);
                 }
                 catch (Exception inner)
@@ -70,9 +72,10 @@ namespace Reusable.Translucent.Middleware
             {
                 resourceRequest = new
                 {
-                    method = context.Request.Method.ToString(),
+                    method = context.Request.Method.ToString().ToUpper(),
                     resourceName = context.Request.ResourceName,
-                    controllerName = context.Request.ControllerName.ToString(),
+                    controllerName = context.Request.ControllerName?.ToString(),
+                    controllerTags = context.Request.ControllerTags,
                     items = context.Request.Items,
                 }
             }));
@@ -84,9 +87,8 @@ namespace Reusable.Translucent.Middleware
             {
                 resourceResponse = new
                 {
-                    statusCode = context.Response.StatusCode,
-                    cached = context.Response.Cached,
-                    bodyType = context.Response.Body?.GetType().ToPrettyString()
+                    statusCode = context.Response!.StatusCode,
+                    bodyType = context.Response!.Body?.GetType().ToPrettyString()
                 }
             }));
         }

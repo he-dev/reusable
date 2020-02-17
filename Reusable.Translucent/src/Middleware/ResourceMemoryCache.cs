@@ -33,7 +33,7 @@ namespace Reusable.Translucent.Middleware
                     {
                         await InvokeNext(context);
 
-                        if (context.Response.Body is Stream stream)
+                        if (context.Response!.Body is Stream stream)
                         {
                             var copy = new MemoryStream();
                             using (stream)
@@ -42,6 +42,7 @@ namespace Reusable.Translucent.Middleware
                             }
 
                             context.Response.Body = copy;
+                            context.Response.ExternallyOwned = true;
                         }
                         
                         entry.Value = context.Response;
@@ -62,6 +63,7 @@ namespace Reusable.Translucent.Middleware
         }
     }
 
+    [PublicAPI]
     public static class ResourceMemoryCacheHelper
     {
         public static void MaxAge(this Request request, TimeSpan maxAge)

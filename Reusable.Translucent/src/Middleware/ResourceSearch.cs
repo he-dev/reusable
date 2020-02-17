@@ -31,10 +31,10 @@ namespace Reusable.Translucent.Middleware
 
         public override async Task InvokeAsync(ResourceContext context)
         {
-            var providerKey = context.Request.ResourceName;
+            var cacheKey = $"Resource['{context.Request.ResourceName}']";
 
             // Used cached provider if already resolved.
-            if (Cache.TryGetValue<IResourceController>(providerKey, out var controllerFromCache))
+            if (Cache.TryGetValue<IResourceController>(cacheKey, out var controllerFromCache))
             {
                 //context.Response = await InvokeMethodAsync(entry, context.Request);
                 context.Response = await controllerFromCache.InvokeAsync(context.Request);
@@ -46,22 +46,25 @@ namespace Reusable.Translucent.Middleware
                 // READ can search multiple providers.
                 if (context.Request.Method == ResourceMethod.Read)
                 {
+                    context.Log.Add($"$Search '{context.Request.ResourceName}'...");
                     context.Response = Response.NotFound(context.Request.ResourceName);
 
                     foreach (var controller in candidates)
                     {
                         if (await controller.InvokeAsync(context.Request) is var response && response.Exists())
                         {
-                            context.Log.Add(new { controller = controller.GetType().ToPrettyString(), statusCode = ResourceStatusCode.Success });
+                            context.Log.Add($"{controller.GetType().ToPrettyString()}: {ResourceStatusCode.Success}.");
                             context.Response = response;
-                            Cache.Set(providerKey, controller);
+                            Cache.Set(cacheKey, controller);
                             break;
                         }
                         else
                         {
-                            context.Log.Add(new { controller = controller.GetType().ToPrettyString(), statusCode = ResourceStatusCode.NotFound, });
+                            context.Log.Add($"{controller.GetType().ToPrettyString()}: {ResourceStatusCode.NotFound}.");
                         }
                     }
+                    
+                    context.Log.Add("...done.");
                 }
                 // Other methods are allowed to use only a single controller.
                 else
@@ -71,7 +74,7 @@ namespace Reusable.Translucent.Middleware
                         onEmpty: ($"{nameof(ResourceController<Request>)}NotFound", $"Could not find controller for resource '{context.Request.ResourceName}'.")
                     );
 
-                    context.Response = await Cache.Set(providerKey, controller).InvokeAsync(context.Request);
+                    context.Response = await Cache.Set(cacheKey, controller).InvokeAsync(context.Request);
                 }
             }
         }

@@ -1,5 +1,5 @@
 using System;
-using System.Collections.Generic;
+using System.Linq;
 using Reusable.Collections.Generic;
 
 namespace Reusable.OmniLog.Abstractions
@@ -15,32 +15,17 @@ namespace Reusable.OmniLog.Abstractions
     {
         public virtual bool Enabled { get; set; } = true;
 
-        public virtual ILoggerNode Prev { get; set; }
+        public virtual ILoggerNode? Prev { get; set; }
 
-        public virtual ILoggerNode Next { get; set; }
+        public virtual ILoggerNode? Next { get; set; }
+        
+        public abstract void Invoke(ILogEntry request);
 
-        // This being virtual makes testing easier.
-        public virtual void Invoke(ILogEntry request)
+        protected void InvokeNext(ILogEntry request)
         {
-            if (Enabled)
+            if (this.EnumerateNext<ILoggerNode>(includeSelf: false).FirstOrDefault(n => n.Enabled) is {} next)
             {
-                invoke(request);
-            }
-            else
-            {
-                invokeNext(request);
-            }
-        }
-
-        // ReSharper disable once InconsistentNaming
-        protected abstract void invoke(ILogEntry request);
-
-        // ReSharper disable once InconsistentNaming
-        protected void invokeNext(ILogEntry request)
-        {
-            if (Next is {} node)
-            {
-                node.Invoke(request);
+                next.Invoke(request);
             }
         }
 

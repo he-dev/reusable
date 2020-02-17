@@ -17,23 +17,17 @@ namespace Reusable.Translucent
     [PublicAPI]
     public class Resource : IResource
     {
-        private readonly IResourceMiddleware _resourceMiddleware;
+        private readonly IResourceMiddleware _middleware;
 
-        public Resource(IEnumerable<IResourceMiddleware> middleware) => _resourceMiddleware = middleware.Chain().Head();
+        public Resource(IEnumerable<IResourceMiddleware> middleware) => _middleware = middleware.Chain().Head();
 
         public Resource(IEnumerable<IResourceController> controllers) : this(new IResourceMiddleware[] { new ResourceSearch(controllers) }) { }
 
         public async Task<Response> InvokeAsync(Request request)
         {
             var context = new ResourceContext { Request = request };
-            await _resourceMiddleware.InvokeAsync(context);
-            return context.Response;
+            await _middleware.InvokeAsync(context);
+            return context.Response!;
         }
     }
-
-    //public delegate Task RequestDelegate(ResourceContext context);
-
-    //public delegate IResourceController CreateControllerDelegate();
-
-    //public delegate IResourceMiddleware CreateMiddlewareDelegate();
 }

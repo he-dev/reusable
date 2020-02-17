@@ -13,14 +13,14 @@ namespace Reusable.OmniLog.Nodes
 
         public List<IService> Services { get; set; } = new List<IService>();
 
-        protected override void invoke(ILogEntry request)
+        public override void Invoke(ILogEntry request)
         {
             foreach (var computable in Services.Where(x => x.Enabled))
             {
                 request.Add(computable.Name, computable.GetValue(request), m => m.ProcessWith<EchoNode>());
             }
 
-            invokeNext(request);
+            InvokeNext(request);
         }
     }
 }

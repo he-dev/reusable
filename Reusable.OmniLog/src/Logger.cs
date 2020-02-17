@@ -6,9 +6,9 @@ namespace Reusable.OmniLog
 {
     public class Logger : LoggerNode, ILogger
     {
-        public virtual void Log(ILogEntry logEntry) => invokeNext(logEntry);
+        public virtual void Log(ILogEntry logEntry) => InvokeNext(logEntry);
 
-        protected override void invoke(ILogEntry request) => Log(request);
+        public override void Invoke(ILogEntry request) => Log(request);
     }
 
     public class Logger<T> : Logger, ILogger<T>

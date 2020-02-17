@@ -5,9 +5,11 @@ using System.Threading;
 
 namespace Reusable.Translucent.Data
 {
+    using static ResourceMethod;
+    
     public abstract class Request : IDisposable
     {
-        public ResourceMethod Method { get; set; } = ResourceMethod.None;
+        public ResourceMethod Method { get; set; } = None;
 
         public string ResourceName { get; set; } = default!;
 

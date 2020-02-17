@@ -23,7 +23,7 @@
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
       },
-      "applicationUrl": "http://localhost:54245"
+      "applicationUrl": "http://localhost:3000"
     },
     "Kestrel.Staging": {
       "commandName": "Project",

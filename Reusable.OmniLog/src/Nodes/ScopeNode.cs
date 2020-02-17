@@ -23,7 +23,7 @@ namespace Reusable.OmniLog.Nodes
             return AsyncScope<FirstNode>.Push(new FirstNode(correlationId ?? NextCorrelationId(), Next)).Value;
         }
 
-        protected override void invoke(ILogEntry request)
+        public override void Invoke(ILogEntry request)
         {
             if (AsyncScope<FirstNode>.Any)
             {
@@ -33,7 +33,7 @@ namespace Reusable.OmniLog.Nodes
             }
             else
             {
-                invokeNext(request);
+                InvokeNext(request);
             }
         }
 
@@ -65,9 +65,9 @@ namespace Reusable.OmniLog.Nodes
 
         public class LastNode : LoggerNode
         {
-            protected override void invoke(ILogEntry request)
+            public override void Invoke(ILogEntry request)
             {
-                invokeNext(request);
+                InvokeNext(request);
             }
 
             public override void Dispose()

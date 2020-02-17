@@ -5,7 +5,7 @@ namespace Reusable.OmniLog.Nodes
 {
     public class BuilderNode : LoggerNode
     {
-        protected override void invoke(ILogEntry request)
+        public override void Invoke(ILogEntry request)
         {
             var builders = request.Where(LogProperty.CanProcess.With(this)).Select(p => p.Value).Cast<ILogEntryBuilder>().ToList();
             var logEntries =
@@ -19,7 +19,7 @@ namespace Reusable.OmniLog.Nodes
                 request.Add(item);
             }
 
-            invokeNext(request);
+            InvokeNext(request);
         }
     }
 }

@@ -58,24 +58,35 @@ namespace Reusable.Translucent.Abstractions
 
         public Task<Response> InvokeAsync(Request request)
         {
-            return request.Method switch
+            if (request is T r)
             {
-                ResourceMethod.Create => CreateAsync(request as T),
-                ResourceMethod.Read => ReadAsync(request as T),
-                ResourceMethod.Update => UpdateAsync(request as T),
-                ResourceMethod.Delete => DeleteAsync(request as T),
-                ResourceMethod.None => throw new InvalidOperationException("You must specify a request method."),
-                _ => throw new NotSupportedException($"Request method '{request.Method}' is not supported.")
-            };
+                return request.Method switch
+                {
+                    ResourceMethod.Create => CreateAsync(r),
+                    ResourceMethod.Read => ReadAsync(r),
+                    ResourceMethod.Update => UpdateAsync(r),
+                    ResourceMethod.Delete => DeleteAsync(r),
+                    ResourceMethod.None => throw new InvalidOperationException("You must specify a request method."),
+                    _ => throw new NotSupportedException($"Request method '{request.Method}' is not supported.")
+                };
+            }
+            else
+            {
+                throw new ArgumentException
+                (
+                    $"{GetType().ToPrettyString()} cannot process the request '{request.ResourceName}' " +
+                    $"because it must by of type '{typeof(T).ToPrettyString()}' but was '{request.GetType().ToPrettyString()}'."
+                );
+            }
         }
 
-        Task<Response> IResourceController.CreateAsync(Request request) => CreateAsync(request as T);
+        Task<Response> IResourceController.CreateAsync(Request request) => InvokeAsync(request);
 
-        Task<Response> IResourceController.ReadAsync(Request request) => ReadAsync(request as T);
+        Task<Response> IResourceController.ReadAsync(Request request) => InvokeAsync(request);
 
-        Task<Response> IResourceController.UpdateAsync(Request request) => UpdateAsync(request as T);
+        Task<Response> IResourceController.UpdateAsync(Request request) => InvokeAsync(request);
 
-        Task<Response> IResourceController.DeleteAsync(Request request) => DeleteAsync(request as T);
+        Task<Response> IResourceController.DeleteAsync(Request request) => InvokeAsync(request);
 
         public virtual Task<Response> CreateAsync(T request) => throw NotSupportedException();
 
@@ -87,7 +98,7 @@ namespace Reusable.Translucent.Abstractions
 
         private Exception NotSupportedException([CallerMemberName] string? name = default)
         {
-            throw new NotSupportedException($"{GetType().ToPrettyString()} ({Name}) does not support '{name}'.");
+            throw new NotSupportedException($"{GetType().ToPrettyString()} ({Name}) does not support '{name!.ToUpper()}'.");
         }
 
         // ReSharper disable once InconsistentNaming

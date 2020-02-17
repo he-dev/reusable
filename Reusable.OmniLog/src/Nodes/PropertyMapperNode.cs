@@ -11,7 +11,7 @@ namespace Reusable.OmniLog.Nodes
     {
         public Dictionary<SoftString, string> Mappings { get; set; } = new Dictionary<SoftString, string>();
 
-        protected override void invoke(ILogEntry request)
+        public override void Invoke(ILogEntry request)
         {
             foreach (var (key, value) in Mappings.Select(x => (x.Key, x.Value)))
             {
@@ -21,7 +21,7 @@ namespace Reusable.OmniLog.Nodes
                 }
             }
 
-            invokeNext(request);
+            InvokeNext(request);
         }
     }
 }

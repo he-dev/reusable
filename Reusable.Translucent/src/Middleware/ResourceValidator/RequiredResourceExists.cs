@@ -9,9 +9,10 @@ namespace Reusable.Translucent.Middleware.ResourceValidator
         public void Validate(ResourceContext context)
         {
             var resourceNotFound =
+                context.Processed &&
                 context.Request.Method == ResourceMethod.Read &&
                 context.Request.Required() &&
-                context.Response.StatusCode == ResourceStatusCode.NotFound;
+                context.Response!.StatusCode == ResourceStatusCode.NotFound;
 
             if (resourceNotFound)
             {

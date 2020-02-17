@@ -10,9 +10,9 @@ namespace Reusable.Translucent.Abstractions
 
     public abstract class ResourceMiddleware : IResourceMiddleware
     {
-        public IResourceMiddleware Prev { get; set; }
+        public IResourceMiddleware? Prev { get; set; }
 
-        public IResourceMiddleware Next { get; set; }
+        public IResourceMiddleware? Next { get; set; }
 
         public abstract Task InvokeAsync(ResourceContext context);
 

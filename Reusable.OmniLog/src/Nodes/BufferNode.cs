@@ -12,7 +12,7 @@ namespace Reusable.OmniLog.Nodes
     {
         private readonly Queue<ILogEntry> _buffer = new Queue<ILogEntry>();
 
-        protected override void invoke(ILogEntry request)
+        public override void Invoke(ILogEntry request)
         {
             _buffer.Enqueue(request);
             // Don't call Next until Flush.
@@ -24,7 +24,7 @@ namespace Reusable.OmniLog.Nodes
         {
             while (_buffer.Any())
             {
-                invokeNext(_buffer.Dequeue());
+                InvokeNext(_buffer.Dequeue());
             }
         }
 

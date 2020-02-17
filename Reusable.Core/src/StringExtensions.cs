@@ -81,8 +81,7 @@ namespace Reusable
 
         // ----------------
 
-        [NotNull]
-        public static string IndentLines([NotNull] this string value, int indentWidth, char indentCharacter = ' ', Encoding encoding = default)
+        public static string IndentLines([NotNull] this string value, int indentWidth, char indentCharacter = ' ', Encoding? encoding = default)
         {
             if (value == null) throw new ArgumentNullException(nameof(value));
             if (indentWidth < 0) throw new ArgumentOutOfRangeException(nameof(indentWidth));

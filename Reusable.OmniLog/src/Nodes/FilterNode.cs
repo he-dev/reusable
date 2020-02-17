@@ -12,11 +12,11 @@ namespace Reusable.OmniLog.Nodes
             _canLog = canLog;
         }
 
-        protected override void invoke(ILogEntry request)
+        public override void Invoke(ILogEntry request)
         {
             if (_canLog(request))
             {
-                invokeNext(request);
+                InvokeNext(request);
             }
         }
     }

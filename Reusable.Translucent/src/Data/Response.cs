@@ -6,16 +6,17 @@ namespace Reusable.Translucent.Data
 {
     public class Response : IDisposable
     {
-        public string ResourceName { get; set; }
+        public string ResourceName { get; set; } = default!;
         
         public ResourceStatusCode StatusCode { get; set; }
 
         public object? Body { get; set; }
 
-        /// <summary>
-        /// True if Body was retrieved from cache.
-        /// </summary>
-        public bool Cached { get; set; }
+        public bool ExternallyOwned { get; set; }
+
+        public IDictionary<string, object> Items { get; } = new Dictionary<string, object>(SoftString.Comparer);
+
+        public List<string> Log { get; set; } = default!;
 
         // ReSharper disable once InconsistentNaming
         public static Response Success() => new Response { StatusCode = ResourceStatusCode.Success };
@@ -24,7 +25,7 @@ namespace Reusable.Translucent.Data
 
         public void Dispose()
         {
-            if (Body is Stream stream && !Cached)
+            if (Body is Stream stream && !ExternallyOwned)
             {
                 stream.Dispose();
             }

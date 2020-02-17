@@ -13,7 +13,7 @@ namespace Reusable.OmniLog.Nodes
 
         public Func<ILogEntry, ILogEntry> CreateLogEntryView { get; set; } = entry => new LogEntryView<EchoNode>(entry);
 
-        protected override void invoke(ILogEntry request)
+        public override void Invoke(ILogEntry request)
         {
             var view = CreateLogEntryView(request);
 

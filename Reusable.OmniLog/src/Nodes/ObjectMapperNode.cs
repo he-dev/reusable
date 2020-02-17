@@ -14,7 +14,7 @@ namespace Reusable.OmniLog.Nodes
     {
         public MappingCollection Mappings { get; set; } = new MappingCollection();
 
-        protected override void invoke(ILogEntry request)
+        public override void Invoke(ILogEntry request)
         {
             foreach (var property in request.Where(LogProperty.CanProcess.With<SerializerNode>()).ToList())
             {
@@ -26,7 +26,7 @@ namespace Reusable.OmniLog.Nodes
                 }
             }
 
-            invokeNext(request);
+            InvokeNext(request);
         }
 
         public class Mapping

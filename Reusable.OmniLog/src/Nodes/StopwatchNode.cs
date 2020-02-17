@@ -13,10 +13,10 @@ namespace Reusable.OmniLog.Nodes
     {
         private readonly Stopwatch _stopwatch = Stopwatch.StartNew();
 
-        protected override void invoke(ILogEntry request)
+        public override void Invoke(ILogEntry request)
         {
             request.Add(LogProperty.Names.Elapsed, (long)GetValue(Elapsed), m => m.ProcessWith<EchoNode>());
-            invokeNext(request);
+            InvokeNext(request);
         }
 
         public Func<TimeSpan, double> GetValue { get; set; } = ts => ts.TotalMilliseconds;

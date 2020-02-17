@@ -16,14 +16,14 @@ namespace Reusable.OmniLog.Nodes
         /// Gets or sets serializable properties. If empty then all items are scanned.
         /// </summary>
         //public HashSet<string> SerializableProperties { get; set; } = new HashSet<string>(SoftString.Comparer);
-        protected override void invoke(ILogEntry request)
+        public override void Invoke(ILogEntry request)
         {
             foreach (var property in request.Where(LogProperty.CanProcess.With(this)).Where(LogProperty.ValueIs.NotNull()).ToList())
             {
                 request.Add(property.Name, _serializer.Serialize(property.Value!), m => m.ProcessWith<EchoNode>());
             }
 
-            invokeNext(request);
+            InvokeNext(request);
         }
     }
 

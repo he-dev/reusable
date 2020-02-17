@@ -16,7 +16,7 @@ namespace Reusable.Translucent
             {
                 return
                     from c in controllers
-                    where request.ControllerName.Equals(c.Name)
+                    where SoftString.Comparer.Equals(request.ControllerName, c.Name)
                     select c;
             }
 

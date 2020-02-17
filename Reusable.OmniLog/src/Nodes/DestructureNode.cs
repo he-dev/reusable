@@ -15,7 +15,7 @@ namespace Reusable.OmniLog.Nodes
     /// </summary>
     public class DestructureNode : LoggerNode
     {
-        protected override void invoke(ILogEntry request)
+        public override void Invoke(ILogEntry request)
         {
             var explodable =
                 from p in request.Where(LogProperty.CanProcess.With(this))
@@ -31,13 +31,13 @@ namespace Reusable.OmniLog.Nodes
                     copy.Add(LogProperty.Names.SnapshotName, name, m => m.ProcessWith<EchoNode>());
                     copy.Add(LogProperty.Names.Snapshot, value, m => m.ProcessWith<SerializerNode>());
 
-                    invokeNext(copy);
+                    InvokeNext(copy);
                 }
             }
             // There wasn't anything to explode so just invoke the next node. 
             else
             {
-                invokeNext(request);
+                InvokeNext(request);
             }
         }
     }

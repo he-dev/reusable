@@ -10,7 +10,7 @@ namespace Reusable.OmniLog.Nodes
 
         public Dictionary<SoftString, object> Defaults { get; set; } = new Dictionary<SoftString, object>();
 
-        protected override void invoke(ILogEntry request)
+        public override void Invoke(ILogEntry request)
         {
             foreach (var (key, value) in Defaults.Select(x => (x.Key, x.Value)))
             {
@@ -20,7 +20,7 @@ namespace Reusable.OmniLog.Nodes
                 }
             }
 
-            invokeNext(request);
+            InvokeNext(request);
         }
     }
 }

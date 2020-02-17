@@ -13,7 +13,7 @@ namespace Reusable.Translucent
 
         public bool Processed => Response is {};
 
-        public List<object> Log { get; } = new List<object>();
+        public List<string> Log { get; } = new List<string>();
     }
 
     public delegate Task<Stream> CreateBodyStreamDelegate();

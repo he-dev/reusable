@@ -9,7 +9,7 @@ namespace Reusable.OmniLog.Nodes
 
         public static void Push(Item item) => AsyncScope<Item>.Push(item);
 
-        protected override void invoke(ILogEntry request)
+        public override void Invoke(ILogEntry request)
         {
             while (Enabled)
             {
@@ -17,7 +17,7 @@ namespace Reusable.OmniLog.Nodes
                 item.AlterLogEntry(request);
             }
 
-            invokeNext(request);
+            InvokeNext(request);
         }
 
         public class Item : IDisposable

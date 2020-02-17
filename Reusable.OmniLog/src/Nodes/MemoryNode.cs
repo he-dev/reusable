@@ -16,7 +16,7 @@ namespace Reusable.OmniLog.Nodes
 
         public int Capacity { get; set; } = 10_000;
 
-        protected override void invoke(ILogEntry request)
+        public override void Invoke(ILogEntry request)
         {
             lock (_entries)
             {
@@ -28,7 +28,7 @@ namespace Reusable.OmniLog.Nodes
                 }
             }
 
-            invokeNext(request);
+            InvokeNext(request);
         }
 
         public IEnumerator<ILogEntry> GetEnumerator() => _entries.GetEnumerator();

@@ -27,6 +27,6 @@ namespace Reusable.OmniLog.SemanticExtensions.AspNetCore
 
         public Action<ILogger, HttpContext, Exception> LogError { get; set; } = LogHelper.LogError;
 
-        public Func<HttpContext, Task<string>> SerializeRequestBody { get; set; } = LogHelper.SerializeRequestBody;
+        public Func<HttpContext, Task<string?>> SerializeRequestBody { get; set; } = LogHelper.SerializeRequestBody;
     }
 }
