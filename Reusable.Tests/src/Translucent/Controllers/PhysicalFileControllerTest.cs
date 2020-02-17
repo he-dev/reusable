@@ -7,39 +7,35 @@ using Xunit;
 
 namespace Reusable.Translucent.Controllers
 {
-    public class PhysicalFileControllerTest : IClassFixture<TestHelperFixture>
+    public class PhysicalFileControllerTest // : IClassFixture<TestHelperFixture>
     {
-        private readonly IResource _resource;
+        private static readonly IResource Resource = new Resource(new[] { new PhysicalFileResourceController() });
 
-        public PhysicalFileControllerTest(TestHelperFixture testHelper)
-        {
-            _resource =
-                Resource
-                    .Builder()
-                    .UseController(new PhysicalFileResourceController())
-                    .Build(ImmutableServiceProvider.Empty.Add(testHelper.Cache).Add(testHelper.LoggerFactory));
-        }
+        // public PhysicalFileControllerTest(TestHelperFixture testHelper)
+        // {
+        //     _resource = new Resource(new[] { new PhysicalFileResourceController() });
+        // }
 
         [Fact]
         public async Task Can_handle_file_methods()
         {
             var tempFileName = GetTempFileName();
 
-            using (var file = await _resource.GetFileAsync(tempFileName))
+            using (var file = await Resource.GetFileAsync(tempFileName))
             {
                 Assert.False(file.Exists());
             }
 
-            await _resource.WriteTextFileAsync(tempFileName, "Hi!");
-            using (var file = await _resource.GetFileAsync(tempFileName))
+            await Resource.WriteTextFileAsync(tempFileName, "Hi!");
+            using (var file = await Resource.GetFileAsync(tempFileName))
             {
                 Assert.True(file.Exists());
                 var value = await file.DeserializeTextAsync();
                 Assert.Equal("Hi!", value);
             }
 
-            await _resource.DeleteFileAsync(tempFileName);
-            using (var file = await _resource.GetFileAsync(tempFileName))
+            await Resource.DeleteFileAsync(tempFileName);
+            using (var file = await Resource.GetFileAsync(tempFileName))
             {
                 Assert.False(file.Exists());
             }
@@ -50,7 +46,7 @@ namespace Reusable.Translucent.Controllers
         {
             var tempFileName = "//auth/name";
 
-            using var file = await _resource.GetFileAsync(tempFileName);
+            using var file = await Resource.GetFileAsync(tempFileName);
             Assert.False(file.Exists());
         }
 

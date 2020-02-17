@@ -31,13 +31,7 @@ namespace Reusable.Translucent.Middleware
             Mock.Arrange(() => c2.ReadAsync(Arg.IsAny<FileRequest>())).Returns(new Response { StatusCode = ResourceStatusCode.Success }.ToTask()).OccursOnce();
             Mock.Arrange(() => c3.ReadAsync(Arg.IsAny<FileRequest>())).OccursNever();
 
-            var resources =
-                Resource
-                    .Builder()
-                    .UseController(c1)
-                    .UseController(c2)
-                    .UseController(c3)
-                    .Build(ImmutableServiceProvider.Empty.Add(TestHelper.CreateCache()).Add(TestHelper.CreateLoggerFactory()));
+            var resources = new Resource(new[] { c1, c2, c3 });
 
             await resources.InvokeAsync(Request.Read<FileRequest>("file:///foo"));
 
@@ -57,13 +51,7 @@ namespace Reusable.Translucent.Middleware
             Mock.Arrange(() => c2.ReadAsync(Arg.IsAny<FileRequest>())).Returns(new Response { StatusCode = ResourceStatusCode.Success }.ToTask()).OccursOnce();
             Mock.Arrange(() => c3.ReadAsync(Arg.IsAny<FileRequest>())).OccursNever();
 
-            var resources =
-                Resource
-                    .Builder()
-                    .UseController(c1)
-                    .UseController(c2)
-                    .UseController(c3)
-                    .Build(ImmutableServiceProvider.Empty.Add(_testHelper.Cache).Add(_testHelper.LoggerFactory));
+            var resources = new Resource(new[] { c1, c2, c3 });
 
             await resources.InvokeAsync(Request.Read<FileRequest>("file:///foo").Pipe(r => { r.ControllerName = "b"; }));
 
@@ -83,13 +71,7 @@ namespace Reusable.Translucent.Middleware
             Mock.Arrange(() => c2.ReadAsync(Arg.IsAny<HttpRequest>())).Returns(new Response { StatusCode = ResourceStatusCode.Success }.ToTask()).OccursOnce();
             Mock.Arrange(() => c3.ReadAsync(Arg.IsAny<FileRequest>())).OccursNever();
 
-            var resources =
-                Resource
-                    .Builder()
-                    .UseController(c1)
-                    .UseController(c2)
-                    .UseController(c3)
-                    .Build(ImmutableServiceProvider.Empty.Add(_testHelper.Cache).Add(_testHelper.LoggerFactory));
+            var resources = new Resource(new IResourceController[] { c1, c2, c3 });
 
             await resources.InvokeAsync(Request.Read<HttpRequest>("///foo"));
 
@@ -111,12 +93,7 @@ namespace Reusable.Translucent.Middleware
             Mock.Arrange(() => c1.ReadAsync(Arg.IsAny<FileRequest>())).CallOriginal().OccursNever();
             Mock.Arrange(() => c2.ReadAsync(Arg.IsAny<FileRequest>())).CallOriginal().OccursOnce();
 
-            var resources =
-                Resource
-                    .Builder()
-                    .UseController(c1)
-                    .UseController(c2)
-                    .Build(ImmutableServiceProvider.Empty.Add(TestHelper.CreateCache()).Add(TestHelper.CreateLoggerFactory()));
+            var resources = new Resource(new[] { c1, c2 });
 
             await resources.InvokeAsync(Request.Read<FileRequest>("file:///foo").Pipe(r => { r.ControllerTags.Add("bb"); }));
 
@@ -135,13 +112,7 @@ namespace Reusable.Translucent.Middleware
             Mock.Arrange(() => c2.ReadAsync(Arg.IsAny<FileRequest>())).OccursNever();
             Mock.Arrange(() => c3.ReadAsync(Arg.IsAny<FileRequest>())).OccursNever();
 
-            var resources =
-                Resource
-                    .Builder()
-                    .UseController(c1)
-                    .UseController(c2)
-                    .UseController(c3)
-                    .Build(ImmutableServiceProvider.Empty.Add(TestHelper.CreateCache()).Add(TestHelper.CreateLoggerFactory()));
+            var resources = new Resource(new[] { c1, c2, c3 });
 
             await Assert.ThrowsAnyAsync<DynamicException>(async () => await resources.InvokeAsync(Request.Update<FileRequest>("file:///foo")));
 

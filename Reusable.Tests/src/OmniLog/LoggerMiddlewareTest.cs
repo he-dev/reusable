@@ -1,6 +1,7 @@
 using System;
 using System.Linq;
 using System.Threading;
+using Reusable.Collections.Generic;
 using Reusable.OmniLog.Abstractions;
 using Reusable.OmniLog.Nodes;
 using Reusable.OmniLog.Services;
@@ -17,7 +18,7 @@ namespace Reusable.OmniLog
         public void Can_add_nodes_after()
         {
             var nodes = new[] { new TestNode(1), new TestNode(2), new TestNode(3) };
-            var last = nodes.Aggregate<ILoggerNode>((current, next) => current.AddAfter(next));
+            var last = nodes.Aggregate<ILoggerNode>((current, next) => current.Append(next));
 
             Assert.Same(last, nodes.Last());
         }

@@ -16,7 +16,7 @@ namespace Reusable.Translucent.Middleware
     {
         private readonly IMemoryCache _memoryCache;
 
-        public ResourceMemoryCache(RequestDelegate next, IMemoryCache memoryCache) : base(next)
+        public ResourceMemoryCache(IMemoryCache memoryCache)
         {
             _memoryCache = memoryCache;
         }
@@ -31,7 +31,7 @@ namespace Reusable.Translucent.Middleware
                 {
                     context.Response = await _memoryCache.GetOrCreateAsync(context.Request.ResourceName, async entry =>
                     {
-                        await Next(context);
+                        await InvokeNext(context);
 
                         if (context.Response.Body is Stream stream)
                         {
@@ -52,12 +52,12 @@ namespace Reusable.Translucent.Middleware
                 }
                 else
                 {
-                    await Next(context);
+                    await InvokeNext(context);
                 }
             }
             else
             {
-                await Next(context);
+                await InvokeNext(context);
             }
         }
     }

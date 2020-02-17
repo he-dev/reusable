@@ -1,6 +1,7 @@
 using System;
 using System.Threading.Tasks;
 using Reusable.Extensions;
+using Reusable.Translucent.Abstractions;
 using Reusable.Translucent.Data;
 using Telerik.JustMock;
 using Telerik.JustMock.Helpers;
@@ -25,12 +26,11 @@ namespace Reusable.Translucent.Middleware
             var c = Mock.Create<TestFileController>(Behavior.CallOriginal);
             c.Arrange(x => x.ReadAsync(Arg.Matches<FileRequest>(y => y.ResourceName.Equals(@"I:\test\this\path\test.txt")))).Returns(new Response().ToTask()).OccursOnce();
 
-            var r =
-                Resource
-                    .Builder()
-                    .UseController(c)
-                    .UseMiddleware(_ => next => new EnvironmentVariableResourceMiddleware(next))
-                    .Build(ImmutableServiceProvider.Empty.Add(_testHelper.Cache).Add(_testHelper.LoggerFactory));
+            var r = new Resource(new IResourceMiddleware[]
+            {
+                new EnvironmentVariableResourceMiddleware(), 
+                new ResourceSearch(new[] { c }),
+            });
 
             await r.InvokeAsync(Request.Read<FileRequest>(@"%TEST_VARIABLE%\test.txt"));
 

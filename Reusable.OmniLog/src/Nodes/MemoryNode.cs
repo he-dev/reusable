@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using Reusable.OmniLog.Abstractions;
+using Reusable.Collections.Generic;
 
 namespace Reusable.OmniLog.Nodes
 {
@@ -45,7 +46,7 @@ namespace Reusable.OmniLog.Nodes
         /// <summary>
         /// Gets the MemoryNode in current scope.
         /// </summary>
-        public static MemoryNode? Memory(this ScopeNode.FirstNode scope) => scope.EnumerateNext().OfType<MemoryNode>().FirstOrDefault();
+        public static MemoryNode? Memory(this ScopeNode.FirstNode scope) => scope.EnumerateNext<ILoggerNode>().OfType<MemoryNode>().FirstOrDefault();
 
         public static DataTable ToDataTable(this MemoryNode memoryNode)
         {

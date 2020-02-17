@@ -1,18 +1,21 @@
 using System.Threading.Tasks;
+using Reusable.Collections.Generic;
 
 namespace Reusable.Translucent.Abstractions
 {
-    public interface IResourceMiddleware
+    public interface IResourceMiddleware : INode<IResourceMiddleware>
     {
         Task InvokeAsync(ResourceContext context);
     }
 
     public abstract class ResourceMiddleware : IResourceMiddleware
     {
-        protected ResourceMiddleware(RequestDelegate next) => Next = next;
+        public IResourceMiddleware Prev { get; set; }
 
-        protected RequestDelegate Next { get; }
+        public IResourceMiddleware Next { get; set; }
 
         public abstract Task InvokeAsync(ResourceContext context);
+
+        protected Task InvokeNext(ResourceContext context) => Next is {} node ? node.InvokeAsync(context) : Task.CompletedTask;
     }
 }

@@ -2,6 +2,7 @@ using System;
 using System.Diagnostics;
 using System.Linq;
 using Reusable.OmniLog.Abstractions;
+using Reusable.Collections.Generic;
 
 namespace Reusable.OmniLog.Nodes
 {
@@ -35,6 +36,6 @@ namespace Reusable.OmniLog.Nodes
         /// <summary>
         /// Gets the stopwatch in current scope.
         /// </summary>
-        public static StopwatchNode? Stopwatch(this ScopeNode.FirstNode scope) => scope.EnumerateNext().OfType<StopwatchNode>().FirstOrDefault();
+        public static StopwatchNode? Stopwatch(this ScopeNode.FirstNode scope) => scope.EnumerateNext<ILoggerNode>().OfType<StopwatchNode>().FirstOrDefault();
     }
 }

@@ -55,7 +55,7 @@ namespace Reusable.Beaver
             Assert.Equal(2, d);
             Assert.Equal(FeatureState.Disabled, c.State);
             Assert.IsType<AlwaysOff>(c.Feature.Policy);
-            Assert.Equal("Fallback", c.Feature.Name);
+            Assert.Equal("test@Fallback", c.Feature.Name);
         }
 
         [Fact]

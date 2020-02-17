@@ -15,68 +15,21 @@ namespace Reusable.Translucent
 {
     public class ResourceBuilder
     {
-        private readonly List<Func<IServiceProvider, CreateControllerDelegate>> _controller = new List<Func<IServiceProvider, CreateControllerDelegate>>();
-        private readonly List<Func<IServiceProvider, CreateMiddlewareDelegate>> _middleware = new List<Func<IServiceProvider, CreateMiddlewareDelegate>>();
+        private readonly List<IResourceController> _controller = new List<IResourceController>();
+        private readonly List<IResourceMiddleware> _middleware = new List<IResourceMiddleware>();
 
-        public ResourceBuilder UseController(Func<IServiceProvider, CreateControllerDelegate> factory)
+        public ResourceBuilder UseController(IResourceController controller)
         {
-            _controller.Add(factory);
+            _controller.Add(controller);
             return this;
         }
 
-        public ResourceBuilder UseMiddleware(Func<IServiceProvider, CreateMiddlewareDelegate> factory)
+        public ResourceBuilder UseMiddleware(IResourceMiddleware middleware)
         {
-            _middleware.Add(factory);
+            _middleware.Add(middleware);
             return this;
         }
 
-        private static IEnumerable<CreateMiddlewareDelegate> CreateDefaultMiddleware(IServiceProvider serviceProvider, IEnumerable<IResourceController> controllers)
-        {
-            yield return next => new ResourceProvider
-            (
-                next,
-                (serviceProvider.GetService<ILoggerFactory>() ?? LoggerFactory.Empty()).CreateLogger<ResourceProvider>(),
-                (serviceProvider.GetService<IMemoryCache>() ?? new MemoryCache(new MemoryCacheOptions())),
-                controllers
-            );
-        }
-
-        public IResource Build(IServiceProvider? serviceProvider = default)
-        {
-            serviceProvider ??= ImmutableServiceProvider.Empty;
-
-            var middlewareFactories = 
-                _middleware
-                    .Select(f => f(serviceProvider))
-                    .Concat(CreateDefaultMiddleware(serviceProvider, _controller.Select(f => f(serviceProvider)())))
-                    .ToStack();
-
-            var resourceMiddleware = middlewareFactories.Aggregate(default(IResourceMiddleware?), (previous, factory) =>
-            {
-                try
-                {
-                    return factory(request => previous?.InvokeAsync(request) ?? Task.CompletedTask);
-                }
-                catch (Exception inner)
-                {
-                    throw DynamicException.Create("ResourceMiddlewareActivation", $"Could not activate middleware. See the inner exception for details", inner);
-                }
-            });
-
-            return new Resource(resourceMiddleware);
-        }
-    }
-
-    public static class RepositoryBuilderExtensions
-    {
-        public static ResourceBuilder UseController(this ResourceBuilder builder, IResourceController controller)
-        {
-            return builder.UseController(_ => () => controller);
-        }
-
-        public static ResourceBuilder UseMiddleware(this ResourceBuilder builder, Func<IServiceProvider, CreateMiddlewareDelegate> factory)
-        {
-            return builder.UseMiddleware(factory);
-        }
+        public IResource Build() => new Resource(_middleware.Append(new ResourceSearch(_controller)).Chain().Head());
     }
 }

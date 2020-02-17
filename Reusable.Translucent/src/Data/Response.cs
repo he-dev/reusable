@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 
 namespace Reusable.Translucent.Data
@@ -15,7 +16,7 @@ namespace Reusable.Translucent.Data
         /// True if Body was retrieved from cache.
         /// </summary>
         public bool Cached { get; set; }
-        
+
         // ReSharper disable once InconsistentNaming
         public static Response Success() => new Response { StatusCode = ResourceStatusCode.Success };
         

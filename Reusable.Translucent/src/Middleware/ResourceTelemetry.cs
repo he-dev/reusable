@@ -17,10 +17,7 @@ namespace Reusable.Translucent.Middleware
     {
         private readonly ILogger _logger;
 
-        public ResourceTelemetry(RequestDelegate next, ILogger<ResourceTelemetry> logger) : base(next)
-        {
-            _logger = logger;
-        }
+        public ResourceTelemetry(ILogger<ResourceTelemetry> logger) => _logger = logger;
 
         public Action<ILogger, ResourceContext> LogRequest { get; set; } = ResourceTelemetryHelper.LogRequest;
 
@@ -36,7 +33,7 @@ namespace Reusable.Translucent.Middleware
             }
             else
             {
-                await Next(context);
+                await InvokeNext(context);
             }
         }
 
@@ -48,7 +45,7 @@ namespace Reusable.Translucent.Middleware
                 {
                     LogRequest(_logger, context);
 
-                    await Next(context);
+                    await InvokeNext(context);
 
                     LogResponse(_logger, context);
                 }

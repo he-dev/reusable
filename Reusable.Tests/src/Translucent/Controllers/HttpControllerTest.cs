@@ -52,11 +52,7 @@ namespace Reusable.Translucent.Controllers
                 Body = new { Greeting = "Hallo Mailr!" }
             };
 
-            var resources =
-                Resource
-                    .Builder()
-                    .UseController(HttpController.FromBaseUri("http://localhost:30002/api").Pipe(x => x.Name = "Mailr"))
-                    .Build(ImmutableServiceProvider.Empty);
+            var resources = new Resource(new[] { HttpController.FromBaseUri("http://localhost:30002/api").Pipe(x => x.Name = "Mailr") });
             var response = await resources.SendEmailAsync("mailr/messages/test", email, http =>
             {
                 http.HeaderActions.Add(headers => headers.UserAgent("xunit", "1.0"));

@@ -4,6 +4,7 @@ using JetBrains.Annotations;
 using Newtonsoft.Json;
 using Reusable.Extensions;
 using Reusable.OmniLog.Abstractions;
+using Reusable.Collections.Generic;
 
 namespace Reusable.OmniLog.Nodes
 {
@@ -104,7 +105,7 @@ namespace Reusable.OmniLog.Nodes
 
         public static ILoggerScope AddNode(this ILoggerScope scope, ILoggerNode node)
         {
-            return scope.WithScope(s => s.EnumerateNext().OfType<ScopeNode.LastNode>().Single().AddBefore(node));
+            return scope.WithScope(s => s.EnumerateNext<ILoggerNode>().OfType<ScopeNode.LastNode>().Single().Prepend(node));
         }
 
         /// <summary>

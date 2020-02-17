@@ -12,8 +12,6 @@ namespace Reusable.Translucent.Middleware
     [UsedImplicitly]
     public class EnvironmentVariableResourceMiddleware : ResourceMiddleware
     {
-        public EnvironmentVariableResourceMiddleware(RequestDelegate next) : base(next) { }
-
         public override async Task InvokeAsync(ResourceContext context)
         {
             if (context.Request is FileRequest fileRequest)
@@ -21,7 +19,7 @@ namespace Reusable.Translucent.Middleware
                 fileRequest.ResourceName = Resolve(context.Request);
             }
 
-            await Next(context);
+            await InvokeNext(context);
         }
 
         private static string Resolve(Request request)

@@ -3,6 +3,8 @@ using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Custom;
+using Reusable.Collections.Generic;
 using Reusable.Extensions;
 using Reusable.OmniLog.Abstractions;
 using Reusable.OmniLog.Nodes;
@@ -13,34 +15,27 @@ namespace Reusable.OmniLog
     public class LoggerFactory : ILoggerFactory
     {
         private readonly IEnumerable<ILoggerNode> _nodes;
-        
+
         private readonly ConcurrentDictionary<SoftString, ILogger> _loggers = new ConcurrentDictionary<SoftString, ILogger>();
 
         public LoggerFactory(IEnumerable<ILoggerNode> nodes) => _nodes = nodes.ToList();
-        
+
         public static ILoggerFactory Empty() => new LoggerFactory(Enumerable.Empty<ILoggerNode>());
-        
+
         public static LoggerFactoryBuilder Builder() => new LoggerFactoryBuilder();
 
         #region ILoggerFactory
 
-        public ILogger CreateLogger(string name) => _loggers.GetOrAdd(name!, n => (ILogger)CreatePipeline(n.ToString()));
+        public ILogger CreateLogger(string name) => _loggers.GetOrAdd(name!, n => CreatePipeline(n.ToString()));
 
-        private ILoggerNode CreatePipeline(string loggerName)
+        private ILogger CreatePipeline(string loggerName)
         {
-            var logger = new Logger
+            var loggerNode = new ServiceNode { Services = { new Constant(nameof(Logger), loggerName) } };
+
+            return new Logger
             {
-                Next = new ServiceNode { Services = { new Constant(nameof(Logger), loggerName) } }
+                Next = new[] { loggerNode }.Concat(this).Chain().Head()
             };
-            
-            var current = logger.Next;
-
-            foreach (var node in this)
-            {
-                current = current.AddAfter(node);
-            }
-
-            return logger;
         }
 
         public void Dispose() { }

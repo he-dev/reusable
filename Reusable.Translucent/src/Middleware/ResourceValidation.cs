@@ -10,10 +10,7 @@ namespace Reusable.Translucent.Middleware
     [UsedImplicitly]
     public class ResourceValidation : ResourceMiddleware
     {
-        public ResourceValidation(RequestDelegate next, IResourceValidator validator) : base(next)
-        {
-            Validator = validator;
-        }
+        public ResourceValidation(IResourceValidator validator) => Validator = validator;
 
         private IResourceValidator Validator { get; }
 
@@ -28,7 +25,7 @@ namespace Reusable.Translucent.Middleware
                 throw DynamicException.Create("RequestValidation", $"Resource '{context.Request.ResourceName}' is invalid. See the inner exception for details.", inner);
             }
 
-            await Next(context);
+            await InvokeNext(context);
 
             try
             {

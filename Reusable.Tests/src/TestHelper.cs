@@ -7,6 +7,7 @@ using Reusable.OmniLog;
 using Reusable.OmniLog.Abstractions;
 using Reusable.OmniLog.Services;
 using Reusable.Translucent;
+using Reusable.Translucent.Abstractions;
 using Reusable.Translucent.Controllers;
 using Reusable.Translucent.Middleware;
 using Reusable.Translucent.Middleware.ResourceValidator;
@@ -47,20 +48,29 @@ namespace Reusable
                     .Build();
         }
 
-        public static IResource CreateResource()
+        public static IResource CreateResource(IMemoryCache? memoryCache = default)
         {
             var assembly = typeof(TestHelper).Assembly;
 
-            return
-                Resource
-                    .Builder()
-                    .UseController(new EmbeddedFileController(@"Reusable/res/Beaver", assembly))
-                    .UseController(new EmbeddedFileController(@"Reusable/res/Translucent", assembly))
-                    .UseController(new EmbeddedFileController(@"Reusable/res/Flexo", assembly))
-                    .UseController(new EmbeddedFileController(@"Reusable/res/Utilities/JsonNet", assembly))
-                    .UseController(new EmbeddedFileController(@"Reusable/sql", assembly))
-                    .UseController(new AppSettingController())
-                    .UseController(new SqlServerController(ConnectionString)
+            return new Resource(new IResourceMiddleware[]
+            {
+                new ResourceMemoryCache(memoryCache ?? new MemoryCache(new MemoryCacheOptions())),
+                new ResourceValidation(new CompositeResourceValidator
+                {
+                    new RequestMethodNotNone(),
+                    new ResourceNameNotNullOrEmpty(),
+                    new RequiredResourceExists(),
+                    new SettingAttributeValidator()
+                }),
+                new ResourceSearch(new IResourceController[]
+                {
+                    new EmbeddedFileController(@"Reusable/res/Beaver", assembly),
+                    new EmbeddedFileController(@"Reusable/res/Translucent", assembly),
+                    new EmbeddedFileController(@"Reusable/res/Flexo", assembly),
+                    new EmbeddedFileController(@"Reusable/res/Utilities/JsonNet", assembly),
+                    new EmbeddedFileController(@"Reusable/sql", assembly),
+                    new AppSettingController(),
+                    new SqlServerController(ConnectionString)
                     {
                         TableName = ("reusable", "TestConfig"),
                         ColumnMappings =
@@ -77,16 +87,9 @@ namespace Reusable
                             ImmutableDictionary<string, object>
                                 .Empty
                                 .Add("_env", "else")
-                    })
-                    .UseMiddleware(services => next => new ResourceMemoryCache(next, services.GetService<IMemoryCache>() ?? new MemoryCache(new MemoryCacheOptions())))
-                    .UseMiddleware(services => next => new ResourceValidation(next, new CompositeResourceValidator
-                    {
-                        new RequestMethodNotNone(),
-                        new ResourceNameNotNullOrEmpty(),
-                        new RequiredResourceExists(),
-                        new SettingAttributeValidator()
-                    }))
-                    .Build(ImmutableServiceProvider.Empty.Add(CreateCache()).Add(CreateLoggerFactory()));
+                    }
+                }),
+            });
         }
     }
 }

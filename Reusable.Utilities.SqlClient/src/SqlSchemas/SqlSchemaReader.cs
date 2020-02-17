@@ -21,12 +21,8 @@ namespace Reusable.Utilities.SqlClient.SqlSchemas
 
         static SqlSchemaReader()
         {
-            var resource =
-                Resource
-                    .Builder()
-                    .UseController(new EmbeddedFileController(@"Reusable\Utilities\SqlClient\sql", typeof(SqlSchemaReader).Assembly))
-                    .Build(ImmutableServiceProvider.Empty);
-            
+            var resource = new Resource(new[] { new EmbeddedFileController(@"Reusable\Utilities\SqlClient\sql", typeof(SqlSchemaReader).Assembly) });
+
             GetIdentityColumnSchemasQuery = resource.ReadTextFile($"sql\\{nameof(GetIdentityColumnSchemas)}.sql");
         }
 

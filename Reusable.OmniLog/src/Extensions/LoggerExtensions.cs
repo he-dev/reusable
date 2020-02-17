@@ -6,6 +6,7 @@ using System.Linq.Custom;
 using System.Runtime.CompilerServices;
 using JetBrains.Annotations;
 using Reusable.Data;
+using Reusable.Collections.Generic;
 using Reusable.Exceptionize;
 using Reusable.Extensions;
 using Reusable.OmniLog.Abstractions;
@@ -126,7 +127,7 @@ namespace Reusable.OmniLog
             return
                 logger
                     //.Enumerate(m => m.Next)
-                    .EnumerateNext()
+                    .EnumerateNext<ILoggerNode>()
                     .OfType<T>()
                     .SingleOrThrow(onEmpty: () => DynamicException.Create($"{nameof(LoggerNode)}NotFound", $"There was no {typeof(T).ToPrettyString()}."));
         }
