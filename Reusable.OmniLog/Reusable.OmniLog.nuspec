@@ -2,7 +2,7 @@
 <package>
   <metadata>
     <id>Reusable.OmniLog</id>
-    <version>17.1.6</version>
+    <version>17.2.0</version>
     <title>Reusable.OmniLog</title>
     <authors>He-Dev</authors>
     <owners>He-Dev</owners>
@@ -14,9 +14,10 @@
     <tags>Utility Extension</tags>
     <dependencies>
       <dependency id="JetBrains.Annotations" version="2019.1.3" />
-      <dependency id="Reusable.Core" version="17.1.6" />
-      <dependency id="Reusable.Flexo" version="17.1.6" />
-      <dependency id="Reusable.MarkupBuilder" version="17.1.6" />
+      <dependency id="Reusable.Core" version="17.2.0" />
+      <dependency id="Reusable.MarkupBuilder" version="17.2.0" />
+      <dependency id="Reusable.OmniLog.Abstractions" version="17.2.0" />
+      <dependency id="Reusable.Utilities.JsonNet" version="17.2.0" />
     </dependencies>
   </metadata>
   <files>
