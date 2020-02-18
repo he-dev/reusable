@@ -96,7 +96,7 @@ namespace Reusable.Translucent.Abstractions
 
         public virtual Task<Response> DeleteAsync(T request) => throw NotSupportedException();
 
-        private Exception NotSupportedException([CallerMemberName] string? name = default)
+        protected Exception NotSupportedException([CallerMemberName] string? name = default)
         {
             throw new NotSupportedException($"{GetType().ToPrettyString()} ({Name}) does not support '{name!.ToUpper()}'.");
         }
