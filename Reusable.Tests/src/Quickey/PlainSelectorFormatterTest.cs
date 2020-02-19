@@ -60,7 +60,7 @@ namespace Reusable.Quickey
         [Fact]
         public void Can_format_member_index_plain()
         {
-            var selector = From<MemberPlain>.Select(x => x.P1).Index("test").ToString();
+            var selector = From<MemberPlain>.Select(x => x.P1, new UseIndexAttribute.Parameter { Index = "test" }).ToString();
             Assert.Equal("P1[test]", selector);
         }
 
@@ -69,23 +69,21 @@ namespace Reusable.Quickey
         {
             var selectorP1 = From<DerivedTypeMemberPlain>.Select(x => x.P1);
             Assert.Equal("DerivedTypeMemberPlain.P1", selectorP1.ToString());
-            
+
             var selectorP2 = From<DerivedTypeMemberPlain>.Select(x => x.P2);
             Assert.Equal("DerivedTypeMemberPlain.P2", selectorP2.ToString());
-            
         }
-        
+
         [Fact]
         public void Can_override_base_format()
         {
             var selectorP1 = From<DerivedMemberPlain>.Select(x => x.P1);
             Assert.Equal("P1", selectorP1.ToString());
-            
+
             var selectorP2 = From<DerivedMemberPlain>.Select(x => x.P2);
             Assert.Equal("P2", selectorP2.ToString());
-            
         }
-        
+
         // todo - add tests with interfaces
 
         private class NoAttributes
@@ -114,7 +112,7 @@ namespace Reusable.Quickey
         [PlainSelectorFormatter]
         private class TypeMemberPlainRename
         {
-            [Rename("P2")]
+            [Replace("1", "2")]
             public string P1 { get; set; }
         }
 
@@ -143,7 +141,7 @@ namespace Reusable.Quickey
         {
             public string P2 { get; set; }
         }
-        
+
         [UseMember]
         private class DerivedMemberPlain : BaseTypeMemberPlain
         {

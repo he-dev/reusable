@@ -33,7 +33,7 @@ namespace Reusable.Translucent.Data
             };
 
             var attributes =
-                from m in selector.Member.Path()
+                from m in SelectorPath.Enumerate(selector.Member)
                 where m.IsDefined(typeof(SettingAttribute))
                 select m.GetCustomAttribute<SettingAttribute>();
             

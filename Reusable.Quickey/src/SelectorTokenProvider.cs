@@ -1,48 +1,47 @@
 using System;
 using System.Collections.Generic;
-using System.Collections.Immutable;
 using System.Linq;
 using System.Reflection;
 using JetBrains.Annotations;
 
 namespace Reusable.Quickey
 {
-    public interface ISelectorTokenProvider
+    public interface ISelectorTokenFactoryProvider
     {
         /// <summary>
-        /// Enumerates selector-names for each member from last to first.
+        /// Enumerates selector-tokens for each member from last to first.
         /// </summary>
-        [NotNull, ItemNotNull]
-        IEnumerable<IImmutableList<SelectorToken>> GetSelectorTokens(MemberInfo member);
+        IEnumerable<ISelectorTokenFactory> GetSelectorTokenFactories(MemberInfo member);
 
-        IEnumerable<IImmutableList<T>> GetSelectorTokenFactories<T>(MemberInfo member) where T : ISelectorTokenFactory;
+        //IEnumerable<IEnumerable<ISelectorTokenFactory>> GetSelectorTokenFactories(MemberInfo member);
     }
 
     [PublicAPI]
     [AttributeUsage(AttributeTargets.Interface | AttributeTargets.Class | AttributeTargets.Property)]
-    public class SelectorTokenProviderAttribute : Attribute, ISelectorTokenProvider
+    public class SelectorTokenFactoryProviderAttribute : Attribute, ISelectorTokenFactoryProvider
     {
-        public static ISelectorTokenProvider Default { get; } = new SelectorTokenProviderAttribute();
+        public static ISelectorTokenFactoryProvider Default { get; } = new SelectorTokenFactoryProviderAttribute();
 
-        public IEnumerable<IImmutableList<SelectorToken>> GetSelectorTokens(MemberInfo member)
+        public IEnumerable<ISelectorTokenFactory> GetSelectorTokenFactories(MemberInfo member)
         {
-            if (member == null) throw new ArgumentNullException(nameof(member));
+            var tokenFactoryGroups =
+                from m in SelectorPath.Enumerate(member)
+                select m.GetCustomAttributes<SelectorTokenFactoryAttribute>(inherit: false);
 
-            return
-                from selectorTokenFactories in GetSelectorTokenFactories<IConstantSelectorTokenFactory>(member)
-                where selectorTokenFactories.Any()
-                let selectorTokens = selectorTokenFactories.Select(f => f.CreateSelectorToken(member)).ToImmutableList()
-                where selectorTokens.Any()
-                select selectorTokens;
-        }
+            foreach (var tokenFactoryGroup in tokenFactoryGroups)
+            {
+                var any = false;
+                foreach (var tokenFactory in tokenFactoryGroup)
+                {
+                    yield return tokenFactory;
+                    any = true;
+                }
 
-        // Get own attributes or inherited.
-        public IEnumerable<IImmutableList<T>> GetSelectorTokenFactories<T>(MemberInfo member) where T : ISelectorTokenFactory
-        {
-            return
-                from m in member.Path()
-                where m.IsDefined(typeof(SelectorTokenFactoryAttribute))
-                select m.GetCustomAttributes<SelectorTokenFactoryAttribute>(inherit: false).OfType<T>().ToImmutableList();
+                if (any)
+                {
+                    yield break;
+                }
+            }
         }
     }
 }

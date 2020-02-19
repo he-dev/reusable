@@ -65,7 +65,7 @@ namespace Reusable.Translucent
         {
             return
                 index is {}
-                    ? new Selector<T>(selector).Index(index)
+                    ? new Selector<T>(selector, new UseIndexAttribute.Parameter { Index = index })
                     : new Selector<T>(selector);
         }
     }

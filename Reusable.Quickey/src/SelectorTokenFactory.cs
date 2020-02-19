@@ -1,93 +1,50 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using JetBrains.Annotations;
 using Reusable.Collections;
 using Reusable.Extensions;
+using Reusable.Quickey.Tokens;
 
 namespace Reusable.Quickey
 {
-    using static SelectorTokenType;
-
     // [Prefix:][Name.space+][Type.]Member[[Index]]
-    // [UsePrefix("blub"), UseNamespace, UseType, UseMember, UseIndex?]
+    // [UsePrefix("global"), UseNamespace, UseType, UseMember, UseIndex?]
 
-    public enum SelectorTokenType
-    {
-        Scheme,
-        Namespace,
-        Type,
-        Member,
-        Index
-    }
-
-    public readonly struct SelectorToken : IEquatable<SelectorToken>
-    {
-        public SelectorToken(string name, SelectorTokenType tokenType)
-        {
-            Name = name;
-            Type = tokenType;
-        }
-
-        public string Name { get; }
-
-        public SelectorTokenType Type { get; }
-
-        public override string ToString() => Name;
-
-        public override int GetHashCode() => AutoEquality<SelectorToken>.Comparer.GetHashCode(this);
-
-        public override bool Equals(object obj) => obj is SelectorToken st && Equals(st);
-
-        public bool Equals(SelectorToken obj) => AutoEquality<SelectorToken>.Comparer.Equals(this, obj);
-
-        #region Factories
-
-        public static SelectorToken Scheme(string name) => new SelectorToken(name, SelectorTokenType.Scheme);
-
-        #endregion
-
-        public static implicit operator string(SelectorToken token) => token.ToString();
-    }
 
     public interface ISelectorTokenFactory
     {
-        SelectorTokenType TokenType { get; }
+        SelectorToken CreateSelectorToken(SelectorContext context);
     }
 
-    public interface IConstantSelectorTokenFactory : ISelectorTokenFactory
-    {
-        SelectorToken CreateSelectorToken(MemberInfo member);
-    }
-
-    public interface IVariableSelectorTokenFactory : ISelectorTokenFactory
-    {
-        SelectorToken CreateSelectorToken(MemberInfo member, string parameter);
-    }
+    public interface ISelectorTokenFactoryParameter { }
 
     [PublicAPI]
     [UsedImplicitly]
     [AttributeUsage(AttributeTargets.Interface | AttributeTargets.Class | AttributeTargets.Property, Inherited = false)]
     public abstract class SelectorTokenFactoryAttribute : Attribute, ISelectorTokenFactory
     {
-        public abstract SelectorTokenType TokenType { get; }
-
         public string? Prefix { get; set; }
 
         public string? Suffix { get; set; }
 
-        protected string Filter(string name, MemberInfo member)
+        protected string Format(MemberInfo member, string token)
         {
-            return
+            var formatted =
                 member
-                    .GetCustomAttributes<SelectorTokenFilterAttribute>(inherit: false) // Get only own filters and not inherited ones.
-                    .Aggregate(name, (current, filter) => filter.Apply(current));
+                    // Get only own filters and not inherited ones.
+                    .GetCustomAttributes<SelectorTokenFormatterAttribute>(inherit: false)
+                    .Cast<ISelectorTokenFormatter>()
+                    .Aggregate(token, (current, formatter) => formatter.Format(current));
+
+            return $"{Prefix}{formatted}{Suffix}";
         }
 
-        protected SelectorToken CreateSelectorToken(string member) => new SelectorToken($"{Prefix}{member}{Suffix}", TokenType);
+        public abstract SelectorToken CreateSelectorToken(SelectorContext context);
     }
 
-    public class UseSchemeAttribute : SelectorTokenFactoryAttribute, IConstantSelectorTokenFactory
+    public class UseSchemeAttribute : SelectorTokenFactoryAttribute
     {
         private readonly string _name;
 
@@ -97,15 +54,13 @@ namespace Reusable.Quickey
             Suffix = ":";
         }
 
-        public override SelectorTokenType TokenType => Scheme;
-
-        public SelectorToken CreateSelectorToken(MemberInfo member)
+        public override SelectorToken CreateSelectorToken(SelectorContext context)
         {
-            return CreateSelectorToken(_name);
+            return new SchemeToken(Format(context.Member, _name));
         }
     }
 
-    public class UseNamespaceAttribute : SelectorTokenFactoryAttribute, IConstantSelectorTokenFactory
+    public class UseNamespaceAttribute : SelectorTokenFactoryAttribute
     {
         private readonly string? _name;
 
@@ -115,15 +70,13 @@ namespace Reusable.Quickey
             Suffix = "+";
         }
 
-        public override SelectorTokenType TokenType => Namespace;
-
-        public SelectorToken CreateSelectorToken(MemberInfo member)
+        public override SelectorToken CreateSelectorToken(SelectorContext context)
         {
-            return CreateSelectorToken(_name ?? member.ReflectedType.Namespace);
+            return new NamespaceToken(Format(context.Member, _name ?? context.Member.ReflectedType.Namespace));
         }
     }
 
-    public class UseTypeAttribute : SelectorTokenFactoryAttribute, IConstantSelectorTokenFactory
+    public class UseTypeAttribute : SelectorTokenFactoryAttribute
     {
         private readonly string? _name;
 
@@ -133,16 +86,14 @@ namespace Reusable.Quickey
             Suffix = ".";
         }
 
-        public override SelectorTokenType TokenType => Type;
-
-        public SelectorToken CreateSelectorToken(MemberInfo member)
+        public override SelectorToken CreateSelectorToken(SelectorContext context)
         {
-            member = member.ReflectedType;
-            return CreateSelectorToken(Filter(_name ?? ((Type)member).ToPrettyString(), member));
+            var type = context.Member.ReflectedType!;
+            return new TypeToken(Format(type, _name ?? type?.ToPrettyString()));
         }
     }
 
-    public class UseMemberAttribute : SelectorTokenFactoryAttribute, IConstantSelectorTokenFactory
+    public class UseMemberAttribute : SelectorTokenFactoryAttribute
     {
         private readonly string? _name;
 
@@ -151,15 +102,13 @@ namespace Reusable.Quickey
             _name = name;
         }
 
-        public override SelectorTokenType TokenType => Member;
-
-        public SelectorToken CreateSelectorToken(MemberInfo member)
+        public override SelectorToken CreateSelectorToken(SelectorContext context)
         {
-            return CreateSelectorToken(Filter(_name ?? member.Name, member));
+            return new MemberToken(Format(context.Member, _name ?? context.Member.Name));
         }
     }
 
-    public class UseIndexAttribute : SelectorTokenFactoryAttribute, IVariableSelectorTokenFactory
+    public class UseIndexAttribute : SelectorTokenFactoryAttribute
     {
         public UseIndexAttribute()
         {
@@ -167,11 +116,17 @@ namespace Reusable.Quickey
             Suffix = "]";
         }
 
-        public override SelectorTokenType TokenType => Index;
-
-        public SelectorToken CreateSelectorToken(MemberInfo member, string parameter)
+        public override SelectorToken CreateSelectorToken(SelectorContext context)
         {
-            return CreateSelectorToken(parameter);
+            return
+                context.TokenParameters.OfType<Parameter>().SingleOrDefault() is {} parameter
+                    ? new IndexToken(Format(context.Member, parameter.Index))
+                    : new IndexToken(string.Empty);
+        }
+
+        public class Parameter : ISelectorTokenFactoryParameter
+        {
+            public string Index { get; set; }
         }
     }
 }

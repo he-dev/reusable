@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq.Custom;
 using JetBrains.Annotations;
 
@@ -7,20 +8,31 @@ namespace Reusable.Quickey
     [PublicAPI]
     public interface ISelectorFormatter
     {
-        string Format(Selector selector);
+        string Format(IEnumerable<SelectorToken> tokens);
     }
 
     [AttributeUsage(AttributeTargets.Class | AttributeTargets.Interface | AttributeTargets.Property)]
     public abstract class SelectorFormatterAttribute : Attribute, ISelectorFormatter
     {
-        public abstract string Format(Selector selector);
+        public abstract string Format(IEnumerable<SelectorToken> tokens);
     }
 
     public class PlainSelectorFormatterAttribute : SelectorFormatterAttribute
     {
-        public override string Format(Selector selector)
+        public override string Format(IEnumerable<SelectorToken> tokens)
         {
-            return selector.Join(string.Empty);
+            return tokens.Join(string.Empty);
+        }
+    }
+    
+    [UsedImplicitly]
+    public class JoinTokensAttribute : SelectorFormatterAttribute
+    {
+        public string Separator { get; set; } = string.Empty;
+        
+        public override string Format(IEnumerable<SelectorToken> tokens)
+        {
+            return tokens.Join(Separator);
         }
     }
 }

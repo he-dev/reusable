@@ -56,10 +56,11 @@ namespace Reusable
             return new LambdaExpressionPrettifier(expression.Parameters[0], replacementParameter).Visit(expression.Body);
         }
         
-        public static Expression Prettify([NotNull] LambdaExpression expression)
+        public static Expression Prettify(LambdaExpression expression)
         {
             if (expression == null) throw new ArgumentNullException(nameof(expression));
 
+            // todo - render parameters if any
             var parameterType = expression.Parameters.Single().Type;
             var replacementParameter = Expression.Parameter(parameterType, $"<{parameterType.ToPrettyString()}>");
             return new LambdaExpressionPrettifier(expression.Parameters[0], replacementParameter).Visit(expression.Body);
