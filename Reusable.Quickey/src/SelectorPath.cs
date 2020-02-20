@@ -58,5 +58,34 @@ namespace Reusable.Quickey
                 }
             }
         }
+
+        private static IEnumerable<MemberInfo> AncestorTypesAndSelf2(this MemberInfo member)
+        {
+            yield return member;
+            for (; member is {}; member = member.Ancestor())
+            {
+                yield return member;
+            }
+        }
+
+        private static MemberInfo? Ancestor(this MemberInfo member)
+        {
+            return member switch
+            {
+                PropertyInfo p => p.ReflectedType,
+                FieldInfo f => f.ReflectedType,
+                Type t => t switch
+                {
+                    {IsInterface: true} => default,
+                    _ => t.BaseType switch
+                    {
+                        {} b when b == typeof(object) => default,
+                        {} b => b,
+                        _ => default
+                    }
+                },
+                _ => default
+            };
+        }
     }
 }
