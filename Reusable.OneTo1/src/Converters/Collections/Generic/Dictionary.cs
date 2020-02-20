@@ -11,7 +11,7 @@ namespace Reusable.OneTo1.Converters.Collections.Generic
     {
         protected override bool CanConvertCore(Type fromType, Type toType) => fromType.IsDictionary() && toType.IsDictionary();
 
-        protected override IDictionary ConvertCore(IConversionContext<IDictionary> context)
+        protected override IDictionary Convert(IConversionContext<IDictionary> context)
         {
             var keyType = context.ToType.GetGenericArguments()[0];
             var valueType = context.ToType.GetGenericArguments()[1];

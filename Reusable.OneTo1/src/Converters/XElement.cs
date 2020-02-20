@@ -7,7 +7,7 @@ namespace Reusable.OneTo1.Converters
 {
     public class StringToXElementConverter : TypeConverter<String, XElement>
     {
-        protected override XElement ConvertCore(IConversionContext<String> context)
+        protected override XElement Convert(IConversionContext<String> context)
         {
             return XElement.Parse(context.Value);
         }
@@ -15,7 +15,7 @@ namespace Reusable.OneTo1.Converters
 
     public class XElementToStringConverter : TypeConverter<XElement, String>
     {
-        protected override String ConvertCore(IConversionContext<XElement> context)
+        protected override String Convert(IConversionContext<XElement> context)
         {
             using (var memoryStream = new MemoryStream())
             using (var streamWriter = new StreamWriter(memoryStream))

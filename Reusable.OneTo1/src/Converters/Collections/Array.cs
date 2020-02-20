@@ -13,7 +13,7 @@ namespace Reusable.OneTo1.Converters.Collections
             return fromType.IsEnumerableOfT(except: typeof(string)) && toType.IsArray;
         }
 
-        protected override object ConvertCore(IConversionContext<IEnumerable> context)
+        protected override object Convert(IConversionContext<IEnumerable> context)
         {
             var elements = context.Value.Cast<object>().ToArray();
 

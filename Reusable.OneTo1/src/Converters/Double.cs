@@ -5,7 +5,7 @@ namespace Reusable.OneTo1.Converters
 {
     public class StringToDoubleConverter : TypeConverter<String, Double>
     {
-        protected override double ConvertCore(IConversionContext<string> context)
+        protected override double Convert(IConversionContext<string> context)
         {
             return Double.Parse(context.Value, NumberStyles.Float | NumberStyles.AllowThousands, context.FormatProvider);
         }
@@ -13,7 +13,7 @@ namespace Reusable.OneTo1.Converters
 
     public class DoubleToStringConverter : TypeConverter<double, string>
     {
-        protected override string ConvertCore(IConversionContext<double> context)
+        protected override string Convert(IConversionContext<double> context)
         {
             return
                 string.IsNullOrEmpty(context.Format)

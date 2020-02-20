@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
+using System.Globalization;
 using JetBrains.Annotations;
 
 namespace Reusable.OneTo1
@@ -12,19 +13,16 @@ namespace Reusable.OneTo1
         [NotNull]
         TValue Value { get; }
 
-        [NotNull]
         Type FromType { get; }
 
-        [NotNull]
         Type ToType { get; }
 
-        [CanBeNull]
-        string Format { get; }
+        bool SameTypes { get; }
 
-        [NotNull]
+        string? Format { get; }
+
         IFormatProvider FormatProvider { get; }
 
-        [NotNull]
         ITypeConverter Converter { get; }
     }
 
@@ -35,12 +33,11 @@ namespace Reusable.OneTo1
         [DebuggerStepThrough]
         private ConversionContext()
         {
-            //_format = TypeConverter.DefaultFormat;
-            FormatProvider = TypeConverter.DefaultFormatProvider;
+            FormatProvider = CultureInfo.InvariantCulture;
         }
 
         [DebuggerStepThrough]
-        public ConversionContext([NotNull] TValue value, [NotNull] Type toType, [NotNull] ITypeConverter converter) 
+        public ConversionContext([NotNull] TValue value, Type toType, ITypeConverter converter)
             : this()
         {
             if (value == null) throw new ArgumentNullException(nameof(value));
@@ -50,19 +47,8 @@ namespace Reusable.OneTo1
             Converter = converter ?? throw new ArgumentNullException(nameof(converter));
         }
 
-        //public ConversionContext([NotNull] TValue value, [NotNull] Type toType)
-        //    : this(value, toType, TypeConverter.Empty)
-        //{ }
-
-        //public ConversionContext([NotNull] IConversionContext<TValue> context)
-        //    : this(context.Value, context.ToType, context.Converter)
-        //{
-        //    Format = context.Format;
-        //    FormatProvider = context.FormatProvider;
-        //}
-
-        public ConversionContext([NotNull] TValue value, [NotNull] Type toType, [NotNull] IConversionContext<TValue> context)
-        : this(value, toType, context.Converter)
+        public ConversionContext([NotNull] TValue value, Type toType, IConversionContext<TValue> context)
+            : this(value, toType, context.Converter)
         {
             Format = context.Format;
             FormatProvider = context.FormatProvider;
@@ -74,13 +60,11 @@ namespace Reusable.OneTo1
 
         public Type ToType { get; }
 
+        public bool SameTypes => FromType == ToType;
+
         public ITypeConverter Converter { get; }
 
         public string Format { get; set; }
-        //{
-        //    get => _format;
-        //    set => _format = value ?? throw new ArgumentNullException(nameof(Format));
-        //}
 
         public IFormatProvider FormatProvider
         {

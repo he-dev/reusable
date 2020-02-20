@@ -4,7 +4,7 @@ namespace Reusable.OneTo1.Converters
 {
     public class StringToCharConverter : TypeConverter<String, Char>
     {
-        protected override char ConvertCore(IConversionContext<string> context)
+        protected override char Convert(IConversionContext<string> context)
         {
             return char.Parse(context.Value);
         }
@@ -12,7 +12,7 @@ namespace Reusable.OneTo1.Converters
 
     public class CharToStringConverter : TypeConverter<char, string>
     {
-        protected override string ConvertCore(IConversionContext<char> context)
+        protected override string Convert(IConversionContext<char> context)
         {
             return context.Value.ToString(context.FormatProvider);
         }

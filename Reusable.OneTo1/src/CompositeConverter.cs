@@ -4,6 +4,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using Reusable.Exceptionize;
+using Reusable.Extensions;
 
 namespace Reusable.OneTo1
 {
@@ -11,7 +12,7 @@ namespace Reusable.OneTo1
     // because with it converters need to be registered in a specific order if they depend on one another.
     public class CompositeConverter : TypeConverter, IEnumerable<ITypeConverter>
     {
-        // We cannot use a dictionary because there are not unieque keys. Generic types can have multiple matches.
+        // We cannot use a dictionary because there are no unique keys. Generic types can have multiple matches.
         private readonly HashSet<ITypeConverter> _converters;
 
         private readonly ConcurrentDictionary<(Type fromType, Type toType), ITypeConverter> _cache;
@@ -46,17 +47,24 @@ namespace Reusable.OneTo1
 
         public override Type ToType => throw new NotSupportedException($"{nameof(CompositeConverter)} does not support {nameof(ToType)} property");
 
-        private bool TryGetConverter(Type fromType, Type toType, out ITypeConverter converter)
+        private ITypeConverter? FindConverter(Type fromType, Type toType)
         {
-            converter = _cache.GetOrAdd((fromType, toType), key => _converters.FirstOrDefault(x => x.CanConvert(fromType, toType)));
-            return converter != null;
+            return
+                _cache.TryGetValue((fromType, toType), out var cached)
+                    ? cached
+                    : _converters.FirstOrDefault(x => x.CanConvert(fromType, toType)) is {} converter
+                        ? _cache.AddOrUpdate((fromType, toType), converter, (key, current) => converter)
+                        : default;
         }
 
-        protected override bool CanConvertCore(Type fromType, Type toType) => TryGetConverter(fromType, toType, out _);
-
-        protected override object ConvertCore(IConversionContext<object> context)
+        protected override bool CanConvertCore(Type fromType, Type toType)
         {
-            if (TryGetConverter(context.FromType, context.ToType, out var converter))
+            return FindConverter(fromType, toType)?.CanConvert(fromType, toType) == true;
+        }
+
+        public override object Convert(IConversionContext<object> context)
+        {
+            if (FindConverter(context.FromType, context.ToType) is {} converter)
             {
                 return converter.Convert(context);
             }
@@ -64,8 +72,8 @@ namespace Reusable.OneTo1
             {
                 throw DynamicException.Create
                 (
-                   $"TypeConverterNotFound{nameof(Exception)}",
-                   $"Cannot convert from '{context.FromType.Name}' to '{context.ToType.Name}."
+                    $"TypeConverterNotFound{nameof(Exception)}",
+                    $"Cannot convert from '{context.FromType.ToPrettyString()}' to '{context.ToType.ToPrettyString()}."
                 );
             }
         }

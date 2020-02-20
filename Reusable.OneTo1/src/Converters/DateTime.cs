@@ -5,7 +5,7 @@ namespace Reusable.OneTo1.Converters
 {
     public class StringToDateTimeConverter : TypeConverter<String, DateTime>
     {
-        protected override DateTime ConvertCore(IConversionContext<string> context)
+        protected override DateTime Convert(IConversionContext<string> context)
         {
             return
                 string.IsNullOrEmpty(context.Format)
@@ -16,7 +16,7 @@ namespace Reusable.OneTo1.Converters
 
     public class DateTimeToStringConverter : TypeConverter<DateTime, String>
     {
-        protected override string ConvertCore(IConversionContext<DateTime> context)
+        protected override string Convert(IConversionContext<DateTime> context)
         {
             return
                 string.IsNullOrEmpty(context.Format)

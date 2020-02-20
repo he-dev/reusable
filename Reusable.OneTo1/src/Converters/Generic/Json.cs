@@ -64,7 +64,7 @@ namespace Reusable.OneTo1.Converters.Generic
             // there's nothing else to do
         }
 
-        protected override T ConvertCore(IConversionContext<string> context)
+        protected override T Convert(IConversionContext<string> context)
         {
             // String-types require quotes for deserialization.
             var requiresQuotes = IsStringType(typeof(T)) && !IsQuoted(context.Value);
@@ -99,7 +99,7 @@ namespace Reusable.OneTo1.Converters.Generic
             // there's nothing else to do
         }
 
-        protected override string ConvertCore(IConversionContext<T> context)
+        protected override string Convert(IConversionContext<T> context)
         {
             var result = JsonConvert.SerializeObject(context.Value, Settings);
 

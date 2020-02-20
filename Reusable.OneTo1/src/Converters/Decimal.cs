@@ -5,7 +5,7 @@ namespace Reusable.OneTo1.Converters
 {
     public class StringToDecimalConverter : TypeConverter<String, Decimal>
     {
-        protected override decimal ConvertCore(IConversionContext<string> context)
+        protected override decimal Convert(IConversionContext<string> context)
         {
             return Decimal.Parse(context.Value, NumberStyles.Number, context.FormatProvider);
             
@@ -14,7 +14,7 @@ namespace Reusable.OneTo1.Converters
 
     public class DecimalToStringConverter : TypeConverter<decimal, string>
     {
-        protected override string ConvertCore(IConversionContext<decimal> context)
+        protected override string Convert(IConversionContext<decimal> context)
         {
             return
                 string.IsNullOrEmpty(context.Format)

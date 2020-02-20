@@ -7,7 +7,7 @@ namespace Reusable.OneTo1.Converters
 {
     public class StringToXDocumentConverter : TypeConverter<String, XDocument>
     {
-        protected override XDocument ConvertCore(IConversionContext<String> context)
+        protected override XDocument Convert(IConversionContext<String> context)
         {
             return XDocument.Parse(context.Value);
         }
@@ -15,7 +15,7 @@ namespace Reusable.OneTo1.Converters
 
     public class XDocumentToStringConverter : TypeConverter<XDocument, string>
     {
-        protected override string ConvertCore(IConversionContext<XDocument> context)
+        protected override string Convert(IConversionContext<XDocument> context)
         {
             using (var memoryStream = new MemoryStream())
             using (var streamWriter = new StreamWriter(memoryStream))

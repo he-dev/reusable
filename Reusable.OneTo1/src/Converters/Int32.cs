@@ -5,7 +5,7 @@ namespace Reusable.OneTo1.Converters
 {
     public class StringToInt32Converter : TypeConverter<String, Int32>
     {
-        protected override int ConvertCore(IConversionContext<string> context)
+        protected override int Convert(IConversionContext<string> context)
         {
             return Int32.Parse(context.Value, NumberStyles.Integer, context.FormatProvider);
         }
@@ -13,7 +13,7 @@ namespace Reusable.OneTo1.Converters
 
     public class Int32ToStringConverter : TypeConverter<Int32, String>
     {
-        protected override string ConvertCore(IConversionContext<int> context)
+        protected override string Convert(IConversionContext<int> context)
         {
             return context.Value.ToString(context.FormatProvider);
         }

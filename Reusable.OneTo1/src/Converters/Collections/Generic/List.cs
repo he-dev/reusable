@@ -12,7 +12,7 @@ namespace Reusable.OneTo1.Converters.Collections.Generic
             return fromType.IsEnumerableOfT(except: typeof(string)) && toType.IsList();
         }
 
-        protected override object ConvertCore(IConversionContext<IEnumerable> context)
+        protected override object Convert(IConversionContext<IEnumerable> context)
         {
             var valueType = context.ToType.GetGenericArguments()[0];
             var listType = typeof(List<>).MakeGenericType(valueType);

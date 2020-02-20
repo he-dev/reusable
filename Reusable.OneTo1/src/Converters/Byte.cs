@@ -4,7 +4,7 @@ namespace Reusable.OneTo1.Converters
 {
     public class StringToByteConverter : TypeConverter<String, Byte>
     {
-        protected override byte ConvertCore(IConversionContext<string> context)
+        protected override byte Convert(IConversionContext<string> context)
         {
             return byte.Parse(context.Value);
         }
@@ -12,7 +12,7 @@ namespace Reusable.OneTo1.Converters
 
     public class ByteToStringConverter : TypeConverter<Byte, String>
     {
-        protected override string ConvertCore(IConversionContext<byte> context)
+        protected override string Convert(IConversionContext<byte> context)
         {
             return context.Value.ToString(context.FormatProvider);
         }

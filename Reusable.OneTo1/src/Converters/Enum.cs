@@ -9,7 +9,7 @@ namespace Reusable.OneTo1.Converters
             return fromType == typeof(string) && toType.IsEnum;
         }
 
-        protected override object ConvertCore(IConversionContext<string> context)
+        protected override object Convert(IConversionContext<string> context)
         {
             return Enum.Parse(context.ToType, context.Value);
         }
@@ -22,7 +22,7 @@ namespace Reusable.OneTo1.Converters
             return fromType.IsEnum && toType == typeof(string);
         }
 
-        protected override string ConvertCore(IConversionContext<Enum> context)
+        protected override string Convert(IConversionContext<Enum> context)
         {
             return context.Value.ToString();
         }

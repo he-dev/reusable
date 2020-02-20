@@ -5,7 +5,7 @@ namespace Reusable.OneTo1.Converters
 {
     public class StringToInt64Converter : TypeConverter<String, Int64>
     {
-        protected override long ConvertCore(IConversionContext<string> context)
+        protected override long Convert(IConversionContext<string> context)
         {
             return Int64.Parse(context.Value, NumberStyles.Integer, context.FormatProvider);
         }
@@ -13,7 +13,7 @@ namespace Reusable.OneTo1.Converters
 
     public class Int64ToStringConverter : TypeConverter<long, string>
     {
-        protected override string ConvertCore(IConversionContext<long> context)
+        protected override string Convert(IConversionContext<long> context)
         {
             return context.Value.ToString(context.FormatProvider);
         }

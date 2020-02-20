@@ -4,7 +4,7 @@ namespace Reusable.OneTo1.Converters
 {
     public class StringToSingleConverter : TypeConverter<String, Single>
     {
-        protected override Single ConvertCore(IConversionContext<String> context)
+        protected override Single Convert(IConversionContext<String> context)
         {
             return Single.Parse(context.Value, context.FormatProvider);
         }
@@ -12,7 +12,7 @@ namespace Reusable.OneTo1.Converters
 
     public class SingleToStringConverter : TypeConverter<float, string>
     {
-        protected override string ConvertCore(IConversionContext<Single> context)
+        protected override string Convert(IConversionContext<Single> context)
         {
             return
                 string.IsNullOrEmpty(context.Format)

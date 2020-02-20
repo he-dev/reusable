@@ -16,7 +16,7 @@ namespace Reusable.OneTo1.Converters
             _colorParsers = colorParsers;
         }
 
-        protected override Color ConvertCore(IConversionContext<String> context)
+        protected override Color Convert(IConversionContext<String> context)
         {
             foreach (var colorParser in _colorParsers)
             {
@@ -33,7 +33,7 @@ namespace Reusable.OneTo1.Converters
 
     public class ColorToStringConverter : TypeConverter<Color, String>
     {
-        protected override String ConvertCore(IConversionContext<Color> context)
+        protected override String Convert(IConversionContext<Color> context)
         {
             return string.Format(context.FormatProvider, context.Format, context.Value);
         }
