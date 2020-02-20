@@ -1,18 +1,12 @@
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using JetBrains.Annotations;
-using Reusable.Collections;
 using Reusable.Extensions;
 using Reusable.Quickey.Tokens;
 
 namespace Reusable.Quickey
 {
-    // [Prefix:][Name.space+][Type.]Member[[Index]]
-    // [UsePrefix("global"), UseNamespace, UseType, UseMember, UseIndex?]
-
-
     public interface ISelectorTokenFactory
     {
         SelectorToken CreateSelectorToken(SelectorContext context);
@@ -31,12 +25,13 @@ namespace Reusable.Quickey
 
         protected string Format(MemberInfo member, string token)
         {
-            var formatted =
-                member
-                    // Get only own filters and not inherited ones.
-                    .GetCustomAttributes<SelectorTokenFormatterAttribute>(inherit: false)
-                    .Cast<ISelectorTokenFormatter>()
-                    .Aggregate(token, (current, formatter) => formatter.Format(current));
+            // Get only own formatters and not inherited ones.
+            var formatters =
+                from f in member.GetCustomAttributes<SelectorTokenFormatterAttribute>(inherit: false)
+                where f.Token is null || GetType().IsInstanceOfType(f.Token)
+                select f;
+
+            var formatted = formatters.Aggregate(token, (current, formatter) => formatter.Format(current));
 
             return $"{Prefix}{formatted}{Suffix}";
         }
@@ -56,7 +51,7 @@ namespace Reusable.Quickey
 
         public override SelectorToken CreateSelectorToken(SelectorContext context)
         {
-            return new SchemeToken(Format(context.Member, _name));
+            return new SchemeToken(Format(context.Metadata.Member, _name));
         }
     }
 
@@ -72,7 +67,7 @@ namespace Reusable.Quickey
 
         public override SelectorToken CreateSelectorToken(SelectorContext context)
         {
-            return new NamespaceToken(Format(context.Member, _name ?? context.Member.ReflectedType.Namespace));
+            return new NamespaceToken(Format(context.Metadata.Member, _name ?? context.Metadata.Member.ReflectedType.Namespace));
         }
     }
 
@@ -88,7 +83,7 @@ namespace Reusable.Quickey
 
         public override SelectorToken CreateSelectorToken(SelectorContext context)
         {
-            var type = context.Member.ReflectedType!;
+            var type = context.Metadata.Member.ReflectedType!;
             return new TypeToken(Format(type, _name ?? type?.ToPrettyString()));
         }
     }
@@ -104,7 +99,7 @@ namespace Reusable.Quickey
 
         public override SelectorToken CreateSelectorToken(SelectorContext context)
         {
-            return new MemberToken(Format(context.Member, _name ?? context.Member.Name));
+            return new MemberToken(Format(context.Metadata.Member, _name ?? context.Metadata.Member.Name));
         }
     }
 
@@ -120,7 +115,7 @@ namespace Reusable.Quickey
         {
             return
                 context.TokenParameters.OfType<Parameter>().SingleOrDefault() is {} parameter
-                    ? new IndexToken(Format(context.Member, parameter.Index))
+                    ? new IndexToken(Format(context.Metadata.Member, parameter.Index))
                     : new IndexToken(string.Empty);
         }
 

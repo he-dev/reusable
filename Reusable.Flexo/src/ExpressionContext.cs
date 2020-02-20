@@ -8,7 +8,7 @@ using Reusable.Quickey;
 namespace Reusable.Flexo
 {
     [UseNamespace(Keywords.Flexo), UseMember]
-    [PlainSelectorFormatter]
+    [JoinSelectorTokens]
     public static partial class ExpressionContext
     {
         public static IImmutableContainer Default =>

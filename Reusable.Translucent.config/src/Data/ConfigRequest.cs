@@ -28,12 +28,12 @@ namespace Reusable.Translucent.Data
                 ResourceName = selector.ToString(),
                 Method = method,
                 Body = value,
-                SettingType = selector.DataType,
-                ValidationAttributes = selector.Member.GetCustomAttributes<ValidationAttribute>(),
+                SettingType = selector.MemberType,
+                ValidationAttributes = selector.Metadata.Member.GetCustomAttributes<ValidationAttribute>(),
             };
 
             var attributes =
-                from m in SelectorPath.Enumerate(selector.Member)
+                from m in SelectorPath.Enumerate(selector.Metadata.Member)
                 where m.IsDefined(typeof(SettingAttribute))
                 select m.GetCustomAttribute<SettingAttribute>();
             

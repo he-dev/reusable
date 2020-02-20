@@ -4,8 +4,6 @@ using System.Collections.Immutable;
 using System.Linq;
 using System.Linq.Custom;
 using System.Reflection;
-using JetBrains.Annotations;
-using Reusable.Exceptionize;
 
 namespace Reusable.Quickey
 {
@@ -21,7 +19,7 @@ namespace Reusable.Quickey
                 select
                     typeof(Selector).IsAssignableFrom(p.PropertyType)
                         ? (Selector)p.GetValue(default)
-                        : (Selector)Selector.FromMember(typeof(T), p);
+                        : new Selector(typeof(T), p);
 
             return selectors.AddRange(newSelectors);
         }
@@ -42,7 +40,7 @@ namespace Reusable.Quickey
         private static IEnumerable<string> Tags<T>(this Selector selector) where T : Attribute, IEnumerable<string>
         {
             var names =
-                from m in SelectorPath.Enumerate(selector.Member)
+                from m in SelectorPath.Enumerate(selector.Metadata.Member)
                 from ts in m.GetCustomAttributes<T>()
                 from t in ts
                 select t;
@@ -59,8 +57,5 @@ namespace Reusable.Quickey
                 from s in selectors
                 select s.ToString();
         }
-
-
-        public static StringSelector<T> AsString<T>(this Selector<T> selector) => new StringSelector<T>(selector);
     }
 }

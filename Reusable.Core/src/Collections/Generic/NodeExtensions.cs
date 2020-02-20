@@ -52,11 +52,9 @@ namespace Reusable.Collections.Generic
 
         private static IEnumerable<T> Enumerate<T>(this T n, Func<T, T?> direction, bool includeSelf = true) where T : class, INode<T>
         {
-            var c = includeSelf ? n : direction(n);
-            while (c is {})
+            for (n = includeSelf ? n : direction(n); n is {}; n = direction(n))
             {
                 yield return n;
-                c = direction(c);
             }
         }
     }

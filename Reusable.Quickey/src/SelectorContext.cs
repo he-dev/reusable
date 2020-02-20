@@ -1,22 +1,25 @@
 using System.Collections.Generic;
 using System.Reflection;
 using Reusable.Collections;
+using Reusable.Reflection;
 
 namespace Reusable.Quickey
 {
     public class SelectorContext
     {
-        public MemberInfo Member { get; set; } = default!;
+        public MemberMetadata Metadata { get; set; } = default!;
 
-        public SelectorTokenParameterCollection TokenParameters { get; set; } = new SelectorTokenParameterCollection();
-    }
+        public ISet<ISelectorTokenFactoryParameter> TokenParameters { get; } = new HashSet<ISelectorTokenFactoryParameter>();
 
-    public class SelectorTokenParameterCollection : HashSet<ISelectorTokenFactoryParameter>
-    {
-        public SelectorTokenParameterCollection(params ISelectorTokenFactoryParameter[] parameters) : base(parameters, EqualityComparer.Create<ISelectorTokenFactoryParameter>
+        private static readonly IEqualityComparer<ISelectorTokenFactoryParameter> TokenParameterComparer = EqualityComparer.Create<ISelectorTokenFactoryParameter>
         (
             getHashCode: (obj) => 0,
             equals: (left, right) => left.GetType() == right.GetType()
-        )) { }
+        );
+    }
+
+    public static class HashSetExtensions
+    {
+        public static void Add<T>(this ISet<T> hashSet, IEnumerable<T> values) => hashSet.UnionWith(values);
     }
 }

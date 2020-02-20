@@ -16,7 +16,7 @@ namespace Reusable.Reflection
 
         private MemberVisitor(bool nonPublic) => _nonPublic = nonPublic;
 
-        public static (Type Type, object Instance, MemberInfo Member) GetMemberInfo(LambdaExpression expression, bool nonPublic = false)
+        public static MemberMetadata GetMemberInfo(LambdaExpression expression, bool nonPublic = false)
         {
             var visitor = new MemberVisitor(nonPublic);
             visitor.Visit(expression);
@@ -29,13 +29,19 @@ namespace Reusable.Reflection
             // This fixes the visitor not resolving the overriden member correctly.
             if (visitor._member.ReflectedType != visitor._type)
             {
-                visitor._member = 
-                    visitor._type.IsInterface 
-                        ? visitor._type.FindProperty(visitor._member.Name) 
+                visitor._member =
+                    visitor._type.IsInterface
+                        ? visitor._type.FindProperty(visitor._member.Name)
                         : visitor._type.GetMember(visitor._member.Name).Single();
             }
 
-            return (visitor._type, visitor._instance, visitor._member);
+            return new MemberMetadata
+            {
+                Expression = expression,
+                Type = visitor._type,
+                Instance = visitor._instance,
+                Member = visitor._member
+            };
         }
 
         protected override Expression VisitMember(MemberExpression node)
@@ -93,6 +99,30 @@ namespace Reusable.Reflection
             // - types passed via generics like .From<T>().Select(x => x.Y);
             _type = node.Type;
             return base.VisitParameter(node);
+        }
+    }
+
+    public class MemberMetadata
+    {
+        public Expression Expression { get; internal set; }
+
+        public Type Type { get; internal set; }
+
+        public object? Instance { get; internal set; }
+
+        public MemberInfo Member { get; internal set; }
+
+        public Type MemberType
+        {
+            get
+            {
+                return Member switch
+                {
+                    PropertyInfo property => property.PropertyType,
+                    FieldInfo field => field.FieldType,
+                    _ => throw new ArgumentOutOfRangeException($"Member must be either a {nameof(MemberTypes.Property)} or a {nameof(MemberTypes.Field)}.")
+                };
+            }
         }
     }
 }

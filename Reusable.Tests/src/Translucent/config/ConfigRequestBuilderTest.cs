@@ -22,7 +22,7 @@ namespace Reusable.Translucent.config
 
         [UseType, UseMember]
         [Setting(Controller = "ThisOne")]
-        [PlainSelectorFormatter]
+        [JoinSelectorTokens]
         private class Map
         {
             public string City { get; set; }

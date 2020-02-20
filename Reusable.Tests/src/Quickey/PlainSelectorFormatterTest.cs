@@ -8,12 +8,12 @@ namespace Reusable.Quickey
 {
     public class PlainSelectorFormatterTest
     {
-        [Fact]
-        public void Throws_when_attributes_missing()
-        {
-            var ex = Assert.Throws<InvalidOperationException>(() => From<NoAttributes>.Select(x => x.P1));
-            //Assert.Equal("'x => x.Text' does not specify any selectors.", ex.Message);
-        }
+        // [Fact]
+        // public void Throws_when_attributes_missing()
+        // {
+        //     var ex = Assert.Throws<InvalidOperationException>(() => From<NoAttributes>.Select(x => x.P1));
+        //     //Assert.Equal("'x => x.Text' does not specify any selectors.", ex.Message);
+        // }
 
         [Fact]
         public void Can_format_member_plain()
@@ -92,14 +92,14 @@ namespace Reusable.Quickey
         }
 
         [UseMember, UseIndex]
-        [PlainSelectorFormatter]
+        [JoinSelectorTokens]
         private class MemberPlain
         {
             public string P1 { get; set; }
         }
 
         [UseType, UseMember]
-        [PlainSelectorFormatter]
+        [JoinSelectorTokens]
         private class TypeMemberPlain
         {
             public string P1 { get; set; }
@@ -109,7 +109,7 @@ namespace Reusable.Quickey
         }
 
         [UseType("TypeMemberPlain"), UseMember]
-        [PlainSelectorFormatter]
+        [JoinSelectorTokens]
         private class TypeMemberPlainRename
         {
             [Replace("1", "2")]
@@ -117,21 +117,21 @@ namespace Reusable.Quickey
         }
 
         [UseNamespace, UseType, UseMember]
-        [PlainSelectorFormatter]
+        [JoinSelectorTokens]
         private class NamespaceTypeMemberPlain
         {
             public string P1 { get; set; }
         }
 
         [UseScheme("test"), UseType, UseMember]
-        [PlainSelectorFormatter]
+        [JoinSelectorTokens]
         private class SchemeTypeMemberPlain
         {
             public string P1 { get; set; }
         }
 
         [UseType, UseMember]
-        [PlainSelectorFormatter]
+        [JoinSelectorTokens]
         private class BaseTypeMemberPlain
         {
             public string P1 { get; set; }

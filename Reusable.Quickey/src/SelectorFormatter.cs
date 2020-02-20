@@ -17,16 +17,8 @@ namespace Reusable.Quickey
         public abstract string Format(IEnumerable<SelectorToken> tokens);
     }
 
-    public class PlainSelectorFormatterAttribute : SelectorFormatterAttribute
-    {
-        public override string Format(IEnumerable<SelectorToken> tokens)
-        {
-            return tokens.Join(string.Empty);
-        }
-    }
-    
     [UsedImplicitly]
-    public class JoinTokensAttribute : SelectorFormatterAttribute
+    public class JoinSelectorTokensAttribute : SelectorFormatterAttribute
     {
         public string Separator { get; set; } = string.Empty;
         

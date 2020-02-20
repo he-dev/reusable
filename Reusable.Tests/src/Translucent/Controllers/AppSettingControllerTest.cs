@@ -45,7 +45,7 @@ namespace Reusable.Translucent.Controllers
         //[ResourcePrefix("app")]
         //[ResourceName(Level = ResourceNameLevel.Member)]
         [UseScheme("app"), UseMember]
-        [PlainSelectorFormatter]
+        [JoinSelectorTokens]
         private interface IProgramConfig
         {
             string Environment { get; }

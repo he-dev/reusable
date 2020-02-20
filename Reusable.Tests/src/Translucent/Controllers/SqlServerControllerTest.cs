@@ -66,7 +66,7 @@ namespace Reusable.Translucent.Controllers
 
 
     [UseType, UseMember]
-    [PlainSelectorFormatter]
+    [JoinSelectorTokens]
     public class TestDto
     {
         private readonly IResource _resources;
