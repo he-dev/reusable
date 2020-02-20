@@ -139,17 +139,26 @@ namespace Reusable.OneTo1
         }
     }
 
-    public class TypeConverterFactory
+    public class TypeConverterBuilder
     {
         private readonly List<Type> _decorators = new List<Type>();
+        private readonly List<Type> _converters = new List<Type>();
+        
+        public static TypeConverterBuilder Empty => new TypeConverterBuilder();
 
-        public TypeConverterFactory Use<T>() where T : TypeConverter.Decorator
+        public TypeConverterBuilder DecorateWith<T>() where T : TypeConverter.Decorator
         {
             _decorators.Add(typeof(T));
             return this;
         }
 
-        public ITypeConverter Create<T>() where T : ITypeConverter, new()
+        public TypeConverterBuilder Use<T>() where T : ITypeConverter, new()
+        {
+            _converters.Add(typeof(T));
+            return this;
+        }
+
+        public ITypeConverter Build()
         {
             return _decorators.Aggregate<Type, ITypeConverter>(new T(), (current, decoratorType) => (ITypeConverter)Activator.CreateInstance(decoratorType, current));
         }
