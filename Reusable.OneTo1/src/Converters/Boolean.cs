@@ -1,18 +1,18 @@
 ﻿namespace Reusable.OneTo1.Converters
 {
-    public class StringToBooleanConverter : TypeConverter<string, bool>
+    public class StringToBoolean : FromStringConverter<bool>
     {
-        protected override bool Convert(IConversionContext<string> context)
+        protected override bool Convert(string value, ConversionContext context)
         {
-            return bool.Parse(context.Value);
+            return bool.Parse(value);
         }
     }
 
-    public class BooleanToStringConverter : TypeConverter<bool, string>
+    public class BooleanToString : ToStringConverter<bool>
     {
-        protected override string Convert(IConversionContext<bool> context)
+        protected override string Convert(bool value, ConversionContext context)
         {
-            return context.Value.ToString(context.FormatProvider);
+            return value.ToString(context.FormatProvider);
         }
     }
 }

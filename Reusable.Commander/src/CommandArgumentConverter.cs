@@ -6,26 +6,26 @@ namespace Reusable.Commander
 {
     public static class CommandArgumentConverter
     {
-        public static readonly ITypeConverter Default =
-            TypeConverter
-                .Empty
-                .Add<StringToSByteConverter>()
-                .Add<StringToByteConverter>()
-                .Add<StringToCharConverter>()
-                .Add<StringToInt16Converter>()
-                .Add<StringToInt32Converter>()
-                .Add<StringToInt64Converter>()
-                .Add<StringToUInt16Converter>()
-                .Add<StringToUInt32Converter>()
-                .Add<StringToUInt64Converter>()
-                .Add<StringToSingleConverter>()
-                .Add<StringToDoubleConverter>()
-                .Add<StringToDecimalConverter>()
-                .Add<StringToColorConverter>()
-                .Add<StringToBooleanConverter>()
-                .Add<StringToDateTimeConverter>()
-                .Add<StringToTimeSpanConverter>()
-                .Add<StringToEnumConverter>()
-                .Add<EnumerableToListConverter>();
+        public static readonly ITypeConverter Default = new CompositeConverter
+        {
+            new StringToSByte(),
+            new StringToByte(),
+            new StringToChar(),
+            new StringToInt16(),
+            new StringToInt32(),
+            new StringToInt64(),
+            new StringToUInt16(),
+            new StringToUInt32(),
+            new StringToUInt64(),
+            new StringToSingle(),
+            new StringToDouble(),
+            new StringToDecimal(),
+            new StringToColor(),
+            new StringToBoolean(),
+            new StringToDateTime(),
+            new StringToTimeSpan(),
+            new StringToEnum(),
+            new EnumerableToList(),
+        };
     }
 }

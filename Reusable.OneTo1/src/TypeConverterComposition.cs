@@ -1,10 +1,13 @@
-﻿namespace Reusable.OneTo1
+﻿using JetBrains.Annotations;
+
+namespace Reusable.OneTo1
 {
+    [PublicAPI]
     public static class TypeConverterComposition
     {
-        public static ITypeConverter Add(this ITypeConverter current, ITypeConverter register)
+        public static ITypeConverter Add(this ITypeConverter current, ITypeConverter other)
         {
-            return new CompositeConverter(current,register);
+            return new CompositeConverter(current, other);
         }
 
         //public static ITypeConverter Add(this ITypeConverter current, Type converterType)

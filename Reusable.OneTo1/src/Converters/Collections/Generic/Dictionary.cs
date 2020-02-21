@@ -7,24 +7,29 @@ using Reusable.Reflection;
 
 namespace Reusable.OneTo1.Converters.Collections.Generic
 {
-    public class DictionaryToDictionaryConverter : TypeConverter<IDictionary, IDictionary>
+    public class DictionaryToDictionary : TypeConverter
     {
-        protected override bool CanConvertCore(Type fromType, Type toType) => fromType.IsDictionary() && toType.IsDictionary();
-
-        protected override IDictionary Convert(IConversionContext<IDictionary> context)
+        public override bool CanConvert(Type fromType, Type toType)
         {
-            var keyType = context.ToType.GetGenericArguments()[0];
-            var valueType = context.ToType.GetGenericArguments()[1];
+            return fromType.IsDictionary() && toType.IsDictionary();
+        }
+
+        protected override object ConvertImpl(object value, Type toType, ConversionContext context)
+        {
+            var keyType = toType.GetGenericArguments()[0];
+            var valueType = toType.GetGenericArguments()[1];
 
             var dictionaryType = typeof(Dictionary<,>).MakeGenericType(keyType, valueType);
             var result = (IDictionary)Activator.CreateInstance(dictionaryType);
 
-            var dictionary = context.Value;
+            var dictionary = (IDictionary)value;
             foreach (var key in dictionary.Keys)
             {
-                result.Add(
-                    context.Converter.Convert(new ConversionContext<object>(key, keyType, context)),
-                    context.Converter.Convert(new ConversionContext<object>(dictionary[key], valueType, context)));
+                result.Add
+                (
+                    context.Converter.Convert(key, keyType, context),
+                    context.Converter.Convert(dictionary[key], valueType, context)
+                );
             }
 
             return result;

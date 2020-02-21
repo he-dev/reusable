@@ -3,8 +3,6 @@ using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
-using Reusable.Exceptionize;
-using Reusable.Extensions;
 
 namespace Reusable.OneTo1
 {
@@ -25,27 +23,27 @@ namespace Reusable.OneTo1
 
         internal CompositeConverter(params ITypeConverter[] converters) : this()
         {
-            foreach (var (converter, i) in converters.Select((x, i) => (x, i)))
-            {
-                switch (converter)
-                {
-                    case null: throw new ArgumentNullException($"Converter at {i} is null.");
+            var query =
+                from c in converters
+                from x in c as IEnumerable<ITypeConverter> ?? new[] { c }
+                where x is {}
+                select c;
 
-                    // Flatten any composite converters for faster access.
-                    case IEnumerable<ITypeConverter> composite:
-                        _converters.UnionWith(composite);
-                        break;
-
-                    default:
-                        _converters.Add(converter);
-                        break;
-                }
-            }
+            _converters.UnionWith(query);
         }
 
-        public override Type FromType => throw new NotSupportedException($"{nameof(CompositeConverter)} does not support {nameof(FromType)} property.");
+        public override bool CanConvert(Type fromType, Type toType)
+        {
+            return FindConverter(fromType, toType) is {} converter && converter.CanConvert(fromType, toType);
+        }
 
-        public override Type ToType => throw new NotSupportedException($"{nameof(CompositeConverter)} does not support {nameof(ToType)} property");
+        protected override object ConvertImpl(object value, Type toType, ConversionContext context)
+        {
+            return
+                FindConverter(value.GetType(), toType) is {} converter
+                    ? converter.Convert(value, toType, context ?? new ConversionContext { Converter = this })
+                    : throw NotSupportedConversion(value.GetType(), toType);
+        }
 
         private ITypeConverter? FindConverter(Type fromType, Type toType)
         {
@@ -57,26 +55,7 @@ namespace Reusable.OneTo1
                         : default;
         }
 
-        protected override bool CanConvertCore(Type fromType, Type toType)
-        {
-            return FindConverter(fromType, toType)?.CanConvert(fromType, toType) == true;
-        }
-
-        public override object Convert(IConversionContext<object> context)
-        {
-            if (FindConverter(context.FromType, context.ToType) is {} converter)
-            {
-                return converter.Convert(context);
-            }
-            else
-            {
-                throw DynamicException.Create
-                (
-                    $"TypeConverterNotFound{nameof(Exception)}",
-                    $"Cannot convert from '{context.FromType.ToPrettyString()}' to '{context.ToType.ToPrettyString()}."
-                );
-            }
-        }
+        public void Add(ITypeConverter converter) => _converters.Add(converter);
 
         public void Add(Type converterType)
         {
@@ -94,17 +73,4 @@ namespace Reusable.OneTo1
 
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
     }
-
-    //public static class CompositeConverterExtensions
-    //{
-    //    public static void Add(this CompositeConverter converter, Type converterType)
-    //    {
-    //        if (!typeof(ITypeConverter).IsAssignableFrom(converterType))
-    //        {
-    //            throw new ArgumentException($"'{nameof(converterType)}' must by of type '{nameof(ITypeConverter)}'");
-    //        }
-
-    //        _converters.Add((ITypeConverter)Activator.CreateInstance(converterType));
-    //    }
-    //}
 }

@@ -5,22 +5,22 @@ using Reusable.Reflection;
 
 namespace Reusable.OneTo1.Converters.Collections.Generic
 {
-    public class EnumerableToListConverter : TypeConverter<IEnumerable, object>
+    public class EnumerableToList : TypeConverter
     {
-        protected override bool CanConvertCore(Type fromType, Type toType)
+        public override bool CanConvert(Type fromType, Type toType)
         {
-            return fromType.IsEnumerableOfT(except: typeof(string)) && toType.IsList();
+            return fromType.IsEnumerable(except: typeof(string)) && toType.IsList();
         }
 
-        protected override object Convert(IConversionContext<IEnumerable> context)
+        protected override object ConvertImpl(object value, Type toType, ConversionContext context)
         {
-            var valueType = context.ToType.GetGenericArguments()[0];
-            var listType = typeof(List<>).MakeGenericType(valueType);
-            var list = (IList) Activator.CreateInstance(listType);
+            var itemType = toType.GetGenericArguments()[0];
+            var listType = typeof(List<>).MakeGenericType(itemType);
+            var list = (IList)Activator.CreateInstance(listType);
 
-            foreach (var value in context.Value)
+            foreach (var item in (IEnumerable)value)
             {
-                var element = context.Converter.Convert(new ConversionContext<object>(value, valueType, context));
+                var element = context.Converter.Convert(item, itemType, context);
                 list.Add(element);
             }
 

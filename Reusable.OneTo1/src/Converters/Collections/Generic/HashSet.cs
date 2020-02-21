@@ -5,23 +5,23 @@ using Reusable.Reflection;
 
 namespace Reusable.OneTo1.Converters.Collections.Generic
 {
-    public class EnumerableToHashSetConverter : TypeConverter<IEnumerable, object>
+    public class EnumerableToHashSet : TypeConverter
     {
-        protected override bool CanConvertCore(Type fromType, Type toType)
+        public override bool CanConvert(Type fromType, Type toType)
         {
-            return fromType.IsEnumerableOfT(except: typeof(string)) && toType.IsHashSet();
+            return fromType.IsEnumerable(except: typeof(string)) && toType.IsHashSet();
         }
 
-        protected override object Convert(IConversionContext<IEnumerable> context)
+        protected override object ConvertImpl(object value, Type toType, ConversionContext context)
         {
-            var valueType = context.ToType.GetGenericArguments()[0];
-            var hashSetType = typeof(HashSet<>).MakeGenericType(valueType);
+            var itemType = toType.GetGenericArguments()[0];
+            var hashSetType = typeof(HashSet<>).MakeGenericType(itemType);
             var hashSet = Activator.CreateInstance(hashSetType);
             var addMethod = hashSetType.GetMethod(nameof(HashSet<object>.Add));
 
-            foreach (var value in context.Value)
+            foreach (var item in (IEnumerable)value)
             {
-                var element = context.Converter.Convert(new ConversionContext<object>(value, valueType, context));
+                var element = context.Converter.Convert(item, itemType, context);
                 // ReSharper disable once PossibleNullReferenceException - addMethod is never null
                 addMethod.Invoke(hashSet, new[] { element });
             }

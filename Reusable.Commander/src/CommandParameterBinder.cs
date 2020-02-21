@@ -51,7 +51,7 @@ namespace Reusable.Commander
                 if (arg)
                 {
                     var deserialize =
-                        property.PropertyType.IsEnumerableOfT(except: typeof(string))
+                        property.PropertyType.IsEnumerable(except: typeof(string))
                             ? arg.AsEnumerable() as object
                             : arg.SingleOrDefault() as object;
 

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Globalization;
 using System.Text.RegularExpressions;
 using JetBrains.Annotations;
@@ -8,29 +9,23 @@ using Newtonsoft.Json;
 namespace Reusable.OneTo1.Converters.Generic
 {
     [PublicAPI]
-    public abstract class JsonConverter<TValue, TResult> : TypeConverter<TValue, TResult>
+    public abstract class JsonConverter : TypeConverter
     {
-        //[NotNull]
-        //private ISet<Type> _stringTypes;
-
-        protected JsonConverter(JsonSerializerSettings settings, ISet<Type> stringTypes)
+        protected ISet<Type> StringTypes { get; } = new HashSet<Type>
         {
-            Settings = settings;
-            StringTypes = stringTypes;
-        }
+            typeof(string),
+            typeof(Enum),
+            typeof(TimeSpan),
+            typeof(DateTime),
+            typeof(Color),
+        };
 
-        protected JsonConverter(JsonSerializerSettings settings) : this(settings, new HashSet<Type>())
+        public JsonSerializerSettings Settings { get; set; } = new JsonSerializerSettings
         {
-        }
-
-        [NotNull, ItemNotNull]
-        protected ISet<Type> StringTypes { get; }
-        //{
-        //    get => _stringTypes;
-        //    set => _stringTypes = value ?? throw new ArgumentNullException(nameof(StringTypes));
-        //}
-
-        protected JsonSerializerSettings Settings { get; }
+            Culture = CultureInfo.InvariantCulture,
+            TypeNameHandling = TypeNameHandling.Auto,
+            Formatting = Formatting.Indented,
+        };
 
         protected static bool IsQuoted(string text)
         {
@@ -43,76 +38,50 @@ namespace Reusable.OneTo1.Converters.Generic
         }
     }
 
-    public class JsonToObjectConverter<T> : JsonConverter<String, T>
+    public class JsonToObject : JsonConverter
     {
-        public JsonToObjectConverter(JsonSerializerSettings settings, ISet<Type> stringTypes) : base(settings, stringTypes)
+        public override bool CanConvert(Type fromType, Type toType)
         {
-            // there's nothing else to do
+            return fromType == typeof(string);
         }
 
-        public JsonToObjectConverter(JsonSerializerSettings settings) : base(settings)
+        protected override object ConvertImpl(object value, Type toType, ConversionContext context)
         {
-            // there's nothing else to do
-        }
+            var json = value as string;
 
-        public JsonToObjectConverter() : this(new JsonSerializerSettings
-        {
-            Culture = CultureInfo.InvariantCulture,
-            TypeNameHandling = TypeNameHandling.Auto
-        })
-        {
-            // there's nothing else to do
-        }
-
-        protected override T Convert(IConversionContext<string> context)
-        {
             // String-types require quotes for deserialization.
-            var requiresQuotes = IsStringType(typeof(T)) && !IsQuoted(context.Value);
+            var requiresQuotes = IsStringType(toType) && !IsQuoted(json);
 
-            return JsonConvert.DeserializeObject<T>(requiresQuotes ? Quote(context.Value) : context.Value, Settings);
+            return JsonConvert.DeserializeObject(requiresQuotes ? Quote(json) : json, toType, Settings);
         }
 
-        protected static string Quote(string value)
+        private static string Quote(string value)
         {
             return $@"""{value}""";
         }
     }
 
-    public class ObjectToJsonConverter<T> : JsonConverter<T, String>
+    public class ObjectToJson : JsonConverter
     {
-        public ObjectToJsonConverter(JsonSerializerSettings settings, ISet<Type> stringTypes) : base(settings, stringTypes)
+        public override bool CanConvert(Type fromType, Type toType)
         {
-            // there's nothing else to do
+            return toType == typeof(string);
         }
 
-        public ObjectToJsonConverter(JsonSerializerSettings settings) : base(settings)
+        protected override object ConvertImpl(object value, Type toType, ConversionContext context)
         {
-            // there's nothing else to do
-        }
-
-        public ObjectToJsonConverter() : this(new JsonSerializerSettings
-        {
-            Culture = CultureInfo.InvariantCulture,
-            Formatting = Formatting.Indented
-        })
-        {
-            // there's nothing else to do
-        }
-
-        protected override string Convert(IConversionContext<T> context)
-        {
-            var result = JsonConvert.SerializeObject(context.Value, Settings);
+            var result = JsonConvert.SerializeObject(value, Settings);
 
             // String-types must not contain quotes after serialization.
             return
-                IsStringType(typeof(T))
+                IsStringType(toType)
                     ? Unquote(result)
                     : result;
         }
 
-        protected static string Unquote(string value)
+        private static string Unquote(string value)
         {
-            return Regex.Replace(value, @"(^""|""$)", string.Empty);
+            return value.Trim('"');
         }
     }
 }

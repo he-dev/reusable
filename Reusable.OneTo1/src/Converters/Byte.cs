@@ -1,20 +1,22 @@
 ﻿using System;
+using System.Globalization;
+using JetBrains.Annotations;
 
 namespace Reusable.OneTo1.Converters
 {
-    public class StringToByteConverter : TypeConverter<String, Byte>
+    public class StringToByte : FromStringConverter<byte>
     {
-        protected override byte Convert(IConversionContext<string> context)
+        protected override byte Convert(string value, ConversionContext context)
         {
-            return byte.Parse(context.Value);
+            return byte.Parse(value);
         }
     }
 
-    public class ByteToStringConverter : TypeConverter<Byte, String>
+    public class ByteToStringConverter : ToStringConverter<byte>
     {
-        protected override string Convert(IConversionContext<byte> context)
+        protected override string Convert(byte value, ConversionContext context)
         {
-            return context.Value.ToString(context.FormatProvider);
+            return value.ToString(context.FormatProvider);
         }
     }
 }

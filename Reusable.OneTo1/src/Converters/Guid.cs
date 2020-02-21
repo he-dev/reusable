@@ -4,20 +4,20 @@ namespace Reusable.OneTo1.Converters
 {
     public class StringToGuidConverter : TypeConverter<String, Guid>
     {
-        protected override Guid Convert(IConversionContext<string> context)
+        protected override Guid Convert(string value, ConversionContext context)
         {
-            return Guid.Parse(context.Value);
+            return Guid.Parse(value);
         }
     }
 
     public class GuidToStringConverter : TypeConverter<Guid, String>
     {
-        protected override string Convert(IConversionContext<Guid> context)
+        protected override string Convert(Guid value, ConversionContext context)
         {
             return
-                string.IsNullOrEmpty(context.Format)
-                    ? context.Value.ToString()
-                    : context.Value.ToString(context.Format, context.FormatProvider);
+                string.IsNullOrEmpty(context.FormatString)
+                    ? value.ToString()
+                    : value.ToString(context.FormatString, context.FormatProvider);
         }
     }
 }

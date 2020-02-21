@@ -1,10 +1,12 @@
 ﻿using System.Collections.Immutable;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
+using Newtonsoft.Json.Converters;
 using Reusable.OneTo1;
+using Reusable.OneTo1.Converters.Generic;
 using Reusable.Translucent.Annotations;
-using Reusable.Translucent.Converters;
 using Reusable.Translucent.Data;
+using Reusable.Utilities.JsonNet.Converters;
 using Reusable.Utilities.SqlClient;
 
 namespace Reusable.Translucent.Controllers
@@ -19,7 +21,22 @@ namespace Reusable.Translucent.Controllers
         public SqlServerController(string connectionString)
         {
             ConnectionString = connectionString;
-            Converter = new JsonSettingConverter();
+            //Converter = new JsonSettingConverter();
+            Converter = new CompositeConverter
+            {
+                new JsonToObject
+                {
+                    Settings =
+                    {
+                        Converters =
+                        {
+                            new StringEnumConverter(),
+                            new ColorConverter(),
+                            new SoftStringConverter()
+                        }
+                    }
+                }
+            };
         }
 
         public string ConnectionString { get; }

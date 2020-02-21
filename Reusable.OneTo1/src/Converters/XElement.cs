@@ -1,31 +1,41 @@
 ﻿using System;
 using System.IO;
+using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Xml.Linq;
+using Reusable.Extensions;
 
 namespace Reusable.OneTo1.Converters
 {
-    public class StringToXElementConverter : TypeConverter<String, XElement>
+    public class StringToXElement : TypeConverter<String, XElement>
     {
-        protected override XElement Convert(IConversionContext<String> context)
+        protected override XElement Convert(string value, ConversionContext context)
         {
-            return XElement.Parse(context.Value);
+            return XElement.Parse(value);
         }
     }
 
-    public class XElementToStringConverter : TypeConverter<XElement, String>
+    public class XElementToString : TypeConverter<XElement, String>
     {
-        protected override String Convert(IConversionContext<XElement> context)
+        //private static readonly MethodInfo SaveMethod = typeof(XElement).GetMethod("Save", new[] { typeof(StreamWriter), typeof(SaveOptions) });
+        protected override String Convert(XElement value, ConversionContext context)
         {
-            using (var memoryStream = new MemoryStream())
-            using (var streamWriter = new StreamWriter(memoryStream))
-            {
-                var saveMethod = typeof(XElement).GetMethod("Save", new[] { typeof(StreamWriter), typeof(SaveOptions) });
-                // ReSharper disable once PossibleNullReferenceException - saveMethod is never null
-                saveMethod.Invoke(context.Value, new object[] { streamWriter, SaveOptions.DisableFormatting });
-                var xml = Encoding.UTF8.GetString(memoryStream.ToArray());
-                return xml;
-            }
+            var parameter = context.ParameterOrDefault<XmlParameter>();
+
+            using var memoryStream = new MemoryStream();
+            //using var streamWriter = new StreamWriter(memoryStream);
+            // ReSharper disable once PossibleNullReferenceException - saveMethod is never null
+            //SaveMethod.Invoke(value, new object[] { streamWriter, SaveOptions.DisableFormatting });
+            value.Save(memoryStream, parameter.SaveOptions);
+            return parameter.Encoding.GetString(memoryStream.Rewind().ToArray());
         }
+    }
+
+    public class XmlParameter
+    {
+        public SaveOptions SaveOptions { get; set; } = SaveOptions.None;
+
+        public Encoding Encoding { get; set; } = Encoding.UTF8;
     }
 }

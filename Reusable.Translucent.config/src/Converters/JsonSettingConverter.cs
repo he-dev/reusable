@@ -7,6 +7,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using Reusable.OneTo1;
 using Reusable.OneTo1.Converters.Generic;
+using Reusable.Utilities.JsonNet.Converters;
 using ColorConverter = Reusable.Utilities.JsonNet.Converters.ColorConverter;
 
 namespace Reusable.Translucent.Converters
@@ -21,7 +22,8 @@ namespace Reusable.Translucent.Converters
             Converters =
             {
                 new StringEnumConverter(),
-                new ColorConverter()
+                new ColorConverter(),
+                new SoftStringConverter()
             }
         };
 
@@ -74,14 +76,14 @@ namespace Reusable.Translucent.Converters
             return _converter.CanConvert(fromType, toType);
         }
 
-        public object Convert(IConversionContext<object> context)
+        public object Convert(ConversionContext context)
         {
-            if (context.FromType == typeof(string) && context.ToType == typeof(string))
+            if (context.ValueType == typeof(string) && context.ToType == typeof(string))
             {
                 return TrimDoubleQuotes ? ((string)context.Value).Trim('"') : context.Value;
             }
 
-            if (CanConvert(context.FromType, context.ToType))
+            if (CanConvert(context.ValueType, context.ToType))
             {
                 return _converter.Convert(context);
             }
@@ -98,14 +100,14 @@ namespace Reusable.Translucent.Converters
 
         private Type CreateJsonConverterType(IConversionContext<object> context)
         {
-            if (context.FromType == typeof(string))
+            if (context.ValueType == typeof(string))
             {
-                return typeof(JsonToObjectConverter<>).MakeGenericType(context.ToType);
+                return typeof(JsonToObject).MakeGenericType(context.ToType);
             }
 
             if (context.ToType == typeof(string))
             {
-                return typeof(ObjectToJsonConverter<>).MakeGenericType(context.FromType);
+                return typeof(ObjectToJson).MakeGenericType(context.ValueType);
             }
 
             throw new ArgumentOutOfRangeException();

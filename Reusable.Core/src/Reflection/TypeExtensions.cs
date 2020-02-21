@@ -45,7 +45,7 @@ namespace Reusable.Reflection
             return type.GetInterfaces().Contains(interfaceType);
         }
 
-        public static bool IsEnumerableOfT(this Type type, params Type[] except)
+        public static bool IsEnumerable(this Type type, params Type[] except)
         {
             if (type == null) throw new ArgumentNullException(nameof(type));
 
@@ -146,7 +146,7 @@ namespace Reusable.Reflection
                 return type.GetElementType() ?? throw CreateArgumentException();
             }
 
-            if (type.IsEnumerableOfT())
+            if (type.IsEnumerable())
             {
                 var genericArguments = type.GetGenericArguments();
                 switch (genericArguments.Length)
@@ -226,7 +226,7 @@ namespace Reusable.Reflection
 
         public static bool Implements<TInterface>() => typeof(T).Implements(typeof(TInterface));
 
-        public static bool IsEnumerable() => typeof(T).IsEnumerableOfT();
+        public static bool IsEnumerable() => typeof(T).IsEnumerable();
 
         public static bool IsEnumerableOf<TElement>() => typeof(T).IsEnumerableOf<TElement>();
 

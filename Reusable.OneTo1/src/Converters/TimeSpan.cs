@@ -2,19 +2,19 @@
 
 namespace Reusable.OneTo1.Converters
 {
-    public class StringToTimeSpanConverter : TypeConverter<String, TimeSpan>
+    public class StringToTimeSpan : TypeConverter<String, TimeSpan>
     {
-        protected override TimeSpan Convert(IConversionContext<String> context)
+        protected override TimeSpan Convert(string value, ConversionContext context)
         {
-            return TimeSpan.Parse(context.Value, context.FormatProvider);
+            return TimeSpan.Parse(value, context.FormatProvider);
         }
     }
 
     public class TimeSpanToStringConverter : TypeConverter<TimeSpan, String>
     {
-        protected override string Convert(IConversionContext<TimeSpan> context)
+        protected override string Convert(TimeSpan value, ConversionContext context)
         {
-            return context.Value.ToString();
+            return value.ToString();
         }
     }
 }

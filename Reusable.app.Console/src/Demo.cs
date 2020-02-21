@@ -49,8 +49,8 @@ namespace Reusable.Apps
         {
             var converter =
                 TypeConverter.Empty
-                    .Add<StringToInt32Converter>()
-                    .Add<StringToDateTimeConverter>();
+                    .Add<StringToInt32>()
+                    .Add<StringToDateTime>();
 
             var result = converter.Convert("123", typeof(int));
         }

@@ -1,8 +1,11 @@
 using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
+using Newtonsoft.Json.Converters;
 using Reusable.Extensions;
-using Reusable.Translucent.Converters;
+using Reusable.OneTo1;
+using Reusable.OneTo1.Converters.Generic;
 using Reusable.Translucent.Data;
+using Reusable.Utilities.JsonNet.Converters;
 
 namespace Reusable.Translucent.Controllers
 {
@@ -21,7 +24,21 @@ namespace Reusable.Translucent.Controllers
                     .AddJsonFile(fileName)
                     .Build();
 
-            Converter = new JsonSettingConverter();
+            Converter = new CompositeConverter
+            {
+                new JsonToObject
+                {
+                    Settings =
+                    {
+                        Converters =
+                        {
+                            new StringEnumConverter(),
+                            new ColorConverter(),
+                            new SoftStringConverter()
+                        }
+                    }
+                }
+            };
         }
 
         public override Task<Response> ReadAsync(ConfigRequest request)

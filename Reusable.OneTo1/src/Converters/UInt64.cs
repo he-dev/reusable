@@ -2,19 +2,19 @@
 
 namespace Reusable.OneTo1.Converters
 {
-    public class StringToUInt64Converter : TypeConverter<String, UInt64>
+    public class StringToUInt64 : TypeConverter<String, UInt64>
     {
-        protected override UInt64 Convert(IConversionContext<String> context)
+        protected override UInt64 Convert(string value, ConversionContext context)
         {
-            return UInt64.Parse(context.Value, context.FormatProvider);
+            return UInt64.Parse(value, context.FormatProvider);
         }
     }
 
     public class UInt64ToStringConverter : TypeConverter<ulong, string>
     {
-        protected override string Convert(IConversionContext<UInt64> context)
+        protected override string Convert(ulong value, ConversionContext context)
         {
-            return context.Value.ToString(context.FormatProvider);
+            return value.ToString(context.FormatProvider);
         }
     }
 }

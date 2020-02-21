@@ -2,19 +2,19 @@
 
 namespace Reusable.OneTo1.Converters
 {
-    public class StringToUInt16Converter : TypeConverter<String, UInt16>
+    public class StringToUInt16 : TypeConverter<String, UInt16>
     {
-        protected override UInt16 Convert(IConversionContext<String> context)
+        protected override UInt16 Convert(string value, ConversionContext context)
         {
-            return UInt16.Parse(context.Value, context.FormatProvider);
+            return UInt16.Parse(value, context.FormatProvider);
         }
     }
 
     public class UInt16ToStringConverter : TypeConverter<ushort, string>
     {
-        protected override string Convert(IConversionContext<UInt16> context)
+        protected override string Convert(ushort value, ConversionContext context)
         {
-            return context.Value.ToString(context.FormatProvider);
+            return value.ToString(context.FormatProvider);
         }
     }
 }
