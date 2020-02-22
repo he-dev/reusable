@@ -21,7 +21,7 @@ namespace Reusable.OneTo1.Decorators
                 throw DynamicException.Create
                 (
                     $"TypeConversion",
-                    $"Could not convert from '{value.GetType().ToPrettyString()}' to '{toType.ToPrettyString()}'. See the inner exception for details.",
+                    $"{Decoratee.GetType().ToPrettyString()} could not convert from '{value.GetType().ToPrettyString()}' to '{toType.ToPrettyString()}'. See the inner exception for details.",
                     inner
                 );
             }

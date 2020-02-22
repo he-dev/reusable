@@ -11,7 +11,7 @@ namespace Reusable.OneTo1.Converters
         }
     }
 
-    public class ByteToStringConverter : TypeConverter<byte, string>
+    public class ByteToString : TypeConverter<byte, string>
     {
         public IFormatProvider FormatProvider { get; set; } = CultureInfo.InvariantCulture;
         

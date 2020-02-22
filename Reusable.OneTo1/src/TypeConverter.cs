@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
-using Reusable.Extensions;
 
 namespace Reusable.OneTo1
 {
@@ -18,7 +14,7 @@ namespace Reusable.OneTo1
             return
                 value is TValue x && toType == typeof(TResult)
                     ? Convert(x, context ?? new ConversionContext { Converter = this })
-                    : default;
+                    : default(object);
         }
 
         protected abstract TResult Convert(TValue value, ConversionContext context);

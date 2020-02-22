@@ -15,7 +15,7 @@ namespace Reusable.OneTo1.Converters
         }
     }
 
-    public class Int32ToStringConverter : TypeConverter<Int32, String>
+    public class Int32ToString : TypeConverter<Int32, String>
     {
         public IFormatProvider FormatProvider { get; set; } = CultureInfo.InvariantCulture;
         

@@ -3,7 +3,7 @@ using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json.Converters;
 using Reusable.Extensions;
 using Reusable.OneTo1;
-using Reusable.OneTo1.Converters.Generic;
+using Reusable.OneTo1.Converters;
 using Reusable.Translucent.Data;
 using Reusable.Utilities.JsonNet.Converters;
 

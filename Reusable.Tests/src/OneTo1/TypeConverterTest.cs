@@ -1,5 +1,9 @@
+using System;
 using System.Collections.Generic;
+using System.Globalization;
+using Reusable.Exceptionize;
 using Reusable.OneTo1.Converters;
+using Reusable.OneTo1.Converters.Specialized;
 using Reusable.OneTo1.Decorators;
 using Xunit;
 
@@ -7,21 +11,36 @@ namespace Reusable.OneTo1
 {
     public class TypeConverterTest
     {
-        private static readonly ITypeConverter Converter = new TypeConverterStack
+        private static readonly ITypeConverter Converter = Factory.Create(() =>
         {
-            new StringToInt32()
-        };
+            using var _ = DecoratorScope.For<ITypeConverter>().Add<SkipConverted>().Add<FriendlyException>();
+
+            return new TypeConverterStack
+            {
+                new StringToInt32(),
+                new StringToBoolean(),
+                new StringToDateTime(),
+                new StringToTimeSpan(),
+                //new Lambda((value, toType, context) => throw DynamicException.Create("Test", "This went wrong."))
+                new Int32ToString(),
+                new BooleanToString(),
+                new DateTimeToString(),
+                new TimeSpanToString(),
+            };
+        });
 
         [Theory]
         [MemberData(nameof(GetData))]
         public void Can_convert(object from, object to)
         {
-            Assert.Equal(to, Converter.ConvertOrDefault(from, to.GetType()));
+            Assert.Equal(to, Converter.ConvertOrThrow(from, to.GetType()));
         }
 
         public static IEnumerable<object[]> GetData()
         {
             yield return new object[] { "1", 1 };
+            yield return new object[] { "True", true };
+            yield return new object[] { "02/22/2020 10:20:30", new DateTime(2020, 2, 22, 10, 20, 30) };
         }
     }
 

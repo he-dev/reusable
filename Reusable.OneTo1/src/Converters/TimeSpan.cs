@@ -13,7 +13,7 @@ namespace Reusable.OneTo1.Converters
         }
     }
 
-    public class TimeSpanToStringConverter : TypeConverter<TimeSpan, String>
+    public class TimeSpanToString : TypeConverter<TimeSpan, String>
     {
         protected override string Convert(TimeSpan value, ConversionContext context)
         {

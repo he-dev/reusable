@@ -15,7 +15,7 @@ namespace Reusable.OneTo1.Converters
         }
     }
 
-    public class Int16ToStringConverter : TypeConverter<short, string>
+    public class Int16ToString : TypeConverter<short, string>
     {
         public IFormatProvider FormatProvider { get; set; } = CultureInfo.InvariantCulture;
 

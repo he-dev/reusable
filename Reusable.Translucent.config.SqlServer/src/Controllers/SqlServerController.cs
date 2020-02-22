@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Newtonsoft.Json.Converters;
 using Reusable.OneTo1;
-using Reusable.OneTo1.Converters.Generic;
+using Reusable.OneTo1.Converters;
 using Reusable.Translucent.Annotations;
 using Reusable.Translucent.Data;
 using Reusable.Utilities.JsonNet.Converters;

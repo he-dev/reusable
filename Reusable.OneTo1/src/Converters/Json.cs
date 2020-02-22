@@ -5,12 +5,13 @@ using System.Globalization;
 using JetBrains.Annotations;
 using Newtonsoft.Json;
 
-namespace Reusable.OneTo1.Converters.Generic
+namespace Reusable.OneTo1.Converters
 {
     [PublicAPI]
     public abstract class JsonConverter : ITypeConverter
     {
-        protected ISet<Type> StringTypes { get; } = new HashSet<Type>
+        // String-types require quotes for serialization.
+        public ISet<Type> StringTypes { get; } = new HashSet<Type>
         {
             typeof(string),
             typeof(Enum),
@@ -45,10 +46,9 @@ namespace Reusable.OneTo1.Converters.Generic
         {
             if (value is string json)
             {
-                // String-types require quotes for deserialization.
-                var requiresQuotes = IsStringType(toType) && !IsQuoted(json);
+                json = IsStringType(toType) && !IsQuoted(json) ? Quote(json) : json;
 
-                return JsonConvert.DeserializeObject(requiresQuotes ? Quote(json) : json, toType, Settings);
+                return JsonConvert.DeserializeObject(json, toType, Settings);
             }
             else
             {

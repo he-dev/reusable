@@ -40,7 +40,7 @@ namespace Reusable
         {
             var decorators =
                 from s in AsyncScope<DecoratorScope<T>>.Current.Enumerate()
-                from d in s.Value
+                from d in s.Value._decorators
                 select d;
 
             return decorators.GetEnumerator();
@@ -58,6 +58,9 @@ namespace Reusable
 
     public static class DecoratorHelper
     {
-        public static T Decorate<T>(this T decoratee) where T : class => DecoratorScope<T>.Current?.Decorate(decoratee) ?? decoratee;
+        public static T Decorate<T>(this T decoratee) where T : class
+        {
+            return DecoratorScope<T>.Current?.Decorate(decoratee) ?? decoratee;
+        }
     }
 }
