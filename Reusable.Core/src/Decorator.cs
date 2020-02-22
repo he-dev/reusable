@@ -40,7 +40,7 @@ namespace Reusable
         {
             var decorators =
                 from s in AsyncScope<DecoratorScope<T>>.Current.Enumerate()
-                from d in _decorators
+                from d in s.Value._decorators
                 select d;
 
             return decorators.GetEnumerator();
