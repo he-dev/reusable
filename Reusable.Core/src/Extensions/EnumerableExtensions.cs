@@ -190,9 +190,15 @@ namespace System.Linq.Custom
 
         public static bool Empty<TSource>([NotNull] this IEnumerable<TSource> source)
         {
-            if (source == null) throw new ArgumentNullException(nameof(source));
+            return source.Any() == false;
+        }
 
-            return !source.Any();
+        public static bool EmptyOr<TSource>(this IEnumerable<TSource> source, Predicate<IEnumerable<TSource>> predicate)
+        {
+            return
+                source.Any()
+                    ? predicate(source)
+                    : true;
         }
 
         public static IEnumerable<T> Skip<T>([NotNull] this IEnumerable<T> source, [NotNull] Func<T, bool> predicate)

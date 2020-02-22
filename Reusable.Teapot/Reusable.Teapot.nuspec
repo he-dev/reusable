@@ -2,7 +2,7 @@
 <package>
   <metadata>
     <id>Reusable.Teapot</id>
-    <version>17.2.1</version>
+    <version>17.3.0</version>
     <title>Reusable.Quickey</title>
     <authors>He-Dev</authors>
     <owners>He-Dev</owners>
@@ -17,9 +17,9 @@
       <dependency id="Microsoft.AspNetCore" version="2.2.0" />
       <dependency id="Microsoft.AspNetCore.Server.Kestrel" version="2.2.0" />
       <dependency id="System.Collections.Immutable" version="1.6.0" />
-      <dependency id="Reusable.Core" version="17.2.1" />
-      <dependency id="Reusable.Translucent.http" version="17.2.1" />
-      <dependency id="Reusable.Utilities.JsonNet" version="17.2.1" />
+      <dependency id="Reusable.Core" version="17.3.0" />
+      <dependency id="Reusable.Translucent.http" version="17.3.0" />
+      <dependency id="Reusable.Utilities.JsonNet" version="17.3.0" />
     </dependencies>
   </metadata>
   <files>
