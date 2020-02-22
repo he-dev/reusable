@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using JetBrains.Annotations;
 using Reusable.Extensions;
 
 namespace Reusable
@@ -18,6 +19,7 @@ namespace Reusable
 
     public delegate T DecorateDelegate<T>(T decoratee);
     
+    [PublicAPI]
     public class DecoratorScope<T> : IDisposable, IEnumerable<DecorateDelegate<T>>
     {
         private readonly Stack<DecorateDelegate<T>> _decorators;

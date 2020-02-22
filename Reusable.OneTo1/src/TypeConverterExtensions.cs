@@ -28,7 +28,7 @@ namespace Reusable.OneTo1
         public static object ConvertOrThrow(this ITypeConverter converter, object value, Type toType)
         {
             return
-                converter.ConvertOrDefault(value, toType) is {} result
+                converter.ConvertOrDefault(value, toType, new ConversionContext { Converter = converter }) is {} result
                     ? result
                     : throw DynamicException.Create
                     (

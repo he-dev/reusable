@@ -17,8 +17,8 @@ namespace Reusable.Translucent.Controllers
 
             return
                 element is {}
-                    ? Success<ConfigResponse>(request.ResourceName, element.Value).ToTask<Response>()
-                    : NotFound<ConfigResponse>(request.ResourceName).ToTask<Response>();
+                    ? Success<ConfigResponse>(request.ResourceName, element.Value).ToTask()
+                    : NotFound<ConfigResponse>(request.ResourceName).ToTask();
         }
 
         public override Task<Response> CreateAsync(ConfigRequest request)
@@ -27,20 +27,20 @@ namespace Reusable.Translucent.Controllers
             var exeConfig = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
             var actualKey = FindActualKey(exeConfig, settingIdentifier) ?? settingIdentifier;
             var element = exeConfig.AppSettings.Settings[actualKey];
-            var value = Converter.ConvertOrDefault(request.Body, typeof(string));
+            var value = Converter.ConvertOrThrow<string>(request.Body!);
 
             if (element is null)
             {
-                exeConfig.AppSettings.Settings.Add(settingIdentifier, (string)value);
+                exeConfig.AppSettings.Settings.Add(settingIdentifier, value);
             }
             else
             {
-                exeConfig.AppSettings.Settings[actualKey].Value = (string)value;
+                exeConfig.AppSettings.Settings[actualKey].Value = value;
             }
 
             exeConfig.Save(ConfigurationSaveMode.Minimal);
 
-            return Success<ConfigResponse>(request.ResourceName).ToTask<Response>();
+            return Success<ConfigResponse>(request.ResourceName).ToTask();
         }
 
         private static string? FindActualKey(Configuration exeConfig, string key)

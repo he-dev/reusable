@@ -1,8 +1,5 @@
-using System;
-using System.Collections.Generic;
-using System.Collections.Immutable;
+using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.Extensions.Caching.Memory;
-using Microsoft.Extensions.DependencyInjection;
 using Reusable.OmniLog;
 using Reusable.OmniLog.Abstractions;
 using Reusable.OmniLog.Services;
@@ -17,7 +14,9 @@ namespace Reusable
 {
     public abstract class TestHelper
     {
-        public static readonly string ConnectionString = "Data Source=(local);Initial Catalog=TestDb;Integrated Security=SSPI;";
+        // Seeing passwords, huh? These are just debug containers.
+        // public static readonly string ConnectionString = "Data Source=(local);Initial Catalog=TestDb;Integrated Security=SSPI;";
+        public static readonly string ConnectionString = "Data Source=localhost;Initial Catalog=TestDb;User Id=SA;Password=ABC123!!!;"; // this is just a debug
 
         public static IMemoryCache CreateCache() => new MemoryCache(new MemoryCacheOptions());
 
@@ -70,26 +69,29 @@ namespace Reusable
                     new EmbeddedFileController(@"Reusable/res/Utilities/JsonNet", assembly),
                     new EmbeddedFileController(@"Reusable/sql", assembly),
                     new AppSettingController(),
-                    new SqlServerController(ConnectionString)
-                    {
-                        TableName = ("reusable", "TestConfig"),
-                        ColumnMappings =
-                            ImmutableDictionary<SqlServerColumn, SoftString>
-                                .Empty
-                                .Add(SqlServerColumn.Name, "_name")
-                                .Add(SqlServerColumn.Value, "_value"),
-                        Where =
-                            ImmutableDictionary<string, object>
-                                .Empty
-                                .Add("_env", "test")
-                                .Add("_ver", "1"),
-                        Fallback =
-                            ImmutableDictionary<string, object>
-                                .Empty
-                                .Add("_env", "else")
-                    }
+                    new SqlServerController<TestSetting>(ConnectionString, name => setting => setting.Name == name && setting.Environment.Equals("test") && setting.Version.Equals("1")),
+                    new SqlServerController<TestSetting>(ConnectionString, name => setting => setting.Name == name && setting.Environment.Equals("else") && setting.Version.Equals("1")),
                 }),
             });
+        }
+
+        [Table("TestConfig", Schema = "reusable")]
+        public class TestSetting : ISetting
+        {
+            [Column("_id")]
+            public int Id { get; set; }
+
+            [Column("_name")]
+            public string Name { get; set; }
+
+            [Column("_value")]
+            public string Value { get; set; }
+
+            [Column("_env")]
+            public string Environment { get; set; }
+
+            [Column("_ver")]
+            public string Version { get; set; }
         }
     }
 }

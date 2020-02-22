@@ -57,7 +57,7 @@ namespace Reusable.Commander
 
                     var obj =
                         deserialize is {}
-                            ? converter.ConvertOrDefault(deserialize, property.PropertyType)
+                            ? converter.ConvertOrThrow(deserialize, property.PropertyType)
                             : property.PropertyType == typeof(bool);
 
                     if (property.GetCustomAttributes<ValidationAttribute>() is var validations)
@@ -72,24 +72,24 @@ namespace Reusable.Commander
                 }
                 else
                 {
-                    if (property.GetCustomAttribute<RequiredAttribute>() is {})
+                    if (property.GetCustomAttribute<RequiredAttribute?>() is {})
                     {
                         throw DynamicException.Create("ArgumentNotFound", $"Could not bind required parameter '{argName.First()}' because there was no such argument in the command-line.");
                     }
 
-                    if (property.GetCustomAttribute<ContextAttribute>() is {})
+                    if (property.GetCustomAttribute<ContextAttribute?>() is {})
                     {
                         property.SetValue(parameter, context);
                     }
 
-                    if (property.GetCustomAttribute<ServiceAttribute>() is {} service)
+                    if (property.GetCustomAttribute<ServiceAttribute?>() is {} service)
                     {
                         property.SetValue(parameter, _scope.Resolve(service.ServiceType ?? property.PropertyType));
                     }
 
                     if (property.GetCustomAttribute<DefaultValueAttribute>() is {} defaultValue)
                     {
-                        property.SetValue(parameter, converter.ConvertOrDefault(defaultValue.Value, property.PropertyType));
+                        property.SetValue(parameter, converter.ConvertOrThrow(defaultValue.Value, property.PropertyType));
                     }
                 }
             }

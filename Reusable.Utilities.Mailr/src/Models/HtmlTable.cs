@@ -22,13 +22,10 @@ namespace Reusable.Utilities.Mailr.Models
             Foot = new HtmlTableSection(columns);
         }
 
-        [NotNull]
         public HtmlTableSection Head { get; }
 
-        [NotNull]
         public HtmlTableSection Body { get; }
 
-        [NotNull]
         public HtmlTableSection Foot { get; }
 
         #region JsonNet extensions

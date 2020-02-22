@@ -32,33 +32,27 @@ namespace Reusable.Utilities.SqlClient
             ObjectName = objectName ?? throw new ArgumentNullException(nameof(objectName));
         }
 
-        public SqlFourPartName([CanBeNull] string serverName, [CanBeNull] string databaseName, [CanBeNull] string schemaName, [NotNull] string objectName) : this(objectName)
+        public SqlFourPartName(string? serverName, string? databaseName, string? schemaName, string objectName) : this(objectName)
         {
             ServerName = serverName;
             DatabaseName = databaseName;
             SchemaName = schemaName;
         }
 
-        [CanBeNull]
         [AutoEqualityProperty]
-        public string ServerName { get; set; }
+        public string? ServerName { get; set; }
 
-        [CanBeNull]
         [AutoEqualityProperty]
-        public string DatabaseName { get; set; }
+        public string? DatabaseName { get; set; }
 
-        [CanBeNull]
         [AutoEqualityProperty]
-        public string SchemaName { get; set; }
-
-        [NotNull]
+        public string? SchemaName { get; set; }
+        
         [AutoEqualityProperty]
         public string ObjectName { get; }
 
-        public string Render([NotNull] SqlConnection connection)
+        public string Render(SqlConnection connection)
         {
-            if (connection == null) { throw new ArgumentNullException(nameof(connection)); }
-
             return
                 this
                     .Where(Conditional.IsNotNullOrEmpty)

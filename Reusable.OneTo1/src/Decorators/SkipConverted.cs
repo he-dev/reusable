@@ -10,7 +10,6 @@ namespace Reusable.OneTo1.Decorators
 
         public virtual object? ConvertOrDefault(object value, Type toType, ConversionContext? context = default)
         {
-            //toType.IsInstanceOfType(value)
             return value.GetType().IsAssignableFrom(toType) ? value : Decoratee.ConvertOrDefault(value, toType, context);
         }
     }

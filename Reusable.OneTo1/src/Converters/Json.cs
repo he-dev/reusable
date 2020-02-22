@@ -1,9 +1,11 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Globalization;
 using JetBrains.Annotations;
 using Newtonsoft.Json;
+using Reusable.Extensions;
 
 namespace Reusable.OneTo1.Converters
 {
@@ -11,9 +13,10 @@ namespace Reusable.OneTo1.Converters
     public abstract class JsonConverter : ITypeConverter
     {
         // String-types require quotes for serialization.
-        public ISet<Type> StringTypes { get; } = new HashSet<Type>
+        public StringTypeCollection StringTypes { get; } = new StringTypeCollection
         {
             typeof(string),
+            typeof(bool),
             typeof(Enum),
             typeof(TimeSpan),
             typeof(DateTime),
@@ -28,37 +31,34 @@ namespace Reusable.OneTo1.Converters
         };
 
         public abstract object? ConvertOrDefault(object value, Type toType, ConversionContext? context = default);
+    }
 
-        protected static bool IsQuoted(string text)
-        {
-            return text.StartsWith("\"") && text.EndsWith("\"");
-        }
+    public class StringTypeCollection : IEnumerable<Type>
+    {
+        private readonly ISet<Type> _types = new HashSet<Type>();
 
-        protected bool IsStringType(Type type)
-        {
-            return StringTypes.Contains(type.IsEnum ? typeof(Enum) : type);
-        }
+        public void Add(Type type) => _types.Add(type);
+
+        public bool Contains(Type type) => _types.Contains(type.IsEnum ? typeof(Enum) : type);
+
+        public IEnumerator<Type> GetEnumerator() => _types.GetEnumerator();
+
+        IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable)_types).GetEnumerator();
     }
 
     public class JsonToObject : JsonConverter
     {
         public override object? ConvertOrDefault(object value, Type toType, ConversionContext? context = default)
         {
-            if (value is string json)
-            {
-                json = IsStringType(toType) && !IsQuoted(json) ? Quote(json) : json;
-
-                return JsonConvert.DeserializeObject(json, toType, Settings);
-            }
-            else
-            {
-                return default;
-            }
+            return
+                value is string json
+                    ? JsonConvert.DeserializeObject(QuoteOrDefault(json, toType), toType, Settings)
+                    : default;
         }
 
-        private static string Quote(string value)
+        private string QuoteOrDefault(string json, Type toType)
         {
-            return $@"""{value}""";
+            return StringTypes.Contains(toType) ? $@"""{json.Trim('"')}""" : json;
         }
     }
 
@@ -66,25 +66,10 @@ namespace Reusable.OneTo1.Converters
     {
         public override object? ConvertOrDefault(object value, Type toType, ConversionContext? context = default)
         {
-            if (toType == typeof(string))
-            {
-                var result = JsonConvert.SerializeObject(value, Settings);
-
-                // String-types must not contain quotes after serialization.
-                return
-                    IsStringType(toType)
-                        ? Unquote(result)
-                        : result;
-            }
-            else
-            {
-                return default;
-            }
-        }
-
-        private static string Unquote(string value)
-        {
-            return value.Trim('"');
+            return
+                toType == typeof(string)
+                    ? JsonConvert.SerializeObject(value, Settings).Map(json => json.Trim('"'))
+                    : default(object);
         }
     }
 }

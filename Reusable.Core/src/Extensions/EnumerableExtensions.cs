@@ -386,7 +386,7 @@ namespace System.Linq.Custom
                 Changed = both.Where(t => !valueComparer.Equals(valueSelector(t.f), valueSelector(t.s))).Select(t => t.s)
             };
         }
-        
+
         public static Stack<T> ToStack<T>(this IEnumerable<T> source) => new Stack<T>(source);
 
         //        public static IEnumerable<T> Take<T>(this IEnumerable<T> source, int count)
@@ -438,9 +438,9 @@ namespace System.Linq.Custom
 
     public class CollectionDiff<T>
     {
-        public IEnumerable<T> Added { get; set; }
-        public IEnumerable<T> Removed { get; set; }
-        public IEnumerable<T> Same { get; set; }
-        public IEnumerable<T> Changed { get; set; }
+        public IEnumerable<T> Added { get; set; } = Enumerable.Empty<T>();
+        public IEnumerable<T> Removed { get; set; } = Enumerable.Empty<T>();
+        public IEnumerable<T> Same { get; set; } = Enumerable.Empty<T>();
+        public IEnumerable<T> Changed { get; set; } = Enumerable.Empty<T>();
     }
 }

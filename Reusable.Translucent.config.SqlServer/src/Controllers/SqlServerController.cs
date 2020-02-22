@@ -1,29 +1,41 @@
-﻿using System.Collections.Immutable;
+﻿using System;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+using System.Linq.Expressions;
+using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json.Converters;
 using Reusable.OneTo1;
 using Reusable.OneTo1.Converters;
-using Reusable.Translucent.Annotations;
 using Reusable.Translucent.Data;
 using Reusable.Utilities.JsonNet.Converters;
-using Reusable.Utilities.SqlClient;
 
 namespace Reusable.Translucent.Controllers
 {
     [PublicAPI]
-    public class SqlServerController : ConfigController
+    public class SqlServerController<TSetting> : ConfigController where TSetting : class, ISetting
     {
-        public const string DefaultSchema = "dbo";
+        private readonly ISettingRepository<TSetting> _settingRepository;
 
-        public const string DefaultTable = "Setting";
-
-        public SqlServerController(string connectionString)
+        public SqlServerController(ISettingRepository<TSetting> settingRepository)
         {
-            ConnectionString = connectionString;
-            //Converter = new JsonSettingConverter();
+            _settingRepository = settingRepository;
             Converter = new TypeConverterStack
             {
+                new ObjectToJson
+                {
+                    Settings =
+                    {
+                        Converters =
+                        {
+                            new StringEnumConverter(),
+                            new ColorConverter(),
+                            new SoftStringConverter()
+                        }
+                    }
+                },
                 new JsonToObject
                 {
                     Settings =
@@ -39,46 +51,26 @@ namespace Reusable.Translucent.Controllers
             };
         }
 
-        public string ConnectionString { get; }
-
-        public SqlFourPartName TableName { get; set; } = (DefaultSchema, DefaultTable);
-
-        public IImmutableDictionary<SqlServerColumn, SoftString> ColumnMappings { get; set; } = ImmutableDictionary<SqlServerColumn, SoftString>.Empty;
-
-        public IImmutableDictionary<string, object> Where { get; set; } = ImmutableDictionary<string, object>.Empty;
-
-        public IImmutableDictionary<string, object> Fallback { get; set; } = ImmutableDictionary<string, object>.Empty;
+        public SqlServerController(string connectionString, WhereDelegate<TSetting> where)
+            : this(new SettingRepository<TSetting>(connectionString) { Where = where }) { }
 
         public override async Task<Response> ReadAsync(ConfigRequest request)
         {
-            return await SqlHelper.ExecuteAsync(ConnectionString, async (connection, token) =>
+            if (await _settingRepository.ReadSetting(request.ResourceName, request.CancellationToken) is {} setting)
             {
-                using var command = connection.CreateSelectCommand(TableName, request.ResourceName, ColumnMappings, Where, Fallback);
-                using var settingReader = command.ExecuteReader();
-
-                if (await settingReader.ReadAsync(token))
-                {
-                    var value = settingReader[ColumnMappings.MapOrDefault(SqlServerColumn.Value)];
-                    value = Converter.ConvertOrDefault(value, request.SettingType);
-                    return Success<ConfigResponse>(request.ResourceName, value);
-                }
-                else
-                {
-                    return NotFound<ConfigResponse>(request.ResourceName);
-                }
-            }, request.CancellationToken);
+                var value = Converter.ConvertOrThrow(setting.Value, request.SettingType);
+                return Success<ConfigResponse>(request.ResourceName, value);
+            }
+            else
+            {
+                return NotFound<ConfigResponse>(request.ResourceName);
+            }
         }
 
         public override async Task<Response> CreateAsync(ConfigRequest request)
         {
-            var value = Converter.ConvertOrDefault(request.Body, typeof(string));
-
-            await SqlHelper.ExecuteAsync(ConnectionString, async (connection, token) =>
-            {
-                using var cmd = connection.CreateUpdateCommand(TableName, request.ResourceName, ColumnMappings, Where, value);
-                await cmd.ExecuteNonQueryAsync(token);
-            }, request.CancellationToken);
-
+            var value = Converter.ConvertOrThrow<string>(request.Body!);
+            await _settingRepository.CreateOrUpdateSetting(request.ResourceName, value, request.CancellationToken);
             return Success<ConfigResponse>(request.ResourceName);
         }
     }

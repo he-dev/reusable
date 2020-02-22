@@ -68,7 +68,8 @@ namespace Reusable
                             }
                         )
                         .Where(g => g.Value.IsNotNull())
-                        .ToDictionary(
+                        .ToDictionary
+                        (
                             g => g.Ordinal,
                             g => (object)g.Value
                         )

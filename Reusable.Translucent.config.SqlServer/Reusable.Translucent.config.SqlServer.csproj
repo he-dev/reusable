@@ -23,7 +23,7 @@
 
   <ItemGroup>
     <PackageReference Include="JetBrains.Annotations" Version="2019.1.3" />
-    <PackageReference Include="System.Data.SqlClient" Version="4.7.0" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="2.2.6" />
     <PackageReference Include="System.ValueTuple" Version="4.5.0" />
   </ItemGroup>
 
@@ -31,7 +31,13 @@
     <ProjectReference Include="..\Reusable.Core\Reusable.Core.csproj" />
     <ProjectReference Include="..\Reusable.Translucent\Reusable.Translucent.csproj" />
     <ProjectReference Include="..\Reusable.Translucent.config\Reusable.Translucent.config.csproj" />
-    <ProjectReference Include="..\Reusable.Utilities.SqlClient\Reusable.Utilities.SqlClient.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Remove="src\SqlCommandFactory.cs" />
+    <Compile Remove="src\Controllers\SqlServerController - Copy.cs" />
+    <Compile Remove="src\SqlServerColumn.cs" />
+    <Compile Remove="src\SqlServerColumnExtensions.cs" />
   </ItemGroup>
 
 </Project>

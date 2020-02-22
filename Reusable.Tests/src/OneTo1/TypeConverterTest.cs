@@ -9,9 +9,9 @@ using Xunit;
 
 namespace Reusable.OneTo1
 {
-    public class TypeConverterTest
+    public partial class TypeConverterTest
     {
-        private static readonly ITypeConverter Converter = Factory.Create(() =>
+        private static readonly ITypeConverter ConverterForValueTypes = Factory.Create(() =>
         {
             using var _ = DecoratorScope.For<ITypeConverter>().Add<SkipConverted>().Add<FriendlyException>();
 
@@ -30,13 +30,13 @@ namespace Reusable.OneTo1
         });
 
         [Theory]
-        [MemberData(nameof(GetData))]
-        public void Can_convert(object from, object to)
+        [MemberData(nameof(GetValueData))]
+        public void Can_convert_value_types(object from, object to)
         {
-            Assert.Equal(to, Converter.ConvertOrThrow(from, to.GetType()));
+            Assert.Equal(to, ConverterForValueTypes.ConvertOrThrow(from, to.GetType()));
         }
 
-        public static IEnumerable<object[]> GetData()
+        public static IEnumerable<object[]> GetValueData()
         {
             yield return new object[] { "1", 1 };
             yield return new object[] { "True", true };
