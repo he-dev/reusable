@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using Reusable.OneTo1.Converters;
+using Reusable.OneTo1.Decorators;
 using Xunit;
 
 namespace Reusable.OneTo1
@@ -28,28 +29,30 @@ namespace Reusable.OneTo1
     {
         private static readonly ITypeConverter Converter = Factory.Create(() =>
         {
-            using var decorator = Decorator<ITypeConverter>.BeginScope
-            (
-                i => new SkipConvert(i),
-                i => new TypeConvertException(i)
-            );
+            using var decorator =
+                DecoratorScope
+                    .For<ITypeConverter>()
+                    .Add<SkipConverted>()
+                    .Add<FriendlyException>();
 
-            return
-                TypeConverterStack
-                    .Empty
-                    .Push(decorator.Decorate<BooleanToString>());
+            // Collection initializer uses DecoratorScope
+            return new TypeConverterStack
+            {
+                new BooleanToString()
+            };
         });
 
         [Fact]
         public void Skips_convert_when_type_already_converted()
         {
-            using var decorator = Decorator<ITypeConverter>.BeginScope
-            (
-                i => new SkipConvert(i),
-                i => new TypeConvertException(i)
-            );
+            using var decorator =
+                DecoratorScope
+                    .For<ITypeConverter>()
+                    .Add<FriendlyException>()
+                    .Add<SkipConverted>();
 
-            var converter = decorator.Decorate<BooleanToString>();
+            // Push uses DecoratorScope
+            var converter = TypeConverterStack.Empty.Push<BooleanToString>();
             Assert.Equal("True", converter.ConvertOrDefault<string>("True"));
         }
     }

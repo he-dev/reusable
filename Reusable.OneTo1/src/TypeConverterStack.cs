@@ -45,7 +45,10 @@ namespace Reusable.OneTo1
             return default;
         }
 
-        public void Add(ITypeConverter converter) => _converters.Add(converter);
+        public void Add(ITypeConverter converter)
+        {
+            _converters.Add(DecoratorScope<ITypeConverter>.Current?.Decorate(converter) ?? converter);
+        }
 
         public IEnumerator<ITypeConverter> GetEnumerator() => _converters.GetEnumerator();
 

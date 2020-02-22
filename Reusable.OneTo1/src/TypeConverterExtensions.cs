@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Diagnostics;
+using JetBrains.Annotations;
 using Reusable.Exceptionize;
 using Reusable.Extensions;
 
 namespace Reusable.OneTo1
 {
+    [PublicAPI]
     public static class TypeConverterExtensions
     {
         [DebuggerStepThrough]

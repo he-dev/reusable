@@ -1,8 +1,7 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
-using Reusable.Exceptionize;
 using Reusable.Extensions;
 
 namespace Reusable.OneTo1
@@ -10,45 +9,6 @@ namespace Reusable.OneTo1
     public interface ITypeConverter
     {
         object? ConvertOrDefault(object value, Type toType, ConversionContext? context = default);
-    }
-
-    public class SkipConvert : ITypeConverter
-    {
-        private readonly ITypeConverter _converter;
-
-        public SkipConvert(ITypeConverter converter) => _converter = converter;
-
-        public virtual object? ConvertOrDefault(object value, Type toType, ConversionContext? context = default)
-        {
-            return
-                toType.IsInstanceOfType(value)
-                    ? value
-                    : _converter.ConvertOrDefault(value, toType, context);
-        }
-    }
-
-    public class TypeConvertException : ITypeConverter
-    {
-        private readonly ITypeConverter _converter;
-
-        public TypeConvertException(ITypeConverter converter) => _converter = converter;
-
-        public object? ConvertOrDefault(object value, Type toType, ConversionContext? context = default)
-        {
-            try
-            {
-                return _converter.ConvertOrDefault(value, toType, context ?? new ConversionContext());
-            }
-            catch (Exception inner)
-            {
-                throw DynamicException.Create
-                (
-                    $"TypeConversion",
-                    $"Could not convert from '{value.GetType().ToPrettyString()}' to '{toType.ToPrettyString()}'.",
-                    inner
-                );
-            }
-        }
     }
 
     public abstract class TypeConverter<TValue, TResult> : ITypeConverter
@@ -69,61 +29,48 @@ namespace Reusable.OneTo1
         public static T Create<T>(Func<T> factory) => factory();
     }
 
+    public interface IDecorator<out TDecoratee>
+    {
+        TDecoratee Decoratee { get; }
+    }
+
     public delegate T DecorateDelegate<T>(T decoratee);
 
-    public class Decorator<T> : IDisposable
+    public static class DecoratorScope
     {
-        private readonly IEnumerable<DecorateDelegate<T>> _decorators;
+        public static DecoratorScope<T> For<T>() => DecoratorScope<T>.Begin();
+    }
 
-        private Decorator(IEnumerable<DecorateDelegate<T>> decorators) => _decorators = decorators.ToList();
+    public class DecoratorScope<T> : IDisposable, IEnumerable<DecorateDelegate<T>>
+    {
+        private readonly Stack<DecorateDelegate<T>> _decorators;
 
-        public static IEnumerable<Decorator<T>> Current => AsyncScope<Decorator<T>>.Current.Enumerate().Select(scope => scope.Value);
+        public DecoratorScope() => _decorators = new Stack<DecorateDelegate<T>>();
 
-        public static Decorator<T> BeginScope(params DecorateDelegate<T>[] decorators) => AsyncScope<Decorator<T>>.Push(new Decorator<T>(decorators));
+        public static DecoratorScope<T>? Current => AsyncScope<DecoratorScope<T>>.Current?.Value;
 
-        public T Decorate(T decoratee) => _decorators.Aggregate(decoratee, (current, decorate) => decorate(current));
+        public static DecoratorScope<T> Begin() => AsyncScope<DecoratorScope<T>>.Push(new DecoratorScope<T>());
+
+        public DecoratorScope<T> Add(DecorateDelegate<T> decorator) => this.Pipe(t => t._decorators.Add(decorator));
+
+        public DecoratorScope<T> Add<TDecorator>() => Add(decoratee => (T)Activator.CreateInstance(typeof(TDecorator), decoratee));
+
+        public T Decorate(T decoratee) => this.Aggregate(decoratee is IDecorator<T> decorator ? decorator.Decoratee : decoratee, (current, decorate) => decorate(current));
 
         public T Decorate<TDecoratee>() where TDecoratee : T, new() => Decorate(new TDecoratee());
 
-        public void Dispose() => AsyncScope<Decorator<T>>.Current?.Dispose();
-    }
-
-    public class AsyncScope<T> : IDisposable
-    {
-        private static readonly AsyncLocal<AsyncScope<T>> State = new AsyncLocal<AsyncScope<T>>();
-
-        private AsyncScope(T value) => Value = value;
-
-        public T Value { get; }
-
-        public AsyncScope<T>? Parent { get; private set; }
-
-        public static AsyncScope<T>? Current
+        public IEnumerator<DecorateDelegate<T>> GetEnumerator()
         {
-            get => State.Value;
-            private set => State.Value = value!;
+            var decorators =
+                from s in AsyncScope<DecoratorScope<T>>.Current.Enumerate()
+                from d in _decorators
+                select d;
+
+            return decorators.GetEnumerator();
         }
 
-        /// <summary>
-        /// Gets a value indicating whether there are any states on the stack.
-        /// </summary>
-        public static bool Any => Current is {};
+        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-        public static AsyncScope<T> Push(T value)
-        {
-            return Current = new AsyncScope<T>(value) { Parent = Current };
-        }
-
-        public void Dispose() => Current = Current?.Parent;
-
-        public static implicit operator T(AsyncScope<T> scope) => scope.Value;
-    }
-
-    public static class AsyncScopeExtensions
-    {
-        public static IEnumerable<AsyncScope<T>> Enumerate<T>(this AsyncScope<T>? scope)
-        {
-            for (; scope is {}; scope = scope.Parent) yield return scope;
-        }
+        public void Dispose() => AsyncScope<DecoratorScope<T>>.Current?.Dispose();
     }
 }
