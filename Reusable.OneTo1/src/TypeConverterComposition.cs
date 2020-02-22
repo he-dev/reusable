@@ -13,7 +13,7 @@ namespace Reusable.OneTo1
         [DebuggerStepThrough]
         public static ITypeConverter Push(this ITypeConverter current, params ITypeConverter[] converters)
         {
-            return new TypeConverterStack(converters.Prepend(current).Select(converter => DecoratorScope<ITypeConverter>.Current?.Decorate(converter) ?? converter));
+            return new TypeConverterStack(converters.Prepend(current).Select(converter => converter.Decorate()));
         }
 
         [DebuggerStepThrough]

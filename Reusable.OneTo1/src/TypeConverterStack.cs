@@ -31,7 +31,7 @@ namespace Reusable.OneTo1
         public TypeConverterStack(params ITypeConverter[] converters) : this(converters.AsEnumerable()) { }
 
         public static ITypeConverter Empty => new TypeConverterStack();
-        
+
         public object? ConvertOrDefault(object value, Type toType, ConversionContext? context = default)
         {
             foreach (var converter in this)
@@ -45,10 +45,7 @@ namespace Reusable.OneTo1
             return default;
         }
 
-        public void Add(ITypeConverter converter)
-        {
-            _converters.Add(DecoratorScope<ITypeConverter>.Current?.Decorate(converter) ?? converter);
-        }
+        public void Add(ITypeConverter converter) => _converters.Add(converter.Decorate());
 
         public IEnumerator<ITypeConverter> GetEnumerator() => _converters.GetEnumerator();
 
