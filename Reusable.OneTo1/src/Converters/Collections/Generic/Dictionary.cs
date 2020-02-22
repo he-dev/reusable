@@ -1,21 +1,19 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Reusable.OneTo1.Converters.Specialized;
 using Reusable.Reflection;
-
-// ReSharper disable BuiltInTypeReferenceStyle
 
 namespace Reusable.OneTo1.Converters.Collections.Generic
 {
-    public class DictionaryToDictionary : TypeConverter
+    public class DictionaryToDictionary : ITypeConverter
     {
-        public override bool CanConvert(Type fromType, Type toType)
+        public object? ConvertOrDefault(object value, Type toType, ConversionContext? context = default)
         {
-            return fromType.IsDictionary() && toType.IsDictionary();
-        }
+            if (!value.GetType().IsDictionary() || !toType.IsDictionary()) return default;
 
-        protected override object ConvertImpl(object value, Type toType, ConversionContext context)
-        {
+            context ??= new ConversionContext();
+            
             var keyType = toType.GetGenericArguments()[0];
             var valueType = toType.GetGenericArguments()[1];
 
@@ -27,8 +25,8 @@ namespace Reusable.OneTo1.Converters.Collections.Generic
             {
                 result.Add
                 (
-                    context.Converter.Convert(key, keyType, context),
-                    context.Converter.Convert(dictionary[key], valueType, context)
+                    context.Converter.ConvertOrThrow(key, keyType),
+                    context.Converter.ConvertOrThrow(dictionary[key], valueType)
                 );
             }
 

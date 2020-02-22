@@ -1,12 +1,15 @@
 ﻿using System;
+using System.Globalization;
 
 namespace Reusable.OneTo1.Converters
 {
     public class StringToTimeSpan : TypeConverter<String, TimeSpan>
     {
+        public IFormatProvider FormatProvider { get; set; } = CultureInfo.InvariantCulture;
+
         protected override TimeSpan Convert(string value, ConversionContext context)
         {
-            return TimeSpan.Parse(value, context.FormatProvider);
+            return TimeSpan.Parse(value, FormatProvider);
         }
     }
 

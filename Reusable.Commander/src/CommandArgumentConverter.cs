@@ -6,7 +6,7 @@ namespace Reusable.Commander
 {
     public static class CommandArgumentConverter
     {
-        public static readonly ITypeConverter Default = new CompositeConverter
+        public static readonly ITypeConverter Default = new TypeConverterStack
         {
             new StringToSByte(),
             new StringToByte(),

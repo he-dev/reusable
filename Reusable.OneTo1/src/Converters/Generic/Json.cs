@@ -9,7 +9,7 @@ using Newtonsoft.Json;
 namespace Reusable.OneTo1.Converters.Generic
 {
     [PublicAPI]
-    public abstract class JsonConverter : TypeConverter
+    public abstract class JsonConverter : ITypeConverter
     {
         protected ISet<Type> StringTypes { get; } = new HashSet<Type>
         {
@@ -27,6 +27,8 @@ namespace Reusable.OneTo1.Converters.Generic
             Formatting = Formatting.Indented,
         };
 
+        public abstract object? ConvertOrDefault(object value, Type toType, ConversionContext? context = default);
+
         protected static bool IsQuoted(string text)
         {
             return text.StartsWith("\"") && text.EndsWith("\"");
@@ -40,19 +42,19 @@ namespace Reusable.OneTo1.Converters.Generic
 
     public class JsonToObject : JsonConverter
     {
-        public override bool CanConvert(Type fromType, Type toType)
+        public override object? ConvertOrDefault(object value, Type toType, ConversionContext? context = default)
         {
-            return fromType == typeof(string);
-        }
+            if (value is string json)
+            {
+                // String-types require quotes for deserialization.
+                var requiresQuotes = IsStringType(toType) && !IsQuoted(json);
 
-        protected override object ConvertImpl(object value, Type toType, ConversionContext context)
-        {
-            var json = value as string;
-
-            // String-types require quotes for deserialization.
-            var requiresQuotes = IsStringType(toType) && !IsQuoted(json);
-
-            return JsonConvert.DeserializeObject(requiresQuotes ? Quote(json) : json, toType, Settings);
+                return JsonConvert.DeserializeObject(requiresQuotes ? Quote(json) : json, toType, Settings);
+            }
+            else
+            {
+                return default;
+            }
         }
 
         private static string Quote(string value)
@@ -63,20 +65,22 @@ namespace Reusable.OneTo1.Converters.Generic
 
     public class ObjectToJson : JsonConverter
     {
-        public override bool CanConvert(Type fromType, Type toType)
+        public override object? ConvertOrDefault(object value, Type toType, ConversionContext? context = default)
         {
-            return toType == typeof(string);
-        }
+            if (toType == typeof(string))
+            {
+                var result = JsonConvert.SerializeObject(value, Settings);
 
-        protected override object ConvertImpl(object value, Type toType, ConversionContext context)
-        {
-            var result = JsonConvert.SerializeObject(value, Settings);
-
-            // String-types must not contain quotes after serialization.
-            return
-                IsStringType(toType)
-                    ? Unquote(result)
-                    : result;
+                // String-types must not contain quotes after serialization.
+                return
+                    IsStringType(toType)
+                        ? Unquote(result)
+                        : result;
+            }
+            else
+            {
+                return default;
+            }
         }
 
         private static string Unquote(string value)

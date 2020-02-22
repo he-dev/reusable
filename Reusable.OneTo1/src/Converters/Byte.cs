@@ -4,7 +4,7 @@ using JetBrains.Annotations;
 
 namespace Reusable.OneTo1.Converters
 {
-    public class StringToByte : FromStringConverter<byte>
+    public class StringToByte : TypeConverter<string, byte>
     {
         protected override byte Convert(string value, ConversionContext context)
         {
@@ -12,11 +12,13 @@ namespace Reusable.OneTo1.Converters
         }
     }
 
-    public class ByteToStringConverter : ToStringConverter<byte>
+    public class ByteToStringConverter : TypeConverter<byte, string>
     {
+        public IFormatProvider FormatProvider { get; set; } = CultureInfo.InvariantCulture;
+        
         protected override string Convert(byte value, ConversionContext context)
         {
-            return value.ToString(context.FormatProvider);
+            return value.ToString(FormatProvider);
         }
     }
 }

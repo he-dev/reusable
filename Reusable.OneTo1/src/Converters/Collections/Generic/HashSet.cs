@@ -1,19 +1,19 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Reusable.OneTo1.Converters.Specialized;
 using Reusable.Reflection;
 
 namespace Reusable.OneTo1.Converters.Collections.Generic
 {
-    public class EnumerableToHashSet : TypeConverter
+    public class EnumerableToHashSet : ITypeConverter
     {
-        public override bool CanConvert(Type fromType, Type toType)
+        public object? ConvertOrDefault(object value, Type toType, ConversionContext? context = default)
         {
-            return fromType.IsEnumerable(except: typeof(string)) && toType.IsHashSet();
-        }
-
-        protected override object ConvertImpl(object value, Type toType, ConversionContext context)
-        {
+            if (!value.GetType().IsEnumerable(except: typeof(string)) || !toType.IsHashSet()) return default;
+            
+            context ??= new ConversionContext();
+            
             var itemType = toType.GetGenericArguments()[0];
             var hashSetType = typeof(HashSet<>).MakeGenericType(itemType);
             var hashSet = Activator.CreateInstance(hashSetType);
@@ -21,7 +21,7 @@ namespace Reusable.OneTo1.Converters.Collections.Generic
 
             foreach (var item in (IEnumerable)value)
             {
-                var element = context.Converter.Convert(item, itemType, context);
+                var element = context.Converter.ConvertOrThrow(item, itemType);
                 // ReSharper disable once PossibleNullReferenceException - addMethod is never null
                 addMethod.Invoke(hashSet, new[] { element });
             }
@@ -29,29 +29,4 @@ namespace Reusable.OneTo1.Converters.Collections.Generic
             return hashSet;
         }
     }
-
-    //public class EnumerableToHashSetConverter<T> : TypeConverter<IEnumerable, HashSet<T>>
-    //{
-    //    protected override bool SupportsConversion(Type fromType, Type toType)
-    //    {
-    //        return fromType.IsEnumerableOfT(except: typeof(string)) && toType.IsHashSet();
-    //    }
-
-    //    protected override HashSet<T> ConvertCore(IConversionContext<IEnumerable> context)
-    //    {
-    //        var valueType = context.ToType.GetGenericArguments()[0];
-    //        var hashSetType = typeof(HashSet<>).MakeGenericType(valueType);
-    //        var hashSet = Activator.CreateInstance(hashSetType);
-    //        var addMethod = hashSetType.GetMethod(nameof(HashSet<T>.Add));
-
-    //        foreach (var value in context.Value)
-    //        {
-    //            var element = context.Converter.Convert(new ConversionContext<object>(value, valueType, context));
-    //            // ReSharper disable once PossibleNullReferenceException - addMethod is never null
-    //            addMethod.Invoke(hashSet, new[] { element });
-    //        }
-
-    //        return (HashSet<T>)hashSet;
-    //    }
-    //}
 }

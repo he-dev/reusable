@@ -57,7 +57,7 @@ namespace Reusable.Commander
 
                     var obj =
                         deserialize is {}
-                            ? converter.Convert(deserialize, property.PropertyType)
+                            ? converter.ConvertOrDefault(deserialize, property.PropertyType)
                             : property.PropertyType == typeof(bool);
 
                     if (property.GetCustomAttributes<ValidationAttribute>() is var validations)
@@ -89,7 +89,7 @@ namespace Reusable.Commander
 
                     if (property.GetCustomAttribute<DefaultValueAttribute>() is {} defaultValue)
                     {
-                        property.SetValue(parameter, converter.Convert(defaultValue.Value, property.PropertyType));
+                        property.SetValue(parameter, converter.ConvertOrDefault(defaultValue.Value, property.PropertyType));
                     }
                 }
             }

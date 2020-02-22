@@ -1,6 +1,9 @@
-﻿namespace Reusable.OneTo1.Converters
+﻿using System;
+using System.Globalization;
+
+namespace Reusable.OneTo1.Converters
 {
-    public class StringToBoolean : FromStringConverter<bool>
+    public class StringToBoolean : TypeConverter<string, bool>
     {
         protected override bool Convert(string value, ConversionContext context)
         {
@@ -8,11 +11,13 @@
         }
     }
 
-    public class BooleanToString : ToStringConverter<bool>
+    public class BooleanToString : TypeConverter<bool, string>
     {
+        public IFormatProvider FormatProvider { get; set; } = CultureInfo.InvariantCulture;
+        
         protected override string Convert(bool value, ConversionContext context)
         {
-            return value.ToString(context.FormatProvider);
+            return value.ToString(FormatProvider);
         }
     }
 }

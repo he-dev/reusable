@@ -22,7 +22,7 @@ namespace Reusable.Translucent.Controllers
         {
             ConnectionString = connectionString;
             //Converter = new JsonSettingConverter();
-            Converter = new CompositeConverter
+            Converter = new TypeConverterStack
             {
                 new JsonToObject
                 {
@@ -59,7 +59,7 @@ namespace Reusable.Translucent.Controllers
                 if (await settingReader.ReadAsync(token))
                 {
                     var value = settingReader[ColumnMappings.MapOrDefault(SqlServerColumn.Value)];
-                    value = Converter.Convert(value, request.SettingType);
+                    value = Converter.ConvertOrDefault(value, request.SettingType);
                     return Success<ConfigResponse>(request.ResourceName, value);
                 }
                 else
@@ -71,7 +71,7 @@ namespace Reusable.Translucent.Controllers
 
         public override async Task<Response> CreateAsync(ConfigRequest request)
         {
-            var value = Converter.Convert(request.Body, typeof(string));
+            var value = Converter.ConvertOrDefault(request.Body, typeof(string));
 
             await SqlHelper.ExecuteAsync(ConnectionString, async (connection, token) =>
             {

@@ -40,7 +40,7 @@ namespace Reusable.Csv
                         var columnTypes = dataTable.Columns.Cast<DataColumn>().Select(dc => dc.DataType);
                         foreach (var (value, type, ordinal) in enumerator.Current.Zip(columnTypes, (value, type) => (value, type)).Select((zip, ordinal) => (zip.value, zip.type, ordinal)))
                         {
-                            values[ordinal] = converter.Convert(value, type);
+                            values[ordinal] = converter.ConvertOrDefault(value, type);
                         }
 
                         dataTable.AddRow(values);

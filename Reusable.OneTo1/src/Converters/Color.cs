@@ -1,24 +1,21 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Globalization;
 using Reusable.Drawing;
 
 namespace Reusable.OneTo1.Converters
 {
-    public class StringToColor : FromStringConverter<Color>
+    public class StringToColor : TypeConverter<string, Color>
     {
-        private readonly IEnumerable<ColorParser> _colorParsers;
-
-        public StringToColor() : this(new ColorParser[] { new HexColorParser() }) { }
-
-        public StringToColor(IEnumerable<ColorParser> colorParsers)
+        public List<ColorParser> ColorParsers { get; set; } = new List<ColorParser>
         {
-            _colorParsers = colorParsers;
-        }
+            new HexColorParser()
+        };
 
         protected override Color Convert(string value, ConversionContext context)
         {
-            foreach (var colorParser in _colorParsers)
+            foreach (var colorParser in ColorParsers)
             {
                 if (colorParser.TryParse(value, out var argb))
                 {
@@ -32,11 +29,15 @@ namespace Reusable.OneTo1.Converters
 
     // ---
 
-    public class ColorToStringConverter : ToStringConverter<Color>
+    public class ColorToStringConverter : TypeConverter<Color, string>
     {
+        public IFormatProvider FormatProvider { get; set; } = CultureInfo.InvariantCulture;
+
+        public string? FormatString { get; set; }
+        
         protected override string Convert(Color value, ConversionContext context)
         {
-            return string.Format(context.FormatProvider, context.FormatString, value);
+            return string.Format(FormatProvider, FormatString, value);
         }
     }
 }

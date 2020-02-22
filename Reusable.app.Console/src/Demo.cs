@@ -44,15 +44,15 @@ namespace Reusable.Apps
         }
 
 
-
         public static void Converters()
         {
             var converter =
-                TypeConverter.Empty
-                    .Add<StringToInt32>()
-                    .Add<StringToDateTime>();
+                TypeConverterStack
+                    .Empty
+                    .Push<StringToDateTime>()
+                    .Push<StringToInt32>();
 
-            var result = converter.Convert("123", typeof(int));
+            var result = converter.ConvertOrDefault("123", typeof(int));
         }
 
         public static void DebuggerDisplay()

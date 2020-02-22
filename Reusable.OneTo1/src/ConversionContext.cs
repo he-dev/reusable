@@ -1,12 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Globalization;
-using System.Linq;
+﻿using Reusable.OneTo1.Converters.Specialized;
 
 namespace Reusable.OneTo1
 {
     public class ConversionContext
     {
-        public ITypeConverter? Converter { get; set; }
+        public ITypeConverter Converter { get; set; } = new Never();
     }
 }

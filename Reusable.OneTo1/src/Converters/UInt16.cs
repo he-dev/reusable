@@ -1,20 +1,25 @@
 ﻿using System;
+using System.Globalization;
 
 namespace Reusable.OneTo1.Converters
 {
     public class StringToUInt16 : TypeConverter<String, UInt16>
     {
+        public IFormatProvider FormatProvider { get; set; } = CultureInfo.InvariantCulture;
+
         protected override UInt16 Convert(string value, ConversionContext context)
         {
-            return UInt16.Parse(value, context.FormatProvider);
+            return UInt16.Parse(value, FormatProvider);
         }
     }
 
     public class UInt16ToStringConverter : TypeConverter<ushort, string>
     {
+        public IFormatProvider FormatProvider { get; set; } = CultureInfo.InvariantCulture;
+        
         protected override string Convert(ushort value, ConversionContext context)
         {
-            return value.ToString(context.FormatProvider);
+            return value.ToString(FormatProvider);
         }
     }
 }

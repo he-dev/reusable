@@ -1,29 +1,37 @@
 ﻿using System;
 using System.IO;
+using System.Reflection;
 using System.Text;
 using System.Xml.Linq;
+using Reusable.Extensions;
 
 namespace Reusable.OneTo1.Converters
 {
-    public class StringToXDocumentConverter : TypeConverter<String, XDocument>
+    public class StringToXDocument : TypeConverter<String, XDocument>
     {
+        public LoadOptions LoadOptions { get; set; } = LoadOptions.None;
+
         protected override XDocument Convert(string value, ConversionContext context)
         {
-            return XDocument.Parse(value);
+            return XDocument.Parse(value, LoadOptions);
         }
     }
 
-    public class XDocumentToStringConverter : TypeConverter<XDocument, string>
+    public class XDocumentToString : TypeConverter<XDocument, string>
     {
+        private static readonly MethodInfo SaveMethod = typeof(XDocument).GetMethod("Save", new[] { typeof(StreamWriter), typeof(SaveOptions) });
+
+        public SaveOptions SaveOptions { get; set; } = SaveOptions.DisableFormatting;
+
+        public Encoding Encoding { get; set; } = Encoding.UTF8;
+
         protected override string Convert(XDocument value, ConversionContext context)
         {
             using var memoryStream = new MemoryStream();
-            using var streamWriter = new StreamWriter(memoryStream);
-            var saveMethod = typeof(XDocument).GetMethod("Save", new[] { typeof(StreamWriter), typeof(SaveOptions) });
-            // ReSharper disable once PossibleNullReferenceException - saveMethod is never null
-            saveMethod.Invoke(value, new object[] { streamWriter, SaveOptions.DisableFormatting });
-            var xml = Encoding.UTF8.GetString(memoryStream.ToArray());
-            return xml;
+            //using var streamWriter = new StreamWriter(memoryStream);
+            //SaveMethod.Invoke(value, new object[] { streamWriter, SaveOptions });
+            value.Save(memoryStream, SaveOptions);
+            return Encoding.GetString(memoryStream.Rewind().ToArray());
         }
     }
 }

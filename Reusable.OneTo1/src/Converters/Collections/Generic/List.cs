@@ -1,26 +1,26 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Reusable.OneTo1.Converters.Specialized;
 using Reusable.Reflection;
 
 namespace Reusable.OneTo1.Converters.Collections.Generic
 {
-    public class EnumerableToList : TypeConverter
+    public class EnumerableToList : ITypeConverter
     {
-        public override bool CanConvert(Type fromType, Type toType)
+        public object? ConvertOrDefault(object value, Type toType, ConversionContext? context = default)
         {
-            return fromType.IsEnumerable(except: typeof(string)) && toType.IsList();
-        }
+            if (!value.GetType().IsEnumerable(except: typeof(string)) || !toType.IsList()) return default;
 
-        protected override object ConvertImpl(object value, Type toType, ConversionContext context)
-        {
+            context ??= new ConversionContext();
+
             var itemType = toType.GetGenericArguments()[0];
             var listType = typeof(List<>).MakeGenericType(itemType);
             var list = (IList)Activator.CreateInstance(listType);
 
             foreach (var item in (IEnumerable)value)
             {
-                var element = context.Converter.Convert(item, itemType, context);
+                var element = context.Converter.ConvertOrThrow(item, itemType);
                 list.Add(element);
             }
 

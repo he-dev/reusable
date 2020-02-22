@@ -3,26 +3,26 @@ using System.Collections;
 using System.Linq;
 using Reusable.Exceptionize;
 using Reusable.Extensions;
+using Reusable.OneTo1.Converters.Specialized;
 using Reusable.Reflection;
 
 namespace Reusable.OneTo1.Converters.Collections
 {
-    public class EnumerableToArray : TypeConverter
+    public class EnumerableToArray : ITypeConverter
     {
-        public override bool CanConvert(Type fromType, Type toType)
+        public object? ConvertOrDefault(object value, Type toType, ConversionContext? context = default)
         {
-            return fromType.IsEnumerable(except: typeof(string)) && toType.IsArray;
-        }
+            if (!value.GetType().IsEnumerable(except: typeof(string)) || !toType.IsArray) return default;
 
-        protected override object ConvertImpl(object value, Type toType, ConversionContext context)
-        {
+            context ??= new ConversionContext();
+            
             var elements = ((IEnumerable)value).Cast<object>().ToArray();
             var elementType = toType.GetElementType() ?? throw DynamicException.Factory.CreateDynamicException($"ElementTypeNotFound{nameof(Exception)}", $"Could not determine the element type of {toType.ToPrettyString()}.", null);
             var array = Array.CreateInstance(elementType, elements.Length);
 
             for (var i = 0; i < elements.Length; i++)
             {
-                var item = context.Converter.Convert(elements[i], elementType, context);
+                var item = context.Converter.ConvertOrThrow(elements[i], elementType);
                 array.SetValue(item, i);
             }
 

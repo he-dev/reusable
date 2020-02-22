@@ -2,29 +2,19 @@
 
 namespace Reusable.OneTo1.Converters
 {
-    public class StringToEnum : TypeConverter
+    public class StringToEnum : ITypeConverter
     {
-        public override bool CanConvert(Type fromType, Type toType)
+        public object? ConvertOrDefault(object value, Type toType, ConversionContext? context = default)
         {
-            return fromType == typeof(string) && toType.IsEnum;
-        }
-
-        protected override object ConvertImpl(object value, Type toType, ConversionContext context)
-        {
-            return Enum.Parse(toType, (string)value);
+            return value is string str && toType.IsEnum ? Enum.Parse(toType, str) : default;
         }
     }
 
-    public class EnumToStringConverter : TypeConverter
+    public class EnumToStringConverter : ITypeConverter
     {
-        public override bool CanConvert(Type fromType, Type toType)
+        public object? ConvertOrDefault(object value, Type toType, ConversionContext? context = default)
         {
-            return fromType.IsEnum && toType == typeof(string);
-        }
-
-        protected override object ConvertImpl(object value, Type toType, ConversionContext context)
-        {
-            return value.ToString();
+            return value.GetType().IsEnum && toType == typeof(string) ? value.ToString() : default;
         }
     }
 }

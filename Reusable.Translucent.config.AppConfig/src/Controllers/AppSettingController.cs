@@ -27,7 +27,7 @@ namespace Reusable.Translucent.Controllers
             var exeConfig = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
             var actualKey = FindActualKey(exeConfig, settingIdentifier) ?? settingIdentifier;
             var element = exeConfig.AppSettings.Settings[actualKey];
-            var value = Converter.Convert(request.Body, typeof(string));
+            var value = Converter.ConvertOrDefault(request.Body, typeof(string));
 
             if (element is null)
             {

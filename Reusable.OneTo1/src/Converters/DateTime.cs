@@ -4,8 +4,12 @@ using Reusable.Extensions;
 
 namespace Reusable.OneTo1.Converters
 {
-    public class StringToDateTime : FromStringConverter<DateTime>
+    public class StringToDateTime : TypeConverter<string, DateTime>
     {
+        public IFormatProvider FormatProvider { get; set; } = CultureInfo.InvariantCulture;
+
+        public string? FormatString { get; set; }
+        
         protected override DateTime Convert(string value, ConversionContext context)
         {
             return
@@ -15,8 +19,12 @@ namespace Reusable.OneTo1.Converters
         }
     }
 
-    public class DateTimeToString : ToStringConverter<DateTime>
+    public class DateTimeToString : TypeConverter<DateTime, string>
     {
+        public IFormatProvider FormatProvider { get; set; } = CultureInfo.InvariantCulture;
+
+        public string? FormatString { get; set; }
+        
         protected override string Convert(DateTime value, ConversionContext context)
         {
             return

@@ -24,7 +24,7 @@ namespace Reusable.Translucent.Controllers
                     .AddJsonFile(fileName)
                     .Build();
 
-            Converter = new CompositeConverter
+            Converter = new TypeConverterStack
             {
                 new JsonToObject
                 {

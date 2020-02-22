@@ -1,37 +1,44 @@
 ﻿using System;
 using System.Diagnostics;
+using Reusable.Exceptionize;
+using Reusable.Extensions;
 
 namespace Reusable.OneTo1
 {
     public static class TypeConverterExtensions
     {
         [DebuggerStepThrough]
-        public static object Convert(this ITypeConverter converter, object value, Type toType, string format, IFormatProvider formatProvider)
+        public static object? ConvertOrDefault(this ITypeConverter converter, object value, Type toType)
         {
-            return converter.Convert(value, toType, new ConversionContext
-            {
-                Converter = converter,
-                FormatString = format,
-                FormatProvider = formatProvider
-            });
-        }
-
-        [DebuggerStepThrough]
-        public static object Convert(this ITypeConverter converter, object value, Type toType)
-        {
-            return converter.Convert(value, toType, new ConversionContext
+            return converter.ConvertOrDefault(value, toType, new ConversionContext
             {
                 Converter = converter
             });
         }
 
         [DebuggerStepThrough]
-        public static T Convert<T>(this ITypeConverter converter, object value)
+        public static T ConvertOrDefault<T>(this ITypeConverter converter, object value)
         {
-            return (T)converter.Convert(value, typeof(T), new ConversionContext
-            {
-                Converter = converter
-            });
+            return ConvertOrDefault(converter, value, typeof(T)) is T result ? result : default;
+        }
+
+        [DebuggerStepThrough]
+        public static object ConvertOrThrow(this ITypeConverter converter, object value, Type toType)
+        {
+            return
+                converter.ConvertOrDefault(value, toType) is {} result
+                    ? result
+                    : throw DynamicException.Create
+                    (
+                        $"NotSupportedConversion",
+                        $"There is no converter from '{value.GetType().ToPrettyString()}' to '{toType.ToPrettyString()}'."
+                    );
+        }
+
+        [DebuggerStepThrough]
+        public static T ConvertOrThrow<T>(this ITypeConverter converter, object value)
+        {
+            return (T)ConvertOrThrow(converter, value, typeof(T));
         }
     }
 }
