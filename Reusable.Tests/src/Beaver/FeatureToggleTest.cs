@@ -1,10 +1,6 @@
 using System;
-using System.Collections.Generic;
 using System.Threading.Tasks;
-using Newtonsoft.Json.Serialization;
 using Reusable.Beaver.Policies;
-using Reusable.Translucent;
-using Reusable.Utilities.JsonNet;
 using Xunit;
 
 namespace Reusable.Beaver
