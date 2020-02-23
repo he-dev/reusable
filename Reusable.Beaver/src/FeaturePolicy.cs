@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using Reusable.Beaver.Policies;
 using Reusable.Extensions;
 
@@ -12,23 +11,27 @@ namespace Reusable.Beaver
 
     public abstract class FeaturePolicy : IFeaturePolicy
     {
+        public abstract FeatureState State(FeatureContext context);
+
+        public override string ToString() => GetType().ToPrettyString();
+
+        #region Helpers
+
         public static readonly IFeaturePolicy AlwaysOn = new AlwaysOn();
 
         public static readonly IFeaturePolicy AlwaysOff = new AlwaysOff();
 
         public static readonly IFeaturePolicy Once = new Once();
 
-        public static IFeaturePolicy Ask(Func<FeatureContext, FeatureState> state) => new Ask(state);
+        public static IFeaturePolicy Ask(Func<FeatureContext, FeatureState> state) => new Lambda(state);
 
-        public static IFeaturePolicy Ask(Func<FeatureContext, bool> state) => new Ask(ctx => state(ctx) ? FeatureState.Enabled : FeatureState.Disabled);
+        public static IFeaturePolicy Ask(Func<FeatureContext, bool> state) => new Lambda(ctx => state(ctx) ? FeatureState.Enabled : FeatureState.Disabled);
 
-        public abstract FeatureState State(FeatureContext context);
-
-        public override string ToString() => GetType().ToPrettyString();
+        #endregion
     }
 
     public interface IFinalizable
     {
-        void Finally(FeatureContext context, FeatureState after);
+        void Finalize(FeatureContext context, FeatureState state);
     }
 }

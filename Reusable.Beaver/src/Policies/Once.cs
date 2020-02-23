@@ -7,13 +7,11 @@ namespace Reusable.Beaver.Policies
     {
         public override FeatureState State(FeatureContext context) => FeatureState.Enabled;
 
-        public void Finally(FeatureContext context, FeatureState after)
+        public void Finalize(FeatureContext context, FeatureState state)
         {
-            switch (after)
+            if (state == FeatureState.Enabled)
             {
-                case FeatureState.Enabled:
-                    context.Toggle.TryRemove(context.Feature.Name, out _);
-                    break;
+                context.Feature.Policy = AlwaysOff;
             }
         }
     }

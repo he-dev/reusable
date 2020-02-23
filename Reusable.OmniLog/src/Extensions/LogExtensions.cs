@@ -17,9 +17,9 @@ namespace Reusable.OmniLog
 
         public static ILogEntry Exception(this ILogEntry logEntry, Exception? value)
         {
-            logEntry.Add(LogProperty.Names.Exception, value, m => m.ProcessWith<EchoNode>());
             if (value is {})
             {
+                logEntry.Add(LogProperty.Names.Exception, value, m => m.ProcessWith<EchoNode>());
                 logEntry.Level(LogLevel.Error);
             }
 

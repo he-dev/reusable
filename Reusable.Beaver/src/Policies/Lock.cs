@@ -11,6 +11,6 @@ namespace Reusable.Beaver.Policies
 
         public override FeatureState State(FeatureContext context) => _policy.State(context);
 
-        public void Finally(FeatureContext context, FeatureState after) => (_policy as IFinalizable)?.Finally(context, after);
+        public void Finalize(FeatureContext context, FeatureState state) => (_policy as IFinalizable)?.Finalize(context, state);
     }
 }

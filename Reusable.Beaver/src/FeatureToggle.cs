@@ -2,49 +2,59 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using JetBrains.Annotations;
+using Reusable.Beaver.Policies;
 using Reusable.Extensions;
 
 namespace Reusable.Beaver
 {
+    /// <summary>
+    /// This interface extends IFeatureCollection and adds fallback-policy for when a feature does not exist. 
+    /// </summary>
     [PublicAPI]
-    public interface IFeatureToggle : IFeatureCollection { }
+    public interface IFeatureToggle : IFeatureCollection
+    {
+        /// <summary>
+        /// Gets feature or fallback.
+        /// </summary>
+        Feature this[string name] { get; }
+    }
 
     public class FeatureToggle : IFeatureToggle
     {
+        private readonly IFeaturePolicy _fallbackPolicy;
         private readonly IFeatureCollection _features;
 
         public FeatureToggle(IFeaturePolicy fallbackPolicy, IFeatureCollection features)
         {
+            _fallbackPolicy = fallbackPolicy;
             _features = features;
-            _features.AddOrUpdate(new Feature.Fallback(fallbackPolicy));
         }
 
         public FeatureToggle(IFeaturePolicy fallbackPolicy) : this(fallbackPolicy, new FeatureCollection()) { }
 
-        /// <summary>
-        /// Gets feature or fallback.
-        /// </summary>
         public Feature this[string name]
         {
             get
             {
-                return
-                    _features.TryGet(name, out var feature)
-                        ? feature 
-                        : _features[nameof(Feature.Fallback)].Map(f => new Feature($"{name}@{nameof(Feature.Fallback)}", f.Policy));
+                TryGet(name, out var feature);
+                return feature;
             }
         }
 
-        public bool TryGet(string name, out Feature feature) => _features.TryGet(name, out feature);
-
         /// <summary>
-        /// Adds or updates feature. Throws when trying to set a locked feature.
+        /// Tries to get feature. With FeatureToggle always true because a fallback feature is returned otherwise.
         /// </summary>
-        public void AddOrUpdate(Feature feature)
+        public bool TryGet(string name, out Feature feature)
         {
-            if (this.IsLocked(feature.Name)) throw new InvalidOperationException($"Feature '{feature.Name}' is locked and cannot be changed.");
-            _features.AddOrUpdate(feature);
+            if (!_features.TryGet(name, out feature))
+            {
+                feature = new Feature.Fallback(name, _fallbackPolicy);
+            }
+
+            return true;
         }
+
+        public void Add(Feature feature) => _features.Add(feature);
 
         public bool TryRemove(string name, out Feature feature) => _features.TryRemove(name, out feature);
 

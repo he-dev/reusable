@@ -1,17 +1,18 @@
+using System;
 using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using Reusable.Data;
 
 namespace Reusable.Beaver
 {
     public interface IFeatureCollection : IEnumerable<Feature>
     {
-        Feature this[string name] { get; }
+        /// <summary>
+        /// Adds feature and throws when feature already added.
+        /// </summary>
+        void Add(Feature feature);
 
         bool TryGet(string name, out Feature feature);
-
-        void AddOrUpdate(Feature feature);
 
         bool TryRemove(string name, out Feature feature);
     }
@@ -23,26 +24,22 @@ namespace Reusable.Beaver
     {
         private readonly ConcurrentDictionary<string, Feature> _features = new ConcurrentDictionary<string, Feature>(SoftString.Comparer);
 
-        public Feature this[string name] => _features[name]; // .TryGetValue(name, out var feature) ? feature : default;
+        public void Add(Feature feature)
+        {
+            if (_features.ContainsKey(feature))
+            {
+                throw new InvalidOperationException($"Feature {feature} is already added.");
+            }
+
+            _features.AddOrUpdate(feature.Name, name => feature, (n, f) => feature);
+        }
 
         public bool TryGet(string name, out Feature feature) => _features.TryGetValue(name, out feature);
 
-        public void AddOrUpdate(Feature feature) => _features.AddOrUpdate(feature.Name, name => feature, (n, f) => feature);
-
         public bool TryRemove(string name, out Feature feature) => _features.TryRemove(name, out feature);
-
-        public void Add(Feature feature) => AddOrUpdate(feature);
 
         public IEnumerator<Feature> GetEnumerator() => _features.Values.GetEnumerator();
 
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
-    }
-
-    public static class FeatureCollectionExtensions
-    {
-        public static void AddOrUpdate(this IFeatureCollection features, string name, IFeaturePolicy policy, params string[] tags)
-        {
-            features.AddOrUpdate(new Feature(name, policy, tags));
-        }
     }
 }

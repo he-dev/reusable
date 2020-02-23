@@ -6,6 +6,9 @@ using Reusable.Exceptionize;
 
 namespace Reusable.Beaver
 {
+    /// <summary>
+    /// This interface extends IFeatureToggle by providing the Use method.
+    /// </summary>
     public interface IFeatureController : IFeatureToggle
     {
         Task<FeatureResult<T>> Use<T>(string name, Func<Task<T>> onEnabled, Func<Task<T>>? onDisabled = default, object? parameter = default);
@@ -15,39 +18,44 @@ namespace Reusable.Beaver
     {
         private readonly IFeatureToggle _toggle;
 
-        public FeatureController(IFeatureToggle toggle)
-        {
-            _toggle = toggle;
-        }
+        public FeatureController(IFeatureToggle toggle) => _toggle = toggle;
+
+        public FeatureController(IFeaturePolicy fallbackPolicy) : this(new FeatureToggle(fallbackPolicy)) { }
 
         public Feature this[string name] => _toggle[name];
 
+        public void Add(Feature feature) => _toggle.Add(feature);
+
         public bool TryGet(string name, out Feature feature) => _toggle.TryGet(name, out feature);
-        
-        public void AddOrUpdate(Feature feature) => _toggle.AddOrUpdate(feature);
 
         public bool TryRemove(string name, out Feature feature) => _toggle.TryRemove(name, out feature);
 
         public async Task<FeatureResult<T>> Use<T>(string name, Func<Task<T>> onEnabled, Func<Task<T>>? onDisabled = default, object? parameter = default)
         {
-            onDisabled ??= () => Task.FromResult<T>(default);
+            onDisabled ??= () => Task.FromResult(default(T));
 
             // Not catching exceptions because the caller should handle them.
 
-            var context = new FeatureContext(this, name, parameter);
             var feature = this[name];
+            var context = new FeatureContext(this, this[name], parameter);
 
             try
             {
                 var state = feature.Policy.State(context);
                 try
                 {
-                    var result = await (state == FeatureState.Enabled ? onEnabled : onDisabled)().ConfigureAwait(false);
+                    var action = state switch
+                    {
+                        FeatureState.Enabled => onEnabled,
+                        FeatureState.Disabled => onDisabled,
+                        _ => throw new InvalidOperationException($"Feature {feature} must be either {FeatureState.Enabled} or {FeatureState.Disabled}.")
+                    };
+
                     return new FeatureResult<T>
                     {
-                        Value = result,
                         Feature = feature,
                         State = state,
+                        Value = await action().ConfigureAwait(false),
                     };
                 }
                 catch (Exception inner)
@@ -61,12 +69,12 @@ namespace Reusable.Beaver
                 }
                 finally
                 {
-                    (feature.Policy as IFinalizable)?.Finally(context, state);
+                    (feature.Policy as IFinalizable)?.Finalize(context, state);
                 }
             }
             finally
             {
-                (feature.Policy as IFinalizable)?.Finally(context, FeatureState.Any);
+                (feature.Policy as IFinalizable)?.Finalize(context, FeatureState.Any);
             }
         }
 
