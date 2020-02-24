@@ -36,4 +36,8 @@
     <Reference Include="System.Linq" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Compile Remove="src\CommandFactory.cs" />
+  </ItemGroup>
+
 </Project>

@@ -35,7 +35,7 @@ namespace Reusable.Commander
         protected Command(ILogger logger, ArgumentName? name = default)
         {
             Logger = logger;
-            Name = name ?? GetType().GetMultiName();
+            Name = name ?? GetType().GetArgumentName();
         }
 
         protected ILogger Logger { get; }
@@ -67,7 +67,7 @@ namespace Reusable.Commander
             }
             catch (Exception inner)
             {
-                throw DynamicException.Create("ParameterValidation", $"Parameter {parameterType.GetMultiName().Join(", ").EndsWith("[]")} is invalid. See the inner exception for details.", inner);
+                throw DynamicException.Create("ParameterValidation", $"Parameter {parameterType.GetArgumentName().Join(", ").EndsWith("[]")} is invalid. See the inner exception for details.", inner);
             }
         }
 

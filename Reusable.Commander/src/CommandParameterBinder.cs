@@ -37,18 +37,20 @@ namespace Reusable.Commander
 
             foreach (var property in properties)
             {
-                var argName = property.GetMultiName();
+                var argName = property.GetArgumentName();
                 var arg =
-                    property.GetCustomAttribute<PositionAttribute>() is var position && position is {}
-                        ? args.SingleOrNotFound(ArgumentName.Command) is var a && a && a.Count > position.Value ? new CommandLineArgument($"#{position}", a.ElementAt(position)) : CommandLineArgument.NotFound
-                        : args.SingleOrNotFound(argName);
+                    property.GetCustomAttribute<PositionAttribute?>() is {} position
+                        ? args.SingleOrDefault(x => x.Name.Equals(ArgumentName.Command)) is {} a && a.Count > position.Value
+                            ? CommandLineArgument.Create($"{argName}#{position}", new[] { a.ElementAt(position) })
+                            : default
+                        : args.SingleOrDefault(x => x.Name.Equals(argName));
 
-                var converter = 
+                var converter =
                     property.GetCustomAttribute<TypeConverterAttribute>() is {} typeConverterAttribute
                         ? (ITypeConverter)Activator.CreateInstance(typeConverterAttribute.ConverterType)
                         : CommandArgumentConverter.Default;
 
-                if (arg)
+                if (arg is {})
                 {
                     var deserialize =
                         property.PropertyType.IsEnumerable(except: typeof(string))
@@ -64,7 +66,7 @@ namespace Reusable.Commander
                     {
                         foreach (var validation in validations)
                         {
-                            validation.Validate(obj, property.GetMultiName().Join(", ").EncloseWith("[]"));
+                            validation.Validate(obj, property.GetArgumentName().Join(", ").EncloseWith("[]"));
                         }
                     }
 
@@ -95,14 +97,6 @@ namespace Reusable.Commander
             }
 
             return parameter;
-        }
-    }
-
-    internal static class CommandParameterBinderExtensions
-    {
-        public static CommandLineArgument SingleOrNotFound(this IEnumerable<CommandLineArgument> args, MultiName name)
-        {
-            return args.SingleOrDefault(a => a.Name.Equals(name)) ?? CommandLineArgument.NotFound;
         }
     }
 }

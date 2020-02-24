@@ -5,10 +5,10 @@ namespace Reusable.Commander
 {
     public class CommandInfo : IEquatable<CommandInfo>
     {
-        public CommandInfo(ArgumentName name, Type commandType)
+        public CommandInfo(Type commandType, ArgumentName? name = default)
         {
             CommandType = commandType;
-            Name = name;
+            Name = name ?? commandType.GetArgumentName();
             ParameterType = commandType.GetCommandParameterType();
 
             //ValidateParameterPropertyNames(typeof(TParameter));

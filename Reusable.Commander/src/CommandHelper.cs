@@ -13,30 +13,20 @@ namespace Reusable.Commander
 {
     public interface ICommandNameResolver
     {
-        ArgumentNameCollection ResolveCommandName<T>() where T : ICommand;
+        ArgumentName ResolveCommandName<T>() where T : ICommand;
     }
 
     public static class CommandHelper
     {
-        private static readonly ConcurrentDictionary<MemberInfo, MultiName> NameCache = new ConcurrentDictionary<MemberInfo, MultiName>();
+        private static readonly ConcurrentDictionary<MemberInfo, ArgumentName> NameCache = new ConcurrentDictionary<MemberInfo, ArgumentName>();
 
-        public static MultiName GetMultiName(this MemberInfo member)
+        public static ArgumentName GetArgumentName(this MemberInfo member)
         {
-            return NameCache.GetOrAdd(member, t => new MultiName(GetMemberNames(t)));
+            return NameCache.GetOrAdd(member, t => new ArgumentName(GetDefaultMemberName(t), t.GetCustomAttribute<AliasAttribute?>() ?? Enumerable.Empty<string>()));
         }
-
-        private static IEnumerable<string> GetMemberNames(MemberInfo commandType)
-        {
-            yield return GetDefaultMemberName(commandType);
-            foreach (var name in commandType.GetCustomAttribute<AliasAttribute>() ?? Enumerable.Empty<string>())
-            {
-                yield return name;
-            }
-        }
-
+        
         private static string GetDefaultMemberName(MemberInfo commandType)
         {
-            // todo - make this clean-up optional
             return Regex.Replace(commandType.Name, "C(omman|m)d$", string.Empty, RegexOptions.IgnoreCase);
         }
 

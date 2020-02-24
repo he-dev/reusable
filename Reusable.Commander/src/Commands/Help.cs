@@ -33,14 +33,13 @@ namespace Reusable.Commander.Commands
 
         protected override Task ExecuteAsync(Parameter parameter, CancellationToken cancellationToken)
         {
-            var commandSelected = parameter.Command.IsNotNullOrEmpty();
-            if (commandSelected)
+            if (parameter.Command.IsNullOrEmpty())
             {
-                RenderParameterList(parameter);
+                RenderCommandList(parameter);
             }
             else
             {
-                RenderCommandList(parameter);
+                RenderParameterList(parameter);
             }
 
             return Task.CompletedTask;
@@ -96,7 +95,7 @@ namespace Reusable.Commander.Commands
 
             foreach (var commandParameterProperty in commandParameterProperties)
             {
-                var name = commandParameterProperty.GetMultiName();
+                var name = commandParameterProperty.GetArgumentName();
                 var defaultId = name.First();
                 var aliases = name.Skip(1).OrderByDescending(a => a.Length).Join("|");
                 var description = commandParameterProperty.GetCustomAttribute<DescriptionAttribute>()?.Description ?? "N/A";

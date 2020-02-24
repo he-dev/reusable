@@ -6,6 +6,7 @@ using System.Linq.Custom;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Threading.Tasks.Dataflow;
+using Autofac;
 using JetBrains.Annotations;
 using Reusable.Exceptionize;
 using Reusable.Extensions;
@@ -26,21 +27,24 @@ namespace Reusable.Commander
     {
         private readonly ILogger _logger;
         private readonly ICommandLineParser _commandLineParser;
-        private readonly ICommandFactory _commandFactory;
+        private readonly ILifetimeScope _lifetimeScope;
         private readonly ICommandParameterBinder _commandParameterBinder;
+        private readonly IEnumerable<CommandInfo> _commands;
 
         public CommandExecutor
         (
             ILogger<CommandExecutor> logger,
             ICommandLineParser commandLineParser,
-            ICommandFactory commandFactory,
-            ICommandParameterBinder commandParameterBinder
+            ILifetimeScope lifetimeScope,
+            ICommandParameterBinder commandParameterBinder,
+            IEnumerable<CommandInfo> commands
         )
         {
             _logger = logger;
             _commandLineParser = commandLineParser;
-            _commandFactory = commandFactory;
+            _lifetimeScope = lifetimeScope;
             _commandParameterBinder = commandParameterBinder;
+            _commands = commands;
         }
 
         public async Task ExecuteAsync<TContext>(string commandLineString, TContext context = default, CancellationToken cancellationToken = default)
@@ -55,7 +59,9 @@ namespace Reusable.Commander
             var executables =
                 from t in commandLines.Select((args, index) => (args, index))
                 let arg0 = t.args.Where(a => a.Name.Equals(ArgumentName.Command)).SingleOrThrow(onEmpty: ("CommandNameNotFound", $"Command line {t.index} does not contain command-name."))
-                let command = _commandFactory.CreateCommand(arg0.First())
+                let currentName = arg0.First()
+                let actualName = _commands.SingleOrDefault(cmd => cmd.Name.Contains(currentName, SoftString.Comparer))?.RegistrationKey ?? throw DynamicException.Create("CommandNameNotFound", $"Command '{currentName}' not found.")
+                let command = _lifetimeScope.ResolveNamed<ICommand>(actualName)
                 select (command, t.args);
 
             var async = executables.ToLookup(e => _commandParameterBinder.Bind<CommandParameter>(e.args).Async);

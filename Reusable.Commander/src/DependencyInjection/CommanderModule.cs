@@ -32,10 +32,10 @@ namespace Reusable.Commander.DependencyInjection
                 .RegisterType<CommandLineParser>()
                 .As<ICommandLineParser>();
 
-            builder
-                .RegisterType<CommandFactory>()
-                .SingleInstance()
-                .As<ICommandFactory>();
+            // builder
+            //     .RegisterType<CommandFactory>()
+            //     .SingleInstance()
+            //     .As<ICommandFactory>();
 
             builder
                 .RegisterType<CommandParameterBinder>()
@@ -48,7 +48,8 @@ namespace Reusable.Commander.DependencyInjection
             var crb = new CommandRegistrationBuilder { Builder = builder }.Pipe(_build);
 
             builder
-                .RegisterInstance(crb.ToList());
+                .RegisterInstance(crb.ToList())
+                .As<IEnumerable<CommandInfo>>();
 
             // builder
             //     .RegisterSource(new TypeListSource());
@@ -72,11 +73,7 @@ namespace Reusable.Commander.DependencyInjection
 
         public IRegistrationBuilder<TCommand, ConcreteReflectionActivatorData, SingleRegistrationStyle> Register<TCommand>() where TCommand : ICommand
         {
-            var command =
-                CommandNameResolver
-                    .ResolveCommandName<TCommand>()
-                    .Map(names => new CommandInfo(names, typeof(TCommand)))
-                    .Pipe(AddCommand);
+            var command = new CommandInfo(typeof(TCommand)).Pipe(AddCommand);
 
             return
                 Builder
@@ -86,7 +83,7 @@ namespace Reusable.Commander.DependencyInjection
 
         public IRegistrationBuilder<Lambda<TParameter>, SimpleActivatorData, SingleRegistrationStyle> Register<TParameter>(ArgumentName name, ExecuteDelegate<TParameter> execute) where TParameter : CommandParameter, new()
         {
-            var command = new CommandInfo(name, typeof(Lambda<TParameter>)).Pipe(AddCommand);
+            var command = new CommandInfo(typeof(Lambda<TParameter>), name).Pipe(AddCommand);
             return
                 Builder
                     .Register(ctx => new Lambda<TParameter>(ctx.Resolve<ILogger<Lambda<TParameter>>>(), command.Name, execute))
@@ -104,9 +101,9 @@ namespace Reusable.Commander.DependencyInjection
 
         private void AddCommand(CommandInfo command)
         {
-            foreach (var cmd in Commands.Where(cmd => !Commands.Add(cmd)))
+            if(!Commands.Add(command))
             {
-                throw DynamicException.Create("DuplicateCommandName", $"Command name '{cmd.Name.First()}' is already in use.");
+                throw DynamicException.Create("DuplicateCommandName", $"Command name '{command.Name.Primary}' is already in use.");
             }
         }
 

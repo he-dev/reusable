@@ -27,7 +27,7 @@ namespace Reusable.Commander
         public IEnumerable<List<CommandLineArgument>> Parse(string commandLine)
         {
             // The first parameter is always a command.
-            var arguments = new List<CommandLineArgument> { new CommandLineArgument(MultiName.Command) };
+            var arguments = new List<CommandLineArgument> { new CommandLineArgument(ArgumentName.Command) };
 
             foreach (var token in _tokenizer.Tokenize(commandLine).Where(Conditional.IsNotNullOrEmpty))
             {
@@ -35,11 +35,11 @@ namespace Reusable.Commander
                 {
                     case CommandSeparator when arguments.Any():
                         yield return arguments;
-                        arguments = new List<CommandLineArgument> { new CommandLineArgument(MultiName.Command) };
+                        arguments = new List<CommandLineArgument> { new CommandLineArgument(ArgumentName.Command) };
                         break;
 
                     case { } value when IsArgumentName(value):
-                        arguments.Add(new CommandLineArgument(RemoveArgumentPrefix(value)));
+                        arguments.Add(new CommandLineArgument(ArgumentName.Create(RemoveArgumentPrefix(value))));
                         break;
 
                     default:

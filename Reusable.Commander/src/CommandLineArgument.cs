@@ -26,12 +26,14 @@ namespace Reusable.Commander
         private string DebuggerDisplay => ToString();
 
         public ArgumentName Name { get; }
+        
+        public static CommandLineArgument Create(string name, IEnumerable<string> values) => new CommandLineArgument(new ArgumentName(name), values);
 
         #region IEquatable
 
         public bool Equals(CommandLineArgument? other) => Name.Equals(other?.Name);
 
-        public override bool Equals(object obj) => obj is CommandLineArgument parameter && Equals(parameter);
+        public override bool Equals(object obj) => Equals(obj as CommandLineArgument);
 
         public override int GetHashCode() => Name.GetHashCode();
 
