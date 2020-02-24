@@ -53,10 +53,10 @@ namespace Reusable.Commander
             {
                 yield return arguments;
             }
-
-            bool IsArgumentName(string value) => Regex.IsMatch(value, ParameterPrefix);
-
-            string RemoveArgumentPrefix(string value) => Regex.Replace(value, ParameterPrefix, string.Empty);
         }
+
+        private static bool IsArgumentName(string value) => Regex.IsMatch(value, ParameterPrefix);
+
+        private static string RemoveArgumentPrefix(string value) => Regex.Replace(value, ParameterPrefix, string.Empty);
     }
 }

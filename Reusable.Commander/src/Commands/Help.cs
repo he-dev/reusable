@@ -58,16 +58,16 @@ namespace Reusable.Commander.Commands
 
             // Commands
             var userExecutableCommands =
-                from commandType in parameter.Commands
-                where !commandType.IsDefined(typeof(InternalAttribute))
-                orderby commandType.GetMultiName().First()
-                select commandType;
+                from command in parameter.Commands
+                where !command.CommandType.IsDefined(typeof(InternalAttribute))
+                orderby command.Name.Primary
+                select command;
 
-            foreach (var commandType in userExecutableCommands)
+            foreach (var command in userExecutableCommands)
             {
-                var defaultId = commandType.GetMultiName().First();
-                var aliases = string.Join("|", commandType.GetMultiName().Skip(1).Select(x => x.ToString()));
-                var description = commandType.GetCustomAttribute<DescriptionAttribute>()?.Description ?? "N/A";
+                var defaultId = command.Name.Primary;
+                var aliases = string.Join("|", command.Name.Secondary.Select(x => x.ToString()));
+                var description = command.CommandType.GetCustomAttribute<DescriptionAttribute>()?.Description ?? "N/A";
                 var row = new[] { $"{defaultId} ({(aliases.Length > 0 ? aliases : "-")})", description }.Pad(ColumnWidths);
                 Logger.WriteLine(Style, new t.Indent(1), new t.Help.TableRow { Cells = row });
             }
@@ -75,10 +75,10 @@ namespace Reusable.Commander.Commands
 
         protected virtual void RenderParameterList(Parameter parameter)
         {
-            var commandType =
+            var command =
                 parameter
                     .Commands
-                    .Where(t => t.GetMultiName().Equals(parameter.Command))
+                    .Where(c => c.Name.Contains(parameter.Command, SoftString.Comparer))
                     .SingleOrThrow(onEmpty: ($"CommandNotFound", $"Could not find a command with the name '{parameter.Command}'"));
 
             // Headers
@@ -90,7 +90,7 @@ namespace Reusable.Commander.Commands
             Logger.WriteLine(Style, new t.Indent(1), new t.Help.TableRow { Cells = separators });
 
             var commandParameterProperties =
-                from commandArgument in commandType.GetCommandParameterType().GetParameterProperties()
+                from commandArgument in command.ParameterType.GetParameterProperties()
                 orderby commandArgument.Name.First()
                 select commandArgument;
 
@@ -113,8 +113,10 @@ namespace Reusable.Commander.Commands
             [Position(1)]
             public string? Command { get; set; }
 
+            //[Service]
+            //public TypeList<ICommand> Commands { get; set; }
             [Service]
-            public TypeList<ICommand> Commands { get; set; }
+            public IEnumerable<CommandInfo> Commands { get; set; }
         }
     }
 

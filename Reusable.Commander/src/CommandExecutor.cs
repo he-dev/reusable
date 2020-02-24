@@ -54,7 +54,7 @@ namespace Reusable.Commander
 
             var executables =
                 from t in commandLines.Select((args, index) => (args, index))
-                let arg0 = t.args.Where(a => a.Name.Equals(MultiName.Command)).SingleOrThrow(onEmpty: ("CommandNameNotFound", $"Command line {t.index} does not contain command-name."))
+                let arg0 = t.args.Where(a => a.Name.Equals(ArgumentName.Command)).SingleOrThrow(onEmpty: ("CommandNameNotFound", $"Command line {t.index} does not contain command-name."))
                 let command = _commandFactory.CreateCommand(arg0.First())
                 select (command, t.args);
 

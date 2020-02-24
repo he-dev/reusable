@@ -27,7 +27,6 @@ namespace Reusable.Extensions
         /// <summary>
         /// Allows to pipe an action on the current object in a functional way.
         /// </summary>
-        [MustUseReturnValue]
         public static T Pipe<T>(this T obj, Action<T>? next)
         {
             next?.Invoke(obj);

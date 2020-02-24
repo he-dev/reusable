@@ -13,7 +13,7 @@ namespace Reusable.Commander
 
         protected ICommand Command { get; }
 
-        public virtual MultiName Name => Command.Name;
+        public virtual ArgumentName Name => Command.Name;
 
         public Type ParameterType => Command.ParameterType;
 

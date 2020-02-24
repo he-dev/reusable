@@ -108,7 +108,7 @@ namespace Reusable.OmniLog.SemanticExtensions
         }
 
         /// <summary>
-        /// Logs arguments. The dump must be an anonymous type with at leas one property: new { foo[, bar] }
+        /// Logs arguments.
         /// </summary>
         public static ILogEntryBuilder<ILogEntryCategory> Argument(this ILogEntryBuilder<ILogEntryLayer> layer, object snapshot, string? identifier = default)
         {
@@ -116,7 +116,7 @@ namespace Reusable.OmniLog.SemanticExtensions
         }
 
         /// <summary>
-        /// Logs metadata. The dump must be an anonymous type with at leas one property: new { foo[, bar] }
+        /// Logs metadata. Snapshot can be an object or a dictionary.
         /// </summary>
         public static ILogEntryBuilder<ILogEntryCategory> Meta(this ILogEntryBuilder<ILogEntryLayer> layer, object snapshot, string? identifier = default)
         {

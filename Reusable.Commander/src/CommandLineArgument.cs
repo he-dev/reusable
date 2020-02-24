@@ -17,15 +17,15 @@ namespace Reusable.Commander
     {
         public const string DefaultFormat = "-:";
 
-        internal CommandLineArgument(MultiName name, IEnumerable<string> values) : base(values) => Name = name;
+        internal CommandLineArgument(ArgumentName name, IEnumerable<string> values) : base(values) => Name = name;
 
-        internal CommandLineArgument(MultiName name, params string[] values) : this(name, values.AsEnumerable()) { }
+        internal CommandLineArgument(ArgumentName name, params string[] values) : this(name, values.AsEnumerable()) { }
 
-        public static CommandLineArgument NotFound => new CommandLineArgument(MultiName.Empty, Enumerable.Empty<string>());
+        //public static CommandLineArgument NotFound => new CommandLineArgument(MultiName.Empty, Enumerable.Empty<string>());
 
         private string DebuggerDisplay => ToString();
 
-        public MultiName Name { get; }
+        public ArgumentName Name { get; }
 
         #region IEquatable
 

@@ -16,7 +16,7 @@ namespace Reusable.Commander
         {
             var executeCount = 0;
 
-            using var program = TestProgram.Create(Command.Registration<CommandParameter>(MultiName.Create("a", "b"), (name, param, token) =>
+            using var program = TestProgram.Create(builder => builder.Register<CommandParameter>(ArgumentNameCollection.Create("a", "b"), (name, param, token) =>
             {
                 executeCount++;
                 return Task.CompletedTask;
@@ -33,11 +33,11 @@ namespace Reusable.Commander
         {
             var executeCount = 0;
 
-            using var program = TestProgram.Create
-            (
-                Command.Registration<CommandParameter>(MultiName.Create("a"), _ => executeCount++),
-                Command.Registration<CommandParameter>(MultiName.Create("b"), _ => executeCount++)
-            );
+            using var program = TestProgram.Create(builder =>
+            {
+                builder.Register<CommandParameter>(ArgumentNameCollection.Create("a"), _ => executeCount++);
+                builder.Register<CommandParameter>(ArgumentNameCollection.Create("b"), _ => executeCount++);
+            });
 
             await program.RunAsync("a|b");
 
@@ -49,10 +49,7 @@ namespace Reusable.Commander
         {
             var param = default(SimpleParameter);
 
-            using var program = TestProgram.Create
-            (
-                Command.Registration<SimpleParameter>(MultiName.Create("test"), p => param = p)
-            );
+            using var program = TestProgram.Create(builder => builder.Register<SimpleParameter>(ArgumentNameCollection.Create("test"), p => param = p));
 
             await program.RunAsync("test -bool -string bar -int32 123 -datetime \"2019-07-01\" -listofint32 1 2 3");
 
@@ -70,10 +67,7 @@ namespace Reusable.Commander
         {
             var param = default(PositionParameter);
 
-            using var program = TestProgram.Create
-            (
-                Command.Registration<PositionParameter>(MultiName.Create("test"), p => param = p)
-            );
+            using var program = TestProgram.Create(builder => builder.Register<PositionParameter>(ArgumentNameCollection.Create("test"), p => param = p));
 
             await program.RunAsync("test bar foo");
 
@@ -87,10 +81,7 @@ namespace Reusable.Commander
         {
             var param = default(DefaultValueParameter);
 
-            using var program = TestProgram.Create
-            (
-                Command.Registration<DefaultValueParameter>(MultiName.Create("test"), p => param = p)
-            );
+            using var program = TestProgram.Create(builder => builder.Register<DefaultValueParameter>(ArgumentNameCollection.Create("test"), p => param = p));
 
             await program.RunAsync("test");
 
@@ -105,10 +96,7 @@ namespace Reusable.Commander
         {
             var param = default(NullableValueParameter);
 
-            using var program = TestProgram.Create
-            (
-                Command.Registration<NullableValueParameter>(MultiName.Create("test"), p => param = p)
-            );
+            using var program = TestProgram.Create(builder => builder.Register<NullableValueParameter>(ArgumentNameCollection.Create("test"), p => param = p));
 
             await program.RunAsync("test -int32b 7");
 
@@ -122,10 +110,7 @@ namespace Reusable.Commander
         {
             var param = default(ServiceParameter);
 
-            using var program = TestProgram.Create
-            (
-                Command.Registration<ServiceParameter>(MultiName.Create("test"), p => param = p)
-            );
+            using var program = TestProgram.Create(builder => builder.Register<ServiceParameter>(ArgumentNameCollection.Create("test"), p => param = p));
 
             await program.RunAsync("test");
 
@@ -139,10 +124,7 @@ namespace Reusable.Commander
         {
             var param = default(ContextParameter);
 
-            using var program = TestProgram.Create
-            (
-                Command.Registration<ContextParameter>(MultiName.Create("test"), p => param = p)
-            );
+            using var program = TestProgram.Create(builder => builder.Register<ContextParameter>(ArgumentNameCollection.Create("test"), p => param = p));
 
             await program.RunAsync(new[] { "test" }, "foo");
 

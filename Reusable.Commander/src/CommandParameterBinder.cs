@@ -40,7 +40,7 @@ namespace Reusable.Commander
                 var argName = property.GetMultiName();
                 var arg =
                     property.GetCustomAttribute<PositionAttribute>() is var position && position is {}
-                        ? args.SingleOrNotFound(MultiName.Command) is var a && a && a.Count > position.Value ? new CommandLineArgument($"#{position}", a.ElementAt(position)) : CommandLineArgument.NotFound
+                        ? args.SingleOrNotFound(ArgumentName.Command) is var a && a && a.Count > position.Value ? new CommandLineArgument($"#{position}", a.ElementAt(position)) : CommandLineArgument.NotFound
                         : args.SingleOrNotFound(argName);
 
                 var converter = 

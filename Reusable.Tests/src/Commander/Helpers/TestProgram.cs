@@ -19,9 +19,9 @@ namespace Reusable.Commander.Helpers
             _disposer = disposer;
         }
 
-        public static TestProgram Create(params RegisterCommandDelegate[] commandRegistrations)
+        public static TestProgram Create(Action<ICommandRegistrationBuilder> build)
         {
-            var container = InitializeContainer(commandRegistrations);
+            var container = InitializeContainer(build);
             var scope = container.BeginLifetimeScope();
 
             return new TestProgram(scope.Resolve<ICommandExecutor>(), Disposable.Create(() =>
@@ -35,7 +35,7 @@ namespace Reusable.Commander.Helpers
         
         public Task RunAsync<T>(IEnumerable<string> args, T context = default) => _executor.ExecuteAsync<object>(args, context);
 
-        private static IContainer InitializeContainer(IEnumerable<RegisterCommandDelegate> commandRegistrations)
+        private static IContainer InitializeContainer(Action<ICommandRegistrationBuilder> build)
         {
             var builder = new ContainerBuilder();
 
@@ -48,7 +48,7 @@ namespace Reusable.Commander.Helpers
                 .As(typeof(ILogger<>));
 
             builder
-                .RegisterModule(new CommanderModule(commandRegistrations));
+                .RegisterModule(new CommanderModule(build));
 
             //builder
             //    .RegisterInstance((ExecuteExceptionCallback)(ex =>

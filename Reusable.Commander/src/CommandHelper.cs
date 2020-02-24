@@ -11,6 +11,11 @@ using Reusable.Extensions;
 
 namespace Reusable.Commander
 {
+    public interface ICommandNameResolver
+    {
+        ArgumentNameCollection ResolveCommandName<T>() where T : ICommand;
+    }
+
     public static class CommandHelper
     {
         private static readonly ConcurrentDictionary<MemberInfo, MultiName> NameCache = new ConcurrentDictionary<MemberInfo, MultiName>();
@@ -55,7 +60,7 @@ namespace Reusable.Commander
         }
 
         //public static Type ParameterType(this ICommand command) => command.GetType().GetCommandParameterType();
-        
+
         public static IEnumerable<PropertyInfo> GetParameterProperties(this Type parameterType)
         {
             return

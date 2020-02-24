@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Custom;
 using System.Reflection;
@@ -17,8 +18,8 @@ namespace Reusable.Commander
 {
     public interface ICommand
     {
-        MultiName Name { get; }
-        
+        ArgumentName Name { get; }
+
         /// <summary>
         /// Gets the type of the parameter.
         /// </summary>
@@ -31,7 +32,7 @@ namespace Reusable.Commander
     [PublicAPI]
     public abstract class Command<TParameter> : ICommand where TParameter : class, new()
     {
-        protected Command(ILogger logger, MultiName? name = default)
+        protected Command(ILogger logger, ArgumentName? name = default)
         {
             Logger = logger;
             Name = name ?? GetType().GetMultiName();
@@ -39,7 +40,7 @@ namespace Reusable.Commander
 
         protected ILogger Logger { get; }
 
-        public virtual MultiName Name { get; }
+        public virtual ArgumentName Name { get; }
 
         public Type ParameterType => typeof(TParameter);
 
@@ -57,59 +58,6 @@ namespace Reusable.Commander
 
     public static class Command
     {
-        public static RegisterCommandDelegate Registration<T>
-        (
-            Action<IRegistrationBuilder<T, ConcreteReflectionActivatorData, SingleRegistrationStyle>>? configure = default
-        )
-        {
-            try
-            {
-                ValidateParameterPropertyNames(typeof(T).GetCommandParameterType());
-
-                return builder =>
-                {
-                    var registration = builder.RegisterType<T>().As<ICommand>();
-                    configure?.Invoke(registration);
-                    return typeof(T).GetMultiName();
-                };
-            }
-            catch (Exception inner)
-            {
-                throw DynamicException.Create("CommandRegistration", $"Command {typeof(T).GetMultiName().Join(", ").EncloseWith("[]")} could not be registered. See the inner exception for details.", inner);
-            }
-        }
-
-        public static RegisterCommandDelegate Registration<TParameter>
-        (
-            MultiName name,
-            ExecuteDelegate<TParameter> execute,
-            Action<IRegistrationBuilder<Lambda<TParameter>, SimpleActivatorData, SingleRegistrationStyle>>? configure = default
-        ) where TParameter : CommandParameter, new()
-        {
-            ValidateParameterPropertyNames(typeof(TParameter));
-
-            return builder =>
-            {
-                var registration = builder.Register(ctx => new Lambda<TParameter>(ctx.Resolve<ILogger<Lambda<TParameter>>>(), name, execute)).As<ICommand>();
-                configure?.Invoke(registration);
-                return name;
-            };
-        }
-
-        public static RegisterCommandDelegate Registration<TParameter>
-        (
-            MultiName name,
-            Action<TParameter> execute,
-            Action<IRegistrationBuilder<Lambda<TParameter>, SimpleActivatorData, SingleRegistrationStyle>>? configure = default
-        ) where TParameter : CommandParameter, new()
-        {
-            return Registration(name, (n, p, t) =>
-            {
-                execute(p);
-                return Task.CompletedTask;
-            }, configure);
-        }
-
         private static void ValidateParameter(Type parameterType)
         {
             try
@@ -127,7 +75,7 @@ namespace Reusable.Commander
         {
             var query =
                 from p in parameterType.GetParameterProperties()
-                from n in p.GetMultiName()
+                from n in Enumerable.Empty<ArgumentName>() // p.GetMultiName()
                 group n by n into g
                 where g.Count() > 1
                 select g.Key;
@@ -152,10 +100,4 @@ namespace Reusable.Commander
             }
         }
     }
-
-    public delegate MultiName RegisterCommandDelegate(ContainerBuilder builder);
-
-    //public delegate void ConfigureRegistrationDelegate<in T>(IRegistrationBuilder<T, ConcreteReflectionActivatorData, SingleRegistrationStyle> configure);
-
-    //public delegate void ConfigureRegistrationDelegate<in T>(IRegistrationBuilder<T, SimpleActivatorData, SingleRegistrationStyle> configure);
 }
