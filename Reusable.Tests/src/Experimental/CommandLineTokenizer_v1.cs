@@ -7,7 +7,6 @@ using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
 using JetBrains.Annotations;
-using Reusable.Experimental.TokenizerV6.CommandLine;
 using Xunit;
 
 namespace Reusable.Experimental.TokenizerV6
@@ -223,18 +222,18 @@ namespace Reusable.Experimental.TokenizerV6
 
     public abstract class TokenMatcherProviderAttribute : Attribute
     {
-        public abstract IEnumerable<ITokenMatcher> GetMatchers<TToken>(TToken token);
+        public abstract IEnumerable<ITokenMatcher> GetMatchers<TToken>(TToken tokenType);
     }
 
     public class EnumTokenMatcherProviderAttribute : TokenMatcherProviderAttribute
     {
-        public override IEnumerable<ITokenMatcher> GetMatchers<TToken>(TToken token)
+        public override IEnumerable<ITokenMatcher> GetMatchers<TToken>(TToken tokenType)
         {
             if (!typeof(TToken).IsEnum) throw new ArgumentException($"Token must by of Enum type.");
 
             return
                 typeof(TToken)
-                    .GetField(token.ToString())
+                    .GetField(tokenType.ToString())
                     .GetCustomAttributes<TokenMatcherAttribute>();
         }
     }
