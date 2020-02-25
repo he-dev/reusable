@@ -48,7 +48,7 @@ namespace Reusable.Commander.Helpers
                 .As(typeof(ILogger<>));
 
             builder
-                .RegisterModule(new CommanderModule(build));
+                .RegisterModule(new CommandModule(build));
 
             //builder
             //    .RegisterInstance((ExecuteExceptionCallback)(ex =>

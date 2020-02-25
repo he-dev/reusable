@@ -539,9 +539,6 @@ namespace Reusable.Experimental.TokenizerV5.CommandLine
             "command -argument=value",
             "command  argument value")]
         [InlineData(
-            "command -argument:value,value",
-            "command  argument value value")]
-        [InlineData(
             @"command -argument=""foo--bar"",value -argument value",
             @"command  argument   foo--bar   value  argument value")]
         [InlineData(

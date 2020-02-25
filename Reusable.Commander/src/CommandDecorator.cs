@@ -7,15 +7,15 @@ namespace Reusable.Commander
 {
     [UsedImplicitly]
     [PublicAPI]
-    public abstract class CommandDecorator : ICommand
+    public abstract class CommandDecorator : ICommand, IDecorator<ICommand>
     {
-        protected CommandDecorator(ICommand command) => Command = command;
+        protected CommandDecorator(ICommand command) => Decoratee = command;
 
-        protected ICommand Command { get; }
+        public ICommand Decoratee { get; }
 
-        public virtual ArgumentName Name => Command.Name;
+        public virtual ArgumentName Name => Decoratee.Name;
 
-        public Type ParameterType => Command.ParameterType;
+        public Type ParameterType => Decoratee.ParameterType;
 
         public abstract Task ExecuteAsync(object? parameter, CancellationToken cancellationToken);
     }

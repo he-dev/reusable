@@ -27,7 +27,9 @@ namespace Reusable.Commander.Commands
 
         private static readonly int[] ColumnWidths = { 27, 50 };
 
-        public Help(ILogger<Help> logger) : base(logger) { }
+        public Help(ILogger<Help> logger) => Logger = logger;
+
+        private ILogger Logger { get; }
 
         public ConsoleStyle Style { get; set; }
 

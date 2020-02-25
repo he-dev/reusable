@@ -32,13 +32,10 @@ namespace Reusable.Commander
     [PublicAPI]
     public abstract class Command<TParameter> : ICommand where TParameter : class, new()
     {
-        protected Command(ILogger logger, ArgumentName? name = default)
+        protected Command(ArgumentName? name = default)
         {
-            Logger = logger;
             Name = name ?? GetType().GetArgumentName();
         }
-
-        protected ILogger Logger { get; }
 
         public virtual ArgumentName Name { get; }
 

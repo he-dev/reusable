@@ -9,11 +9,11 @@ using Reusable.OmniLog.SemanticExtensions;
 
 namespace Reusable.Commander.Commands
 {
-    public class CommandTelemetry : CommandDecorator
+    public class Telemetry : CommandDecorator
     {
-        private readonly ILogger<CommandTelemetry> _logger;
+        private readonly ILogger<Telemetry> _logger;
 
-        public CommandTelemetry(ILogger<CommandTelemetry> logger, ICommand command) : base(command)
+        public Telemetry(ILogger<Telemetry> logger, ICommand command) : base(command)
         {
             _logger = logger;
         }
@@ -22,10 +22,10 @@ namespace Reusable.Commander.Commands
         {
             using (_logger.BeginScope().WithCorrelationHandle("ExecuteCommand").UseStopwatch())
             {
-                _logger.Log(Abstraction.Layer.Service().Subject(new { CommandName = Command.Name.First() }).Trace());
+                _logger.Log(Abstraction.Layer.Service().Subject(new { CommandName = Decoratee.Name.Primary }).Trace());
                 try
                 {
-                    await Command.ExecuteAsync(parameter, cancellationToken);
+                    await Decoratee.ExecuteAsync(parameter, cancellationToken);
                     _logger.Log(Abstraction.Layer.Service().Routine(nameof(ICommand.ExecuteAsync)).Completed());
                 }
                 catch (OperationCanceledException)

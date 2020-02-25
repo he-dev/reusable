@@ -1,6 +1,5 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
-using Reusable.OmniLog.Abstractions;
 
 namespace Reusable.Commander.Commands
 {
@@ -10,11 +9,8 @@ namespace Reusable.Commander.Commands
     {
         private readonly ExecuteDelegate<TParameter> _execute;
 
-        public Lambda(ILogger<Lambda<TParameter>> logger, ArgumentName name, ExecuteDelegate<TParameter> execute) : base(logger, name) => _execute = execute;
+        public Lambda(ArgumentName name, ExecuteDelegate<TParameter> execute) : base(name) => _execute = execute;
 
-        protected override Task ExecuteAsync(TParameter parameter, CancellationToken cancellationToken)
-        {
-            return _execute(Name, parameter, cancellationToken);
-        }
+        protected override Task ExecuteAsync(TParameter parameter, CancellationToken cancellationToken) => _execute(Name, parameter, cancellationToken);
     }
 }
