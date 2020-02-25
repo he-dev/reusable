@@ -1,11 +1,13 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
 using JetBrains.Annotations;
+using Reusable.Experimental.TokenizerV6.CommandLine;
 using Xunit;
 
 namespace Reusable.Experimental.TokenizerV6
@@ -17,12 +19,9 @@ namespace Reusable.Experimental.TokenizerV6
 
     public class Tokenizer<TToken> : ITokenizer<TToken> where TToken : Enum
     {
-        private readonly IImmutableDictionary<TToken, IImmutableList<State<TToken>>> _transitions;
+        private readonly StateTransition<TToken> _stateTransition;
 
-        public Tokenizer(IImmutableList<State<TToken>> states)
-        {
-            _transitions = StateTransitionMapper.CreateTransitionMap(states);
-        }
+        public Tokenizer(StateTransition<TToken> stateTransition) => _stateTransition = stateTransition;
 
         public IEnumerable<Token<TToken>> Tokenize(string value)
         {
@@ -36,8 +35,7 @@ namespace Reusable.Experimental.TokenizerV6
 
             while (Any())
             {
-                var current = _transitions[context.TokenType];
-                foreach (var next in current)
+                foreach (var next in _stateTransition.Next(context.TokenType))
                 {
                     if (next.Match(context) is {} match)
                     {
@@ -56,12 +54,13 @@ namespace Reusable.Experimental.TokenizerV6
         }
     }
 
-    public static class StateTransitionMapper
+    public class StateTransition<TToken>
     {
-        // Turns the adjacency-list of states into a dictionary for faster lookup.
-        public static IImmutableDictionary<TToken, IImmutableList<State<TToken>>> CreateTransitionMap<TToken>(IImmutableList<State<TToken>> states) where TToken : Enum
+        private readonly IImmutableDictionary<TToken, IImmutableList<State<TToken>>> _transitions;
+
+        public StateTransition(params State<TToken>[] states)
         {
-            return states.Aggregate(ImmutableDictionary<TToken, IImmutableList<State<TToken>>>.Empty, (mappings, state) =>
+            _transitions = states.Aggregate(ImmutableDictionary<TToken, IImmutableList<State<TToken>>>.Empty, (mappings, state) =>
             {
                 var nextStates =
                     from n in state.Next
@@ -71,6 +70,8 @@ namespace Reusable.Experimental.TokenizerV6
                 return mappings.Add(state.TokenType, nextStates.ToImmutableList());
             });
         }
+
+        public IEnumerable<State<TToken>> Next(TToken token) => _transitions[token];
     }
 
     public class TokenMatch
@@ -82,22 +83,36 @@ namespace Reusable.Experimental.TokenizerV6
         public override string ToString() => $"'{Value}' at {Offset}, Length: {Length}";
     }
 
-    public interface IMatcher
+    public class Token<TToken> : TokenMatch
+    {
+        public Token(TokenMatch match, TToken type) : base(match.Value, match.Offset, match.Length)
+        {
+            Type = type;
+        }
+
+        public TToken Type { get; }
+
+        [DebuggerStepThrough]
+        public override string ToString() => $"{base.ToString()} {Type.ToString()}";
+    }
+
+    public interface ITokenMatcher
     {
         TokenMatch? Match(string value, int offset);
     }
 
-    public abstract class MatcherAttribute : Attribute, IMatcher
+    public abstract class TokenMatcherAttribute : Attribute, ITokenMatcher
     {
         public abstract TokenMatch? Match(string value, int offset);
     }
 
     // Can recognize regexable patterns.
     // The pattern requires one group that is the token to return. 
-    public class RegexAttribute : MatcherAttribute
+    public class RegexAttribute : TokenMatcherAttribute
     {
         private readonly Regex _regex;
 
+        [DebuggerStepThrough]
         public RegexAttribute([RegexPattern] string prefixPattern) => _regex = new Regex($@"\G{prefixPattern}");
 
         public override TokenMatch? Match(string value, int offset)
@@ -110,7 +125,7 @@ namespace Reusable.Experimental.TokenizerV6
     }
 
     // Can recognize constant patterns.
-    public class ConstAttribute : MatcherAttribute
+    public class ConstAttribute : TokenMatcherAttribute
     {
         private readonly string _pattern;
 
@@ -132,32 +147,13 @@ namespace Reusable.Experimental.TokenizerV6
     // Requires two patterns:
     // - one for the separator because it has to know where the value begins
     // - the other for an unquoted value if it's not already quoted
-    public class TextAttribute : MatcherAttribute
+    public class TextAttribute : TokenMatcherAttribute
     {
         public static readonly IImmutableSet<char> Escapables = new[] { '\\', '"', '\'' }.ToImmutableHashSet();
 
-        //private readonly Regex _prefixRegex;
-        private readonly Regex _unquotedValuePattern;
-
-//        public QTextAttribute([RegexPattern] string separatorPattern, [RegexPattern] string unquotedValuePattern = default)
-//        {
-//            _prefixRegex = new Regex($@"\G{separatorPattern}");
-//            _unquotedValuePattern = new Regex($@"\G{unquotedValuePattern}");
-//        }
-
-        // public QTextAttribute([RegexPattern] string unquotedValuePattern = default)
-        // {
-        //     //_prefixRegex = new Regex($@"\G{separatorPattern}");
-        //     _unquotedValuePattern = new Regex($@"\G{unquotedValuePattern}");
-        // }
-
+        [DebuggerStepThrough]
         public override TokenMatch Match(string value, int offset)
         {
-            // if (_unquotedValuePattern.Match(value, offset) is var valueMatch && valueMatch.Groups[1].Success)
-            // {
-            //     return new MatchResult(valueMatch.Groups[1].Value, valueMatch.Length);
-            // }
-            // else
             return MatchQuoted(value, offset) is {} token ? token : default;
         }
 
@@ -186,7 +182,7 @@ namespace Reusable.Experimental.TokenizerV6
                     }
                     else
                     {
-                        // It doesn't start with a quote. This is unacceptable. Either an empty value or an unquoted one.
+                        // It doesn't start with a quote.
                         return default;
                     }
                 }
@@ -212,7 +208,6 @@ namespace Reusable.Experimental.TokenizerV6
                         {
                             if (c == quote)
                             {
-                                // +2 because there were two quotes.
                                 return new TokenMatch(token.ToString(), offset, length + 1); // + the last quote
                             }
                         }
@@ -225,28 +220,28 @@ namespace Reusable.Experimental.TokenizerV6
             return default;
         }
     }
-    
+
     public abstract class TokenMatcherProviderAttribute : Attribute
     {
-        public abstract IEnumerable<IMatcher> GetMatchers<TToken>(TToken token);
+        public abstract IEnumerable<ITokenMatcher> GetMatchers<TToken>(TToken token);
     }
 
     public class EnumTokenMatcherProviderAttribute : TokenMatcherProviderAttribute
     {
-        public override IEnumerable<IMatcher> GetMatchers<TToken>(TToken token)
+        public override IEnumerable<ITokenMatcher> GetMatchers<TToken>(TToken token)
         {
             if (!typeof(TToken).IsEnum) throw new ArgumentException($"Token must by of Enum type.");
 
             return
                 typeof(TToken)
                     .GetField(token.ToString())
-                    .GetCustomAttributes<MatcherAttribute>();
+                    .GetCustomAttributes<TokenMatcherAttribute>();
         }
     }
 
     public class State<TToken>
     {
-        private readonly IEnumerable<IMatcher> _matchers;
+        private readonly IEnumerable<ITokenMatcher> _matchers;
 
         public State(TToken tokenType, params TToken[] next)
         {
@@ -288,27 +283,6 @@ namespace Reusable.Experimental.TokenizerV6
         public int Offset { get; set; }
 
         public override string ToString() => $"{nameof(Offset)}={Offset}, {nameof(TokenType)}={TokenType}";
-    }
-
-    public class Token<TToken>
-    {
-        public Token(TokenMatch match, TToken type)
-        {
-            Index = match.Offset;
-            Value = match.Value;
-            Length = match.Length;
-            Type = type;
-        }
-
-        public int Index { get; }
-
-        public string Value { get; }
-
-        public int Length { get; }
-
-        public TToken Type { get; }
-
-        public override string ToString() => $"{Type.ToString()} '{Value}' at {Index}, Length: {Length}";
     }
 }
 
@@ -355,30 +329,20 @@ namespace Reusable.Experimental.TokenizerV6.CommandLine
     public class CommandLineTokenizer : Tokenizer<CommandLineToken>
     {
         /*
-
-         command [-argument][=value][,value]
-         
-         command --------------------------- CommandLine
-                \                           /
-                 -argument ------   ------ /    
-                          \      / \      /
-                           =value   ,value
                            
           input ------ x ------------- x ----- x ---> command-line
                 \     / \             / \     /
                  value   --arg ----- /   -flag
                               \     /
-                               value                              
-                    
+                               value                                                  
         */
-        private static readonly State<CommandLineToken>[] States =
-        {
+
+        public CommandLineTokenizer() : base(new StateTransition<CommandLineToken>
+        (
             new State<CommandLineToken>(default, Value),
             new State<CommandLineToken>(Value, Value, Argument, Flag),
             new State<CommandLineToken>(Argument, Argument, Value, Flag),
-            new State<CommandLineToken>(Flag, Flag, Argument),
-        };
-
-        public CommandLineTokenizer() : base(States.ToImmutableList()) { }
+            new State<CommandLineToken>(Flag, Flag, Argument)
+        )) { }
     }
 }
