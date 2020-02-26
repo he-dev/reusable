@@ -26,7 +26,7 @@ namespace Reusable.Commander
         [Regex(@"\s+--([a-z][a-z0-9\+\.\-]+)")]
         Argument,
 
-        [Regex(@"\s+\-([a-z])")]
+        [Regex(@"\s+\-([a-z])(?![a-z])")]
         Flag,
         
         [Regex(@"(\|)")]

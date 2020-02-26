@@ -10,7 +10,7 @@ namespace Reusable.Lexing.Matchers
 
         private readonly Regex _regex;
 
-        public RegexAttribute([RegexPattern] string prefixPattern) => _regex = new Regex($@"\G{prefixPattern}");
+        public RegexAttribute([RegexPattern] string prefixPattern) => _regex = new Regex($@"\G{prefixPattern}", RegexOptions.IgnoreCase);
 
         public override Token<TToken>? Match<TToken>(TokenizerContext<TToken> context)
         {

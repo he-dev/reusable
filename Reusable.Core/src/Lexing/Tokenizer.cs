@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Reusable.Exceptionize;
 using Reusable.Extensions;
 
 namespace Reusable.Lexing
@@ -18,10 +19,10 @@ namespace Reusable.Lexing
         public IEnumerable<Token<TToken>> Tokenize(string? value)
         {
             if (value.IsNullOrEmpty()) yield break;
-            
+
             var context = new TokenizerContext<TToken>
             {
-                Value = value,
+                Value = value.Trim(),
                 TokenType = default,
             };
 
@@ -33,8 +34,13 @@ namespace Reusable.Lexing
                     if (next.Match(context) is {} token)
                     {
                         yield return token;
+                        goto next;
                     }
                 }
+                
+                throw DynamicException.Create("UnknownToken", $"Could not parse token at {context.Position}.");
+
+                next: ;
             }
         }
     }
