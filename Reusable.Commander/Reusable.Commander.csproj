@@ -38,6 +38,7 @@
 
   <ItemGroup>
     <Compile Remove="src\CommandFactory.cs" />
+    <Compile Remove="src\CommandLineTokenizer - Copy.cs" />
   </ItemGroup>
 
 </Project>
