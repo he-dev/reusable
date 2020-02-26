@@ -6,9 +6,12 @@ using System.Text;
 using System.Text.RegularExpressions;
 using JetBrains.Annotations;
 using Reusable.Extensions;
+using Reusable.Lexing;
 
 namespace Reusable.Commander
 {
+    using static CommandLineToken;
+
     public interface ICommandLineTokenizer
     {
         IEnumerable<string> Tokenize(string? text);
@@ -58,6 +61,7 @@ namespace Reusable.Commander
                                         token.Append("\\");
                                         break;
                                 }
+
                                 token.Append(c);
                                 escaped = false;
                                 break;
@@ -71,8 +75,11 @@ namespace Reusable.Commander
                                         switch (c)
                                         {
                                             // Pipe is a special separator that is treated like a token.
-                                            case '|': yield return c.ToString(); break;
+                                            case '|':
+                                                yield return c.ToString();
+                                                break;
                                         }
+
                                         break;
 
                                     case true:
@@ -80,16 +87,21 @@ namespace Reusable.Commander
                                         switch (c)
                                         {
                                             // ...unless it's a pipe.
-                                            case '|': yield return c.ToString(); break;
+                                            case '|':
+                                                yield return c.ToString();
+                                                break;
                                         }
+
                                         break;
 
                                     default:
                                         token.Append(c);
                                         break;
                                 }
+
                                 break;
                         }
+
                         break;
                 }
             }
@@ -100,116 +112,40 @@ namespace Reusable.Commander
             }
         }
     }
-    
-    
-    
-   
-    
-    public class CommandLineTokenizer2 : ICommandLineTokenizer
+
+
+    [EnumTokenMatcherProvider]
+    public enum CommandLineToken
+    {
+        Start = 0,
+
+        [Regex(@"(?:\A|\s+)([a-z][a-z0-9\+\.\-]+)"), Text]
+        Value,
+
+        [Regex(@"\s+--([a-z][a-z0-9\+\.\-]+)")]
+        Argument,
+
+        [Regex(@"\s+\-([a-z]+)")]
+        Flag,
+    }
+
+    public class CommandLineTokenizer2 : Tokenizer<CommandLineToken>
     {
         /*
-         
-         foo --bar baz --blub:qux
-         foo --bar baz --blub=qux
-         foo --bar baz --blub qux
-         foo --bar baz --blub "qux lux"
-         foo --bar baz --blub qux:lux
-         
-         identifier [a-z]
-         argument-long --
-         argument-short -
-         value (:|=)
-         
+                           
           input ------ x ------------- x ----- x ---> command-line
                 \     / \             / \     /
                  value   --arg ----- /   -flag
                               \     /
-                               value   
-                  
-         
-         */
-        public static readonly IImmutableSet<char> Separators = new[] { ' ', '|', ',', ':', '=' }.ToImmutableHashSet();
-        public static readonly IImmutableSet<char> Escapables = new[] { '\\', '"' }.Concat(Separators).ToImmutableHashSet();
+                               value                                                  
+        */
 
-        public IEnumerable<string> Tokenize(string? text)
+        public CommandLineTokenizer2() : base(new StateTransitionBuilder<CommandLineToken>
         {
-            if (text.IsNullOrEmpty())
-            {
-                yield break;
-            }
-
-            var token = new StringBuilder();
-            var escaped = false;
-            var quoted = false;
-
-            bool IsUnquotedSeparator(char c) => Separators.Contains(c) && !quoted;
-
-            foreach (var c in text)
-            {
-                switch (c)
-                {
-                    case '\\' when !quoted && !escaped:
-                        escaped = true;
-                        // Don't eat escape-char yet.
-                        break;
-
-                    case '"':
-                        quoted = !quoted;
-                        // Don't eat quotes.
-                        break;
-
-                    default:
-
-                        switch (escaped)
-                        {
-                            case true:
-                                switch (!Escapables.Contains(c))
-                                {
-                                    case true:
-                                        // Eat escape-char because it doesn't escape any valid char.
-                                        token.Append("\\");
-                                        break;
-                                }
-                                token.Append(c);
-                                escaped = false;
-                                break;
-
-                            default:
-                                switch (IsUnquotedSeparator(c))
-                                {
-                                    case true when token.Any():
-                                        yield return token.ToString();
-                                        token.Clear();
-                                        switch (c)
-                                        {
-                                            // Pipe is a special separator that is treated like a token.
-                                            case '|': yield return c.ToString(); break;
-                                        }
-                                        break;
-
-                                    case true:
-                                        // Don't eat separators...
-                                        switch (c)
-                                        {
-                                            // ...unless it's a pipe.
-                                            case '|': yield return c.ToString(); break;
-                                        }
-                                        break;
-
-                                    default:
-                                        token.Append(c);
-                                        break;
-                                }
-                                break;
-                        }
-                        break;
-                }
-            }
-
-            if (token.Any())
-            {
-                yield return token.ToString();
-            }
-        }
+            { default, Value },
+            { Value, Value, Argument, Flag },
+            { Argument, Argument, Value, Flag },
+            { Flag, Flag, Argument }
+        }) { }
     }
 }
