@@ -18,13 +18,7 @@ namespace Reusable.Lexing
 
         public IEnumerable<Token<TToken>> Tokenize(string? value)
         {
-            if (value.IsNullOrEmpty()) yield break;
-
-            var context = new TokenizerContext<TToken>
-            {
-                Value = value.Trim(),
-                TokenType = default,
-            };
+            var context = new TokenizerContext<TToken> { Value = (value ?? string.Empty).Trim() };
 
             while (!context.Eof)
             {
@@ -37,11 +31,18 @@ namespace Reusable.Lexing
                         goto next;
                     }
                 }
-                
+
                 throw DynamicException.Create("UnknownToken", $"Could not parse token at {context.Position}.");
 
                 next: ;
             }
         }
+    }
+
+    public static class TokenizerModes
+    {
+        public const int None = 0;
+
+        public const int Default = 1;
     }
 }

@@ -62,4 +62,15 @@ namespace Reusable.Commander.ConsoleTemplates
                 .span(x => x
                     .text(Text)).color(Red);
     }
+    
+    public class Info : IHtmlConsoleTemplateBuilder
+    {
+        public string Text { get; set; } = default!;
+
+        public HtmlElement Build(ILogEntry logEntry) =>
+            HtmlElement
+                .Builder
+                .span(x => x
+                    .text(Text));
+    }
 }

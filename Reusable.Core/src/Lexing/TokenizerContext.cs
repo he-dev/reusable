@@ -2,6 +2,8 @@ namespace Reusable.Lexing
 {
     public class TokenizerContext<TToken>
     {
+        public int Mode { get; set; } = 1;
+        
         public string Value { get; set; }
 
         public int Position { get; private set; }

@@ -22,6 +22,8 @@ namespace Reusable.Commander
         public IEnumerable<string> Secondary => _names.Skip(1);
 
         public static ArgumentName Command => new ArgumentName(nameof(Command));
+        
+        public static ArgumentName Params => new ArgumentName(nameof(Params));
 
         public static ArgumentName Create(string primary, params string[] secondary) => new ArgumentName(primary, secondary);
 

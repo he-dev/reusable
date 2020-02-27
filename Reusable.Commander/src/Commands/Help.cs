@@ -10,13 +10,38 @@ using Reusable.Commander.Annotations;
 using Reusable.Commander.Utilities;
 using Reusable.Data.Annotations;
 using Reusable.Extensions;
+using Reusable.MarkupBuilder.Html;
 using Reusable.OmniLog;
 using Reusable.OmniLog.Abstractions;
+using Reusable.OmniLog.Helpers;
 using Reusable.OmniLog.Utilities;
 using t = Reusable.Commander.ConsoleTemplates;
 
 namespace Reusable.Commander.Commands
 {
+    [Alias("v")]
+    [Description("Display version.")]
+    public class Version : Command<CommandParameter>
+    {
+        private readonly ILogger<Version> _logger;
+        private readonly string _version;
+
+        public Version(ILogger<Version> logger, string version)
+        {
+            _logger = logger;
+            _version = version;
+        }
+
+        public ConsoleStyle Style { get; set; }
+
+        protected override Task ExecuteAsync(CommandParameter parameter, CancellationToken cancellationToken)
+        {
+            _logger.WriteLine(Style, new t.Indent(1), new t.Info { Text = _version });
+
+            return Task.CompletedTask;
+        }
+    }
+
     [PublicAPI]
     [UsedImplicitly]
     [Alias("h", "?")]

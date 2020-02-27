@@ -6,6 +6,10 @@ namespace Reusable.Lexing
 {
     public interface ITokenMatcher
     {
+        int Mode { get; set; }
+        
+        int SetMode { get; set; }
+
         Token<TToken>? Match<TToken>(TokenizerContext<TToken> context) where TToken : Enum;
     }
 
@@ -14,8 +18,13 @@ namespace Reusable.Lexing
         public abstract IEnumerable<ITokenMatcher> GetTokenMatchers<TToken>(TToken tokenType);
     }
 
+    [AttributeUsage(AttributeTargets.Field, AllowMultiple = true)]
     public abstract class TokenMatcherAttribute : Attribute, ITokenMatcher
     {
+        public int Mode { get; set; } = TokenizerModes.Default;
+
+        public int SetMode { get; set; } = TokenizerModes.None;
+
         public abstract Token<TToken>? Match<TToken>(TokenizerContext<TToken> context) where TToken : Enum;
     }
 

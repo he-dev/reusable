@@ -22,15 +22,30 @@ namespace Reusable.Lexing
 
         public Token<TToken>? Match(TokenizerContext<TToken> context)
         {
-            foreach (var matcher in _matchers)
+            foreach (var matcher in _matchers.Where(HasMode(context)))
             {
                 if (matcher.Match(context) is {} token)
                 {
-                    return token;
+                    try
+                    {
+                        return token;
+                    }
+                    finally
+                    {
+                        if (matcher.SetMode > TokenizerModes.None)
+                        {
+                            context.Mode = matcher.SetMode;
+                        }
+                    }
                 }
             }
 
             return default;
+        }
+
+        private static Func<ITokenMatcher, bool> HasMode(TokenizerContext<TToken> context)
+        {
+            return matcher => (matcher.Mode & context.Mode) > TokenizerModes.None;
         }
 
         private static TokenMatcherProviderAttribute GetTokenMatcherProviderOrDefault()

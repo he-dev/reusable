@@ -10,6 +10,8 @@ namespace Reusable.Commander
         private static readonly ITokenizer<CommandLineToken> Tokenizer = new CommandLineTokenizer();
 
         [Theory]
+        [InlineData("")]
+        [InlineData(null)]
         [InlineData("cmd", "cmd")]
         [InlineData("cmd --arg", "cmd", "arg")]
         [InlineData("cmd --arg --arg", "cmd", "arg", "arg")]
@@ -22,9 +24,13 @@ namespace Reusable.Commander
         [InlineData("cmd|cmd", "cmd", "|", "cmd")]
         [InlineData("cmd --arg   ", "cmd", "arg")]
         [InlineData("   cmd   --arg ", "cmd", "arg")]
-        [InlineData("cmd -arg", null)]
+        [InlineData("cmd -arg", "cmd", "arg")]
         [InlineData("cmd -arg -arg -args -arg val:val val:val", null)]
         [InlineData("CMD --arg --arg val:val val:val", "CMD", "arg", "arg", "val:val", "val:val")]
+        [InlineData("cmd val --arg -- abc ---def foo|bar -baz \"qu ux\"", "cmd", "val", "arg", "--", "abc", "---def", "foo|bar", "-baz", "qu ux")]
+        [InlineData("cmd val --arg -- ---def foo|bar", "cmd", "val", "arg", "--", "---def", "foo|bar")]
+        [InlineData("cmd val --arg -- foo|bar", "cmd", "val", "arg", "--", "foo|bar")]
+        [InlineData("cmd val --arg -- \"qu ux\"", "cmd", "val", "arg", "--", "qu ux")]
         public void Can_tokenize_command_lines(string value, params string[] expected)
         {
             if (expected is {})

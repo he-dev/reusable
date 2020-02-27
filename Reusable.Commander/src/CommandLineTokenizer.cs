@@ -15,20 +15,32 @@ namespace Reusable.Commander
     {
         IEnumerable<Token<CommandLineToken>> Tokenize(string? text);
     }
+    
+    public static class CommandLineModes
+    {
+        public const int Params = 1 << 2;
+    }
 
     public enum CommandLineToken
     {
         Start = 0,
 
-        [Regex(@"(?:\A|\s+|\\|)(?!\-)([_a-z0-9\+\.\-\:]+)"), Text]
+        // [Regex(@"(?:\A|\s+|\\|)(?!\-)([_a-z0-9\+\.\-\:\*\/\!]+)"), Text]
+        [Text(Mode = TokenizerModes.Default | CommandLineModes.Params)]
+        [Regex(@"(?:\A|\s+|\\|)(?!\-)([^\s\|]+)")]
+        [Regex(@"(?:\s+)([^\s]+)", Mode = CommandLineModes.Params)]
         Value,
 
         [Regex(@"\s+--([a-z][a-z0-9\+\.\-]+)")]
         Argument,
 
-        [Regex(@"\s+\-([a-z])(?![a-z])")]
+        //[Regex(@"\s+\-([a-z])(?![a-z])")]
+        [Regex(@"\s+\-([a-z]+)")]
         Flag,
-        
+
+        [Regex(@"\s+(--)(?=\s)", SetMode = CommandLineModes.Params)]
+        Params,
+
         [Regex(@"(\|)")]
         Pipe,
     }
@@ -37,9 +49,9 @@ namespace Reusable.Commander
     {
         /*
                            
-          input ------ x ------------- x ----- x ---> command-line
-                \     / \             / \     /
-                 value   --arg ----- /   -flag
+          input ------ x ------------- x ----- x -- x ----> command-line
+                \     / \             / \     / \  /
+                 value   --arg ----- /   -flag   --
                               \     /
                                value                                                  
         */
@@ -47,9 +59,10 @@ namespace Reusable.Commander
         public CommandLineTokenizer() : base(new StateTransitionBuilder<CommandLineToken>
         {
             { default, Value, Pipe },
-            { Value, Value, Argument, Flag, Pipe },
-            { Argument, Argument, Value, Flag, Pipe },
-            { Flag, Flag, Argument, Pipe },
+            { Value, Value, Argument, Flag, Params, Pipe },
+            { Argument, Argument, Value, Flag, Params, Pipe },
+            { Flag, Flag, Argument, Params, Pipe },
+            { Params, Value },
             { Pipe, Value, Argument, Flag }
         }) { }
     }

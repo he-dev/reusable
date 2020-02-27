@@ -5,12 +5,7 @@ namespace Reusable.Lexing.Matchers
 {
     public class TextAttribute : TokenMatcherAttribute
     {
-        // Assists regex in tokenizing quoted strings because regex has no memory of what it has seen.
-        // Requires two patterns:
-        // - one for the separator because it has to know where the value begins
-        // - the other for an unquoted value if it's not already quoted
-
-        public static readonly IImmutableSet<char> Escapables = new[] { '\\', '"', '\'', '-' }.ToImmutableHashSet();
+        public string Escapables { get; set; } = "\\\"'-"; 
 
         public override Token<TToken>? Match<TToken>(TokenizerContext<TToken> context)
         {
@@ -39,12 +34,12 @@ namespace Reusable.Lexing.Matchers
                     {
                         try
                         {
-                            // It doesn't start with a quote.
+                            // Let's get out of here. It doesn't start with a quote.
                             return default;
                         }
                         finally
                         {
-                            // backtrack
+                            // But before, rewind to where it started.
                             context.Backtrack(length);
                         }
                     }
@@ -59,7 +54,7 @@ namespace Reusable.Lexing.Matchers
                     {
                         if (escapeSequence)
                         {
-                            if (Escapables.Contains(context.Current))
+                            if (Escapables.IndexOf(context.Current) >= 0)
                             {
                                 // Remove escape char. We don't need them in the result.
                                 cache.Length--;
@@ -86,6 +81,8 @@ namespace Reusable.Lexing.Matchers
 
                     cache.Append(context.Current);
                 }
+
+                length++;
             } while (context.MoveNext());
 
             return default;

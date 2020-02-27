@@ -1,16 +1,23 @@
+using System.Linq;
 using System.Text.RegularExpressions;
 using JetBrains.Annotations;
 
 namespace Reusable.Lexing.Matchers
 {
+    using System.Linq.Custom;
+
+    /// <summary>
+    /// Matches tokes with regex. Use Groups property to specify which groups to match. By default Group 1 is used. 
+    /// </summary>
     public class RegexAttribute : TokenMatcherAttribute
     {
-        // Can recognize regexable patterns.
-        // The pattern requires one group that is the token to return.
-
         private readonly Regex _regex;
 
         public RegexAttribute([RegexPattern] string prefixPattern) => _regex = new Regex($@"\G{prefixPattern}", RegexOptions.IgnoreCase);
+
+        public int[] Groups { get; set; } = new[] { 1 };
+
+        public string Separator { get; set; } = string.Empty;
 
         public override Token<TToken>? Match<TToken>(TokenizerContext<TToken> context)
         {
@@ -18,7 +25,7 @@ namespace Reusable.Lexing.Matchers
             {
                 try
                 {
-                    return new Token<TToken>(match.Groups[1].Value, context.Position, match.Length, context.TokenType);
+                    return new Token<TToken>(Groups.Join(group => match.Groups[group].Value, Separator), context.Position, match.Length, context.TokenType);
                 }
                 finally
                 {
