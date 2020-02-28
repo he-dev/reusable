@@ -4,14 +4,18 @@
     <TargetFrameworks>netcoreapp2.2;net47</TargetFrameworks>
     <AssemblyName>Reusable.Utilities.Xunit</AssemblyName>
     <RootNamespace>Reusable.Utilities.Xunit</RootNamespace>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-    <DefineConstants>TRACE;RELEASE;NET47;JETBRAINS_ANNOTATIONS</DefineConstants>
     <LangVersion>latest</LangVersion>
   </PropertyGroup>
+
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <LangVersion>latest</LangVersion>
+    <DebugSymbols>true</DebugSymbols>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
   </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <DefineConstants>TRACE;RELEASE</DefineConstants>
+  </PropertyGroup>
+  
   <ItemGroup>
     <PackageReference Include="Autofac" Version="4.9.4" />
     <PackageReference Include="JetBrains.Annotations" Version="2019.1.3" />
