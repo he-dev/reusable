@@ -1,5 +1,6 @@
 using System.IO;
 using System.Linq;
+using System.Linq.Custom;
 using System.Net.Mime;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
@@ -19,8 +20,8 @@ namespace Reusable.Translucent.Controllers
         {
             var message = new MimeMessage();
             message.From.Add(new MailboxAddress(smtp.From));
-            message.To.AddRange(smtp.To.Where(Conditional.IsNotNullOrEmpty).Select(x => new MailboxAddress(x)));
-            message.Cc.AddRange(smtp.CC.Where(Conditional.IsNotNullOrEmpty).Select(x => new MailboxAddress(x)));
+            message.To.AddRange(smtp.To.EmptyIfNull().Where(Conditional.IsNotNullOrEmpty).Select(x => new MailboxAddress(x)));
+            message.Cc.AddRange(smtp.CC.EmptyIfNull().Where(Conditional.IsNotNullOrEmpty).Select(x => new MailboxAddress(x)));
             message.Subject = smtp.Subject;
             var multipart = new Multipart("mixed");
             //            {
@@ -38,7 +39,7 @@ namespace Reusable.Translucent.Controllers
                 });
             }
 
-            foreach (var attachment in smtp.Attachments.Where(i => i.Key.IsNotNullOrEmpty() && i.Value is {}))
+            foreach (var attachment in smtp.Attachments.EmptyIfNull().Where(i => i.Key.IsNotNullOrEmpty() && i.Value is {}))
             {
                 var attachmentPart = new MimePart(MediaTypeNames.Application.Octet)
                 {

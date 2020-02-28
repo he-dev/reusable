@@ -393,6 +393,8 @@ namespace System.Linq.Custom
             };
         }
 
+        public static IEnumerable<T> EmptyIfNull<T>(this IEnumerable<T>? source) => source ?? Enumerable.Empty<T>();
+
         public static Stack<T> ToStack<T>(this IEnumerable<T> source) => new Stack<T>(source);
 
         //        public static IEnumerable<T> Take<T>(this IEnumerable<T> source, int count)
