@@ -3,16 +3,12 @@
   <PropertyGroup>
     <!--<TargetFramework>net47</TargetFramework>-->
     <TargetFrameworks>netcoreapp2.2;net47</TargetFrameworks>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <Configurations>Debug;Release</Configurations>
+    <Platforms>AnyCPU</Platforms>
     <LangVersion>latest</LangVersion>
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-    <LangVersion>latest</LangVersion>
-  </PropertyGroup>
-
+  
   <ItemGroup>
     <Compile Remove="src\Html\HtmlFormatting.cs" />
     <Compile Remove="src\MarkupFormatter.cs" />

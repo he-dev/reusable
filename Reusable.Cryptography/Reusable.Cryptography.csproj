@@ -5,8 +5,8 @@
     <TargetFrameworks>netcoreapp2.2;net47</TargetFrameworks>
     <AssemblyName>Reusable.Cryptography</AssemblyName>
     <RootNamespace>Reusable.Cryptography</RootNamespace>
-    <Platforms>AnyCPU;x64</Platforms>
-    <Configurations>Debug;Release;Debug.csproj</Configurations>
+    <Configurations>Debug;Release</Configurations>
+    <Platforms>AnyCPU</Platforms>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
