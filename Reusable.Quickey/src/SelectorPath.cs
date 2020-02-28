@@ -16,7 +16,7 @@ namespace Reusable.Quickey
         
         private static IEnumerable<MemberInfo> Ancestors(this MemberInfo member)
         {
-            for (; member is {}; member = member.Ancestor())
+            for (; member is {}; member = member.Ancestor()!)
             {
                 yield return member;
             }
