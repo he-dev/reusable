@@ -31,6 +31,7 @@ namespace Reusable.Commander
         [InlineData("cmd val --arg -- ---def foo|bar", "cmd", "val", "arg", "--", "---def", "foo|bar")]
         [InlineData("cmd val --arg -- foo|bar", "cmd", "val", "arg", "--", "foo|bar")]
         [InlineData("cmd val --arg -- \"qu ux\"", "cmd", "val", "arg", "--", "qu ux")]
+        [InlineData("c", "c")]
         public void Can_tokenize_command_lines(string value, params string[] expected)
         {
             if (expected is {})

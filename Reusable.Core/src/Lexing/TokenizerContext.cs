@@ -14,7 +14,7 @@ namespace Reusable.Lexing
 
         public TToken TokenType { get; set; }
 
-        public bool Eof => Position >= Value.Length - 1;
+        public bool Eof => Position > Value.Length - 1;
 
         public char Current => Value[Position];
 

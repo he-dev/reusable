@@ -51,7 +51,7 @@ namespace Reusable.Commander
 
             using var program = TestProgram.Create(builder => builder.Register<SimpleParameter>(ArgumentName.Create("test"), p => param = p));
 
-            await program.RunAsync("test -bool -string bar -int32 123 -datetime \"2019-07-01\" -listofint32 1 2 3");
+            await program.RunAsync("test --bool --string bar --int32 123 --datetime \"2019-07-01\" --listofint32 1 2 3");
 
             Assert.NotNull(param);
             Assert.Equal(true, param.Bool);
@@ -98,7 +98,7 @@ namespace Reusable.Commander
 
             using var program = TestProgram.Create(builder => builder.Register<NullableValueParameter>(ArgumentName.Create("test"), p => param = p));
 
-            await program.RunAsync("test -int32b 7");
+            await program.RunAsync("test --int32b 7");
 
             Assert.NotNull(param);
             Assert.False(param.Int32A.HasValue);

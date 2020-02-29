@@ -32,7 +32,7 @@ namespace Reusable.Lexing
                     }
                 }
 
-                throw DynamicException.Create("UnknownToken", $"Could not parse token at {context.Position}.");
+                throw DynamicException.Create("UnknownToken", $"Could not parse token '{context.Current}' at {context.Position}.");
 
                 next: ;
             }

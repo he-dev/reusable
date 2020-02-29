@@ -16,9 +16,15 @@ namespace Reusable.Quickey
         
         private static IEnumerable<MemberInfo> Ancestors(this MemberInfo member)
         {
-            for (; member is {}; member = member.Ancestor()!)
+            while(member is {})
             {
                 yield return member;
+
+                member =
+                    // Follow the base class, otherwise the parent class.
+                    member is Type type && type.IsNested && type.BaseType == typeof(object)
+                        ? type.ReflectedType 
+                        : member.Ancestor();
             }
         }
 

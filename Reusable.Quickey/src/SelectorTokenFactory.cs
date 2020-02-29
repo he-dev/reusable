@@ -83,7 +83,15 @@ namespace Reusable.Quickey
 
         public override SelectorToken CreateSelectorToken(SelectorContext context)
         {
-            var type = context.Metadata.Member.ReflectedType!;
+            // Get the first non-ignored type.
+            var types =
+                from t in SelectorPath.Enumerate(context.Metadata.Member).OfType<Type>()
+                let attribute = t.GetCustomAttribute<SelectorAttribute?>()
+                where attribute is null || !attribute.Ignore
+                select t;
+
+            var type = types.First();
+
             return new TypeToken(Format(type, _name ?? type?.ToPrettyString()));
         }
     }

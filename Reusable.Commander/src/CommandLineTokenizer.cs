@@ -41,7 +41,7 @@ namespace Reusable.Commander
         [Regex(@"\s+(--)(?=\s)", SetMode = CommandLineModes.Params)]
         Params,
 
-        [Regex(@"(\|)")]
+        [Regex(@"\s*(\|)")]
         Pipe,
     }
 

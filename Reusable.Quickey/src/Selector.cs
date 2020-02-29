@@ -143,4 +143,9 @@ namespace Reusable.Quickey
             return new Selector<TMember>(expression, parameters);
         }
     }
+
+    public class SelectorAttribute : Attribute
+    {
+        public bool Ignore { get; set; }
+    }
 }

@@ -83,6 +83,13 @@ namespace Reusable.Quickey
             var selectorP2 = From<DerivedMemberPlain>.Select(x => x.P2);
             Assert.Equal("P2", selectorP2.ToString());
         }
+        
+        [Fact]
+        public void Can_ignore_member()
+        {
+            var selectorP1 = From<Parent.Child>.Select(x => x.P1);
+            Assert.Equal("Parent.P1", selectorP1.ToString());
+        }
 
         // todo - add tests with interfaces
 
@@ -146,6 +153,16 @@ namespace Reusable.Quickey
         private class DerivedMemberPlain : BaseTypeMemberPlain
         {
             public string P2 { get; set; }
+        }
+
+        [UseType, UseMember]
+        private class Parent
+        {
+            [Selector(Ignore = true)]
+            public class Child
+            {
+                public string P1 { get; set; }
+            }
         }
     }
 }
