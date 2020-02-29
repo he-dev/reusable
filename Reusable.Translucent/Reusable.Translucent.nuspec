@@ -2,7 +2,7 @@
 <package>
   <metadata>
     <id>Reusable.Translucent</id>
-    <version>17.4.3</version>
+    <version>17.4.5</version>
     <title>Reusable.Translucent</title>
     <authors>He-Dev</authors>
     <owners>He-Dev</owners>
@@ -17,14 +17,13 @@
       <dependency id="Microsoft.Extensions.Caching.Memory" version="2.2.0" />
       <dependency id="Newtonsoft.Json" version="12.0.3" />
       <dependency id="System.Collections.Immutable" version="1.6.0" />
-      <dependency id="Reusable.Core" version="17.4.3" />
-      <dependency id="Reusable.Data" version="17.4.3" />
-      <dependency id="Reusable.Flawless" version="17.4.3" />
-      <dependency id="Reusable.OmniLog.Abstractions" version="17.4.3" />
-      <dependency id="Reusable.OmniLog.SemanticExtensions" version="17.4.3" />
-      <dependency id="Reusable.OmniLog" version="17.4.3" />
-      <dependency id="Reusable.Utilities.Autofac" version="17.4.3" />
-      <dependency id="Reusable.Utilities.JsonNet" version="17.4.3" />
+      <dependency id="Reusable.Core" version="17.4.5" />
+      <dependency id="Reusable.Data" version="17.4.5" />
+      <dependency id="Reusable.OmniLog.Abstractions" version="17.4.5" />
+      <dependency id="Reusable.OmniLog.SemanticExtensions" version="17.4.5" />
+      <dependency id="Reusable.OmniLog" version="17.4.5" />
+      <dependency id="Reusable.Utilities.Autofac" version="17.4.5" />
+      <dependency id="Reusable.Utilities.JsonNet" version="17.4.5" />
     </dependencies>
   </metadata>
   <files>

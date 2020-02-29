@@ -32,14 +32,12 @@ namespace Reusable.Translucent.Extensions
 
             if (response.Body is Stream stream)
             {
-                using (var streamReader = new StreamReader(stream.Rewind()))
-                {
-                    return await streamReader.ReadToEndAsync();
-                }
+                using var streamReader = new StreamReader(stream.Rewind());
+                return await streamReader.ReadToEndAsync();
             }
             else
             {
-                throw new ArgumentException(paramName: nameof(response), message: $"Cannot deserialize body because it's not a stream.");
+                throw new ArgumentException(paramName: nameof(response), message: $"Cannot deserialize resource '{response.ResourceName}' because it's not a stream.");
             }
         }
 

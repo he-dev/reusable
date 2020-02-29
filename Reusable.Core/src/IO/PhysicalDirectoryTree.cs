@@ -6,14 +6,11 @@ using System.Text.RegularExpressions;
 using JetBrains.Annotations;
 using Reusable.Extensions;
 
-// todo - do not split yet - it's still being reviewed
-
 namespace Reusable.IO
 {
     public interface IDirectoryTree
     {
-        [NotNull, ItemNotNull]
-        IEnumerable<IDirectoryTreeNode> Walk([NotNull] string path, Func<IDirectoryTreeNode, bool> predicate, [NotNull] Action<Exception> onException);
+        IEnumerable<IDirectoryTreeNode> Walk(string path, Func<IDirectoryTreeNode, bool> predicate, Action<Exception> onException);
     }
 
     public class PhysicalDirectoryTree : IDirectoryTree
@@ -29,14 +26,11 @@ namespace Reusable.IO
 
         public IEnumerable<IDirectoryTreeNode> Walk(string path, Func<IDirectoryTreeNode, bool> predicate, Action<Exception> onException)
         {
-            if (path == null) throw new ArgumentNullException(nameof(path));
-            if (onException == null) throw new ArgumentNullException(nameof(onException));
-
             path = Environment.ExpandEnvironmentVariables(path);
 
-            var nodes = new Queue<DirectoryTreeNode>
+            var nodes = new Queue<PhysicalDirectoryTreeNode>
             {
-                new DirectoryTreeNode(path)
+                new PhysicalDirectoryTreeNode(path)
             };
 
             while (nodes.Any() && nodes.Dequeue() is var current && predicate(current))
@@ -47,7 +41,7 @@ namespace Reusable.IO
                 {
                     foreach (var directory in current.DirectoryNames)
                     {
-                        nodes.Enqueue(new DirectoryTreeNode(Path.Combine(current.DirectoryName, directory), current.Depth + 1));
+                        nodes.Enqueue(new PhysicalDirectoryTreeNode(Path.Combine(current.DirectoryName, directory), current.Depth + 1));
                     }
                 }
                 catch (Exception inner)
@@ -61,21 +55,18 @@ namespace Reusable.IO
     [PublicAPI]
     public interface IDirectoryTreeNode
     {
-        [NotNull]
         string DirectoryName { get; }
 
         int Depth { get; }
 
-        [NotNull, ItemNotNull]
         IEnumerable<string> DirectoryNames { get; }
 
-        [NotNull, ItemNotNull]
         IEnumerable<string> FileNames { get; }
     }
 
-    internal class DirectoryTreeNode : IDirectoryTreeNode
+    internal class PhysicalDirectoryTreeNode : IDirectoryTreeNode
     {
-        internal DirectoryTreeNode(string path, int depth = 0)
+        internal PhysicalDirectoryTreeNode(string path, int depth = 0)
         {
             DirectoryName = path;
             Depth = depth;
@@ -96,7 +87,7 @@ namespace Reusable.IO
 
         private readonly string _basePath;
 
-        public RelativeDirectoryTree([NotNull] IDirectoryTree directoryTree, [NotNull] string basePath)
+        public RelativeDirectoryTree(IDirectoryTree directoryTree, string basePath)
         {
             _directoryTree = directoryTree ?? throw new ArgumentNullException(nameof(directoryTree));
             _basePath = basePath ?? throw new ArgumentNullException(nameof(basePath));
@@ -108,9 +99,9 @@ namespace Reusable.IO
         }
     }
 
-    internal class DirectoryTreeNodeFilter : IDirectoryTreeNode
+    internal class DirectoryTreeNodeView : IDirectoryTreeNode
     {
-        internal DirectoryTreeNodeFilter(string path, int depth, IEnumerable<string> directoryNames, IEnumerable<string> fileNames)
+        internal DirectoryTreeNodeView(string path, int depth, IEnumerable<string> directoryNames, IEnumerable<string> fileNames)
         {
             DirectoryName = path;
             Depth = depth;
@@ -129,16 +120,12 @@ namespace Reusable.IO
 
     public static class DirectoryTreeExtensions
     {
-        [NotNull, ItemNotNull]
-        public static IEnumerable<IDirectoryTreeNode> SkipDirectories([NotNull] this IEnumerable<IDirectoryTreeNode> nodes, [NotNull][RegexPattern] string directoryNamePattern)
+        public static IEnumerable<IDirectoryTreeNode> SkipDirectories(this IEnumerable<IDirectoryTreeNode> nodes, [RegexPattern] string directoryNamePattern)
         {
-            if (nodes == null) throw new ArgumentNullException(nameof(nodes));
-            if (directoryNamePattern == null) throw new ArgumentNullException(nameof(directoryNamePattern));
-
             return
                 from node in nodes
                 where !node.DirectoryName.Matches(directoryNamePattern)
-                select new DirectoryTreeNodeFilter
+                select new DirectoryTreeNodeView
                 (
                     node.DirectoryName,
                     node.Depth,
@@ -147,15 +134,11 @@ namespace Reusable.IO
                 );
         }
 
-        [NotNull, ItemNotNull]
-        public static IEnumerable<IDirectoryTreeNode> SkipFiles([NotNull] this IEnumerable<IDirectoryTreeNode> nodes, [NotNull][RegexPattern] string fileNamePattern)
+        public static IEnumerable<IDirectoryTreeNode> SkipFiles(this IEnumerable<IDirectoryTreeNode> nodes, [RegexPattern] string fileNamePattern)
         {
-            if (nodes == null) throw new ArgumentNullException(nameof(nodes));
-            if (fileNamePattern == null) throw new ArgumentNullException(nameof(fileNamePattern));
-
             return
                 from node in nodes
-                select new DirectoryTreeNodeFilter
+                select new DirectoryTreeNodeView
                 (
                     node.DirectoryName,
                     node.Depth,
@@ -164,16 +147,12 @@ namespace Reusable.IO
                 );
         }
 
-        [NotNull, ItemNotNull]
-        public static IEnumerable<IDirectoryTreeNode> WhereDirectories([NotNull] this IEnumerable<IDirectoryTreeNode> nodes, [NotNull][RegexPattern] string directoryNamePattern)
+        public static IEnumerable<IDirectoryTreeNode> WhereDirectories(this IEnumerable<IDirectoryTreeNode> nodes, [RegexPattern] string directoryNamePattern)
         {
-            if (nodes == null) throw new ArgumentNullException(nameof(nodes));
-            if (directoryNamePattern == null) throw new ArgumentNullException(nameof(directoryNamePattern));
-
             return
                 from node in nodes
                 where node.DirectoryName.Matches(directoryNamePattern)
-                select new DirectoryTreeNodeFilter
+                select new DirectoryTreeNodeView
                 (
                     node.DirectoryName,
                     node.Depth,
@@ -182,15 +161,11 @@ namespace Reusable.IO
                 );
         }
 
-        [NotNull, ItemNotNull]
-        public static IEnumerable<IDirectoryTreeNode> WhereFiles([NotNull] this IEnumerable<IDirectoryTreeNode> nodes, [NotNull][RegexPattern] string fileNamePattern)
+        public static IEnumerable<IDirectoryTreeNode> WhereFiles(this IEnumerable<IDirectoryTreeNode> nodes, [RegexPattern] string fileNamePattern)
         {
-            if (nodes == null) throw new ArgumentNullException(nameof(nodes));
-            if (fileNamePattern == null) throw new ArgumentNullException(nameof(fileNamePattern));
-
             return
                 from node in nodes
-                select new DirectoryTreeNodeFilter
+                select new DirectoryTreeNodeView
                 (
                     node.DirectoryName,
                     node.Depth,
@@ -222,10 +197,7 @@ namespace Reusable.IO
             fileNames = directoryTreeNode?.FileNames;
         }
 
-        public static bool Exists
-        (
-            [CanBeNull] this IDirectoryTreeNode directoryTreeNode
-        )
+        public static bool Exists(this IDirectoryTreeNode? directoryTreeNode)
         {
             // Empty string does not exist and it'll return false.
             return Directory.Exists(directoryTreeNode?.DirectoryName ?? string.Empty);
