@@ -113,9 +113,6 @@ namespace Reusable
                     : str + separator + value;
         }
         
-        public static bool Matches(this string? value, [RegexPattern] string pattern, RegexOptions options = RegexOptions.None)
-        {
-            return value is {} && Regex.IsMatch(value, pattern, options);
-        }
+        
     }
 }

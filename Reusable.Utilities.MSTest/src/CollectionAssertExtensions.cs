@@ -34,7 +34,7 @@ namespace Reusable.Utilities.MSTest
         public static void AreEqual<T>(this ICollectionAssert assert, IEnumerable<T> excpected, IEnumerable<T> actual)
         {
             var index = 0;
-            foreach (var zip in excpected.ZipAll(actual, (left, right) => (left, right)))
+            foreach (var zip in excpected.ZipOrDefault(actual, (left, right) => (left, right)))
             {
                 if (!zip.left.Equals(zip.right))
                 {

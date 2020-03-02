@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Collections.Immutable;
 using JetBrains.Annotations;
+using Reusable;
 using Reusable.Collections;
 using Reusable.Exceptionize;
 using Reusable.Extensions;
@@ -23,31 +24,32 @@ namespace System.Linq.Custom
         /// <param name="first">The first input sequence.</param>
         /// <param name="second">The second input sequence.</param>
         /// <param name="resultSelector">A function that specifies how to combine the corresponding elements of the two sequences.</param>
-        /// <returns>An IEnumerable<T> that contains elements of the two input sequences, combined by resultSelector.</returns>
-        public static IEnumerable<TResult> ZipAll<TFirst, TSecond, TResult>
+        /// <returns>An IEnumerableOfT that contains elements of the two input sequences, combined by resultSelector.</returns>
+        public static IEnumerable<TResult> ZipOrDefault<TFirst, TSecond, TResult>
         (
             this IEnumerable<TFirst> first,
             IEnumerable<TSecond> second,
-            Func<TFirst, TSecond, TResult> resultSelector
+            Func<TFirst, TSecond, TResult>? resultSelector = default
         )
         {
-            using (var enumeratorFirst = first.GetEnumerator())
-            using (var enumeratorSecond = second.GetEnumerator())
-            {
-                var isEndOfFirst = !enumeratorFirst.MoveNext();
-                var isEndOfSecond = !enumeratorSecond.MoveNext();
-                while (!isEndOfFirst || !isEndOfSecond)
-                {
-                    yield return resultSelector
-                    (
-                        isEndOfFirst ? default : enumeratorFirst.Current,
-                        isEndOfSecond ? default : enumeratorSecond.Current
-                    );
+            using var x = first.GetEnumerator();
+            using var y = second.GetEnumerator();
 
-                    isEndOfFirst = !enumeratorFirst.MoveNext();
-                    isEndOfSecond = !enumeratorSecond.MoveNext();
-                }
+            var xm = false;
+            var ym = false;
+            while ((xm = x.MoveNext()) | (ym = y.MoveNext()))
+            {
+                yield return resultSelector
+                (
+                    xm ? x.Current : default,
+                    ym ? y.Current : default
+                );
             }
+        }
+
+        public static IEnumerable<(TFirst, TSecond)> ZipOrDefault<TFirst, TSecond>(this IEnumerable<TFirst> first, IEnumerable<TSecond> second)
+        {
+            return first.ZipOrDefault(second, (f, s) => (f, s));
         }
 
 #if NET47
@@ -302,26 +304,29 @@ namespace System.Linq.Custom
             }
         }
 
+        public static bool In<T>([CanBeNull] this T value, [NotNull] IEnumerable<T> others, [NotNull] IEqualityComparer<T> comparer)
+        {
+            return others.Contains(value, comparer);
+        }
+        
+        public static bool In<T>([CanBeNull] this T value, [NotNull] IEnumerable<T> others)
+        {
+            return value.In(others, EqualityComparer<T>.Default);
+        }
+
         public static bool In<T>([CanBeNull] this T value, params T[] others)
         {
-            return value.In((IEnumerable<T>)others);
+            return value.In(others.AsEnumerable());
+        }
+
+        public static bool SoftIn([CanBeNull] this string value, params string[] others)
+        {
+            return value.In(others, SoftString.Comparer);
         }
 
         public static bool NotIn<T>([CanBeNull] this T value, params T[] others)
         {
             return !value.In((IEnumerable<T>)others);
-        }
-
-        public static bool In<T>([CanBeNull] this T value, [NotNull] IEnumerable<T> others)
-        {
-            if (others == null) throw new ArgumentNullException(nameof(others));
-
-            return value.In(others, EqualityComparer<T>.Default);
-        }
-
-        public static bool In<T>([CanBeNull] this T value, [NotNull] IEnumerable<T> others, [NotNull] IEqualityComparer<T> comparer)
-        {
-            return others.Contains(value, comparer);
         }
 
         [NotNull, ItemCanBeNull]

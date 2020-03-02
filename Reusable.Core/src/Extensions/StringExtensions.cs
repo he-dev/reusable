@@ -16,7 +16,7 @@ namespace Reusable.Extensions
 
         public static bool IsInteger(this string value) => int.TryParse(value, out var x);
 
-        public static string QuoteWith(this string value, string quotationMark)
+        public static string QuoteWith(this string? value, string quotationMark)
         {
             return $"{quotationMark}{value}{quotationMark}";
         }
@@ -42,23 +42,20 @@ namespace Reusable.Extensions
             return value.EncloseWith(leftRight[0], leftRight[1], padding);
         }
 
+        [Obsolete]
         public static string Stringify<T>(this T obj)
         {
             return obj?.ToString().QuoteWith("'") ?? string.Empty;
         }
 
         [ContractAnnotation("text: null => halt")]
-        public static string CapitalizeFirstLetter([NotNull] this string text)
+        public static string CapitalizeFirstLetter(this string text)
         {
-            if (text == null) throw new ArgumentNullException(nameof(text));
-
             return Regex.Replace(text, "^[a-z]", m => m.Value.ToUpper());
         }
 
-        public static IEnumerable<string> SplitByLineBreaks([NotNull] this string text, bool ignoreEmptyEntries = true)
+        public static IEnumerable<string> SplitByLineBreaks(this string text, bool ignoreEmptyEntries = true)
         {
-            if (text == null) throw new ArgumentNullException(nameof(text));
-
             return
                 from line in Regex.Split(text, @"(\r\n|\r|\n)")
                 where !ignoreEmptyEntries || line.Trim().IsNotNullOrEmpty()
@@ -95,5 +92,12 @@ namespace Reusable.Extensions
         {
             return new MemoryStream((encoding ?? Encoding.UTF8).GetBytes(value));
         }
+        
+        public static bool Matches(this string? value, [RegexPattern] string pattern, RegexOptions options = RegexOptions.None)
+        {
+            return value is {} && Regex.IsMatch(value, pattern, options);
+        }
+
+        public static bool SoftEquals(this string? value, string? other) => SoftString.Comparer.Equals(value, other);
     }
 }

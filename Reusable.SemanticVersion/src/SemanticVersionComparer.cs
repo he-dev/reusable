@@ -37,7 +37,7 @@ namespace Reusable
             // MUST be determined by comparing each dot separated identifier from left to right 
             // until a difference is found as follows:     
 
-            var labelDiffs = left.Labels.ZipAll(right.Labels, (l1, l2) => LabelComparer.Default.Compare(l1, l2));
+            var labelDiffs = left.Labels.ZipOrDefault(right.Labels, (l1, l2) => LabelComparer.Default.Compare(l1, l2));
             var firstLabelDiff = labelDiffs.FirstOrDefault(diff => diff != 0);
 
             return firstLabelDiff;

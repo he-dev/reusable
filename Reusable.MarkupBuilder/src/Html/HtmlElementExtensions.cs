@@ -83,17 +83,17 @@ namespace Reusable.MarkupBuilder.Html
 
         public static T @class<T>(this T element, params string[] names) where T : IHtmlElement
         {
-            return element.Next(e => e.Attributes["class"] = string.Join(" ", names));
+            return element.Pipe(e => e.Attributes["class"] = string.Join(" ", names));
         }
 
         public static T id<T>(this T element, string id) where T : IHtmlElement
         {
-            return element.Next(e => e.Attributes["id"] = id);
+            return element.Pipe(e => e.Attributes["id"] = id);
         }
 
         public static T data<T>(this T element, string name, string value) where T : IHtmlElement
         {
-            return element.Next(e => e.Attributes[$"data-{name}"] = value);
+            return element.Pipe(e => e.Attributes[$"data-{name}"] = value);
         }
 
         #endregion
