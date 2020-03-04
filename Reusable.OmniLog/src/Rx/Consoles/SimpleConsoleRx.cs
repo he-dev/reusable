@@ -7,7 +7,7 @@ namespace Reusable.OmniLog
 {
     public class SimpleConsoleRx : PlainConsoleRx
     {
-        public IReadOnlyDictionary<Option<LogLevel>, ConsoleColor> LogLevelColor { get; set; } = new Dictionary<Option<LogLevel>, ConsoleColor>
+        public IReadOnlyDictionary<LogLevel, ConsoleColor> LogLevelColor { get; set; } = new Dictionary<LogLevel, ConsoleColor>
         {
             [LogLevel.Trace] = ConsoleColor.DarkGray,
             [LogLevel.Debug] = ConsoleColor.DarkGray,
@@ -28,7 +28,7 @@ namespace Reusable.OmniLog
 
         private ConsoleColor GetConsoleColor(ILogEntry entry)
         {
-            if (entry[LogProperty.Names.Level]?.Value is Option<LogLevel> logLevel && LogLevelColor.TryGetValue(logLevel, out var consoleColor))
+            if (entry[LogProperty.Names.Level]?.Value is LogLevel logLevel && LogLevelColor.TryGetValue(logLevel, out var consoleColor))
             {
                 return consoleColor;
             }

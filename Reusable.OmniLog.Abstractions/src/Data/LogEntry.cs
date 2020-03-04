@@ -13,22 +13,22 @@ namespace Reusable.OmniLog
     [PublicAPI]
     public class LogEntry : ILogEntry
     {
-        private readonly IDictionary<SoftString, IImmutableList<LogProperty>> _properties;
+        private readonly IDictionary<string, IImmutableList<LogProperty>> _properties;
 
         [DebuggerStepThrough]
         public LogEntry()
         {
-            _properties = new Dictionary<SoftString, IImmutableList<LogProperty>>();
+            _properties = new Dictionary<string, IImmutableList<LogProperty>>(SoftString.Comparer);
         }
 
         private LogEntry(LogEntry other)
         {
-            _properties = new Dictionary<SoftString, IImmutableList<LogProperty>>(other._properties);
+            _properties = new Dictionary<string, IImmutableList<LogProperty>>(other._properties, SoftString.Comparer);
         }
 
         public static LogEntry Empty() => new LogEntry();
 
-        public LogProperty? this[SoftString key] => TryGetProperty(key, out var property) ? property : default;
+        public LogProperty? this[string key] => TryGetProperty(key, out var property) ? property : default;
 
         public void Add(LogProperty property)
         {
@@ -38,7 +38,7 @@ namespace Reusable.OmniLog
 
         public ILogEntry Copy() => new LogEntry(this);
 
-        public bool TryGetProperty(SoftString name, out LogProperty property)
+        public bool TryGetProperty(string name, out LogProperty property)
         {
             if (_properties.TryGetValue(name, out var versions))
             {

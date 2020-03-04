@@ -4,11 +4,11 @@ namespace Reusable.OmniLog.Abstractions
 {
     public interface ILogEntry : IEnumerable<LogProperty>
     {
-        LogProperty? this[SoftString name] { get; }
+        LogProperty? this[string name] { get; }
 
         void Add(LogProperty property);
 
-        bool TryGetProperty(SoftString name, out LogProperty property);
+        bool TryGetProperty(string name, out LogProperty property);
 
         ILogEntry Copy();
     }

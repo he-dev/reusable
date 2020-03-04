@@ -13,7 +13,7 @@ namespace Reusable.OmniLog
 
         public static ILogEntry Timestamp(this ILogEntry logEntry, DateTime value) => logEntry.Add(LogProperty.Names.Timestamp, value, m => m.ProcessWith<EchoNode>());
 
-        public static ILogEntry Level(this ILogEntry logEntry, Option<LogLevel> value) => logEntry.Add(LogProperty.Names.Level, value, m => m.ProcessWith<EchoNode>());
+        public static ILogEntry Level(this ILogEntry logEntry, LogLevel value) => logEntry.Add(LogProperty.Names.Level, value, m => m.ProcessWith<EchoNode>());
 
         public static ILogEntry Exception(this ILogEntry logEntry, Exception? value)
         {

@@ -20,7 +20,8 @@ namespace Reusable.OmniLog.Nodes
         {
             foreach (var property in request.Where(LogProperty.CanProcess.With(this)).Where(LogProperty.ValueIs.NotNull()).ToList())
             {
-                request.Add(property.Name, _serializer.Serialize(property.Value!), m => m.ProcessWith<EchoNode>());
+                var json = property.Value is string str ? str : _serializer.Serialize(property.Value!);
+                request.Add(property.Name, json, m => m.ProcessWith<EchoNode>());
             }
 
             InvokeNext(request);

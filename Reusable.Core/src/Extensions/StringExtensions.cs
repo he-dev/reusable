@@ -92,12 +92,14 @@ namespace Reusable.Extensions
         {
             return new MemoryStream((encoding ?? Encoding.UTF8).GetBytes(value));
         }
-        
+
         public static bool Matches(this string? value, [RegexPattern] string pattern, RegexOptions options = RegexOptions.None)
         {
             return value is {} && Regex.IsMatch(value, pattern, options);
         }
 
         public static bool SoftEquals(this string? value, string? other) => SoftString.Comparer.Equals(value, other);
+
+        public static string ToCamelCase(this string? value) => value is {} ? Regex.Replace(value, @"\A([A-Z]+)", m => m.Value.ToLower()) : string.Empty;
     }
 }

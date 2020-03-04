@@ -35,8 +35,8 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Reusable.Beaver\Reusable.Beaver.csproj" />
-    <ProjectReference Include="..\Reusable.OmniLog.SemanticExtensions\Reusable.OmniLog.SemanticExtensions.csproj" />
     <ProjectReference Include="..\Reusable.OmniLog\Reusable.OmniLog.csproj" />
+    <ProjectReference Include="..\Reusable.OmniLog.SemanticExtensions\Reusable.OmniLog.SemanticExtensions.csproj" />
   </ItemGroup>
 
 </Project>

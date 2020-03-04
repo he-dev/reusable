@@ -9,7 +9,7 @@ namespace Reusable.OmniLog
     [PublicAPI]
     public class PlainConsoleRx : ILogRx
     {
-        public string Template { get; set; } = @"[{Timestamp:HH:mm:ss:fff}] [{Level:u}] {Logger}: {Message}";
+        public string Template { get; set; } = @"[{Timestamp:HH:mm:ss:fff}] [{Level}] {Logger}: {Message}";
 
         public IFormatProvider FormatProvider { get; set; } = new CompositeFormatProvider
         {

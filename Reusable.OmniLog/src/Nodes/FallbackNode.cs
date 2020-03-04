@@ -8,7 +8,7 @@ namespace Reusable.OmniLog.Nodes
     {
         public override bool Enabled => base.Enabled && Defaults?.Any() == true;
 
-        public Dictionary<SoftString, object> Defaults { get; set; } = new Dictionary<SoftString, object>();
+        public Dictionary<string, object> Defaults { get; set; } = new Dictionary<string, object>(SoftString.Comparer);
 
         public override void Invoke(ILogEntry request)
         {

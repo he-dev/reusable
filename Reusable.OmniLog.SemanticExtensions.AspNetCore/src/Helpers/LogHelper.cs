@@ -13,7 +13,7 @@ namespace Reusable.OmniLog.SemanticExtensions.AspNetCore.Helpers
         /// <summary>
         /// Maps http-status-code to OmiLog log-level.
         /// </summary>
-        public static Func<int, Reusable.Data.Option<LogLevel>> MapStatusCode { get; set; } = statusCode =>
+        public static Func<int, LogLevel> MapStatusCode { get; set; } = statusCode =>
         {
             return statusCode switch
             {

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 using System.Runtime.CompilerServices;
+using Reusable.Extensions;
 using Reusable.OmniLog.Abstractions;
 using Reusable.OmniLog.Nodes;
 
@@ -47,7 +48,7 @@ namespace Reusable.OmniLog.SemanticExtensions
     [SuppressMessage("ReSharper", "InconsistentNaming")]
     public static class AbstractionLayers
     {
-        public static IDictionary<string, Reusable.Data.Option<LogLevel>> Levels { get; set; } = new Dictionary<string, Reusable.Data.Option<LogLevel>>(SoftString.Comparer)
+        public static IDictionary<string, LogLevel> Levels { get; set; } = new Dictionary<string, LogLevel>(SoftString.Comparer)
         {
             [nameof(Business)] = LogLevel.Information,
             [nameof(Service)] = LogLevel.Debug,

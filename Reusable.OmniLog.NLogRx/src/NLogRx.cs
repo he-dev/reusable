@@ -11,7 +11,7 @@ namespace Reusable.OmniLog
     {
         private readonly ConcurrentDictionary<SoftString, NLog.Logger> _cache = new ConcurrentDictionary<SoftString, NLog.Logger>();
 
-        private static readonly IDictionary<Option<LogLevel>, NLog.LogLevel> LogLevels = new Dictionary<Option<LogLevel>, NLog.LogLevel>
+        private static readonly IDictionary<LogLevel, NLog.LogLevel> LogLevels = new Dictionary<LogLevel, NLog.LogLevel>
         {
             [LogLevel.Trace] = NLog.LogLevel.Trace,
             [LogLevel.Debug] = NLog.LogLevel.Debug,
@@ -31,7 +31,7 @@ namespace Reusable.OmniLog
         {
             var logEventInfo = new NLog.LogEventInfo
             {
-                Level = LogLevels[logEntry[LogProperty.Names.Level]?.Value as Option<LogLevel> ?? LogLevel.Information],
+                Level = LogLevels[logEntry[LogProperty.Names.Level]?.Value is LogLevel logLevel ? logLevel : LogLevel.Information],
                 LoggerName = logEntry[LogProperty.Names.Logger]?.Value as string,
                 Message = logEntry[LogProperty.Names.Message]?.Value as string,
                 Exception = logEntry[LogProperty.Names.Exception]?.Value as Exception,
@@ -40,7 +40,7 @@ namespace Reusable.OmniLog
 
             foreach (var item in logEntry.Where(LogProperty.CanLog.With<NLogRx>()))
             {
-                logEventInfo.Properties.Add(item.Name.ToString(), item.Value);
+                logEventInfo.Properties.Add(item.Name, item.Value);
             }
 
             return logEventInfo;

@@ -60,6 +60,15 @@ namespace Reusable
                 // Filters log-entries and short-circuits the pipeline when False.
                 new FilterNode(logEntry => true),
                 // Renames properties.
+                // Sets default values for the specified keys when they are not set already. 
+                new FallbackNode
+                {
+                    Defaults =
+                    {
+                        [LogProperty.Names.Level] = LogLevel.Information
+                    }
+                },
+                new CamelCaseNode(),
                 new PropertyMapperNode
                 {
                     Mappings =
@@ -67,14 +76,6 @@ namespace Reusable
                         //{ LogEntry.Names.Scope, "Scope" },
                         { LogProperty.Names.SnapshotName, "Identifier" },
                         //{ LogEntry.Names.Snapshot, "Snapshot" },
-                    }
-                },
-                // Sets default values for the specified keys when they are not set already. 
-                new FallbackNode
-                {
-                    Defaults =
-                    {
-                        [LogProperty.Names.Level] = LogLevel.Information
                     }
                 },
                 // When activated, buffers log-entries until committed. Can be enabled with logger.UseTransaction(). Dispose to disable.
@@ -88,7 +89,7 @@ namespace Reusable
                         new SimpleConsoleRx // Use console.
                         {
                             // Render output with this template. This is the default.
-                            Template = @"[{Timestamp:HH:mm:ss:fff}] [{Level:u}] {Layer} | {Category} | {Identifier}: {Snapshot} {Elapsed}ms | {Message} {Exception}"
+                            Template = @"[{Timestamp:HH:mm:ss:fff}] [{Level}] {Layer} | {Category} | {Identifier}: {Snapshot} {Elapsed}ms | {Message} {Exception}"
                         }
                     },
                 }

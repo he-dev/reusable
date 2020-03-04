@@ -8,8 +8,8 @@ namespace Reusable.OmniLog.Abstractions
     {
         bool Enabled { get; }
 
-        [AutoEqualityProperty]
-        SoftString Name { get; }
+        [AutoEqualityProperty(StringComparison.OrdinalIgnoreCase)]
+        string Name { get; }
 
         object? GetValue(ILogEntry logEntry);
     }
@@ -22,7 +22,7 @@ namespace Reusable.OmniLog.Abstractions
 
         public bool Enabled { get; set; } = true;
 
-        public SoftString Name { get; }
+        public string Name { get; }
 
         public abstract object? GetValue(ILogEntry logEntry);
 

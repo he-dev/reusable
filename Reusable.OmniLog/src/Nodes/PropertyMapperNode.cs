@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using Reusable.Extensions;
 using Reusable.OmniLog.Abstractions;
 
 namespace Reusable.OmniLog.Nodes
@@ -9,7 +10,7 @@ namespace Reusable.OmniLog.Nodes
     /// </summary>
     public class PropertyMapperNode : LoggerNode
     {
-        public Dictionary<SoftString, string> Mappings { get; set; } = new Dictionary<SoftString, string>();
+        public Dictionary<string, string> Mappings { get; set; } = new Dictionary<string, string>(SoftString.Comparer);
 
         public override void Invoke(ILogEntry request)
         {

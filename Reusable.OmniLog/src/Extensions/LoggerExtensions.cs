@@ -62,7 +62,7 @@ namespace Reusable.OmniLog
         private static void Log
         (
             this ILogger logger,
-            Option<LogLevel> level,
+            LogLevel level,
             string? message,
             Exception? exception,
             AlterLogEntryDelegate? alter

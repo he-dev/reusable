@@ -3,22 +3,27 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using JetBrains.Annotations;
+using Reusable.Diagnostics;
+using Reusable.Extensions;
 using Reusable.OmniLog.Abstractions;
 
 // ReSharper disable once CheckNamespace
 namespace Reusable.OmniLog
 {
     [PublicAPI]
+    [DebuggerDisplay(DebuggerDisplayString.DefaultNoQuotes)]
     public readonly struct LogProperty
     {
-        public LogProperty(SoftString name, object? value, LogPropertyMeta meta)
+        public LogProperty(string name, object? value, LogPropertyMeta meta)
         {
             Name = name;
             Value = value;
             Meta = meta;
         }
 
-        public SoftString Name { get; }
+        private string DebuggerDisplay => this.ToDebuggerDisplayString(b => b.DisplaySingle(x => x.Name).DisplaySingle(x => x.Value));
+
+        public string Name { get; }
 
         public object? Value { get; }
 
@@ -48,20 +53,20 @@ namespace Reusable.OmniLog
         [SuppressMessage("ReSharper", "ConvertToConstant.Global")]
         public static class Names
         {
-            public static readonly SoftString Timestamp = nameof(Timestamp)!;
-            public static readonly SoftString Logger = nameof(Logger)!;
-            public static readonly SoftString Level = nameof(Level)!;
-            public static readonly SoftString Message = nameof(Message)!;
-            public static readonly SoftString Exception = nameof(Exception)!;
-            public static readonly SoftString CallerMemberName = nameof(CallerMemberName)!;
-            public static readonly SoftString CallerLineNumber = nameof(CallerLineNumber)!;
-            public static readonly SoftString CallerFilePath = nameof(CallerFilePath)!;
+            public static readonly string Timestamp = nameof(Timestamp)!;
+            public static readonly string Logger = nameof(Logger)!;
+            public static readonly string Level = nameof(Level)!;
+            public static readonly string Message = nameof(Message)!;
+            public static readonly string Exception = nameof(Exception)!;
+            public static readonly string CallerMemberName = nameof(CallerMemberName)!;
+            public static readonly string CallerLineNumber = nameof(CallerLineNumber)!;
+            public static readonly string CallerFilePath = nameof(CallerFilePath)!;
 
-            public static readonly SoftString SnapshotName = nameof(SnapshotName)!;
-            public static readonly SoftString Snapshot = nameof(Snapshot)!;
+            public static readonly string SnapshotName = nameof(SnapshotName)!;
+            public static readonly string Snapshot = nameof(Snapshot)!;
 
-            public static readonly SoftString Scope = nameof(Scope)!;
-            public static readonly SoftString Elapsed = nameof(Stopwatch.Elapsed)!;
+            public static readonly string Scope = nameof(Scope)!;
+            public static readonly string Elapsed = nameof(Stopwatch.Elapsed)!;
         }
     }
 
