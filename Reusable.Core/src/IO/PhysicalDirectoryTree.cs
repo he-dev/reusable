@@ -19,18 +19,19 @@ namespace Reusable.IO
         /// Specifies the max depth of the directory tree. The upper limit is exclusive.
         /// </summary>
         public static Func<IDirectoryTreeNode, bool> MaxDepth(int maxDepth) => node => node.Depth < maxDepth;
+        
+        public static Func<IDirectoryTreeNode, bool> Unfiltered { get; } = _ => true;
     }
 
     public class PhysicalDirectoryTree : IDirectoryTree
     {
         public static Action<Exception> IgnoreExceptions { get; } = _ => { };
 
-        public static Func<IDirectoryTreeNode, bool> Unfiltered { get; } = _ => true;
 
 
         public IEnumerable<IDirectoryTreeNode> Walk(string path, Func<IDirectoryTreeNode, bool>? predicate = default, Action<Exception>? onException = default)
         {
-            predicate ??= Unfiltered;
+            predicate ??= DirectoryTreePredicates.Unfiltered;
             onException ??= IgnoreExceptions;
 
             path = Environment.ExpandEnvironmentVariables(path);

@@ -58,8 +58,6 @@ namespace Reusable.Translucent.Controllers
 
         public override async Task<Response> DeleteAsync(HttpRequest request) => await InvokeAsync(HttpMethod.Delete, request);
 
-        //public async Task<Response> InvokeAsync(HttpMethod httpMethod, Request request) => await InvokeAsync(httpMethod, (HttpRequest)request);
-
         private async Task<Response> InvokeAsync(HttpMethod method, HttpRequest request)
         {
             var uri = BaseUri is {} baseUri ? Path.Combine(baseUri, request.ResourceName) : request.ResourceName;

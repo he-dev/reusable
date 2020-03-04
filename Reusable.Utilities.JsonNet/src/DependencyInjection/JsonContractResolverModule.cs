@@ -3,7 +3,7 @@ using Newtonsoft.Json.Serialization;
 
 namespace Reusable.Utilities.JsonNet.DependencyInjection
 {
-    public class JsonContractResolverModule : Module
+    public class  JsonContractResolverModule : Module
     {
         protected override void Load(ContainerBuilder builder)
         {
