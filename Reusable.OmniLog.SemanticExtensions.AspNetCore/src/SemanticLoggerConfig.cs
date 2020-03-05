@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -18,8 +19,13 @@ namespace Reusable.OmniLog.SemanticExtensions.AspNetCore
         public Func<HttpContext, object> GetCorrelationHandle { get; set; } = _ => "HttpRequest";
 
         public Func<HttpContext, bool> CanLogRequestBody { get; set; } = _ => true;
-        
+
         public Func<HttpContext, bool> CanLogResponseBody { get; set; } = _ => true;
+
+        /// <summary>
+        /// There are some http-status codes where the response must not be written to.
+        /// </summary>
+        public HashSet<int> IgnoreResponseHttpStatusCodes { get; set; } = new HashSet<int> { 204, 304 };
 
         public Action<ILogger, HttpContext, string?> LogRequest { get; set; } = LogHelper.LogRequest;
 

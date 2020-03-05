@@ -61,7 +61,7 @@ namespace Reusable.OmniLog.SemanticExtensions.AspNetCore
                             body = await featureController.Use(Features.LogResponseBody, async () => await reader.ReadToEndAsync());
 
                             // Restore Response.Body
-                            if (!context.Response.StatusCode.In(304))
+                            if (!_config.IgnoreResponseHttpStatusCodes.Contains(context.Response.StatusCode))
                             {
                                 await memory.Rewind().CopyToAsync(bodyBackup);
                             }
