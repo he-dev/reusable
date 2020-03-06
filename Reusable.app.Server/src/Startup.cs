@@ -10,6 +10,7 @@ using Reusable.Apps.Server.Json;
 using Reusable.Beaver;
 using Reusable.OmniLog;
 using Reusable.OmniLog.Abstractions;
+using Reusable.OmniLog.SemanticExtensions.AspNetCore;
 using Reusable.OmniLog.SemanticExtensions.AspNetCore.Extensions;
 using Reusable.OmniLog.Services;
 using Reusable.Utilities.AspNetCore;
@@ -48,9 +49,9 @@ namespace Reusable.Apps.Server
         {
             SmartPropertiesLayoutRenderer.Register();
 
-            services.AddOmniLog(builder =>
-            {
-                builder
+            services.AddOmniLog(
+                LoggerFactory
+                    .Builder()
                     .UseStopwatch()
                     .UseService
                     (
@@ -64,22 +65,24 @@ namespace Reusable.Apps.Server
                     .UseDestructure()
                     .UseObjectMapper()
                     .UseSerializer()
+                    .UseCamelCase()
                     .UsePropertyMapper
                     (
                         (LogProperty.Names.SnapshotName, "Identifier")
                     )
                     .UseFallback((LogProperty.Names.Level, LogLevel.Information))
+                    .UseEcho
+                    (
 #if DEBUG
-                    .UseEcho(
-                        new NLogRx(),
                         new SimpleConsoleRx
                         {
-                            Template = @"[{Timestamp:HH:mm:ss:fff}] [{Level:u}] {Layer} | {Category} | {Identifier}: {Snapshot} {Elapsed}ms | {Message} {Exception}"
-                        });
-#else
-                    .UseEcho(new NLogRx());
+                            Template = @"[{Timestamp:HH:mm:ss:fff}] [{Level}] {Layer} | {Category} | {Identifier}: {Snapshot} {Elapsed}ms | {Message} {Exception}"
+                        },
 #endif
-            });
+                        new NLogRx()
+                    )
+                    .Build()
+            );
 
             // Add framework services.
             services

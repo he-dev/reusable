@@ -47,8 +47,8 @@ namespace Reusable.OmniLog.SemanticExtensions.AspNetCore
 
                 try
                 {
-                    var body = default(string);
-                    var bodyBackup = context.Response.Body;
+                    var responseBody = default(string);
+                    var responseBodyOriginal = context.Response.Body;
 
                     using (var memory = new MemoryStream())
                     {
@@ -58,19 +58,20 @@ namespace Reusable.OmniLog.SemanticExtensions.AspNetCore
 
                         using (var reader = new StreamReader(memory.Rewind()))
                         {
-                            body = await featureController.Use(Features.LogResponseBody, async () => await reader.ReadToEndAsync());
+                            responseBody = await featureController.Use(Features.LogResponseBody, async () => await reader.ReadToEndAsync());
 
-                            // Restore Response.Body
-                            if (!_config.IgnoreResponseHttpStatusCodes.Contains(context.Response.StatusCode))
+                            if (_config.CanUpdateOriginalResponseBody(context))
                             {
-                                await memory.Rewind().CopyToAsync(bodyBackup);
+                                // Update the original response-body.
+                                await memory.Rewind().CopyToAsync(responseBodyOriginal);
                             }
 
-                            context.Response.Body = bodyBackup;
+                            // Restore the original response-body.
+                            context.Response.Body = responseBodyOriginal;
                         }
                     }
 
-                    _config.LogResponse(_logger, context, featureController.Use(Features.LogResponseBody, body));
+                    _config.LogResponse(_logger, context, responseBody);
                 }
                 catch (Exception inner)
                 {
@@ -78,6 +79,11 @@ namespace Reusable.OmniLog.SemanticExtensions.AspNetCore
                     throw;
                 }
             }
+        }
+
+        public static class Features
+        {
+            public const string LogResponseBody = nameof(LogResponseBody);
         }
     }
 }
