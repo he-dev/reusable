@@ -5,16 +5,18 @@ using Reusable.OmniLog.Abstractions;
 
 namespace Reusable.OmniLog
 {
+    using static LogLevel;
+    
     public class SimpleConsoleRx : PlainConsoleRx
     {
         public IReadOnlyDictionary<LogLevel, ConsoleColor> LogLevelColor { get; set; } = new Dictionary<LogLevel, ConsoleColor>
         {
-            [LogLevel.Trace] = ConsoleColor.DarkGray,
-            [LogLevel.Debug] = ConsoleColor.DarkGray,
-            [LogLevel.Information] = ConsoleColor.White,
-            [LogLevel.Warning] = ConsoleColor.Yellow,
-            [LogLevel.Error] = ConsoleColor.Red,
-            [LogLevel.Fatal] = ConsoleColor.Red,
+            [Trace] = ConsoleColor.DarkGray,
+            [Debug] = ConsoleColor.DarkGray,
+            [Information] = ConsoleColor.White,
+            [Warning] = ConsoleColor.Yellow,
+            [Error] = ConsoleColor.Red,
+            [Fatal] = ConsoleColor.Red,
         };
 
         public override void Log(ILogEntry entry)

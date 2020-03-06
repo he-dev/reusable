@@ -13,6 +13,7 @@ namespace Reusable.OmniLog
         //public static LoggerFactory UseCorrelation(this LoggerFactory loggerFactory, Action<CorrelationNode> configure = default) => loggerFactory.Use(configure);
         public static LoggerFactoryBuilder UseBuffer(this LoggerFactoryBuilder builder, Action<BufferNode>? configure = default) => builder.Use(configure);
         public static LoggerFactoryBuilder UseBuilder(this LoggerFactoryBuilder builder, Action<BuilderNode>? configure = default) => builder.Use(configure);
+        public static LoggerFactoryBuilder UseCamelCase(this LoggerFactoryBuilder builder, Action<CamelCaseNode>? configure = default) => builder.Use(configure);
         public static LoggerFactoryBuilder UseScope(this LoggerFactoryBuilder builder, Action<ScopeNode>? configure = default) => builder.Use(configure);
         public static LoggerFactoryBuilder UseEcho(this LoggerFactoryBuilder builder, Action<EchoNode> configure) => builder.Use(configure);
         public static LoggerFactoryBuilder UseEcho(this LoggerFactoryBuilder builder, params ILogRx[] rx) => builder.Use<EchoNode>(n => n.Rx.AddRange(rx));

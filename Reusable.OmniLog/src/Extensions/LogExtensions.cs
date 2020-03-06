@@ -19,7 +19,7 @@ namespace Reusable.OmniLog
         {
             if (value is {})
             {
-                logEntry.Add(LogProperty.Names.Exception, value, m => m.ProcessWith<EchoNode>());
+                logEntry.Add(LogProperty.Names.Exception, value, LogProperty.Process.With<EchoNode>());
                 logEntry.Level(LogLevel.Error);
             }
 

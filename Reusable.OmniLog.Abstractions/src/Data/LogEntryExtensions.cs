@@ -14,8 +14,7 @@ namespace Reusable.OmniLog
 
         public static ILogEntry Add(this ILogEntry entry, string name, object? value, Action<LogPropertyMeta.LogPropertyMetaBuilder> buildMeta)
         {
-            entry.Add(new LogProperty(name, value, LogPropertyMeta.Builder.Pipe(buildMeta)));
-            return entry;
+            return entry.Pipe(e => e.Add(new LogProperty(name, value, LogPropertyMeta.From(buildMeta))));
         }
     }
 }

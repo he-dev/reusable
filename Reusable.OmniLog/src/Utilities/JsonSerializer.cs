@@ -9,7 +9,6 @@ namespace Reusable.OmniLog.Utilities
 {
     public class JsonSerializer : ISerializer
     {
-        [NotNull]
         public JsonSerializerSettings Settings { get; set; } = new JsonSerializerSettings
         {
             NullValueHandling = NullValueHandling.Ignore,
@@ -26,10 +25,6 @@ namespace Reusable.OmniLog.Utilities
             }
         };
 
-        public object Serialize(object obj)
-        {
-            //return obj is string ? obj : JsonConvert.SerializeObject(obj, Settings);
-            return JsonConvert.SerializeObject(obj, Settings);
-        }
+        public object Serialize(object obj) => JsonConvert.SerializeObject(obj, Settings);
     }
 }

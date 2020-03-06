@@ -2,9 +2,13 @@ using System;
 using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Linq;
+using JetBrains.Annotations;
+using Reusable.Beaver.Policies;
 
 namespace Reusable.Beaver
 {
+    [PublicAPI]
     public interface IFeatureCollection : IEnumerable<Feature>
     {
         /// <summary>
@@ -20,9 +24,21 @@ namespace Reusable.Beaver
     /// <summary>
     /// Stores feature policies. Uses a fallback policy if none was found.
     /// </summary>
+    [PublicAPI]
     public class FeatureCollection : IFeatureCollection
     {
-        private readonly ConcurrentDictionary<string, Feature> _features = new ConcurrentDictionary<string, Feature>(SoftString.Comparer);
+        private readonly ConcurrentDictionary<string, Feature> _features;
+
+        public FeatureCollection(IEnumerable<Feature> features)
+        {
+            _features = new ConcurrentDictionary<string, Feature>(features.Select(f => new KeyValuePair<string, Feature>(f.Name, f)), SoftString.Comparer);
+        }
+
+        public FeatureCollection(IEnumerable<KeyValuePair<string, bool>> features)
+            : this(features.Select(x => new Feature(x.Key, x.Value ? FeaturePolicy.AlwaysOn : FeaturePolicy.AlwaysOff))) { }
+
+        public FeatureCollection()
+            : this(Enumerable.Empty<Feature>()) { }
 
         public void Add(Feature feature)
         {

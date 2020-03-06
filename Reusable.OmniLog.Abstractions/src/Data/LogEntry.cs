@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Immutable;
@@ -13,17 +14,18 @@ namespace Reusable.OmniLog
     [PublicAPI]
     public class LogEntry : ILogEntry
     {
-        private readonly IDictionary<string, IImmutableList<LogProperty>> _properties;
+        private readonly IDictionary<string, IImmutableStack<LogProperty>> _properties;
+        private readonly IDictionary<Type, IImmutableStack<string>> _index = new Dictionary<Type, IImmutableStack<string>>();
 
         [DebuggerStepThrough]
         public LogEntry()
         {
-            _properties = new Dictionary<string, IImmutableList<LogProperty>>(SoftString.Comparer);
+            _properties = new Dictionary<string, IImmutableStack<LogProperty>>(SoftString.Comparer);
         }
 
         private LogEntry(LogEntry other)
         {
-            _properties = new Dictionary<string, IImmutableList<LogProperty>>(other._properties, SoftString.Comparer);
+            _properties = new Dictionary<string, IImmutableStack<LogProperty>>(other._properties, SoftString.Comparer);
         }
 
         public static LogEntry Empty() => new LogEntry();
@@ -32,8 +34,9 @@ namespace Reusable.OmniLog
 
         public void Add(LogProperty property)
         {
-            var current = _properties.TryGetValue(property.Name, out var versions) ? versions : ImmutableList<LogProperty>.Empty;
-            _properties[property.Name] = current.Add(property);
+            var current = _properties.TryGetValue(property.Name, out var versions) ? versions : ImmutableStack<LogProperty>.Empty;
+            _properties[property.Name] = current.Push(property);
+            
         }
 
         public ILogEntry Copy() => new LogEntry(this);
@@ -42,7 +45,7 @@ namespace Reusable.OmniLog
         {
             if (_properties.TryGetValue(name, out var versions))
             {
-                property = versions.Last();
+                property = versions.Peek();
                 return true;
             }
             else
@@ -57,9 +60,11 @@ namespace Reusable.OmniLog
             return @"[{Timestamp:HH:mm:ss:fff}] [{Logger:u}] {Message}".Format(this);
         }
 
-        public IEnumerator<LogProperty> GetEnumerator() => _properties.Values.Select(h => h.Last()).GetEnumerator();
+        public IEnumerator<LogProperty> GetEnumerator() => _properties.Values.Select(h => h.Peek()).GetEnumerator();
 
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+
+        
         
     }
 }

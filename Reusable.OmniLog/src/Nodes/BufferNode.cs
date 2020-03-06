@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Reusable.OmniLog.Abstractions;
 using Reusable.Collections.Generic;
+using Reusable.Extensions;
 
 namespace Reusable.OmniLog.Nodes
 {
@@ -22,9 +23,9 @@ namespace Reusable.OmniLog.Nodes
 
         public void Flush()
         {
-            while (_buffer.Any())
+            foreach (var item in _buffer.Consume())
             {
-                InvokeNext(_buffer.Dequeue());
+                InvokeNext(item);
             }
         }
 

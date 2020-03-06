@@ -139,7 +139,7 @@ namespace Reusable.OmniLog
             Assert.Equal(1, rx.Count());
             Assert.Equal("Hallo!", rx.First()["Message"]?.Value);
             Assert.Equal("Greeting", rx.First()[LogProperty.Names.SnapshotName]?.Value);
-            Assert.Equal("\"Hi!\"", rx.First()[LogProperty.Names.Snapshot]?.Value);
+            Assert.Equal("Hi!", rx.First()[LogProperty.Names.Snapshot]?.Value);
             //Assert.Equal("{\"Greeting\":\"Hi!\"}", rx.First()["Snapshot"]);
         }
 

@@ -16,9 +16,9 @@ namespace Reusable.OmniLog.Abstractions
 
     public abstract class Service : IService
     {
-        protected Service(string name) => Name = name!;
+        protected Service(string name) => Name = name;
 
-        private string DebuggerDisplay() => this.ToDebuggerDisplayString(b => { b.DisplaySingle(x => x.Name); });
+        private string DebuggerDisplay() => this.ToDebuggerDisplayString(b => { b.DisplaySingle(x => x.Name).DisplaySingle(x => x.Enabled); });
 
         public bool Enabled { get; set; } = true;
 

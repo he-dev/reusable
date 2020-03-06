@@ -68,6 +68,14 @@ namespace Reusable.OmniLog
             public static readonly string Scope = nameof(Scope)!;
             public static readonly string Elapsed = nameof(Stopwatch.Elapsed)!;
         }
+        
+        public static class Process
+        {
+            public static Action<LogPropertyMeta.LogPropertyMetaBuilder> With<T>() where T : ILoggerNode
+            {
+                return m => m.ProcessWith<T>();
+            }
+        }
     }
 
     public static class LogPropertyExtensions
@@ -102,6 +110,11 @@ namespace Reusable.OmniLog
         }
 
         public static LogPropertyMetaBuilder Builder => new LogPropertyMetaBuilder();
+
+        public static LogPropertyMeta From(Action<LogPropertyMetaBuilder> build)
+        {
+            return Builder.Pipe(build);
+        }
 
         public class LogPropertyMetaBuilder
         {

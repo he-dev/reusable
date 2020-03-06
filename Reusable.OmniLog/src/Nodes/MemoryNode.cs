@@ -56,12 +56,12 @@ namespace Reusable.OmniLog.Nodes
                 var row = dt.NewRow();
                 foreach (var item in logEntry.Where(LogProperty.CanProcess.With<EchoNode>()))
                 {
-                    if (!dt.Columns.Contains(item.Name.ToString()))
+                    if (!dt.Columns.Contains(item.Name))
                     {
-                        dt.Columns.Add(item.Name.ToString(), item.Value?.GetType() ?? typeof(object));
+                        dt.Columns.Add(item.Name, item.Value?.GetType() ?? typeof(object));
                     }
 
-                    row[item.Name.ToString()] = item.Value;
+                    row[item.Name] = item.Value;
                 }
 
                 dt.Rows.Add(row);

@@ -6,9 +6,9 @@ namespace Reusable.OmniLog.Nodes
 {
     public class FallbackNode : LoggerNode
     {
-        public override bool Enabled => base.Enabled && Defaults?.Any() == true;
+        public override bool Enabled => base.Enabled && Defaults.Any();
 
-        public Dictionary<string, object> Defaults { get; set; } = new Dictionary<string, object>(SoftString.Comparer);
+        public Dictionary<string, object> Defaults { get; set; } = new Dictionary<string, object>();
 
         public override void Invoke(ILogEntry request)
         {

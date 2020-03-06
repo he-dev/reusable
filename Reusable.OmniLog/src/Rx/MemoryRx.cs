@@ -20,7 +20,7 @@ namespace Reusable.OmniLog
 
         public int Capacity { get; }
 
-        public ILogEntry? this[int index] => this.ElementAtOrDefault(index);// ?? throw DynamicException.Create("LogIndexOutOfRange", $"There is no log at {index}.");
+        public ILogEntry? this[int index] => this.ElementAtOrDefault(index);
 
         public void Log(ILogEntry logEntry)
         {

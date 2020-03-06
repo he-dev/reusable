@@ -23,20 +23,21 @@ namespace Reusable.OmniLog.Nodes
                 from x in p.Value.EnumerateProperties().Where(x => x.Value is {})
                 select x;
 
-            if (explodable.ToList() is var items && items.Any())
+            var any = false;
+            foreach (var (name, value) in explodable)
             {
-                foreach (var (name, value) in items)
-                {
-                    var copy = request.Copy();
+                var copy = request.Copy();
 
-                    copy.Add(LogProperty.Names.SnapshotName, name, m => m.ProcessWith<EchoNode>());
-                    copy.Add(LogProperty.Names.Snapshot, value, m => m.ProcessWith<SerializerNode>());
+                copy.Add(LogProperty.Names.SnapshotName, name, LogProperty.Process.With<EchoNode>());
+                copy.Add(LogProperty.Names.Snapshot, value, LogProperty.Process.With<SerializerNode>());
 
-                    InvokeNext(copy);
-                }
+                InvokeNext(copy);
+
+                any = true;
             }
+
             // There wasn't anything to explode so just invoke the next node. 
-            else
+            if (!any)
             {
                 InvokeNext(request);
             }

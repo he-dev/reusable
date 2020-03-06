@@ -22,7 +22,7 @@ namespace Reusable.OmniLog.Nodes
                 if (property.Value is {} && Mappings.TryGetMapping(property.Value.GetType(), out var map))
                 {
                     var obj = map(property.Value);
-                    request.Add(property.Name, obj, m => m.ProcessWith<SerializerNode>()); // Replace the original object.
+                    request.Add(property.Name, obj, LogProperty.Process.With<SerializerNode>()); // Replace the original object.
                 }
             }
 

@@ -12,5 +12,13 @@ namespace Reusable.Extensions
 
             queue.Enqueue(item);
         }
+
+        public static IEnumerable<T> Consume<T>(this Queue<T> queue)
+        {
+            while (queue.Count > 0)
+            {
+                yield return queue.Dequeue();
+            }
+        }
     }
 }

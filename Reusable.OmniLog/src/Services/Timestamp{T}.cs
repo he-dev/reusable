@@ -7,7 +7,7 @@ namespace Reusable.OmniLog.Services
         private readonly IDateTime _dateTime;
 
         // There is no pretty way to get the name without `1
-        public Timestamp() : base("Timestamp")
+        public Timestamp() : base(nameof(Timestamp))
         {
             _dateTime = new T();
         }

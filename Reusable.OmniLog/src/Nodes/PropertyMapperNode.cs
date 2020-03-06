@@ -10,7 +10,7 @@ namespace Reusable.OmniLog.Nodes
     /// </summary>
     public class PropertyMapperNode : LoggerNode
     {
-        public Dictionary<string, string> Mappings { get; set; } = new Dictionary<string, string>(SoftString.Comparer);
+        public Dictionary<string, string> Mappings { get; set; } = new Dictionary<string, string>();
 
         public override void Invoke(ILogEntry request)
         {
