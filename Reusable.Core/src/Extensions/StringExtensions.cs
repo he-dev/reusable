@@ -97,6 +97,11 @@ namespace Reusable.Extensions
         {
             return value is {} && Regex.IsMatch(value, pattern, options);
         }
+        
+        public static bool Matches(this string? value, [RegexPattern] IEnumerable<string> patterns, RegexOptions options = RegexOptions.None)
+        {
+            return value is {} && patterns.Any(pattern => Regex.IsMatch(value, pattern, options));
+        }
 
         public static bool SoftEquals(this string? value, string? other) => SoftString.Comparer.Equals(value, other);
 

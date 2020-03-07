@@ -26,9 +26,7 @@ namespace Reusable.IO
     public class PhysicalDirectoryTree : IDirectoryTree
     {
         public static Action<Exception> IgnoreExceptions { get; } = _ => { };
-
-
-
+        
         public IEnumerable<IDirectoryTreeNode> Walk(string path, Func<IDirectoryTreeNode, bool>? predicate = default, Action<Exception>? onException = default)
         {
             predicate ??= DirectoryTreePredicates.Unfiltered;
@@ -106,11 +104,10 @@ namespace Reusable.IO
 
         public IEnumerable<string> FileNames => Directory.EnumerateFiles(DirectoryName).Select(Path.GetFileName);
     }
-
-
-    internal class DirectoryTreeNodeView : IDirectoryTreeNode
+    
+    public class DirectoryTreeNodeView : IDirectoryTreeNode
     {
-        internal DirectoryTreeNodeView(string path, int depth, IEnumerable<string> directoryNames, IEnumerable<string> fileNames)
+        public DirectoryTreeNodeView(string path, int depth, IEnumerable<string> directoryNames, IEnumerable<string> fileNames)
         {
             DirectoryName = path;
             Depth = depth;

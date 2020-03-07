@@ -10,5 +10,13 @@ namespace Reusable.Extensions
         {
             foreach (var item in items) stack.Push(item);
         }
+        
+        public static IEnumerable<T> Consume<T>(this Stack<T> queue)
+        {
+            while (queue.Count > 0)
+            {
+                yield return queue.Pop();
+            }
+        }
     }
 }

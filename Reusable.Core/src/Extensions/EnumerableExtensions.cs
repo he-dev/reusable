@@ -329,6 +329,8 @@ namespace System.Linq.Custom
             return !value.In((IEnumerable<T>)others);
         }
 
+        public static IEnumerable<T> Flatten<T>(this IEnumerable<IEnumerable<T>> source) => source.SelectMany(x => x);
+
         [NotNull, ItemCanBeNull]
         public static IEnumerable<T> Shuffle<T>([ItemCanBeNull] this IEnumerable<T> source, Random? random = null)
         {

@@ -46,6 +46,9 @@ namespace Reusable.Collections.Generic
 
         [DebuggerStepThrough]
         public static IEnumerable<T> EnumerateNext<T>(this T n, bool includeSelf = true) where T : class, INode<T> => n.Enumerate(x => x.Next, includeSelf);
+        
+        [DebuggerStepThrough]
+        public static IEnumerable<T> EnumerateNextWithoutSelf<T>(this T n) where T : class, INode<T> => n.Enumerate(x => x.Next, includeSelf: false);
 
         [DebuggerStepThrough]
         public static IEnumerable<T> EnumeratePrev<T>(this T n, bool includeSelf = true) where T : class, INode<T> => n.Enumerate(x => x.Prev, includeSelf);

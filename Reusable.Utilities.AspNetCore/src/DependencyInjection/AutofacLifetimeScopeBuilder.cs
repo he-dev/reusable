@@ -3,6 +3,7 @@ using Autofac;
 using Autofac.Core;
 using Autofac.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection;
+using Reusable.Extensions;
 
 namespace Reusable.Utilities.AspNetCore.DependencyInjection
 {
@@ -21,16 +22,9 @@ namespace Reusable.Utilities.AspNetCore.DependencyInjection
             return new AutofacLifetimeScopeBuilder(services);
         }
 
-        public AutofacLifetimeScopeBuilder RegisterModule<T>() where T : IModule, new()
-        {
-            _builder.RegisterModule<T>();
-            return this;
-        }
-
         public AutofacLifetimeScopeBuilder Configure(Action<ContainerBuilder> configure)
         {
-            configure(_builder);
-            return this;
+            return this.Pipe(_ => configure(_builder));
         }
 
         public ILifetimeScope Build() => _builder.Build();
