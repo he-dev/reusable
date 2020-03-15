@@ -2,33 +2,31 @@ using System;
 using System.Collections.Immutable;
 using System.Linq;
 using System.Text.RegularExpressions;
-using JetBrains.Annotations;
-using Reusable.Exceptionize;
 using Reusable.Extensions;
 
-namespace Reusable.Utilities.JsonNet
+namespace Reusable.Utilities.JsonNet.Services
 {
-    public interface ITypeResolver
+    
+
+    public interface INormalizePrettyTypeString
     {
-        string Resolve(string name);
+        string Format(string name);
     }
 
-    public delegate Type GetTypeFunc(string name);
-
-    public class PrettyTypeResolver : ITypeResolver
+    public class NormalizePrettyTypeString : INormalizePrettyTypeString
     {
         // Used to specify user-friendly type names like: "List<int>" instead of "List`1[System.Int32...]" etc.
         // https://regex101.com/r/QZ5T5I/1/
         // language=regexp
         private const string PrettyTypePattern = @"(?<type>(?i)[a-z0-9_.]+)(?:\<(?<genericArguments>(?i)[a-z0-9_., ]+)\>)?";
 
-        private readonly GetTypeFunc _resolveType;
+        private readonly IResolveType _resolveType;
 
-        public PrettyTypeResolver(GetTypeFunc getType) => _resolveType = getType;
+        public NormalizePrettyTypeString(IResolveType resolveType) => _resolveType = resolveType;
 
-        public PrettyTypeResolver(IImmutableDictionary<SoftString, Type> source) : this(source.ToGetTypeFunc()) { }
+        public NormalizePrettyTypeString(IImmutableDictionary<SoftString, Type> types) : this(new ResolveType(types)) { }
 
-        public string Resolve(string prettyType)
+        public string Format(string prettyType)
         {
             if (prettyType == null) throw new ArgumentNullException(nameof(prettyType));
 
@@ -39,7 +37,7 @@ namespace Reusable.Utilities.JsonNet
 
             var generic = GetGenericsInfo(match.Groups["genericArguments"]);
             var typeName = match.Groups["type"].Value;
-            var type = _resolveType($"{typeName}{generic.Placeholder}");
+            var type = _resolveType.Invoke($"{typeName}{generic.Placeholder}");
             return $"{type.FullName}{generic.Signature}, {type.Assembly.GetName().Name}";
         }
 
@@ -57,7 +55,7 @@ namespace Reusable.Utilities.JsonNet
                 var genericArgumentFullNames =
                 (
                     from name in genericArgumentNames
-                    let genericType = _resolveType(name)
+                    let genericType = _resolveType.Invoke(name)
                     select $"[{genericType.FullName}, {genericType.Assembly.GetName().Name}]"
                 );
 
@@ -70,16 +68,6 @@ namespace Reusable.Utilities.JsonNet
             {
                 return (default, default);
             }
-        }
-    }
-
-    public static class DictionaryExtensions
-    {
-        public static GetTypeFunc ToGetTypeFunc(this IImmutableDictionary<SoftString, Type> source)
-        {
-            return typeName => GetType(typeName) ?? throw DynamicException.Create("TypeNotFound", $"Could not resolve '{typeName}'.");
-
-            Type? GetType(string typeName) => source.TryGetValue(typeName, out var type) ? type : Type.GetType(typeName, ignoreCase: true, throwOnError: false);
         }
     }
 }

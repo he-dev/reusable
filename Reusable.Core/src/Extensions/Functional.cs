@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 
@@ -22,10 +23,21 @@ namespace Reusable.Extensions
             return obj;
         }
 
+        public static IEnumerable<T> Pipe<T>(this IEnumerable<T> source, Action<T> action)
+        {
+            foreach (var item in source)
+            {
+                action(item);
+                yield return item;
+            }
+        }
+
         /// <summary>
         /// Allows to pipe an action on the current object in a functional way and return a different object.
         /// </summary>
-        public static TOut Map<TIn, TOut>(this TIn input, Func<TIn, TOut> pipe) => pipe(input);
+        public static TOut Map<TIn, TOut>(this TIn input, Func<TIn, TOut> map) => map(input);
+        
+        public static T Map<T>(this T input, Func<T, T> map) => map(input);
 
         /// <summary>
         /// Returns the same value.

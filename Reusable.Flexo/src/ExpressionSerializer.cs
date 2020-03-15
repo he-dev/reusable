@@ -8,6 +8,8 @@ using Newtonsoft.Json.Serialization;
 using Reusable.Flexo.Json;
 using Reusable.Utilities.JsonNet;
 using Reusable.Utilities.JsonNet.Converters;
+using Reusable.Utilities.JsonNet.Services;
+using Reusable.Utilities.JsonNet.Visitors;
 
 namespace Reusable.Flexo
 {
@@ -37,8 +39,8 @@ namespace Reusable.Flexo
 
             Transform = new CompositeJsonVisitor
             {
-                new TrimPropertyNameVisitor(),
-                new RewriteTypeVisitor(new PrettyTypeResolver(expressionTypes)),
+                new TrimPropertyName(),
+                new RewriteTypeVisitor(new NormalizePrettyTypeString(expressionTypes)),
             };
 
             JsonSerializer = new JsonSerializer

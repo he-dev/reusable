@@ -4,6 +4,7 @@ using Newtonsoft.Json;
 using Reusable.Exceptionize;
 using Reusable.Translucent;
 using Reusable.Utilities.JsonNet.Annotations;
+using Reusable.Utilities.JsonNet.Services;
 using Xunit;
 
 namespace Reusable.Utilities.JsonNet
@@ -19,10 +20,10 @@ namespace Reusable.Utilities.JsonNet
 
         private static readonly IJsonVisitor RewritePrettyTypeVisitor =
             new RewriteTypeVisitor(
-                new PrettyTypeResolver(
-                    TypeDictionary
+                new NormalizePrettyTypeString(
+                    PrettyTypeDictionary
                         .BuiltInTypes
-                        .AddRange(TypeDictionary.From(
+                        .AddRange(PrettyTypeDictionary.From(
                             typeof(JsonTestClass0),
                             typeof(JsonTestClass1<>),
                             typeof(JsonTestClass2<,>)
@@ -36,7 +37,7 @@ namespace Reusable.Utilities.JsonNet
         [Fact]
         public void Disallows_types_with_explicit_generic_arguments()
         {
-            Assert.ThrowsAny<DynamicException>(() => new RewriteTypeVisitor(new PrettyTypeResolver(TypeDictionary.From(typeof(List<int>)))));
+            Assert.ThrowsAny<DynamicException>(() => new RewriteTypeVisitor(new NormalizePrettyTypeString(PrettyTypeDictionary.From(typeof(List<int>)))));
         }
 
         [Fact]

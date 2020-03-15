@@ -9,14 +9,14 @@ using Reusable.Utilities.JsonNet.Annotations;
 
 namespace Reusable.Utilities.JsonNet
 {
-    public static class TypeDictionary
+    public static class PrettyTypeDictionary
     {
         /// <summary>
         /// Gets a dictionary of primitive types.
         /// </summary>
         public static readonly IImmutableDictionary<SoftString, Type> BuiltInTypes =
-            ImmutableDictionary
-                .Create<SoftString, Type>(SoftString.Comparer)
+            ImmutableDictionary<SoftString, Type>
+                .Empty
                 .Add("bool", typeof(Boolean))
                 .Add("byte", typeof(Byte))
                 .Add("sbyte", typeof(SByte))
@@ -46,7 +46,7 @@ namespace Reusable.Utilities.JsonNet
         public static IImmutableDictionary<SoftString, Type> From(IEnumerable<Type> types)
         {
             var items =
-                from type in types.Select(ValidateHasNoGenericArguments)
+                from type in types.Pipe(t => t.ValidateHasNoGenericArguments())
                 let prettyName = type.ToPrettyString()
                 where !prettyName.IsDynamicType()
                 // Pick the nearest namespace-attribute or one derived from it. 
@@ -54,31 +54,28 @@ namespace Reusable.Utilities.JsonNet
                 select
                     ns is null
                         ? new[] { (prettyName, type) }
-                        : ns.Select(n => (prettyName: $"{n}.{prettyName}", type));                                
+                        : ns.Select(n => (prettyName: $"{n}.{prettyName}", type));
 
             return items.SelectMany(x => x).ToImmutableDictionary(t => t.prettyName.ToSoftString()!, t => t.type);
         }
 
-        public static IImmutableDictionary<SoftString, Type> From(params Type[] types)
-        {
-            return From((IEnumerable<Type>)types);
-        }
+        public static IImmutableDictionary<SoftString, Type> From(params Type[] types) => From(types.AsEnumerable());
 
         private static bool IsDynamicType(this string name)
         {
             return name.StartsWith("<>f__AnonymousType") || name.StartsWith("<>c__DisplayClass");
         }
 
-        private static Type ValidateHasNoGenericArguments(this Type type)
+        private static void ValidateHasNoGenericArguments(this Type type)
         {
-            return
-                type.GenericTypeArguments.Any()
-                    ? throw DynamicException.Create
-                    (
-                        "GenericTypeArguments",
-                        "You must not specify generic type arguments explicitly. Leave them empty, e.g. 'List<>' or 'Dictionary<,>'"
-                    )
-                    : type;
+            if (type.GenericTypeArguments.Any())
+            {
+                throw DynamicException.Create
+                (
+                    "GenericTypeArguments",
+                    "You must not specify generic type arguments explicitly. Leave them empty, e.g. 'List<>' or 'Dictionary<,>'"
+                );
+            }
         }
     }
 }

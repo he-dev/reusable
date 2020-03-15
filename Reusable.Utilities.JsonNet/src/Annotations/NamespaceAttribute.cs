@@ -6,8 +6,10 @@ using Reusable.Extensions;
 
 namespace Reusable.Utilities.JsonNet.Annotations
 {
+    using static AttributeTargets;
+    
     [UsedImplicitly]
-    [AttributeUsage(AttributeTargets.Class)]
+    [AttributeUsage(Class | Interface)]
     public class NamespaceAttribute : Attribute, IEnumerable<string>
     {
         private readonly string _name;

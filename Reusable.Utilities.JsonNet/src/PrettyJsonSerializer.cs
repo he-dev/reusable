@@ -7,6 +7,8 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json.Serialization;
 using Reusable.Utilities.JsonNet.Converters;
+using Reusable.Utilities.JsonNet.Services;
+using Reusable.Utilities.JsonNet.Visitors;
 
 namespace Reusable.Utilities.JsonNet
 {
@@ -40,11 +42,29 @@ namespace Reusable.Utilities.JsonNet
         {
             var visitor = new CompositeJsonVisitor
             {
-                new TrimPropertyNameVisitor(),
-                new RewriteTypeVisitor(new PrettyTypeResolver(knownTypes))
+                new TrimPropertyName(),
+                new RewriteTypeVisitor(new NormalizePrettyTypeString(knownTypes))
             };
             var token = visitor.Visit(JToken.Parse(json));
             return token.ToObject<T>(jsonSerializer);
+        }
+    }
+
+    public interface IConvertPrettyJson
+    {
+        JToken Read(string json, IImmutableDictionary<SoftString, Type> knownTypes);
+    }
+
+    public class ConvertPrettyJson : IConvertPrettyJson
+    {
+        public JToken Read(string json, IImmutableDictionary<SoftString, Type> knownTypes)
+        {
+            var visitor = new CompositeJsonVisitor
+            {
+                new TrimPropertyName(),
+                new RewriteTypeVisitor(new NormalizePrettyTypeString(knownTypes))
+            };
+            return visitor.Visit(JToken.Parse(json));
         }
     }
 

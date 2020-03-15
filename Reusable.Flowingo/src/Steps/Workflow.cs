@@ -3,11 +3,13 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Reflection;
 using System.Threading.Tasks;
 using Reusable.Collections.Generic;
 using Reusable.Exceptionize;
 using Reusable.Extensions;
 using Reusable.Flowingo.Abstractions;
+using Reusable.Flowingo.Annotations;
 using Reusable.Flowingo.Helpers;
 
 namespace Reusable.Flowingo.Steps
@@ -32,7 +34,23 @@ namespace Reusable.Flowingo.Steps
         }
 
         [DebuggerStepThrough]
-        public virtual void Add(IStep<T> step) => _first.Tail().Append(step);
+        public virtual void Add(IStep<T> step)
+        {
+            // if (ServiceProvider is {})
+            // {
+            //     var serviceProperties =
+            //         from p in step.GetType().GetProperties(BindingFlags.Public | BindingFlags.Instance)
+            //         where p.IsDefined(typeof(ServiceAttribute))
+            //         select p;
+            //
+            //     foreach (var serviceProperty in serviceProperties)
+            //     {
+            //         serviceProperty.SetValue(this, ServiceProvider.GetService(serviceProperty.PropertyType));
+            //     }
+            // }
+            
+            _first.Tail().Append(step);
+        }
 
         /// <summary>
         /// Include/Exclude steps can be followed only by steps of the same kind. This API validates that this is the case.

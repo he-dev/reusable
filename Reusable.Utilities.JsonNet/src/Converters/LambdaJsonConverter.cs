@@ -14,9 +14,9 @@ namespace Reusable.Utilities.JsonNet.Converters
 
         public Func<T, string>? WriteJsonCallback { get; set; }
 
-        public override bool CanRead => !(ReadJsonCallback is null);
+        public override bool CanRead => ReadJsonCallback is {};
 
-        public override bool CanWrite => !(WriteJsonCallback is null);
+        public override bool CanWrite => WriteJsonCallback is {};
 
         public override T ReadJson(JsonReader reader, Type objectType, T existingValue, bool hasExistingValue, JsonSerializer serializer)
         {

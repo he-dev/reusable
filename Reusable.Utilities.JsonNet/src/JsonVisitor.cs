@@ -7,6 +7,7 @@ using System.Text.RegularExpressions;
 using JetBrains.Annotations;
 using Newtonsoft.Json.Linq;
 using Reusable.Exceptionize;
+using Reusable.Utilities.JsonNet.Services;
 
 namespace Reusable.Utilities.JsonNet
 {
@@ -104,31 +105,23 @@ namespace Reusable.Utilities.JsonNet
         IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable)_visitors).GetEnumerator();
     }
 
-    public class TrimPropertyNameVisitor : JsonVisitor
-    {
-        protected override JProperty VisitProperty(JProperty property)
-        {
-            return new JProperty(property.Name.Trim(), Visit(property.Value));
-        }
-    }
-
     [PublicAPI]
     public class RewriteTypeVisitor : JsonVisitor
     {
-        private readonly ITypeResolver _typeResolver;
+        private readonly INormalizePrettyTypeString _normalizePrettyTypeString;
 
         public const string DefaultTypePropertyName = "$type";
 
-        public RewriteTypeVisitor(ITypeResolver typeResolver)
+        public RewriteTypeVisitor(INormalizePrettyTypeString normalizePrettyTypeString)
         {
-            _typeResolver = typeResolver;
+            _normalizePrettyTypeString = normalizePrettyTypeString;
         }
 
         protected override JProperty VisitProperty(JProperty property)
         {
             if (ParseTypeName(property) is {} typeName)
             {
-                return new JProperty(DefaultTypePropertyName, _typeResolver.Resolve(typeName));
+                return new JProperty(DefaultTypePropertyName, _normalizePrettyTypeString.Format(typeName));
             }
             else
             {

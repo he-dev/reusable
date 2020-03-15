@@ -8,10 +8,10 @@ namespace Reusable.Extensions
     public static class Conditional
     {
         [ContractAnnotation("value: null => true; notnull => false")]
-        public static bool IsNull<T>([CanBeNull] this T value) => ReferenceEquals(value, null);
+        public static bool IsNull<T>(this T? value) where T : class => ReferenceEquals(value, null);
 
         [ContractAnnotation("value: null => false; notnull => true")]
-        public static bool IsNotNull<T>([CanBeNull] this T value) => !IsNull(value);
+        public static bool IsNotNull<T>(this T? value) where T : class => !IsNull(value);
 
         [ContractAnnotation("value: null => true; notnull => false")]
         public static bool IsNullOrEmpty(this string? value) => string.IsNullOrEmpty(value);

@@ -18,8 +18,8 @@ namespace Reusable.Utilities.Mailr.Models
         {
             var expected = _testHelper.Resource.ReadTextFile(@"Http\Mailr\HtmlTable.json");
 
-            var table = new HtmlTable(HtmlTableColumn.Create(("Name", typeof(string)), ("Age", typeof(int))));
-            var row = table.Body.NewRow();
+            var table = new HtmlTable(("Name", typeof(string)), ("Age", typeof(int)));
+            var row = table.Body.AddRow();
             row[0].Value = "John";
             row[1].Tags.Add("empty");
             var actual = JsonConvert.SerializeObject(table, new JsonSerializerSettings

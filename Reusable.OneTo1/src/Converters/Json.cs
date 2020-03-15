@@ -68,7 +68,7 @@ namespace Reusable.OneTo1.Converters
         {
             return
                 toType == typeof(string)
-                    ? JsonConvert.SerializeObject(value, Settings).Map(json => json.Trim('"'))
+                    ? JsonConvert.SerializeObject(value, Settings).Map<string, string>(json => json.Trim('"'))
                     : default(object);
         }
     }

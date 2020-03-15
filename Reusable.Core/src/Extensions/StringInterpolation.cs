@@ -31,9 +31,8 @@ namespace Reusable.Extensions
         }
 
         [Pure]
-        [CanBeNull]
         [ContractAnnotation("text: null => null; text: notnull => notnull; tryGetValue: null => stop")]
-        public static string Format(this string text, TryGetValueCallback tryGetValue, IFormatProvider formatProvider)
+        public static string? Format(this string text, TryGetValueCallback tryGetValue, IFormatProvider formatProvider)
         {
             if (string.IsNullOrEmpty(text)) return text;
             if (tryGetValue == null) throw new ArgumentNullException(nameof(tryGetValue));
@@ -53,6 +52,36 @@ namespace Reusable.Extensions
                             .Format(tryGetValue, formatProvider)
                         // Reconstruct the composite format string.
                         : CreateCompositeFormatString(name);
+
+                string CreateCompositeFormatString(string nameOrDefault = "0") => $"{{{nameOrDefault}{alignment}{formatString}}}";
+            }, RegexOptions.Compiled);
+
+            // https://regex101.com/r/zG6tF7/3
+            // Format escaped expressions, e.g. "{{over}}" -> "{over}"
+            return Regex.Replace(result, "{{(?<contents>.+?)}}", match => $"{{{match.Groups["contents"].Value}}}", RegexOptions.Compiled);
+        }
+
+        [Pure]
+        [ContractAnnotation("text: null => null; text: notnull => notnull")]
+        public static string? Format(this string text, Func<string, string?> getValue, IFormatProvider? formatProvider = default)
+        {
+            if (string.IsNullOrEmpty(text)) return text;
+            
+            formatProvider ??= CultureInfo.InvariantCulture;
+
+            var result = Regex.Replace(text, ExpressionPattern, match =>
+            {
+                var name = match.Group(Groups.Name);
+                var alignment = match.Group(Groups.Alignment, x => $",{x}");
+                var formatString = match.Group(Groups.FormatString, x => $":{x}");
+
+                return getValue(name) switch
+                {
+                    // Recursively apply formatting.
+                    {} value => string.Format(formatProvider, CreateCompositeFormatString(), value).Format(getValue, formatProvider),
+                    // Reconstruct the composite format string.
+                    _ => CreateCompositeFormatString(name)
+                };
 
                 string CreateCompositeFormatString(string nameOrDefault = "0") => $"{{{nameOrDefault}{alignment}{formatString}}}";
             }, RegexOptions.Compiled);
@@ -114,7 +143,7 @@ namespace Reusable.Extensions
             {
                 return text;
             }
-            
+
             var properties =
                 args
                     .GetType()

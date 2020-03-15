@@ -8,7 +8,7 @@ namespace Reusable.Utilities.JsonNet
         [Fact]
         public void Can_create_from_type_decorated_with_NamespaceAttribute()
         {
-            var types = TypeDictionary.From(typeof(DecoratedType));
+            var types = PrettyTypeDictionary.From(typeof(DecoratedType));
             Assert.True(types.ContainsKey($"Test.{nameof(DecoratedType)}"));
         }
         
@@ -24,7 +24,7 @@ namespace Reusable.Utilities.JsonNet
         [Fact]
         public void Can_create_from_type_decorated_with_attribute_derived_from_NamespaceAttribute()
         {
-            var types = TypeDictionary.From(typeof(DecoratedType2));
+            var types = PrettyTypeDictionary.From(typeof(DecoratedType2));
             Assert.True(types.ContainsKey($"TestDerived.{nameof(DecoratedType2)}"));
         }
         

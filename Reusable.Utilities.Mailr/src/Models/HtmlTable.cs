@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 using JetBrains.Annotations;
 using Newtonsoft.Json;
@@ -9,10 +10,11 @@ namespace Reusable.Utilities.Mailr.Models
 {
     public class HtmlTable
     {
-        public HtmlTable(IList<HtmlTableColumn> columns)
+        public HtmlTable(IEnumerable<HtmlTableColumn> columns)
         {
+            columns = columns.ToList();
             Head = new HtmlTableSection(columns);
-            var row = Head.NewRow();
+            var row = Head.AddRow();
             foreach (var column in columns)
             {
                 row[column.Name].Value = column.Name.ToString();
@@ -21,6 +23,10 @@ namespace Reusable.Utilities.Mailr.Models
             Body = new HtmlTableSection(columns);
             Foot = new HtmlTableSection(columns);
         }
+
+        public HtmlTable(IEnumerable<(string Name, Type Type)> columns) : this(HtmlTableColumn.Create(columns)) { }
+        
+        public HtmlTable(params (string Name, Type Type)[] columns) : this(HtmlTableColumn.Create(columns.AsEnumerable())) { }
 
         public HtmlTableSection Head { get; }
 
@@ -69,16 +75,15 @@ namespace Reusable.Utilities.Mailr.Models
             Type = typeof(T)
         };
 
-        public static IList<HtmlTableColumn> Create(params (string Name, Type Type)[] columns)
+        public static IEnumerable<HtmlTableColumn> Create(IEnumerable<(string Name, Type Type)> columns)
         {
             return
-                columns
-                    .Select(x => new HtmlTableColumn
-                    {
-                        Name = x.Name,
-                        Type = x.Type
-                    })
-                    .ToList();
+                from column in columns
+                select new HtmlTableColumn
+                {
+                    Name = column.Name,
+                    Type = column.Type
+                };
         }
 
         public override string ToString() => $"{Name}[{Ordinal}]";
@@ -119,7 +124,7 @@ namespace Reusable.Utilities.Mailr.Models
 
         [Obsolete("Use 'Tags'.")]
         public ISet<string> Styles { get; } = new HashSet<string>(SoftString.Comparer);
-        
+
         public ISet<string> Tags { get; } = new HashSet<string>(SoftString.Comparer);
 
         public object Value { get; set; }
@@ -127,7 +132,7 @@ namespace Reusable.Utilities.Mailr.Models
         #region JsonNet extensions
 
         public bool ShouldSerializeStyles() => Styles.Any();
-        
+
         public bool ShouldSerializeTags() => Tags.Any();
 
         #endregion
@@ -136,7 +141,7 @@ namespace Reusable.Utilities.Mailr.Models
     public static class HtmlTableSectionExtensions
     {
         [NotNull]
-        public static HtmlTableRow NewRow(this HtmlTableSection section)
+        public static HtmlTableRow AddRow(this HtmlTableSection section)
         {
             var newRow = new HtmlTableRow(section.Columns);
             section.Add(newRow);
@@ -145,7 +150,7 @@ namespace Reusable.Utilities.Mailr.Models
 
         public static void Add(this HtmlTableSection table, IEnumerable<object> values)
         {
-            var newRow = table.NewRow();
+            var newRow = table.AddRow();
             foreach (var (column, value) in table.Columns.Zip(values, (column, value) => (column, value)))
             {
                 newRow[column.Name].Value = value;
@@ -164,15 +169,10 @@ namespace Reusable.Utilities.Mailr.Models
         public static T ValueOrDefault<T>(this HtmlTableRow row, int ordinal) => row[ordinal] is T value ? value : default;
 
         [NotNull]
-        public static HtmlTableRow Update(this HtmlTableRow row, string column, object value, params string[] tags)
+        public static HtmlTableRow Set(this HtmlTableRow row, string column, object value, params string[] tags)
         {
             row[column].Value = value;
-            foreach (var tag in tags ?? Enumerable.Empty<string>())
-            {
-                //row[column].Styles.Add(style);
-                row[column].Tags.Add(tag);
-            }
-
+            row[column].Tags.UnionWith(tags);
             return row;
         }
     }

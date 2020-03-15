@@ -19,26 +19,10 @@ namespace Reusable.Flowingo.Abstractions
 
     public abstract class Step<T> : IStep<T>
     {
-        protected Step(IServiceProvider? serviceProvider = default)
-        {
-            if (serviceProvider is {})
-            {
-                var serviceProperties =
-                    from p in GetType().GetProperties(BindingFlags.Public | BindingFlags.Instance)
-                    where p.IsDefined(typeof(ServiceAttribute))
-                    select p;
-
-                foreach (var serviceProperty in serviceProperties)
-                {
-                    serviceProperty.SetValue(this, serviceProvider.GetService(serviceProperty.PropertyType));
-                }
-            }
-        }
-
         public IStep<T>? Prev { get; set; }
 
         public IStep<T>? Next { get; set; }
-
+        
         public bool Enabled { get; set; } = true;
 
         public object Tag { get; set; }
