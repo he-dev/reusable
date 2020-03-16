@@ -11,12 +11,21 @@ using Reusable.Extensions;
 using Reusable.Flowingo.Abstractions;
 using Reusable.Flowingo.Annotations;
 using Reusable.Flowingo.Helpers;
+using Reusable.OmniLog.Abstractions;
 
 namespace Reusable.Flowingo.Steps
 {
     public class Workflow<T> : Step<T>, IEnumerable<IStep<T>>
     {
-        private readonly IStep<T> _first = Empty("First");
+        private readonly IStep<T> _first = new Empty { Tag = "Empty" };
+
+        public Workflow(ILogger<Workflow<T>> logger, IEnumerable<IStep<T>> steps) : base(logger)
+        {
+            foreach (var step in steps)
+            {
+                _first.Tail().Append(step);
+            }
+        }
 
         public override async Task ExecuteAsync(T context)
         {
@@ -29,8 +38,21 @@ namespace Reusable.Flowingo.Steps
                 //throw DynamicException.Create("ExecuteStep", $"An error occured wile executing '{step.GetType().ToPrettyString()}' [#{step.Tag}]. See inner exception for details.", inner);
             }
 
-
             await ExecuteNextAsync(context);
+        }
+
+        protected override async Task<bool> ExecuteBody(T context)
+        {
+            try
+            {
+                await _first.ExecuteAsync(context);
+                return true;
+            }
+            catch (Exception inner)
+            {
+                //throw DynamicException.Create("ExecuteStep", $"An error occured wile executing '{step.GetType().ToPrettyString()}' [#{step.Tag}]. See inner exception for details.", inner);
+                return false;
+            }
         }
 
         [DebuggerStepThrough]
@@ -48,7 +70,7 @@ namespace Reusable.Flowingo.Steps
             //         serviceProperty.SetValue(this, ServiceProvider.GetService(serviceProperty.PropertyType));
             //     }
             // }
-            
+
             _first.Tail().Append(step);
         }
 

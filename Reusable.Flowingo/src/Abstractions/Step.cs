@@ -4,7 +4,12 @@ using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 using Reusable.Collections.Generic;
+using Reusable.Extensions;
 using Reusable.Flowingo.Annotations;
+using Reusable.OmniLog;
+using Reusable.OmniLog.Abstractions;
+using Reusable.OmniLog.Nodes;
+using Reusable.OmniLog.SemanticExtensions;
 
 namespace Reusable.Flowingo.Abstractions
 {
@@ -19,43 +24,61 @@ namespace Reusable.Flowingo.Abstractions
 
     public abstract class Step<T> : IStep<T>
     {
+        protected Step(ILogger logger)
+        {
+            Logger = logger;
+        }
+
         public IStep<T>? Prev { get; set; }
 
         public IStep<T>? Next { get; set; }
-        
+
         public bool Enabled { get; set; } = true;
 
         public object Tag { get; set; }
 
-        public abstract Task ExecuteAsync(T context);
+        protected ILogger Logger { get; }
 
-        protected async Task ExecuteNextAsync(T context)
+        public virtual async Task ExecuteAsync(T context)
         {
-            foreach (var next in this.EnumerateNextWithoutSelf<IStep<T>>())
+            var canExecuteNext = false;
+            try
             {
-                if (next.Enabled)
+                using var scope = Logger.BeginScope().WithCorrelationHandle("ExecuteStep").UseStopwatch();
+                canExecuteNext = await ExecuteBody(context);
+                Logger.Log(Abstraction.Layer.Service().Routine(GetType().ToPrettyString()).Completed());
+            }
+            catch (Exception inner)
+            {
+                canExecuteNext = false;
+                Logger.Log(Abstraction.Layer.Service().Routine(GetType().ToPrettyString()).Faulted(inner));
+            }
+            finally
+            {
+                if (canExecuteNext)
                 {
-                    try
-                    {
-                        await next.ExecuteAsync(context);
-                    }
-                    catch (Exception inner)
-                    {
-                        // todo - log
-                    }
-                }
-                else
-                {
-                    // todo - log
+                    await ExecuteNextAsync(context);
                 }
             }
         }
 
-        public static IStep<T> Empty(object tag) => new Relay { Tag = tag };
+        protected abstract Task<bool> ExecuteBody(T context);
 
-        private class Relay : Step<T>
+        protected async Task ExecuteNextAsync(T context)
         {
+            if (this.EnumerateNextWithoutSelf<IStep<T>>().FirstOrDefault(s => s.Enabled) is {} next)
+            {
+                await next.ExecuteAsync(context);
+            }
+        }
+
+        public class Empty : Step<T>
+        {
+            public Empty() : base(default) { }
+
             public override Task ExecuteAsync(T context) => ExecuteNextAsync(context);
+
+            protected override Task<bool> ExecuteBody(T context) => true.ToTask();
         }
     }
 }
