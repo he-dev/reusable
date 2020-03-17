@@ -4,73 +4,64 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
+using System.Security.Policy;
 using System.Threading.Tasks;
 using Reusable.Collections.Generic;
 using Reusable.Exceptionize;
 using Reusable.Extensions;
 using Reusable.Flowingo.Abstractions;
 using Reusable.Flowingo.Annotations;
+using Reusable.Flowingo.Data;
 using Reusable.Flowingo.Helpers;
 using Reusable.OmniLog.Abstractions;
 
 namespace Reusable.Flowingo.Steps
 {
+    public static class Workflow
+    {
+        public static void InitializeLogging(ILoggerFactory loggerFactory) => AsyncScope<ILoggerFactory>.Push(loggerFactory);
+    }
+
     public class Workflow<T> : Step<T>, IEnumerable<IStep<T>>
     {
-        private readonly IStep<T> _first = new Empty { Tag = "Empty" };
+        private readonly IStep<T> _first = new Continue { };
 
-        public Workflow(ILogger<Workflow<T>> logger, IEnumerable<IStep<T>> steps) : base(logger)
+        public Workflow(string? tag = default)
         {
-            foreach (var step in steps)
-            {
-                _first.Tail().Append(step);
-            }
+            Tag = tag;
         }
 
-        public override async Task ExecuteAsync(T context)
+        // public override async Task ExecuteAsync(T context)
+        // {
+        //     try
+        //     {
+        //         await _first.ExecuteAsync(context);
+        //     }
+        //     catch (Exception inner)
+        //     {
+        //         //throw DynamicException.Create("ExecuteStep", $"An error occured wile executing '{step.GetType().ToPrettyString()}' [#{step.Tag}]. See inner exception for details.", inner);
+        //     }
+        //
+        //     await ExecuteNextAsync(context);
+        // }
+
+        protected override async Task<Flow> ExecuteBody(T context)
         {
             try
             {
                 await _first.ExecuteAsync(context);
+                return Flow.Continue;
             }
             catch (Exception inner)
             {
                 //throw DynamicException.Create("ExecuteStep", $"An error occured wile executing '{step.GetType().ToPrettyString()}' [#{step.Tag}]. See inner exception for details.", inner);
-            }
-
-            await ExecuteNextAsync(context);
-        }
-
-        protected override async Task<bool> ExecuteBody(T context)
-        {
-            try
-            {
-                await _first.ExecuteAsync(context);
-                return true;
-            }
-            catch (Exception inner)
-            {
-                //throw DynamicException.Create("ExecuteStep", $"An error occured wile executing '{step.GetType().ToPrettyString()}' [#{step.Tag}]. See inner exception for details.", inner);
-                return false;
+                return Flow.Break;
             }
         }
 
         [DebuggerStepThrough]
         public virtual void Add(IStep<T> step)
         {
-            // if (ServiceProvider is {})
-            // {
-            //     var serviceProperties =
-            //         from p in step.GetType().GetProperties(BindingFlags.Public | BindingFlags.Instance)
-            //         where p.IsDefined(typeof(ServiceAttribute))
-            //         select p;
-            //
-            //     foreach (var serviceProperty in serviceProperties)
-            //     {
-            //         serviceProperty.SetValue(this, ServiceProvider.GetService(serviceProperty.PropertyType));
-            //     }
-            // }
-
             _first.Tail().Append(step);
         }
 

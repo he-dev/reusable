@@ -1,6 +1,10 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Reusable.Extensions;
 using Reusable.Flowingo.Abstractions;
+using Reusable.Flowingo.Data;
+using Reusable.OmniLog;
+using Reusable.OmniLog.SemanticExtensions;
 
 namespace Reusable.Flowingo.Steps
 {
@@ -8,16 +12,18 @@ namespace Reusable.Flowingo.Steps
     {
         public IPredicate<T> That { get; set; }
 
-        public override async Task ExecuteAsync(T context)
+        protected override Task<Flow> ExecuteBody(T context)
         {
-            if (That.Invoke(context))
+            if (That.Invoke(context) is var canExecuteNext && canExecuteNext)
             {
-                await ExecuteNextAsync(context);
+                Logger?.Log(Abstraction.Layer.Service().Flow().Decision("Do not execute next step.").Because($"The required condition #{Tag} is not met."));
             }
             else
             {
-                //context.Logger.LogInfo(this, $"Context does not meet the requirement #{Tag}.");
+                Logger?.Log(Abstraction.Layer.Service().Flow().Decision("Execute next step.").Because($"The required condition #{Tag} is met."));
             }
+
+            return (canExecuteNext ? Flow.Continue : Flow.Break).ToTask();
         }
     }
 }

@@ -3,6 +3,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Reusable.Extensions;
 using Reusable.Flowingo.Abstractions;
+using Reusable.Flowingo.Data;
 
 namespace Reusable.Flowingo.Steps
 {
@@ -15,14 +16,14 @@ namespace Reusable.Flowingo.Steps
 
     public class ProcessWorkItemQueue<T> : Step<T> where T : IWorkItemContext<T>
     {
-        public override async Task ExecuteAsync(T context)
+        protected override async Task<Flow> ExecuteBody(T context)
         {
             foreach (var workItem in context.WorkItems.Consume())
             {
-                context.ProcessedWorkItems.Add((workItem, workItem.Execute(context)));
+                context.ProcessedWorkItems.Add((workItem, await workItem.ExecuteAsync(context)));
             }
 
-            await ExecuteNextAsync(context);
+            return Flow.Continue;
         }
     }
 
@@ -30,6 +31,6 @@ namespace Reusable.Flowingo.Steps
     {
         public object? Tag { get; set; }
 
-        public abstract bool Execute(T context);
+        public abstract Task<bool> ExecuteAsync(T context);
     }
 }

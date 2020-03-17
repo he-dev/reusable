@@ -123,6 +123,11 @@ namespace Reusable.OmniLog.SemanticExtensions
         {
             return layer.CreateCategoryWithCallerName().Update(l => l.Snapshot(snapshot, identifier));
         }
+        
+        public static ILogEntryBuilder<ILogEntryCategory> Step(this ILogEntryBuilder<ILogEntryLayer> layer, object snapshot, string? identifier = default)
+        {
+            return layer.CreateCategoryWithCallerName().Update(l => l.Snapshot(snapshot, identifier));
+        }
 
         /// <summary>
         /// Logs performance counters. The dump must be an anonymous type with at leas one property: new { foo[, bar] }

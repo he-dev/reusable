@@ -1,5 +1,7 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Reusable.Extensions;
 using Reusable.Flowingo.Abstractions;
@@ -7,65 +9,16 @@ using Reusable.Flowingo.Helpers;
 
 namespace Reusable.Flowingo.Steps
 {
-    public enum SwitchOption
+    public class Switch<T> : Workflow<T>
     {
-        FirstMatch,
-        AllMatches,
-    }
-
-    public class Switch<T> : Step<T>, IEnumerable<IStep<T>>
-    {
-        private readonly List<IStep<T>> _steps = new List<IStep<T>>();
-
-        public Switch(SwitchOption option = SwitchOption.FirstMatch)
+        public override void Add(IStep<T> step)
         {
-            Option = option;
-        }
-
-        public SwitchOption Option { get; set; }
-
-        public void Add(IStep<T> step) => _steps.Add(step);
-
-        public override async Task ExecuteAsync(T context)
-        {
-            var any = false;
-            foreach (var step in _steps)
+            if (!(step is Case<T>) && (this.LastOrDefault() is Case<T>))
             {
-                if (step is Case<T> @case)
-                {
-                    if (@case.When.Invoke(context))
-                    {
-                        //(context as ILoggerContext)?.Logger.LogInfo(this, $"Case '{step.GetType().ToPrettyString()}' matches the specified criteria #{step.Tag}.");
-                        await @case.Then.ExecuteAsync(context);
-                        if (Option == SwitchOption.FirstMatch)
-                        {
-                            break;
-                        }
-
-                        any = true;
-                    }
-                    else
-                    {
-                        //(context as ILoggerContext)?.Logger.LogInfo(this, $"Case '{step.GetType().ToPrettyString()}' doesn't match the specified criteria #{step.Tag}.");
-                    }
-                }
-                else
-                {
-                    if (!any)
-                    {
-                        //(context as ILoggerContext)?.Logger.LogInfo(this, $"No case matches. Falling back to default '{step.GetType().ToPrettyString()}' #{step.Tag}.");
-                        await step.ExecuteAsync(context);
-                    }
-
-                    break;
-                }
+                throw new InvalidOperationException("You can add only one default step that must be preceded by at least one case.");
             }
 
-            await ExecuteNextAsync(context);
+            base.Add(step);
         }
-
-        public IEnumerator<IStep<T>> GetEnumerator() => _steps.GetEnumerator();
-
-        IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable)_steps).GetEnumerator();
     }
 }

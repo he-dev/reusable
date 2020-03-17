@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Reusable.Flowingo.Abstractions;
+using Reusable.Flowingo.Data;
 
 namespace Reusable.Flowingo.Steps
 {
@@ -12,12 +13,9 @@ namespace Reusable.Flowingo.Steps
 
         public Lambda(Func<T, Task<bool>> execute) => _execute = execute;
 
-        public override async Task ExecuteAsync(T context)
+        protected override async Task<Flow> ExecuteBody(T context)
         {
-            if (await _execute.Invoke(context))
-            {
-                await ExecuteNextAsync(context);
-            }
+            return await _execute.Invoke(context) ? Flow.Continue : Flow.Break;
         }
     }
 }

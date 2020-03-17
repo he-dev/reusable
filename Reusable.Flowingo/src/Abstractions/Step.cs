@@ -1,11 +1,10 @@
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Reusable.Collections.Generic;
 using Reusable.Extensions;
-using Reusable.Flowingo.Annotations;
+using Reusable.Flowingo.Data;
 using Reusable.OmniLog;
 using Reusable.OmniLog.Abstractions;
 using Reusable.OmniLog.Nodes;
@@ -24,9 +23,9 @@ namespace Reusable.Flowingo.Abstractions
 
     public abstract class Step<T> : IStep<T>
     {
-        protected Step(ILogger logger)
+        protected Step()
         {
-            Logger = logger;
+            Tag = this.CreateTag();
         }
 
         public IStep<T>? Prev { get; set; }
@@ -37,48 +36,85 @@ namespace Reusable.Flowingo.Abstractions
 
         public object Tag { get; set; }
 
-        protected ILogger Logger { get; }
+        protected ILogger? Logger => AsyncScope<ILoggerFactory>.Current?.Value.CreateLogger(GetType().ToPrettyString());
 
         public virtual async Task ExecuteAsync(T context)
         {
-            var canExecuteNext = false;
             try
             {
-                using var scope = Logger.BeginScope().WithCorrelationHandle("ExecuteStep").UseStopwatch();
-                canExecuteNext = await ExecuteBody(context);
-                Logger.Log(Abstraction.Layer.Service().Routine(GetType().ToPrettyString()).Completed());
-            }
-            catch (Exception inner)
-            {
-                canExecuteNext = false;
-                Logger.Log(Abstraction.Layer.Service().Routine(GetType().ToPrettyString()).Faulted(inner));
-            }
-            finally
-            {
-                if (canExecuteNext)
+                using var scope = Logger?.BeginScope().WithCorrelationHandle("ExecuteStep").UseStopwatch();
+                Logger?.Log(Abstraction.Layer.Service().Step(new { Tag }, GetType().ToPrettyString()));
+                var flow = await ExecuteBody(context).ContinueWith(t =>
+                {
+                    Logger?.Log(Abstraction.Layer.Service().Step(new { flow = t.Result }, GetType().ToPrettyString()), l => l.Exception(t.Exception));
+                    return (t.Exception is null || t.Result == Flow.Continue) ? Flow.Continue : Flow.Break;
+                });
+
+                if (flow == Flow.Continue)
                 {
                     await ExecuteNextAsync(context);
                 }
             }
+            catch (Exception inner)
+            {
+                Logger?.Log(Abstraction.Layer.Service().Routine(GetType().ToPrettyString()).Faulted(inner));
+            }
         }
 
-        protected abstract Task<bool> ExecuteBody(T context);
+        protected abstract Task<Flow> ExecuteBody(T context);
 
         protected async Task ExecuteNextAsync(T context)
         {
-            if (this.EnumerateNextWithoutSelf<IStep<T>>().FirstOrDefault(s => s.Enabled) is {} next)
+            if (this.EnumerateNextWithoutSelf<IStep<T>>().FirstOrDefault(s => !(s is Continue) && s.Enabled) is {} next)
             {
                 await next.ExecuteAsync(context);
             }
         }
 
-        public class Empty : Step<T>
+        public class Continue : Step<T>
         {
-            public Empty() : base(default) { }
+            public Continue()
+            {
+                Tag = nameof(Continue).ToLower();
+            }
 
             public override Task ExecuteAsync(T context) => ExecuteNextAsync(context);
 
-            protected override Task<bool> ExecuteBody(T context) => true.ToTask();
+            protected override Task<Flow> ExecuteBody(T context) => Flow.Continue.ToTask();
         }
+
+        public class Break : Step<T>
+        {
+            public Break()
+            {
+                Tag = nameof(Continue).ToLower();
+            }
+
+            public override Task ExecuteAsync(T context) => ExecuteNextAsync(context);
+
+            protected override Task<Flow> ExecuteBody(T context) => Flow.Break.ToTask();
+        }
+    }
+
+    public static class StepHelper
+    {
+        public static string CreateTag<T>(this IStep<T> step)
+        {
+            return Regex.Replace(step.GetType().ToPrettyString(), @"(\<?[A-Z])", m =>
+            {
+                if (m.Index == 0)
+                {
+                    return m.Value;
+                }
+
+                return $"-{m.Value.Trim('<')}";
+            }).ToLower();
+        }
+    }
+
+    public enum StepState
+    {
+        Begin,
+        End
     }
 }
