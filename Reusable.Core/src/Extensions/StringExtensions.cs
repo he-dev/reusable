@@ -54,12 +54,16 @@ namespace Reusable.Extensions
             return Regex.Replace(text, "^[a-z]", m => m.Value.ToUpper());
         }
 
-        public static IEnumerable<string> SplitByLineBreaks(this string text, bool ignoreEmptyEntries = true)
+        public static IEnumerable<string> SplitByLineBreaks(this string text)
         {
             return
                 from line in Regex.Split(text, @"(\r\n|\r|\n)")
-                where !ignoreEmptyEntries || line.Trim().IsNotNullOrEmpty()
                 select line;
+        }
+
+        public static IEnumerable<string> NonNullOrWhitespace(this IEnumerable<string> values)
+        {
+            return values.Where(x => !string.IsNullOrWhiteSpace(x));
         }
 
         public static bool Contains(this string value, string other, StringComparison comparisonType = StringComparison.OrdinalIgnoreCase)
@@ -97,7 +101,7 @@ namespace Reusable.Extensions
         {
             return value is {} && Regex.IsMatch(value, pattern, options);
         }
-        
+
         public static bool Matches(this string? value, [RegexPattern] IEnumerable<string> patterns, RegexOptions options = RegexOptions.None)
         {
             return value is {} && patterns.Any(pattern => Regex.IsMatch(value, pattern, options));
