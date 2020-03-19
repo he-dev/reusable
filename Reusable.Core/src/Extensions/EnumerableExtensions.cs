@@ -308,7 +308,7 @@ namespace System.Linq.Custom
         {
             return others.Contains(value, comparer);
         }
-        
+
         public static bool In<T>([CanBeNull] this T value, [NotNull] IEnumerable<T> others)
         {
             return value.In(others, EqualityComparer<T>.Default);
@@ -403,6 +403,43 @@ namespace System.Linq.Custom
         public static IEnumerable<T> EmptyIfNull<T>(this IEnumerable<T>? source) => source ?? Enumerable.Empty<T>();
 
         public static Stack<T> ToStack<T>(this IEnumerable<T> source) => new Stack<T>(source);
+
+        public static IEnumerable<TResult> Merge<TSource, TKey, TResult>
+        (
+            this IEnumerable<TSource> first,
+            IEnumerable<TSource> second,
+            Func<TSource, TKey> selectKey,
+            Func<IEnumerable<TSource>, TResult> merge
+        )
+        {
+            return
+                from x in first.Concat(second)
+                group x by selectKey(x) into g
+                select merge(g);
+        }
+        
+        public static IEnumerable<T> MergeFirst<T, TKey>
+        (
+            this IEnumerable<T> first,
+            IEnumerable<T> second,
+            Func<T, TKey> selectKey
+        )
+        {
+            return first.Merge(second, selectKey, Enumerable.First);
+        }
+        
+        public static IEnumerable<T> MergeLast<T, TKey>
+        (
+            this IEnumerable<T> first,
+            IEnumerable<T> second,
+            Func<T, TKey> selectKey
+        )
+        {
+            return first.Merge(second, selectKey, Enumerable.Last);
+        }
+
+
+
 
         //        public static IEnumerable<T> Take<T>(this IEnumerable<T> source, int count)
 //        {

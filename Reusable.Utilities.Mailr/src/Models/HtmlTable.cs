@@ -5,6 +5,7 @@ using System.Collections.Immutable;
 using System.Linq;
 using JetBrains.Annotations;
 using Newtonsoft.Json;
+using Reusable.Extensions;
 
 namespace Reusable.Utilities.Mailr.Models
 {
@@ -140,12 +141,9 @@ namespace Reusable.Utilities.Mailr.Models
 
     public static class HtmlTableSectionExtensions
     {
-        [NotNull]
         public static HtmlTableRow AddRow(this HtmlTableSection section)
         {
-            var newRow = new HtmlTableRow(section.Columns);
-            section.Add(newRow);
-            return newRow;
+            return new HtmlTableRow(section.Columns).Pipe(section.Add);
         }
 
         public static void Add(this HtmlTableSection table, IEnumerable<object> values)
@@ -168,12 +166,13 @@ namespace Reusable.Utilities.Mailr.Models
         [CanBeNull]
         public static T ValueOrDefault<T>(this HtmlTableRow row, int ordinal) => row[ordinal] is T value ? value : default;
 
-        [NotNull]
         public static HtmlTableRow Set(this HtmlTableRow row, string column, object value, params string[] tags)
         {
             row[column].Value = value;
             row[column].Tags.UnionWith(tags);
             return row;
         }
+        
+        public static HtmlTableCell Column(this HtmlTableRow row, string column) => row[column];
     }
 }

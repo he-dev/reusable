@@ -9,7 +9,7 @@ namespace Reusable.OmniLog
     {
         private readonly ILoggerFactory _loggerFactory;
 
-        public LoggerModule([NotNull] ILoggerFactory loggerFactory)
+        public LoggerModule(ILoggerFactory loggerFactory)
         {
             _loggerFactory = loggerFactory ?? throw new ArgumentNullException(nameof(loggerFactory));
         }
@@ -18,6 +18,21 @@ namespace Reusable.OmniLog
         {
             builder
                 .RegisterInstance(_loggerFactory)
+                .ExternallyOwned()
+                .As<ILoggerFactory>();
+
+            builder
+                .RegisterGeneric(typeof(Logger<>))
+                .As(typeof(ILogger<>));
+        }
+    }
+
+    public static class RegistrationExtensions
+    {
+        public static void RegisterOmniLog(this ContainerBuilder builder, ILoggerFactory loggerFactory)
+        {
+            builder
+                .RegisterInstance(loggerFactory)
                 .ExternallyOwned()
                 .As<ILoggerFactory>();
 
