@@ -144,6 +144,11 @@ namespace Reusable.OmniLog.SemanticExtensions
         {
             return layer.CreateCategoryWithCallerName().Update(l => l.Snapshot(snapshot, identifier));
         }
+        
+        public static ILogEntryBuilder<ILogEntryCategory> WorkItem(this ILogEntryBuilder<ILogEntryLayer> layer, object snapshot, string? identifier = default)
+        {
+            return layer.CreateCategoryWithCallerName().Update(l => l.Snapshot(snapshot, identifier));
+        }
 
         public static ILogEntry Snapshot(this ILogEntry logEntry, object snapshot, string? identifier = default)
         {

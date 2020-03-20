@@ -90,18 +90,18 @@ namespace Reusable.OmniLog
                 var outerCorrelationId = "test-id-1";
                 using (logger.BeginScope(outerCorrelationId))
                 {
-                    var scope1 = logger.Scope();
+                    var scope1 = logger.Scope().Correlation();
                     logger.Log(l => l.Message("Hallo!"));
                     Assert.Same(outerCorrelationId, scope1.CorrelationId);
-                    Assert.NotNull(rx[0][LogProperty.Names.Scope]);
+                    Assert.NotNull(rx[0][LogProperty.Names.Correlation]);
 
                     var innerCorrelationId = "test-id-2";
                     using (logger.BeginScope(innerCorrelationId))
                     {
-                        var scope2 = logger.Scope();
+                        var scope2 = logger.Scope().Correlation();
                         logger.Log(l => l.Message("Hi!"));
                         Assert.Same(innerCorrelationId, scope2.CorrelationId);
-                        Assert.NotNull(rx[1][LogProperty.Names.Scope]);
+                        Assert.NotNull(rx[1][LogProperty.Names.Correlation]);
                     }
                 }
 

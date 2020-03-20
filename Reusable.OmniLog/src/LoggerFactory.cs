@@ -3,7 +3,6 @@ using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
-using System.Linq.Custom;
 using Reusable.Collections.Generic;
 using Reusable.Extensions;
 using Reusable.OmniLog.Abstractions;
@@ -32,10 +31,7 @@ namespace Reusable.OmniLog
         {
             var loggerNode = new ServiceNode { Services = { new Constant(nameof(Logger), loggerName) } };
 
-            return new Logger
-            {
-                Next = new[] { loggerNode }.Concat(this).Chain().Head()
-            };
+            return (ILogger)new ILoggerNode[] { new Logger(), loggerNode }.Concat(this).Chain().First();
         }
 
         public void Dispose() { }

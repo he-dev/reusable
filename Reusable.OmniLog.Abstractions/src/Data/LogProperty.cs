@@ -65,7 +65,7 @@ namespace Reusable.OmniLog
             public static readonly string SnapshotName = nameof(SnapshotName)!;
             public static readonly string Snapshot = nameof(Snapshot)!;
 
-            public static readonly string Scope = nameof(Scope)!;
+            public static readonly string Correlation = nameof(Correlation)!;
             public static readonly string Elapsed = nameof(Stopwatch.Elapsed)!;
         }
         

@@ -1,5 +1,4 @@
 ﻿using System;
-using Reusable.Data;
 using Reusable.OmniLog.Abstractions;
 using Reusable.OmniLog.Nodes;
 

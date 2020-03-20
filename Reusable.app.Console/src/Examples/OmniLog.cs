@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using Reusable.Apps;
 using Reusable.Exceptionize;
 using Reusable.OmniLog;
@@ -37,6 +36,7 @@ namespace Reusable
                 },
                 // Adds support for logger.Log(log => ..) overload.
                 new DelegateNode(),
+                new StackNode(),
                 // Adds Correlation object to each log-entry.
                 //new CorrelationNode(),
                 new ScopeNode(),
@@ -45,6 +45,7 @@ namespace Reusable
                 new BuilderNode(),
                 // Explodes objects and dictionaries into multiple log-entries. One per each property/item.
                 new DestructureNode(),
+                new WorkItemNode(),
                 // Converts #Serializable items. Objects and dictionaries are treated as collections of KeyValuePairs.
                 // They are added as Variable & #Serializable to each log-entry.
                 new ObjectMapperNode
@@ -75,6 +76,7 @@ namespace Reusable
                     {
                         //{ LogEntry.Names.Scope, "Scope" },
                         { LogProperty.Names.SnapshotName, "Identifier" },
+                        { LogProperty.Names.Correlation, "Scope" },
                         //{ LogEntry.Names.Snapshot, "Snapshot" },
                     }
                 },
@@ -111,6 +113,11 @@ namespace Reusable
                 logger.Log(Abstraction.Layer.Business().Variable(variable), log => log.Message("I'm a variable!"));
                 logger.Log(Abstraction.Layer.Database().Counter(new { Prime = 7 }));
                 logger.Log(Abstraction.Layer.Database().Flow().Decision("Log something.").Because("Logger works!"));
+                //logger.Log(Layer.Service, Category.WorkItem, new { test = new { fileName = "test" } });
+                logger.Log(Layer.Service, Category.WorkItem, Snapshot.Take("test2", new { fileName = "test" }));
+                
+                logger.Scope().WorkItem().Exception = new Exception();
+                
 
                 // Opening inner-scope.
                 using (logger.BeginScope().WithCorrelationHandle("inner").UseStopwatch())
@@ -157,5 +164,15 @@ namespace Reusable
                 }
             }
         }
+    }
+
+    public enum Layer
+    {
+        Service
+    }
+
+    public enum Category
+    {
+        WorkItem
     }
 }

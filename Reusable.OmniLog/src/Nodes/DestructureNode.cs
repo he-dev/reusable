@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using Reusable.Exceptionize;
-using Reusable.Extensions;
 using Reusable.OmniLog.Abstractions;
 
 namespace Reusable.OmniLog.Nodes
@@ -20,7 +19,7 @@ namespace Reusable.OmniLog.Nodes
         {
             var explodable =
                 from p in request.Where(LogProperty.CanProcess.With(this))
-                from x in p.Value.EnumerateProperties().Where(x => x.Value is {})
+                from x in p.Value.Destructure().Where(x => x.Value is {})
                 select x;
 
             var any = false;
@@ -54,17 +53,31 @@ namespace Reusable.OmniLog.Nodes
 
     internal static class ObjectExtensions
     {
-        public static IEnumerable<(string Name, object Value)> EnumerateProperties<T>(this T obj)
+        public static IEnumerable<(string Name, object Value)> Destructure<T>(this T obj)
         {
             return obj switch
             {
-                IDictionary<string, object> d => d.Select(item => (item.Key, item.Value)),
-                {} => obj
-                    .GetType()
-                    .GetProperties(BindingFlags.Public | BindingFlags.Instance)
-                    .Select(property => (property.Name, property.GetValue(obj))),
+                IDictionary<string, object> dictionary => dictionary.Select(item => (item.Key, item.Value)),
+                {} => obj.EnumerateProperties(),
                 _ => Enumerable.Empty<(string, object)>()
             };
+        }
+        
+        public static IDictionary<string, object> ToDictionary<T>(this T obj)
+        {
+            return obj switch
+            {
+                IDictionary<string, object> dictionary => dictionary,
+                {} => obj.EnumerateProperties().ToDictionary(x => x.Name, x => x.Value),
+                //_ => Enumerable.Empty<(string, object)>()
+            };
+        }
+
+        private static IEnumerable<(string Name, object Value)> EnumerateProperties<T>(this T obj)
+        {
+            return
+                from p in obj.GetType().GetProperties(BindingFlags.Public | BindingFlags.Instance)
+                select (p.Name, p.GetValue(obj));
         }
 
         private static Type ValidateIsAnonymous(this Type type)

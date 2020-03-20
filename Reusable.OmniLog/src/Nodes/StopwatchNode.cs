@@ -1,8 +1,6 @@
 using System;
 using System.Diagnostics;
-using System.Linq;
 using Reusable.OmniLog.Abstractions;
-using Reusable.Collections.Generic;
 
 namespace Reusable.OmniLog.Nodes
 {
@@ -31,11 +29,11 @@ namespace Reusable.OmniLog.Nodes
         /// <summary>
         /// Activates a new stopwatch and returns it.
         /// </summary>
-        public static ILoggerScope UseStopwatch(this ILoggerScope scope) => scope.AddNode(new StopwatchNode());
+        public static ILoggerScope UseStopwatch(this ILoggerScope scope) => scope.Append(new StopwatchNode());
 
         /// <summary>
         /// Gets the stopwatch in current scope.
         /// </summary>
-        public static StopwatchNode? Stopwatch(this ScopeNode.FirstNode scope) => scope.EnumerateNext<ILoggerNode>().OfType<StopwatchNode>().FirstOrDefault();
+        public static StopwatchNode Stopwatch(this ILoggerNode logger) => logger.Node<StopwatchNode>();
     }
 }

@@ -38,15 +38,25 @@ namespace Reusable.Collections.Generic
             return b;
         }
 
-        [DebuggerStepThrough]
-        public static T Head<T>(this T node) where T : class, INode<T> => node.EnumeratePrev().Last();
+        public static T Remove<T>(this T c) where T : class, INode<T>
+        {
+            var p = c.Prev;
+            var n = c.Next;
+            return
+                p is {}
+                    ? p.Append(n)
+                    : n;
+        }
 
         [DebuggerStepThrough]
-        public static T Tail<T>(this T node) where T : class, INode<T> => node.EnumerateNext().Last();
+        public static T First<T>(this T node) where T : class, INode<T> => node.EnumeratePrev().Last();
+
+        [DebuggerStepThrough]
+        public static T Last<T>(this T node) where T : class, INode<T> => node.EnumerateNext().Last();
 
         [DebuggerStepThrough]
         public static IEnumerable<T> EnumerateNext<T>(this T n, bool includeSelf = true) where T : class, INode<T> => n.Enumerate(x => x.Next, includeSelf);
-        
+
         [DebuggerStepThrough]
         public static IEnumerable<T> EnumerateNextWithoutSelf<T>(this T n) where T : class, INode<T> => n.Enumerate(x => x.Next, includeSelf: false);
 

@@ -14,7 +14,7 @@ namespace Reusable.OmniLog.Nodes
         {
             foreach (var (key, value) in Defaults.Select(x => (x.Key, x.Value)))
             {
-                if (!request.TryGetProperty(key, out var property) && property.CanProcessWith<EchoNode>())
+                if (!request.TryGetProperty(key, out _))
                 {
                     request.Add(key, value, m => m.ProcessWith<EchoNode>());
                 }

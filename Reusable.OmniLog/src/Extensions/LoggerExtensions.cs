@@ -5,7 +5,6 @@ using System.Linq;
 using System.Linq.Custom;
 using System.Runtime.CompilerServices;
 using JetBrains.Annotations;
-using Reusable.Data;
 using Reusable.Collections.Generic;
 using Reusable.Exceptionize;
 using Reusable.Extensions;
@@ -56,6 +55,12 @@ namespace Reusable.OmniLog
         public static void Log(this ILogger logger, AlterLogEntryDelegate alter)
         {
             logger.UseDelegate(alter);
+            logger.Log(new LogEntry());
+        }
+
+        public static void Log(this ILogger logger, params object[] items)
+        {
+            logger.UseStack(items);
             logger.Log(new LogEntry());
         }
 
@@ -119,18 +124,19 @@ namespace Reusable.OmniLog
 
         #endregion
 
+        public static T Node<T>(this ILoggerNode node) where T : ILoggerNode
+        {
+            return node.EnumerateNext().OfType<T>().SingleOrThrow(onEmpty: () => DynamicException.Create($"{nameof(LoggerNode)}NotFound", $"There was no {typeof(T).ToPrettyString()}."));
+        }
+
         /// <summary>
         /// Gets logger-node of the specified type.
         /// </summary>
         public static T Node<T>(this ILogger logger) where T : ILoggerNode
         {
-            return
-                logger
-                    //.Enumerate(m => m.Next)
-                    .EnumerateNext<ILoggerNode>()
-                    .OfType<T>()
-                    .SingleOrThrow(onEmpty: () => DynamicException.Create($"{nameof(LoggerNode)}NotFound", $"There was no {typeof(T).ToPrettyString()}."));
+            return ((ILoggerNode)logger).Node<T>();
         }
+
 
         #region LoggerExtensions for LogEntryBuilder
 

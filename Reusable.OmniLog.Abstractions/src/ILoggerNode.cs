@@ -29,6 +29,9 @@ namespace Reusable.OmniLog.Abstractions
             }
         }
 
-        public virtual void Dispose() => Next?.Dispose();
+        public virtual void Dispose()
+        {
+            ((ILoggerNode)this).Remove();
+        }
     }
 }

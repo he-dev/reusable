@@ -9,38 +9,42 @@ using Reusable.Collections.Generic;
 namespace Reusable.OmniLog.Nodes
 {
     [PublicAPI]
-    public class ScopeNode : LoggerNode //, ILoggerNodeScope<ScopeNode.Item, object>
+    public class ScopeNode : LoggerNode
     {
-        /// <summary>
-        /// Gets or sets the factory for the default correlation-id. By default it's a Guid.
-        /// </summary>
-        public Func<object> NextCorrelationId { get; set; } = () => Guid.NewGuid().ToString("N");
-
-        public FirstNode? Current => AsyncScope<FirstNode>.Current?.Value;
-
-        public FirstNode Push(object? correlationId)
+        public ScopeNode()
         {
-            return AsyncScope<FirstNode>.Push(new FirstNode(correlationId ?? NextCorrelationId(), Next)).Value;
+            AsyncScope<ILoggerNode>.Push(new CorrelationNode(default) { CorrelationHandle = "Session" });
+        }
+
+        public ILoggerNode First => AsyncScope<ILoggerNode>.Current!.Value;
+
+        public IDisposable Push(object? correlationId)
+        {
+            return AsyncScope<ILoggerNode>.Push(new CorrelationNode(correlationId) { Prev = Prev }).Value;
         }
 
         public override void Invoke(ILogEntry request)
         {
-            if (AsyncScope<FirstNode>.Any)
-            {
-                var scopes = AsyncScope<FirstNode>.Current!.Enumerate().Select(x => x.Value).ToList();
-                request.Add(LogProperty.Names.Scope, scopes, m => m.ProcessWith<SerializerNode>());
-                AsyncScope<FirstNode>.Current!.Value.Invoke(request);
-            }
-            else
-            {
-                InvokeNext(request);
-            }
+            var scopes = AsyncScope<ILoggerNode>.Current!.Enumerate().Select(x => x.Value.Node<CorrelationNode>()).ToList();
+            request.Add(LogProperty.Names.Correlation, scopes, m => m.ProcessWith<SerializerNode>());
+            First.Invoke(request);
+            InvokeNext(request);
+        }
+
+        public ILoggerNode Append(ILoggerNode node)
+        {
+            return First.Last().Append(node);
         }
 
         [JsonObject(MemberSerialization.OptIn)]
-        public class FirstNode : ILoggerNode
+        public class CorrelationNode : LoggerNode
         {
-            public FirstNode(object correlationId, ILoggerNode? next) => (CorrelationId, Next) = (correlationId, new LastNode { Prev = this, Next = next });
+            public CorrelationNode(object? correlationId) => CorrelationId = correlationId ?? NewCorrelationId();
+
+            /// <summary>
+            /// Gets or sets the factory for the default correlation-id. By default it's a Guid.
+            /// </summary>
+            public Func<object> NewCorrelationId { get; set; } = () => Guid.NewGuid().ToString("N");
 
             [JsonProperty]
             public object CorrelationId { get; }
@@ -48,32 +52,10 @@ namespace Reusable.OmniLog.Nodes
             [JsonProperty]
             public object? CorrelationHandle { get; set; }
 
-            public bool Enabled { get; set; } = true;
+            //[JsonProperty]
+            public DateTime CreatedOn { get; set; } = DateTime.UtcNow;
 
-            public ILoggerNode? Prev { get; set; }
-
-            public ILoggerNode? Next { get; set; }
-
-            public void Invoke(ILogEntry request) => Next?.Invoke(request);
-
-            public void Dispose()
-            {
-                Next?.Dispose();
-                AsyncScope<FirstNode>.Current?.Dispose();
-            }
-        }
-
-        public class LastNode : LoggerNode
-        {
-            public override void Invoke(ILogEntry request)
-            {
-                InvokeNext(request);
-            }
-
-            public override void Dispose()
-            {
-                // Terminate the Dispose chain.
-            }
+            public override void Invoke(ILogEntry request) => InvokeNext(request);
         }
     }
 
@@ -91,31 +73,21 @@ namespace Reusable.OmniLog.Nodes
             return new LoggerScope<ScopeNode>(logger, node => node.Push(correlationId));
         }
 
-        public static ILoggerScope BeginScope(this ILogger logger, out object correlationId)
+        public static ILoggerScope WithCorrelationHandle(this ILoggerScope logger, object? correlationHandle)
         {
-            var scope = new LoggerScope<ScopeNode>(logger, node => node.Push(default));
-            correlationId = scope.Scope()!.CorrelationId;
-            return scope;
+            return logger.Pipe(l => l.Scope().First.Node<ScopeNode.CorrelationNode>().CorrelationHandle = correlationHandle);
         }
 
-        public static ILoggerScope WithCorrelationHandle(this ILoggerScope scope, object? correlationHandle)
+        public static ILoggerScope Append(this ILoggerScope logger, ILoggerNode node)
         {
-            return scope.WithScope(s => s.CorrelationHandle = correlationHandle);
-        }
-
-        public static ILoggerScope AddNode(this ILoggerScope scope, ILoggerNode node)
-        {
-            return scope.WithScope(s => s.EnumerateNext<ILoggerNode>().OfType<ScopeNode.LastNode>().Single().Prepend(node));
+            return logger.Pipe(l => l.Scope().Append(node));
         }
 
         /// <summary>
         /// Gets the current correlation scope.
         /// </summary>
-        public static ScopeNode.FirstNode? Scope(this ILogger logger) => logger.Node<ScopeNode>().Current;
+        public static ScopeNode Scope(this ILogger logger) => logger.Node<ScopeNode>();
 
-        public static ILoggerScope WithScope(this ILoggerScope scope, Action<ScopeNode.FirstNode> scopeAction)
-        {
-            return scope.Pipe(s => scopeAction(s.Scope() ?? throw new InvalidOperationException("Cannot use scope right now because there is none.")));
-        }
+        public static ScopeNode.CorrelationNode Correlation(this ILoggerNode logger) => logger.Node<ScopeNode.CorrelationNode>();
     }
 }

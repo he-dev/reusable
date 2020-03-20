@@ -29,7 +29,7 @@ namespace Reusable.OmniLog
         }
 
         public static LogEntry Empty() => new LogEntry();
-
+        
         public LogProperty? this[string key] => TryGetProperty(key, out var property) ? property : default;
 
         public void Add(LogProperty property)

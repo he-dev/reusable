@@ -1,6 +1,5 @@
 using System;
 using Autofac;
-using JetBrains.Annotations;
 using Reusable.OmniLog.Abstractions;
 
 namespace Reusable.OmniLog

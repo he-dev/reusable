@@ -19,7 +19,7 @@ namespace Reusable.Translucent
     {
         private readonly IResourceMiddleware _middleware;
 
-        public Resource(IEnumerable<IResourceMiddleware> middleware) => _middleware = middleware.Chain().Head();
+        public Resource(IEnumerable<IResourceMiddleware> middleware) => _middleware = middleware.Chain().First();
 
         public Resource(IEnumerable<IResourceController> controllers) : this(new IResourceMiddleware[] { new ResourceSearch(controllers) }) { }
 

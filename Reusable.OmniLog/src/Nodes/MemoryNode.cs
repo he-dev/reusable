@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using Reusable.OmniLog.Abstractions;
-using Reusable.Collections.Generic;
 
 namespace Reusable.OmniLog.Nodes
 {
@@ -41,12 +40,12 @@ namespace Reusable.OmniLog.Nodes
         /// <summary>
         /// Activates a new MemoryNode.
         /// </summary>
-        public static ILoggerScope UseMemory(this ILoggerScope scope, int capacity = 10_000) => scope.AddNode(new MemoryNode { Capacity = capacity });
+        public static ILoggerScope UseMemory(this ILoggerScope scope, int capacity = 10_000) => scope.Append(new MemoryNode { Capacity = capacity });
 
         /// <summary>
         /// Gets the MemoryNode in current scope.
         /// </summary>
-        public static MemoryNode? Memory(this ScopeNode.FirstNode scope) => scope.EnumerateNext<ILoggerNode>().OfType<MemoryNode>().FirstOrDefault();
+        public static MemoryNode Memory(this ILoggerNode logger) => logger.Node<MemoryNode>();
 
         public static DataTable ToDataTable(this MemoryNode memoryNode)
         {

@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using Reusable.Data;
 using Reusable.OmniLog.Abstractions;
 
 namespace Reusable.OmniLog

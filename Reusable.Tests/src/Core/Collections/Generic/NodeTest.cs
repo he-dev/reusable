@@ -12,8 +12,8 @@ namespace Reusable.Core.Collections.Generic
             var nodes = new[] { new TestNode { Index = 1 }, new TestNode { Index = 2 }, new TestNode { Index = 3 } };
             var chain = nodes.Chain();
 
-            Assert.Same(nodes.First(), chain.Head());
-            Assert.Same(nodes.Last(), chain.Tail());
+            Assert.Same(nodes.First(), chain.First());
+            Assert.Same(nodes.Last(), chain.Last());
         }
     }
 
