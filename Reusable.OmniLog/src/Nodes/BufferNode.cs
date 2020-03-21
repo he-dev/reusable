@@ -13,6 +13,11 @@ namespace Reusable.OmniLog.Nodes
     {
         private readonly Queue<ILogEntry> _buffer = new Queue<ILogEntry>();
 
+        public BufferNode()
+        {
+            Enabled = false;
+        }
+
         public override void Invoke(ILogEntry request)
         {
             _buffer.Enqueue(request);
@@ -43,8 +48,8 @@ namespace Reusable.OmniLog.Nodes
 
     public static class BufferNodeHelper
     {
-        public static ILoggerScope UseBuffer(this ILoggerScope scope) => scope.Append(new BufferNode());
+        public static ILoggerScope UseBuffer(this ILoggerScope logger) => logger.Pipe(x => x.Node<BranchNode>().First.Node<BufferNode>().Enable());
 
-        public static BufferNode Buffer(this ScopeNode logger) => logger.First.Node<BufferNode>();
+        public static BufferNode Buffer(this BranchNode logger) => logger.First.Node<BufferNode>();
     }
 }

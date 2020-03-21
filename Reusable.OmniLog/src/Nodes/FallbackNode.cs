@@ -23,4 +23,6 @@ namespace Reusable.OmniLog.Nodes
             InvokeNext(request);
         }
     }
+
+    
 }

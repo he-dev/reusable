@@ -49,7 +49,7 @@ namespace Reusable.OmniLog
                 new StopwatchNode(),
                 new ServiceNode(),
                 new DelegateNode(),
-                new ScopeNode(),
+                new BranchNode(),
                 new SerializerNode(),
                 //new LoggerFilter()
                 //new BufferNode(),
@@ -75,7 +75,7 @@ namespace Reusable.OmniLog
                 new StopwatchNode(),
                 new ServiceNode(),
                 new DelegateNode(),
-                new ScopeNode(),
+                new BranchNode(),
                 new SerializerNode(),
                 //new LoggerFilter()
                 //new BufferNode(),
@@ -120,7 +120,7 @@ namespace Reusable.OmniLog
                 new StopwatchNode(),
                 new ServiceNode(),
                 new DelegateNode(),
-                new ScopeNode(),
+                new BranchNode(),
                 new DestructureNode(),
                 new SerializerNode(),
                 //new LoggerFilter()
@@ -248,7 +248,7 @@ namespace Reusable.OmniLog
             using var lf = new LoggerFactoryBuilder
             {
                 new DelegateNode(),
-                new ScopeNode(),
+                new BranchNode(),
                 new EchoNode
                 {
                     Rx = { new MemoryRx() },

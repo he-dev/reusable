@@ -42,10 +42,6 @@
   </ItemGroup>
   
   <ItemGroup>
-    <Compile Remove="src\Nodes\CorrelationNode.cs" />
-  </ItemGroup>
-  
-  <ItemGroup>
     <EmbeddedResource Remove="cfg\**" />
   </ItemGroup>
   

@@ -14,7 +14,7 @@ namespace Reusable.OmniLog
         public static LoggerFactoryBuilder UseBuffer(this LoggerFactoryBuilder builder, Action<BufferNode>? configure = default) => builder.Use(configure);
         public static LoggerFactoryBuilder UseBuilder(this LoggerFactoryBuilder builder, Action<BuilderNode>? configure = default) => builder.Use(configure);
         public static LoggerFactoryBuilder UseCamelCase(this LoggerFactoryBuilder builder, Action<CamelCaseNode>? configure = default) => builder.Use(configure);
-        public static LoggerFactoryBuilder UseScope(this LoggerFactoryBuilder builder, Action<ScopeNode>? configure = default) => builder.Use(configure);
+        public static LoggerFactoryBuilder UseScope(this LoggerFactoryBuilder builder, Action<BranchNode>? configure = default) => builder.Use(configure);
         public static LoggerFactoryBuilder UseEcho(this LoggerFactoryBuilder builder, Action<EchoNode> configure) => builder.Use(configure);
         public static LoggerFactoryBuilder UseEcho(this LoggerFactoryBuilder builder, params ILogRx[] rx) => builder.Use<EchoNode>(n => n.Rx.AddRange(rx));
         public static LoggerFactoryBuilder UseEcho(this LoggerFactoryBuilder builder, IEnumerable<ILogRx> rx) => builder.Use<EchoNode>(n => n.Rx.AddRange(rx));
@@ -31,5 +31,12 @@ namespace Reusable.OmniLog
         public static LoggerFactoryBuilder UseService(this LoggerFactoryBuilder builder, params IService[] scalars) => builder.Use<ServiceNode>(n => n.Services.AddRange(scalars));
         public static LoggerFactoryBuilder UseSerializer(this LoggerFactoryBuilder builder, Action<SerializerNode>? configure = default) => builder.Use(configure);
         public static LoggerFactoryBuilder UseStopwatch(this LoggerFactoryBuilder builder, Action<StopwatchNode>? configure = default) => builder.Use(configure);
+
+        public static T Enable<T>(this T node) where T : ILoggerNode
+        {
+            return node.Pipe(x => x.Enabled = true);
+        }
+        
+        
     }
 }

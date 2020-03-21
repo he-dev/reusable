@@ -10,7 +10,7 @@ namespace Reusable.Collections.Generic
     public static class NodeExtensions
     {
         [DebuggerStepThrough]
-        public static T Chain<T>(this IEnumerable<T> source) where T : class, INode<T> => source.Aggregate(Append);
+        public static T Join<T>(this IEnumerable<T> source) where T : class, INode<T> => source.Aggregate(Append);
 
         public static T Append<T>(this T a, T b) where T : class, INode<T>
         {
@@ -42,10 +42,18 @@ namespace Reusable.Collections.Generic
         {
             var p = c.Prev;
             var n = c.Next;
-            return
-                p is {}
-                    ? p.Append(n)
-                    : n;
+
+            if (ReferenceEquals(p.Next, c))
+            {
+                p.Append(n);
+            }
+            else
+            {
+                c.Prev = null;
+                c.Next = null;
+            }
+            
+            return n;
         }
 
         [DebuggerStepThrough]

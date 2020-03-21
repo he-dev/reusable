@@ -31,7 +31,7 @@ namespace Reusable.OmniLog
         {
             var loggerNode = new ServiceNode { Services = { new Constant(nameof(Logger), loggerName) } };
 
-            return (ILogger)new ILoggerNode[] { new Logger(), loggerNode }.Concat(this).Chain().First();
+            return (ILogger)new ILoggerNode[] { new Logger(), loggerNode }.Concat(this).Join().First();
         }
 
         public void Dispose() { }

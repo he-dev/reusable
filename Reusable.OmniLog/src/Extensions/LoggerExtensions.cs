@@ -137,7 +137,6 @@ namespace Reusable.OmniLog
             return ((ILoggerNode)logger).Node<T>();
         }
 
-
         #region LoggerExtensions for LogEntryBuilder
 
         // We use context as the name and not abstractionContext because it otherwise interferes with intellisense.
