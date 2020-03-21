@@ -21,7 +21,7 @@ namespace Reusable.OmniLog
 
         public string Name { get; }
 
-        public ILogEntryBuilder<T> Update(AlterLogEntryDelegate alterLogEntry) => this.Pipe(self => alterLogEntry(self._logEntry));
+        public ILogEntryBuilder<T> Update(ProcessLogEntryDelegate processLogEntry) => this.Pipe(self => processLogEntry(self._logEntry));
 
         public ILogEntry Build() => _logEntry ?? LogEntry.Empty();
     }

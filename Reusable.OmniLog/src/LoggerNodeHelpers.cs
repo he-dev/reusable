@@ -27,8 +27,8 @@ namespace Reusable.OmniLog
         public static LoggerFactoryBuilder UseDestructure(this LoggerFactoryBuilder builder, Action<DestructureNode>? configure = default) => builder.Use(configure);
         public static LoggerFactoryBuilder UsePropertyMapper(this LoggerFactoryBuilder builder, Action<PropertyMapperNode> configure) => builder.Use(configure);
         public static LoggerFactoryBuilder UsePropertyMapper(this LoggerFactoryBuilder builder, params (string From, string To)[] mappings) => builder.Use<PropertyMapperNode>(n => n.Mappings.AddRangeSafely(mappings));
-        public static LoggerFactoryBuilder UseService(this LoggerFactoryBuilder builder, Action<ServiceNode> configure) => builder.Use(configure);
-        public static LoggerFactoryBuilder UseService(this LoggerFactoryBuilder builder, params IService[] scalars) => builder.Use<ServiceNode>(n => n.Services.AddRange(scalars));
+        public static LoggerFactoryBuilder UseService(this LoggerFactoryBuilder builder, Action<PropertyNode> configure) => builder.Use(configure);
+        public static LoggerFactoryBuilder UseService(this LoggerFactoryBuilder builder, params IService[] scalars) => builder.Use<PropertyNode>(n => n.Properties.AddRange(scalars));
         public static LoggerFactoryBuilder UseSerializer(this LoggerFactoryBuilder builder, Action<SerializerNode>? configure = default) => builder.Use(configure);
         public static LoggerFactoryBuilder UseStopwatch(this LoggerFactoryBuilder builder, Action<StopwatchNode>? configure = default) => builder.Use(configure);
 

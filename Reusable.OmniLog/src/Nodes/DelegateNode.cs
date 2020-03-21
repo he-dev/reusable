@@ -12,10 +12,12 @@ namespace Reusable.OmniLog.Nodes
 
         public override void Invoke(ILogEntry request)
         {
-            while (Enabled)
+            while (AsyncScope<Item>.Current is {} current)
             {
-                using var scope = AsyncScope<Item>.Current;
-                scope.Value.AlterLogEntry(request);
+                using (current)
+                {
+                    current.Value.ProcessLogEntry(request);
+                }
             }
 
             InvokeNext(request);
@@ -23,23 +25,20 @@ namespace Reusable.OmniLog.Nodes
 
         public class Item
         {
-            public Item(AlterLogEntryDelegate alterLogEntry)
+            public Item(ProcessLogEntryDelegate processLogEntry)
             {
-                AlterLogEntry = alterLogEntry;
+                ProcessLogEntry = processLogEntry;
             }
 
-            public AlterLogEntryDelegate AlterLogEntry { get; }
+            public ProcessLogEntryDelegate ProcessLogEntry { get; }
         }
     }
 
     public static class LoggerLambdaHelper
     {
-        public static void UseDelegate(this ILogger logger, AlterLogEntryDelegate alter)
+        public static void UseDelegate(this ILogger logger, ProcessLogEntryDelegate process)
         {
-            DelegateNode.Push(new DelegateNode.Item(alter));
+            DelegateNode.Push(new DelegateNode.Item(process));
         }
     }
-
-
-    
 }

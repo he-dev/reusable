@@ -1,12 +1,29 @@
 using System.Linq;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
+using Newtonsoft.Json.Serialization;
 using Reusable.OmniLog.Abstractions;
 using Reusable.OmniLog.Utilities;
+using Reusable.Utilities.JsonNet.Converters;
+using JsonSerializer = Reusable.OmniLog.Services.JsonSerializer;
 
 namespace Reusable.OmniLog.Nodes
 {
     public class SerializerNode : LoggerNode
     {
         public ISerializer Serializer { get; set; } = new JsonSerializer();
+        // {
+        //     Settings = new JsonSerializerSettings
+        //     {
+        //         Formatting = Formatting.None,
+        //         ContractResolver = new CamelCasePropertyNamesContractResolver(),
+        //         Converters =
+        //         {
+        //             new StringEnumConverter(),
+        //             new SoftStringConverter()
+        //         }
+        //     }
+        // };
 
         /// <summary>
         /// Gets or sets serializable properties. If empty then all items are scanned.

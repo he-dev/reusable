@@ -9,6 +9,7 @@ using Reusable.Collections.Generic;
 using Reusable.Exceptionize;
 using Reusable.Extensions;
 using Reusable.OmniLog.Abstractions;
+using Reusable.OmniLog.Data;
 using Reusable.OmniLog.Helpers;
 using Reusable.OmniLog.Nodes;
 using Reusable.OmniLog.Utilities;
@@ -22,45 +23,45 @@ namespace Reusable.OmniLog
     {
         #region LogLevels
 
-        public static void Trace(this ILogger logger, string message, AlterLogEntryDelegate? alter = null)
+        public static void Trace(this ILogger logger, string message, ProcessLogEntryDelegate? alter = null)
         {
             logger.Log(LogLevel.Trace, message, null, alter);
         }
 
-        public static void Debug(this ILogger logger, string message, AlterLogEntryDelegate? alter = null)
+        public static void Debug(this ILogger logger, string message, ProcessLogEntryDelegate? alter = null)
         {
             logger.Log(LogLevel.Debug, message, null, alter);
         }
 
-        public static void Warning(this ILogger logger, string message, AlterLogEntryDelegate? alter = null)
+        public static void Warning(this ILogger logger, string message, ProcessLogEntryDelegate? alter = null)
         {
             logger.Log(LogLevel.Warning, message, null, alter);
         }
 
-        public static void Information(this ILogger logger, string message, AlterLogEntryDelegate? alter = null)
+        public static void Information(this ILogger logger, string message, ProcessLogEntryDelegate? alter = null)
         {
             logger.Log(LogLevel.Information, message, null, alter);
         }
 
-        public static void Error(this ILogger logger, string message, Exception? exception = null, AlterLogEntryDelegate? alter = null)
+        public static void Error(this ILogger logger, string message, Exception? exception = null, ProcessLogEntryDelegate? alter = null)
         {
             logger.Log(LogLevel.Error, message, exception, alter);
         }
 
-        public static void Fatal(this ILogger logger, string message, Exception? exception = null, AlterLogEntryDelegate? alter = null)
+        public static void Fatal(this ILogger logger, string message, Exception? exception = null, ProcessLogEntryDelegate? alter = null)
         {
             logger.Log(LogLevel.Fatal, message, exception, alter);
         }
 
-        public static void Log(this ILogger logger, AlterLogEntryDelegate alter)
+        public static void Log(this ILogger logger, ProcessLogEntryDelegate process)
         {
-            logger.UseDelegate(alter);
+            logger.UseDelegate(process);
             logger.Log(new LogEntry());
         }
 
         public static void Log(this ILogger logger, params object[] items)
         {
-            logger.UseStack(items);
+            logger.UsePropertyFactory(items?.Where(x => x is {}));
             logger.Log(new LogEntry());
         }
 
@@ -70,7 +71,7 @@ namespace Reusable.OmniLog
             LogLevel level,
             string? message,
             Exception? exception,
-            AlterLogEntryDelegate? alter
+            ProcessLogEntryDelegate? alter
         )
         {
             logger.Log(log =>
@@ -119,7 +120,7 @@ namespace Reusable.OmniLog
 
         private static ILogEntry ConsoleTemplateBuilder(this ILogEntry logEntry, bool isParagraph, IConsoleStyle style, IEnumerable<IHtmlConsoleTemplateBuilder> builders)
         {
-            return logEntry.Add(LogProperty.Names.Message, new HtmlConsoleTemplateBuilder(isParagraph, style, builders), m => m.ProcessWith<EchoNode>().LogWith<HtmlConsoleRx>());
+            return logEntry.Add(Names.Default.Message, new HtmlConsoleTemplateBuilder(isParagraph, style, builders), m => m.ProcessWith<EchoNode>().LogWith<HtmlConsoleRx>());
         }
 
         #endregion
@@ -145,7 +146,7 @@ namespace Reusable.OmniLog
         (
             this ILogger logger,
             ILogEntryBuilder<T> context,
-            AlterLogEntryDelegate? alter = null,
+            ProcessLogEntryDelegate? alter = null,
             // These properties are for free so let's just log them too.
             [CallerMemberName] string? callerMemberName = null,
             [CallerLineNumber] int? callerLineNumber = 0,
@@ -154,10 +155,10 @@ namespace Reusable.OmniLog
         {
             logger.Log(log =>
             {
-                log.Add(context.Name!, context, m => m.ProcessWith<BuilderNode>());
-                log.Add(LogProperty.Names.CallerMemberName, callerMemberName, m => m.ProcessWith<EchoNode>());
-                log.Add(LogProperty.Names.CallerLineNumber, callerLineNumber, m => m.ProcessWith<EchoNode>());
-                log.Add(LogProperty.Names.CallerFilePath, Path.GetFileName(callerFilePath), m => m.ProcessWith<EchoNode>());
+                log.Add(context.Name, context, m => m.ProcessWith<BuilderNode>());
+                log.Add(Names.Default.CallerMemberName, callerMemberName!, m => m.ProcessWith<EchoNode>());
+                log.Add(Names.Default.CallerLineNumber, callerLineNumber!, m => m.ProcessWith<EchoNode>());
+                log.Add(Names.Default.CallerFilePath, Path.GetFileName(callerFilePath!), m => m.ProcessWith<EchoNode>());
                 alter?.Invoke(log);
             });
         }
@@ -218,6 +219,25 @@ namespace Reusable.OmniLog
                 callerLineNumber,
                 callerFilePath
             );
+        }
+
+        public static void Log
+        (
+            this ILogger logger,
+            Action<ILogEntry> node,
+            // These properties are for free so let's just log them too.
+            [CallerMemberName] string? callerMemberName = null,
+            [CallerLineNumber] int? callerLineNumber = 0,
+            [CallerFilePath] string? callerFilePath = null
+        )
+        {
+            logger.Log(log =>
+            {
+                node(log);
+                log.Add(Names.Default.CallerMemberName, callerMemberName!, m => m.ProcessWith<EchoNode>());
+                log.Add(Names.Default.CallerLineNumber, callerLineNumber!, m => m.ProcessWith<EchoNode>());
+                log.Add(Names.Default.CallerFilePath, Path.GetFileName(callerFilePath!), m => m.ProcessWith<EchoNode>());
+            });
         }
 
         #endregion

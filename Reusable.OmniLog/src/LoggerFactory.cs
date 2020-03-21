@@ -7,7 +7,7 @@ using Reusable.Collections.Generic;
 using Reusable.Extensions;
 using Reusable.OmniLog.Abstractions;
 using Reusable.OmniLog.Nodes;
-using Reusable.OmniLog.Services;
+using Reusable.OmniLog.Properties;
 
 namespace Reusable.OmniLog
 {
@@ -29,7 +29,7 @@ namespace Reusable.OmniLog
 
         private ILogger CreatePipeline(string loggerName)
         {
-            var loggerNode = new ServiceNode { Services = { new Constant(nameof(Logger), loggerName) } };
+            var loggerNode = new PropertyNode { Properties = { new Constant(nameof(Logger), loggerName) } };
 
             return (ILogger)new ILoggerNode[] { new Logger(), loggerNode }.Concat(this).Join().First();
         }

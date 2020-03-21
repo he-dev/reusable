@@ -20,24 +20,16 @@ namespace Reusable.Commander.Commands
 
         public override async Task ExecuteAsync(object? parameter, CancellationToken cancellationToken)
         {
-            using (_logger.BeginScope().WithCorrelationHandle("ExecuteCommand").UseStopwatch())
+            using var commandScope = _logger.BeginScope().WithCorrelationHandle("ExecuteCommand");
+            _logger.Log(Application.Context.Service().WorkItem("Command", new { commandName = Decoratee.Name.Primary }));
+            try
             {
-                _logger.Log(Abstraction.Layer.Service().Subject(new { CommandName = Decoratee.Name.Primary }).Trace());
-                try
-                {
-                    await Decoratee.ExecuteAsync(parameter, cancellationToken);
-                    _logger.Log(Abstraction.Layer.Service().Routine(nameof(ICommand.ExecuteAsync)).Completed());
-                }
-                catch (OperationCanceledException)
-                {
-                    _logger.Log(Abstraction.Layer.Service().Routine(nameof(ICommand.ExecuteAsync)).Canceled());
-                    throw;
-                }
-                catch (Exception taskEx)
-                {
-                    _logger.Log(Abstraction.Layer.Service().Routine(nameof(ICommand.ExecuteAsync)).Faulted(), taskEx);
-                    throw;
-                }
+                await Decoratee.ExecuteAsync(parameter, cancellationToken);
+            }
+            catch (Exception taskEx)
+            {
+                _logger.Scope().WorkItem().Push(taskEx);
+                throw;
             }
         }
     }

@@ -1,6 +1,6 @@
 using Reusable.OmniLog.Abstractions;
 
-namespace Reusable.OmniLog.Services
+namespace Reusable.OmniLog.Properties
 {
     public class Constant : Service
     {

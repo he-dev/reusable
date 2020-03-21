@@ -17,7 +17,7 @@ namespace Reusable.OmniLog.Nodes
 
         public override void Invoke(ILogEntry request)
         {
-            request.Add(LogProperty.Names.Elapsed, (long)GetValue(Elapsed), LogProperty.Process.With<EchoNode>());
+            request.Add(Names.Default.Elapsed, (long)GetValue(Elapsed), LogProperty.Process.With<EchoNode>());
             InvokeNext(request);
         }
 
@@ -26,10 +26,15 @@ namespace Reusable.OmniLog.Nodes
 
     public static class LoggerStopwatchHelper
     {
+        [Obsolete("Don't use this API. It's been replaced by the BranchNode. It's empty and provided for backward compatibility.")]
         /// <summary>
         /// Activates a new stopwatch and returns it.
         /// </summary>
-        public static ILoggerScope UseStopwatch(this ILoggerScope scope) => scope.Append(new StopwatchNode());
+        public static ILoggerScope UseStopwatch(this ILoggerScope scope)
+        {
+            //return scope.Append(new StopwatchNode());
+            return scope;
+        }
 
         /// <summary>
         /// Gets the stopwatch in current scope.

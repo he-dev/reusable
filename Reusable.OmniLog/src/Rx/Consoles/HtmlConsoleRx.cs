@@ -4,6 +4,7 @@ using System.Linq;
 using JetBrains.Annotations;
 using Reusable.MarkupBuilder.Html;
 using Reusable.OmniLog.Abstractions;
+using Reusable.OmniLog.Data;
 using Reusable.OmniLog.Helpers;
 using Reusable.OmniLog.Utilities;
 
@@ -27,7 +28,7 @@ namespace Reusable.OmniLog
         {
             lock (_syncLock)
             {
-                if (!(entry[LogProperty.Names.Message]?.Value is IHtmlConsoleTemplateBuilder builder))
+                if (!(entry[Names.Default.Message]?.Value is IHtmlConsoleTemplateBuilder builder))
                 {
                     return;
                 }

@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using Reusable.Extensions;
 using Reusable.OmniLog.Abstractions;
 using Reusable.OmniLog.Nodes;
+using Reusable.OmniLog.Utilities;
 
 namespace Reusable.OmniLog.SemanticExtensions
 {
@@ -32,13 +34,7 @@ namespace Reusable.OmniLog.SemanticExtensions
         public override string ToString() => _name;
     }
 
-    public abstract class Abstraction
-    {
-        /// <summary>
-        /// Provides the starting point for all semantic extensions.
-        /// </summary>
-        public static ILogEntryBuilder<Abstraction>? Layer => default;
-    }
+    public abstract class Abstraction : Application { }
 
     #region Layers
 
@@ -123,7 +119,7 @@ namespace Reusable.OmniLog.SemanticExtensions
         {
             return layer.CreateCategoryWithCallerName().Update(l => l.Snapshot(snapshot, identifier));
         }
-        
+
         public static ILogEntryBuilder<ILogEntryCategory> Step(this ILogEntryBuilder<ILogEntryLayer> layer, object snapshot, string? identifier = default)
         {
             return layer.CreateCategoryWithCallerName().Update(l => l.Snapshot(snapshot, identifier));
@@ -144,7 +140,7 @@ namespace Reusable.OmniLog.SemanticExtensions
         {
             return layer.CreateCategoryWithCallerName().Update(l => l.Snapshot(snapshot, identifier));
         }
-        
+
         public static ILogEntryBuilder<ILogEntryCategory> WorkItem(this ILogEntryBuilder<ILogEntryLayer> layer, object snapshot, string? identifier = default)
         {
             return layer.CreateCategoryWithCallerName().Update(l => l.Snapshot(snapshot, identifier));
@@ -152,16 +148,19 @@ namespace Reusable.OmniLog.SemanticExtensions
 
         public static ILogEntry Snapshot(this ILogEntry logEntry, object snapshot, string? identifier = default)
         {
-            return identifier switch
-            {
-                {} =>
+            var dictionary = snapshot.ToDictionary();
+            return
                 logEntry
-                    .Add(LogProperty.Names.SnapshotName, identifier, m => m.ProcessWith<EchoNode>())
-                    .Add(LogProperty.Names.Snapshot, snapshot, m => m.ProcessWith<SerializerNode>()),
-                _ =>
-                logEntry
-                    .Add(LogProperty.Names.Snapshot, snapshot, m => m.ProcessWith<DestructureNode>())
-            };
+                    .Add(Names.Default.SnapshotName, identifier ?? dictionary.First().Key, m => m.ProcessWith<EchoNode>())
+                    .Add(Names.Default.Snapshot, dictionary.First().Value, m => m.ProcessWith<SerializerNode>());
+
+            // return identifier switch
+            // {
+            //     {} =>
+            //     _ =>
+            //     logEntry
+            //         .Add(LogProperty.Names.Snapshot, snapshot, m => m.ProcessWith<DestructureNode>())
+            // };
         }
 
         #endregion
@@ -171,7 +170,7 @@ namespace Reusable.OmniLog.SemanticExtensions
         /// </summary>
         public static ILogEntryBuilder<ILogEntryCategory> Routine(this ILogEntryBuilder<ILogEntryLayer> layer, string identifier)
         {
-            return layer.CreateCategoryWithCallerName().Update(l => l.Add(LogProperty.Names.SnapshotName, identifier, m => m.ProcessWith<EchoNode>()));
+            return layer.CreateCategoryWithCallerName().Update(l => l.Add(Names.Default.SnapshotName, identifier, m => m.ProcessWith<EchoNode>()));
         }
 
 
@@ -204,7 +203,7 @@ namespace Reusable.OmniLog.SemanticExtensions
         /// </summary>
         public static ILogEntryBuilder<ILogEntryCategory> Running(this ILogEntryBuilder<ILogEntryCategory> category)
         {
-            return category.Update(l => l.Add(LogProperty.Names.Snapshot, nameof(Running), m => m.ProcessWith<EchoNode>()));
+            return category.Update(l => l.Add(Names.Default.Snapshot, nameof(Running), m => m.ProcessWith<EchoNode>()));
         }
 
         /// <summary>
@@ -212,7 +211,7 @@ namespace Reusable.OmniLog.SemanticExtensions
         /// </summary>
         public static ILogEntryBuilder<ILogEntryCategory> Completed(this ILogEntryBuilder<ILogEntryCategory> category)
         {
-            return category.Update(l => l.Add(LogProperty.Names.Snapshot, nameof(Completed), m => m.ProcessWith<EchoNode>()));
+            return category.Update(l => l.Add(Names.Default.Snapshot, nameof(Completed), m => m.ProcessWith<EchoNode>()));
         }
 
         /// <summary>
@@ -220,7 +219,7 @@ namespace Reusable.OmniLog.SemanticExtensions
         /// </summary>
         public static ILogEntryBuilder<ILogEntryCategory> Finished(this ILogEntryBuilder<ILogEntryCategory> category)
         {
-            return category.Update(l => l.Add(LogProperty.Names.Snapshot, nameof(Finished), m => m.ProcessWith<EchoNode>()));
+            return category.Update(l => l.Add(Names.Default.Snapshot, nameof(Finished), m => m.ProcessWith<EchoNode>()));
         }
 
         /// <summary>
@@ -228,7 +227,7 @@ namespace Reusable.OmniLog.SemanticExtensions
         /// </summary>
         public static ILogEntryBuilder<ILogEntryCategory> Canceled(this ILogEntryBuilder<ILogEntryCategory> category)
         {
-            return category.Update(l => l.Add(LogProperty.Names.Snapshot, nameof(Canceled), m => m.ProcessWith<EchoNode>())).Warning();
+            return category.Update(l => l.Add(Names.Default.Snapshot, nameof(Canceled), m => m.ProcessWith<EchoNode>())).Warning();
         }
 
         /// <summary>
@@ -238,7 +237,7 @@ namespace Reusable.OmniLog.SemanticExtensions
         {
             return category.Update(l =>
             {
-                l.Add(LogProperty.Names.Snapshot, nameof(Running), m => m.ProcessWith<EchoNode>());
+                l.Add(Names.Default.Snapshot, nameof(Running), m => m.ProcessWith<EchoNode>());
                 if (!(exception is null))
                 {
                     l.Exception(exception);
@@ -249,8 +248,8 @@ namespace Reusable.OmniLog.SemanticExtensions
         public static ILogEntryBuilder<ILogEntryCategory> Decision(this ILogEntryBuilder<ILogEntryCategory> category, string decision)
         {
             return category.Update(l => l
-                .Add(LogProperty.Names.SnapshotName, nameof(Decision), m => m.ProcessWith<EchoNode>())
-                .Add(LogProperty.Names.Snapshot, decision, m => m.ProcessWith<EchoNode>())
+                .Add(Names.Default.SnapshotName, nameof(Decision), m => m.ProcessWith<EchoNode>())
+                .Add(Names.Default.Snapshot, decision, m => m.ProcessWith<EchoNode>())
             );
         }
 
@@ -279,4 +278,6 @@ namespace Reusable.OmniLog.SemanticExtensions
 
         public static ILogEntryBuilder<T> Fatal<T>(this ILogEntryBuilder<T> builder) => builder.Update(l => l.Level(LogLevel.Fatal));
     }
+
+    
 }

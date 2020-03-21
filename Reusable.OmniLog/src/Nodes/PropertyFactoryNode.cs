@@ -1,33 +1,42 @@
 using System;
 using System.Collections.Generic;
-using System.Runtime.CompilerServices;
+using System.Linq;
+using System.Reflection;
+using JetBrains.Annotations;
+using Reusable.Exceptionize;
 using Reusable.Extensions;
 using Reusable.OmniLog.Abstractions;
 
 namespace Reusable.OmniLog.Nodes
 {
+    [UsedImplicitly]
     public class PropertyFactoryNode : LoggerNode
     {
+        private static AsyncScope<Stack<object>>? Scope => AsyncScope<Stack<object>>.Current;
+        
         public override bool Enabled => AsyncScope<Stack<object>>.Any;
 
-        public Dictionary<Type, ICreateProperty> PropertyFactories { get; set; } = new Dictionary<Type, ICreateProperty>
+        public List<ITryCreateProperties> TryCreateProperties { get; set; } = new List<ITryCreateProperties>
         {
-            [typeof(Enum)] = new CreatePropertyFromEnum()
+            new TryCreatePropertiesFromEnum(),
+            new TryCreatePropertiesFromException()
         };
 
         public static void Push(IEnumerable<object> items) => AsyncScope<Stack<object>>.Push(new Stack<object>(items));
 
         public override void Invoke(ILogEntry request)
         {
-            if (Enabled)
+            if (Scope is {} current)
             {
-                foreach (var item in AsyncScope<Stack<object>>.Current.Value.Consume())
+                foreach (var item in current.Value.Consume())
                 {
                     foreach (var property in CreateProperties(item))
                     {
                         request.Add(property);
                     }
                 }
+
+                current.Dispose();
             }
 
             InvokeNext(request);
@@ -58,72 +67,60 @@ namespace Reusable.OmniLog.Nodes
 
             if (obj is Exception)
             {
-                yield return new LogProperty(LogProperty.Names.Exception, obj, LogPropertyMeta.Builder.ProcessWith<EchoNode>());
+                yield return new LogProperty(Names.Default.Exception, obj, LogPropertyMeta.Builder.ProcessWith<EchoNode>());
                 yield break;
             }
 
-            var type = obj.GetType() switch
+            foreach (var tryCreateProperties in TryCreateProperties)
             {
-                {IsEnum: true} => typeof(Enum),
-                {} t => t
-            };
-
-            if (PropertyFactories.TryGetValue(type, out var createProperty))
-            {
-                foreach (var item in createProperty.Invoke(obj))
+                var any = false;
+                foreach (var p in tryCreateProperties.Invoke(obj))
                 {
-                    yield return item;
+                    yield return p;
+                    any = true;
                 }
 
-                yield break;
+                if (any) yield break;
             }
 
-            yield return new LogProperty(LogProperty.Names.Snapshot, obj, LogPropertyMeta.Builder.ProcessWith<DestructureNode>());
-        }
-    }
-    
-    public static class StackNodeHelper
-    {
-        public static void UseStack(this ILogger logger, IEnumerable<object> items)
-        {
-            PropertyFactoryNode.Push(items);
+            throw DynamicException.Create("UnsupportedObject", $"Could not create properties from '{obj.GetType().ToPrettyString()}'.");
         }
     }
 
-    public interface ICreateProperty
+    public static class PropertyFactoryNodeHelper
+    {
+        public static void UsePropertyFactory(this ILogger logger, IEnumerable<object>? items)
+        {
+            PropertyFactoryNode.Push(items ?? Enumerable.Empty<object>());
+        }
+    }
+
+    public interface ITryCreateProperties
     {
         IEnumerable<LogProperty> Invoke(object obj);
     }
 
-    public class CreatePropertyFromEnum : ICreateProperty
+    public class TryCreatePropertiesFromEnum : ITryCreateProperties
     {
         public IEnumerable<LogProperty> Invoke(object obj)
         {
-            yield return new LogProperty(obj.GetType().Name, obj.ToString(), LogPropertyMeta.Builder.ProcessWith<EchoNode>());
+            if (obj.GetType() is {IsEnum: true} type)
+            {
+                // Don't ToString the value because it will break the log-level.
+                var name = type.GetCustomAttribute<PropertyNameAttribute>()?.ToString() ?? type.Name;
+                yield return new LogProperty(name, obj, LogPropertyMeta.Builder.ProcessWith<EchoNode>());
+            }
         }
     }
 
-    public static class Snapshot
+    public class TryCreatePropertiesFromException : ITryCreateProperties
     {
-        public static IEnumerable<LogProperty> Take(string name, object dump)
+        public IEnumerable<LogProperty> Invoke(object obj)
         {
-            yield return new LogProperty(LogProperty.Names.SnapshotName, name, LogPropertyMeta.Builder.ProcessWith<EchoNode>());
-            yield return new LogProperty(LogProperty.Names.Snapshot, dump.ToDictionary(), LogPropertyMeta.Builder.ProcessWith<SerializerNode>());
-        }
-    }
-
-    public static class CallerInfo
-    {
-        public static IEnumerable<LogProperty> Create
-        (
-            [CallerMemberName] string? callerMemberName = null,
-            [CallerLineNumber] int callerLineNumber = 0,
-            [CallerFilePath] string? callerFilePath = null
-        )
-        {
-            yield return new LogProperty(LogProperty.Names.CallerMemberName, callerMemberName, LogPropertyMeta.Builder.ProcessWith<EchoNode>());
-            yield return new LogProperty(LogProperty.Names.CallerLineNumber, callerLineNumber, LogPropertyMeta.Builder.ProcessWith<EchoNode>());
-            yield return new LogProperty(LogProperty.Names.CallerFilePath, callerFilePath, LogPropertyMeta.Builder.ProcessWith<EchoNode>());
+            if (obj is Exception exception)
+            {
+                yield return new LogProperty(Names.Default.Exception, exception, LogPropertyMeta.Builder.ProcessWith<EchoNode>());
+            }
         }
     }
 }

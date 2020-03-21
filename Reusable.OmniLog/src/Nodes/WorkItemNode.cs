@@ -5,6 +5,7 @@ using System.Linq.Custom;
 using JetBrains.Annotations;
 using Reusable.Collections.Generic;
 using Reusable.OmniLog.Abstractions;
+using Reusable.OmniLog.Utilities;
 
 namespace Reusable.OmniLog.Nodes
 {
@@ -28,9 +29,9 @@ namespace Reusable.OmniLog.Nodes
             if (IsWorkItemBegin(request))
             {
                 UpdateWorkItem(request);
-                
+
                 // Use the same snapshot-name later.
-                request.TryGetProperty(LogProperty.Names.SnapshotName, out var snapshotName);
+                request.TryGetProperty(Names.Default.SnapshotName, out var snapshotName);
 
                 var propertyCopies =
                     from propertyName in CopyProperties
@@ -47,8 +48,8 @@ namespace Reusable.OmniLog.Nodes
         private static void UpdateWorkItem(ILogEntry request)
         {
             // Add work-item-status to the snapshot.
-            request.TryGetProperty(LogProperty.Names.Snapshot, out var snapshot);
-            ((IDictionary<string, object>)snapshot.Value).Add("status", WorkItemStatus.Begin);
+            request.TryGetProperty(Names.Default.Snapshot, out var snapshot);
+            ((IDictionary<string, object>)snapshot.Value!).Add("status", WorkItemStatus.Begin); // At this point null is impossible.
         }
 
         private void LogWorkItem(IEnumerable<LogProperty> propertyCopies, LogProperty snapshotName)
@@ -58,7 +59,7 @@ namespace Reusable.OmniLog.Nodes
                 Enabled = false;
                 var logger = ((ILoggerNode)this).First().Node<Logger>();
                 var exception = AsyncScope<Exception>.Current?.Value;
-                logger.Log(propertyCopies, Snapshot.Take(snapshotName.Value.ToString(), new { status = GetStatus(exception) }), GetLogLevel(exception), exception);
+                logger.Log(propertyCopies, Snapshot.Take(snapshotName.Value.ToString(), new { status = GetStatus(exception) }), GetLogLevel(exception), exception!);
             }
             finally
             {
@@ -66,8 +67,8 @@ namespace Reusable.OmniLog.Nodes
                 AsyncScope<Exception>.Current?.Dispose();
             }
         }
-        
-        private static WorkItemStatus GetStatus(Exception exception)
+
+        private static WorkItemStatus GetStatus(Exception? exception)
         {
             return exception switch
             {
@@ -77,7 +78,7 @@ namespace Reusable.OmniLog.Nodes
             };
         }
 
-        private static LogLevel GetLogLevel(Exception exception)
+        private static LogLevel GetLogLevel(Exception? exception)
         {
             return exception switch
             {
@@ -96,7 +97,13 @@ namespace Reusable.OmniLog.Nodes
 
     public static class WorkItemHelper
     {
-        public static WorkItemNode WorkItem(this BranchNode branch) => branch.First.Node<WorkItemNode>();
+        public static WorkItemNode WorkItem(this BranchNode branch)
+        {
+            return branch.First?.Node<WorkItemNode>() ?? throw new InvalidOperationException
+            (
+                $"Cannot get {nameof(WorkItemNode)} because it is not initialized. Use Logger.BeginScope() and Logger.Log(Application.Context.WorkItem(..) first."
+            );
+        }
 
         public static Func<ILogEntry, bool> IsWorkItemBegin(string propertyName, string propertyValue)
         {

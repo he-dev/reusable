@@ -14,7 +14,7 @@ namespace Reusable.OmniLog
     [DebuggerDisplay(DebuggerDisplayString.DefaultNoQuotes)]
     public readonly struct LogProperty
     {
-        public LogProperty(string name, object? value, LogPropertyMeta meta)
+        public LogProperty(string name, object value, LogPropertyMeta meta)
         {
             Name = name;
             Value = value;
@@ -25,7 +25,7 @@ namespace Reusable.OmniLog
 
         public string Name { get; }
 
-        public object? Value { get; }
+        public object Value { get; }
 
         public LogPropertyMeta Meta { get; }
 
@@ -36,7 +36,7 @@ namespace Reusable.OmniLog
                 return property => property.Meta.Processors.Count == 0 || property.Meta.Processors.Contains(typeof(T));
             }
         }
-        
+
         public static class CanLog
         {
             public static Func<LogProperty, bool> With<T>() where T : ILogRx
@@ -44,37 +44,37 @@ namespace Reusable.OmniLog
                 return property => property.Meta.Loggers.Count == 0 || property.Meta.Loggers.Contains(typeof(T));
             }
         }
-        
+
         public static class ValueIs
         {
             public static Func<LogProperty, bool> NotNull() => property => property.Value is {};
         }
-        
-        [SuppressMessage("ReSharper", "ConvertToConstant.Global")]
-        public static class Names
-        {
-            public static readonly string Timestamp = nameof(Timestamp)!;
-            public static readonly string Logger = nameof(Logger)!;
-            public static readonly string Level = nameof(Level)!;
-            public static readonly string Message = nameof(Message)!;
-            public static readonly string Exception = nameof(Exception)!;
-            public static readonly string CallerMemberName = nameof(CallerMemberName)!;
-            public static readonly string CallerLineNumber = nameof(CallerLineNumber)!;
-            public static readonly string CallerFilePath = nameof(CallerFilePath)!;
 
-            public static readonly string SnapshotName = nameof(SnapshotName)!;
-            public static readonly string Snapshot = nameof(Snapshot)!;
-
-            public static readonly string Correlation = nameof(Correlation)!;
-            public static readonly string Elapsed = nameof(Stopwatch.Elapsed)!;
-        }
-        
         public static class Process
         {
             public static Action<LogPropertyMeta.LogPropertyMetaBuilder> With<T>() where T : ILoggerNode
             {
                 return m => m.ProcessWith<T>();
             }
+        }
+    }
+
+    public abstract class Names
+    {
+        public abstract class Default
+        {
+            public const string Timestamp = nameof(Timestamp);
+            public const string Logger = nameof(Logger);
+            public const string Level = nameof(Level);
+            public const string Message = nameof(Message);
+            public const string Correlation = nameof(Correlation);
+            public const string SnapshotName = nameof(SnapshotName);
+            public const string Snapshot = nameof(Snapshot);
+            public const string Elapsed = nameof(Stopwatch.Elapsed);
+            public const string Exception = nameof(Exception);
+            public const string CallerMemberName = nameof(CallerMemberName);
+            public const string CallerLineNumber = nameof(CallerLineNumber);
+            public const string CallerFilePath = nameof(CallerFilePath);
         }
     }
 
@@ -89,7 +89,7 @@ namespace Reusable.OmniLog
         {
             return property.Meta.Processors.Contains(typeof(T));
         }
-        
+
         public static bool CanLogWith<T>(this LogProperty property) where T : ILoggerNode
         {
             return property.Meta.Loggers.Contains(typeof(T));
@@ -136,7 +136,7 @@ namespace Reusable.OmniLog
                 _meta.Loggers.Add(typeof(T));
                 return this;
             }
-            
+
             public LogPropertyMetaBuilder LogWith<T>(T rx) where T : ILogRx
             {
                 return LogWith<T>();

@@ -4,6 +4,7 @@ using JetBrains.Annotations;
 using Reusable.MarkupBuilder;
 using Reusable.MarkupBuilder.Html;
 using Reusable.OmniLog.Abstractions;
+using Reusable.OmniLog.Data;
 using Reusable.OmniLog.Utilities;
 
 namespace Reusable.OmniLog.Helpers

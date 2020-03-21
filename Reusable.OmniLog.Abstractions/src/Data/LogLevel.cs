@@ -1,4 +1,5 @@
 using Reusable.Data;
+using Reusable.OmniLog.Abstractions;
 
 // ReSharper disable once CheckNamespace
 namespace Reusable.OmniLog
@@ -13,6 +14,7 @@ namespace Reusable.OmniLog
     //     public static Option<LogLevel> Fatal { get; } = Option<LogLevel>.CreateWithCallerName();
     // }
 
+    [PropertyName("Level")]
     public enum LogLevel
     {
         None = 0,

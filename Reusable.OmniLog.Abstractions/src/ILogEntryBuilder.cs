@@ -1,6 +1,6 @@
 namespace Reusable.OmniLog.Abstractions
 {
-    public delegate void AlterLogEntryDelegate(ILogEntry logEntry);
+    public delegate void ProcessLogEntryDelegate(ILogEntry logEntry);
 
     public interface ILogEntryBuilder
     {
@@ -12,6 +12,6 @@ namespace Reusable.OmniLog.Abstractions
     // Base interface for the first tier "layer"
     public interface ILogEntryBuilder<T> : ILogEntryBuilder
     {
-        ILogEntryBuilder<T> Update(AlterLogEntryDelegate alterLogEntry);
+        ILogEntryBuilder<T> Update(ProcessLogEntryDelegate processLogEntry);
     }
 }

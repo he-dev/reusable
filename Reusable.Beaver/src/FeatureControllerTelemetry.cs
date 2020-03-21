@@ -26,30 +26,27 @@ namespace Reusable.Beaver
         }
 
         public Feature this[string name] => _controller[name];
-        
+
         public bool TryGet(string name, out Feature feature) => _controller.TryGet(name, out feature);
-        
+
         public void Add(Feature feature) => _controller.Add(feature);
 
         public bool TryRemove(string name, out Feature feature) => _controller.TryRemove(name, out feature);
 
         public async Task<FeatureResult<T>> Use<T>(string name, Func<Task<T>> onEnabled, Func<Task<T>>? onDisabled = default, object? parameter = default)
         {
-            using var featureScope = _logger.BeginScope().WithCorrelationHandle("UseFeature").UseStopwatch();
+            using var featureScope = _logger.BeginScope().WithCorrelationHandle("UseFeature");
             return await _controller.Use(name, onEnabled, onDisabled, parameter).ContinueWith(t =>
             {
                 if (this.IsEnabled(Feature.Telemetry.CreateName(name)))
                 {
                     var feature = this[name];
-                    _logger.Log(Abstraction.Layer.Service().Meta(new
+                    _logger.Log(Application.Layer.Service().Meta("featureTelemetry", new
                     {
-                        featureTelemetry = new
-                        {
-                            name = feature.Name,
-                            tags = feature.Tags,
-                            policy = feature.Policy.GetType().ToPrettyString()
-                        }
-                    }), log => log.Exception(t.Exception));
+                        name = feature.Name,
+                        tags = feature.Tags,
+                        policy = feature.Policy.GetType().ToPrettyString()
+                    }).Exception(t.Exception));
                 }
 
                 return t.Result;

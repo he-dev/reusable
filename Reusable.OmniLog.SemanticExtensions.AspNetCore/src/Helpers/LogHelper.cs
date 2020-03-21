@@ -26,54 +26,35 @@ namespace Reusable.OmniLog.SemanticExtensions.AspNetCore.Helpers
 
         public static void LogRequest(ILogger logger, HttpContext context, string? body)
         {
-            logger.Log(Abstraction.Layer.Network().Subject(new
+            logger.Log(Application.Layer.Network().WorkItem(nameof(HttpRequest), new
             {
-                HttpRequest = new
-                {
-                    Path = context.Request.Path.Value,
-                    Host = context.Request.Host.Value,
-                    context.Request.ContentLength,
-                    context.Request.ContentType,
-                    context.Request.Cookies,
-                    context.Request.Headers,
-                    context.Request.IsHttps,
-                    context.Request.Method,
-                    context.Request.Protocol,
-                    context.Request.QueryString,
-                }
-            }), log =>
-            {
-                if (body is {})
-                {
-                    log.Message(body);
-                }
-            });
+                Path = context.Request.Path.Value,
+                Host = context.Request.Host.Value,
+                context.Request.ContentLength,
+                context.Request.ContentType,
+                context.Request.Cookies,
+                context.Request.Headers,
+                context.Request.IsHttps,
+                context.Request.Method,
+                context.Request.Protocol,
+                context.Request.QueryString,
+            }).Message(body));
         }
 
         public static void LogResponse(ILogger logger, HttpContext context, string? body)
         {
-            logger.Log(Abstraction.Layer.Network().Meta(new
+            logger.Log(Application.Layer.Network().Meta(nameof(HttpResponse), new
             {
-                HttpResponse = new
-                {
-                    context.Response.ContentLength,
-                    context.Response.ContentType,
-                    context.Response.Headers,
-                    context.Response.StatusCode,
-                }
-            }), log =>
-            {
-                log.Level(LogHelper.MapStatusCode(context.Response.StatusCode));
-                if (body is {})
-                {
-                    log.Message(body);
-                }
-            });
+                context.Response.ContentLength,
+                context.Response.ContentType,
+                context.Response.Headers,
+                context.Response.StatusCode,
+            }).Message(body).Level(LogHelper.MapStatusCode(context.Response.StatusCode)));
         }
 
         public static void LogError(ILogger logger, HttpContext context, Exception exception)
         {
-            logger.Log(Abstraction.Layer.Network().Routine("HttpRequest").Faulted(), exception);
+            logger.Log(Application.Layer.Network().Meta(nameof(HttpRequest), "Faulted").Exception(exception));
         }
 
 

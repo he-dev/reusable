@@ -2,7 +2,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.Extensions.Caching.Memory;
 using Reusable.OmniLog;
 using Reusable.OmniLog.Abstractions;
-using Reusable.OmniLog.Services;
+using Reusable.OmniLog.Properties;
 using Reusable.Translucent;
 using Reusable.Translucent.Abstractions;
 using Reusable.Translucent.Controllers;
@@ -40,9 +40,9 @@ namespace Reusable
                     .UseSerializer()
                     .UsePropertyMapper
                     (
-                        (LogProperty.Names.SnapshotName, "Identifier")
+                        (Names.Default.SnapshotName, "Identifier")
                     )
-                    .UseFallback((LogProperty.Names.Level, LogLevel.Information))
+                    .UseFallback((Names.Default.Level, LogLevel.Information))
                     .UseEcho(logRx)
                     .Build();
         }

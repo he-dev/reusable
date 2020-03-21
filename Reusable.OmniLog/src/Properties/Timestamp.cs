@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using Reusable.OmniLog.Abstractions;
 
-namespace Reusable.OmniLog.Services
+namespace Reusable.OmniLog.Properties
 {
     public class Timestamp : Service, IDisposable
     {

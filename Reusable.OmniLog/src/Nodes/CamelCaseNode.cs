@@ -8,7 +8,13 @@ namespace Reusable.OmniLog.Nodes
     {
         public override bool Enabled => true;
 
-        public HashSet<string> PropertyNames { get; set; } = new HashSet<string>(SoftString.Comparer) { LogProperty.Names.SnapshotName };
+        public HashSet<string> PropertyNames { get; set; } = new HashSet<string>(SoftString.Comparer)
+        {
+            "Logger",
+            "Layer",
+            "Category",
+            "SnapshotName"
+        };
 
         public override void Invoke(ILogEntry request)
         {

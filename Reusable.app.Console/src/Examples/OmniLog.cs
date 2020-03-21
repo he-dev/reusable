@@ -4,12 +4,14 @@ using Reusable.Exceptionize;
 using Reusable.OmniLog;
 using Reusable.OmniLog.Abstractions;
 using Reusable.OmniLog.Nodes;
-using Reusable.OmniLog.SemanticExtensions;
-using Reusable.OmniLog.Services;
+using Reusable.OmniLog.Properties;
+using Reusable.OmniLog.Utilities;
 using Reusable.Utilities.NLog.LayoutRenderers;
 
 namespace Reusable
 {
+    using Reusable.OmniLog.SemanticExtensions;
+
     public static partial class Examples
     {
         public static void Log()
@@ -18,16 +20,10 @@ namespace Reusable
 
             var loggerFactoryBuilder = new LoggerFactoryBuilder
             {
-                // Adds elapsed time to each log-entry. Can be enabled with logger.UseStopwatch(). Dispose to disable.
-//                    new StopwatchNode
-//                    {
-//                        // Selects milliseconds to be logged. This is the default.
-//                        GetValue = elapsed => elapsed.TotalMilliseconds
-//                    },
                 // Adds computed properties to each log-entry.
-                new ServiceNode
+                new PropertyNode
                 {
-                    Services =
+                    Properties =
                     {
                         new Constant("Environment", "Demo"),
                         new Constant("Product", "Reusable.app.Console"),
@@ -37,27 +33,7 @@ namespace Reusable
                 },
                 // Adds support for logger.Log(log => ..) overload.
                 new DelegateNode(),
-                new PropertyFactoryNode
-                {
-                    PropertyFactories =
-                    {
-                        [typeof(Enum)] = new CreatePropertyFromEnum()
-                    }
-                },
-                new BranchNode
-                {
-                    BranchBuilder = new BranchBuilder
-                    {
-                        CreateNodes = () => new ILoggerNode[]
-                        {
-                            new CorrelationNode(),
-                            new StopwatchNode(),
-                            new BufferNode(),
-                            new MemoryNode(),
-                            new WorkItemNode(),
-                        }
-                    }
-                },
+                new PropertyFactoryNode(),
                 // Copies everything from AbstractionBuilder to each log-entry.
                 // Contains properties Layer and Category and Meta#Dump.
                 new BuilderNode(),
@@ -73,18 +49,16 @@ namespace Reusable
                         ObjectMapperNode.Mapping.For<Person>(x => new { FullName = $"{x.LastName}, {x.FirstName}".ToUpper() })
                     }
                 },
-                // Serializes every #Serializable item in the log-entry and adds it as #Property.
-                new SerializerNode(),
                 // Filters log-entries and short-circuits the pipeline when False.
                 new FilterNode(logEntry => true),
-                new DefaultLogLevelNode
+                new LogLevelFromPropertyNode
                 {
-                    Property = nameof(Layer),
+                    Property = Names.Custom.Layer,
                     Mapper = new StringLogLevelMapper
                     {
                         //[Layer. nameof(Business)] = LogLevel.Information,
-                        [Layer.Service.ToString()] = LogLevel.Debug,
-                        [Layer.Telemetry.ToString()] = LogLevel.Information,
+                        [nameof(ApplicationLayers.Service)] = LogLevel.Debug,
+                        [nameof(ApplicationLayers.Telemetry)] = LogLevel.Information,
                         //[nameof(Presentation)] = LogLevel.Trace,
                         //[nameof(IO)] = LogLevel.Trace,
                         //[nameof(Database)] = LogLevel.Trace,
@@ -97,20 +71,39 @@ namespace Reusable
                 {
                     Defaults =
                     {
-                        [LogProperty.Names.Level] = LogLevel.Information,
-                        ["Layer"] = Layer.Undefined,
-                        ["Category"] = Category.Undefined
+                        [Names.Default.Level] = LogLevel.Information,
+                        [Names.Custom.Layer] = "Undefined",
+                        [Names.Custom.Category] = "Undefined"
                     }
                 },
-                new CamelCaseNode(),
+                new BranchNode
+                {
+                    CreateNodes = () => new ILoggerNode[]
+                    {
+                        new CorrelationNode(),
+                        new StopwatchNode(),
+                        new BufferNode(),
+                        new MemoryNode(),
+                        new WorkItemNode(),
+                    }
+                },
+                // Serializes every #Serializable item in the log-entry and adds it as #Property.
+                new SerializerNode(),
                 new PropertyMapperNode
                 {
                     Mappings =
                     {
                         //{ LogEntry.Names.Scope, "Scope" },
-                        { LogProperty.Names.SnapshotName, "Identifier" },
-                        { LogProperty.Names.Correlation, "Scope" },
+                        { Names.Default.SnapshotName, "Identifier" },
+                        { Names.Default.Correlation, "Scope" },
                         //{ LogEntry.Names.Snapshot, "Snapshot" },
+                    }
+                },
+                new CamelCaseNode
+                {
+                    PropertyNames =
+                    {
+                        "Identifier",
                     }
                 },
                 // When activated, buffers log-entries until committed. Can be enabled with logger.UseTransaction(). Dispose to disable.
@@ -134,7 +127,7 @@ namespace Reusable
 
             logger.Information("Hallo omni-log!");
 
-            logger.Log(Abstraction.Layer.Service().Routine(nameof(Log)).Running());
+            //logger.Log(Abstraction.Layer.Service().Routine(nameof(Log)).Running());
             logger.Log(Abstraction.Layer.Service().Meta(new { Greeting = "Hallo omni-log!" }));
             logger.Log(Abstraction.Layer.Service().Meta(new { Null = (string)default }));
 
@@ -143,12 +136,15 @@ namespace Reusable
             {
                 var variable = new { John = "Doe" };
                 // Logging some single business variable and a message.
-                logger.Log(Abstraction.Layer.Business().Variable(variable), log => log.Message("I'm a variable!"));
+                logger.Log(Abstraction.Layer.Business().Variable(variable).Message("I'm a variable!"));
                 logger.Log(Abstraction.Layer.Database().Counter(new { Prime = 7 }));
                 logger.Log(Abstraction.Layer.Database().Flow().Decision("Log something.").Because("Logger works!"));
+                logger.Log(Abstraction.Layer.Database().Flow("Log something.", because: "Logger works!"));
                 //logger.Log(Layer.Service, Category.WorkItem, new { test = new { fileName = "test" } });
-                logger.Log(Layer.Service, Category.WorkItem, Snapshot.Take("testFile", new { fileName = "test" }), CallerInfo.Create());
+                //logger.Log(Layer.Service, Category.WorkItem, Snapshot.Take("testFile", new { fileName = "test" }), CallerInfo.Create());
+                //logger.Log(Layer.Service, Category.WorkItem, new { testFile = new { fileName = "test" } }, CallSite.Create());
 
+                logger.Log(Application.Context.WorkItem("testFile", new { fileName = "test" }).Message("Blub!"));
                 logger.Scope().WorkItem().Push(new Exception());
 
 
@@ -168,10 +164,11 @@ namespace Reusable
                     logger.Log(Abstraction.Layer.Business().Meta(new { customer }));
 
                     // Logging action results.
-                    logger.Log(Abstraction.Layer.Service().Routine(nameof(Log)).Running());
-                    logger.Log(Abstraction.Layer.Service().Routine(nameof(Log)).Canceled().Because("No connection."));
-                    logger.Log(Abstraction.Layer.Service().Routine(nameof(Log)).Faulted(DynamicException.Create("Test", "This is only a test.")));
+                    //logger.Log(Abstraction.Layer.Service().Routine(nameof(Log)).Running());
+                    //logger.Log(Abstraction.Layer.Service().Routine(nameof(Log)).Canceled().Because("No connection."));
+                    //logger.Log(Abstraction.Layer.Service().Routine(nameof(Log)).Faulted(DynamicException.Create("Test", "This is only a test.")));
                     logger.Log(Abstraction.Layer.Service().Flow().Decision("Don't do this.").Because("Disabled."));
+                    logger.Log(Layer.Service, Decision.Make("Don't do this either.", because: "It's disabled as well."));
                 }
 
                 logger.Log(Abstraction.Layer.Service().Meta(new { GoodBye = "Bye bye scopes!" }));
@@ -203,23 +200,6 @@ namespace Reusable
 
     public enum Layer
     {
-        // ReSharper disable InconsistentNaming
-        Undefined,
-        Service,
-        IO,
-        Telemetry,
-        Database,
-        Network,
-        Business,
-        Presentation,
-        // ReSharper restore InconsistentNaming
-    }
-
-    public enum Category
-    {
-        Undefined,
-        Meta,
-        Counter,
-        WorkItem
+        Service
     }
 }

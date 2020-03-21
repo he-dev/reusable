@@ -4,7 +4,7 @@ using System.Threading;
 using Reusable.Collections.Generic;
 using Reusable.OmniLog.Abstractions;
 using Reusable.OmniLog.Nodes;
-using Reusable.OmniLog.Services;
+using Reusable.OmniLog.Properties;
 using Xunit;
 
 //using Reusable.OmniLog.Attachments;
@@ -47,7 +47,7 @@ namespace Reusable.OmniLog
             using var lf = new LoggerFactoryBuilder
             {
                 new StopwatchNode(),
-                new ServiceNode(),
+                new PropertyNode(),
                 new DelegateNode(),
                 new BranchNode(),
                 new SerializerNode(),
@@ -73,7 +73,7 @@ namespace Reusable.OmniLog
             var lf = new LoggerFactoryBuilder
             {
                 new StopwatchNode(),
-                new ServiceNode(),
+                new PropertyNode(),
                 new DelegateNode(),
                 new BranchNode(),
                 new SerializerNode(),
@@ -93,7 +93,7 @@ namespace Reusable.OmniLog
                     var scope1 = logger.Scope().Correlation();
                     logger.Log(l => l.Message("Hallo!"));
                     Assert.Same(outerCorrelationId, scope1.CorrelationId);
-                    Assert.NotNull(rx[0][LogProperty.Names.Correlation]);
+                    Assert.NotNull(rx[0][Names.Default.Correlation]);
 
                     var innerCorrelationId = "test-id-2";
                     using (logger.BeginScope(innerCorrelationId))
@@ -101,7 +101,7 @@ namespace Reusable.OmniLog
                         var scope2 = logger.Scope().Correlation();
                         logger.Log(l => l.Message("Hi!"));
                         Assert.Same(innerCorrelationId, scope2.CorrelationId);
-                        Assert.NotNull(rx[1][LogProperty.Names.Correlation]);
+                        Assert.NotNull(rx[1][Names.Default.Correlation]);
                     }
                 }
 
@@ -118,7 +118,7 @@ namespace Reusable.OmniLog
             var lf = new LoggerFactoryBuilder
             {
                 new StopwatchNode(),
-                new ServiceNode(),
+                new PropertyNode(),
                 new DelegateNode(),
                 new BranchNode(),
                 new DestructureNode(),
@@ -138,8 +138,8 @@ namespace Reusable.OmniLog
 
             Assert.Equal(1, rx.Count());
             Assert.Equal("Hallo!", rx.First()["Message"]?.Value);
-            Assert.Equal("Greeting", rx.First()[LogProperty.Names.SnapshotName]?.Value);
-            Assert.Equal("Hi!", rx.First()[LogProperty.Names.Snapshot]?.Value);
+            Assert.Equal("Greeting", rx.First()[Names.Default.SnapshotName]?.Value);
+            Assert.Equal("Hi!", rx.First()[Names.Default.Snapshot]?.Value);
             //Assert.Equal("{\"Greeting\":\"Hi!\"}", rx.First()["Snapshot"]);
         }
 
@@ -151,9 +151,9 @@ namespace Reusable.OmniLog
             var rx = new MemoryRx();
             var lf = new LoggerFactoryBuilder
             {
-                new ServiceNode
+                new PropertyNode
                 {
-                    Services =
+                    Properties =
                     {
                         new Timestamp(new[] { timestamp })
                     }
@@ -183,7 +183,7 @@ namespace Reusable.OmniLog
             var rx = new MemoryRx();
             var lf = new LoggerFactoryBuilder
             {
-                new ServiceNode { Services = { new Timestamp(new[] { timestamp }) } },
+                new PropertyNode { Properties = { new Timestamp(new[] { timestamp }) } },
                 new DelegateNode(),
                 new DestructureNode(),
                 new EchoNode { Rx = { rx }, CreateLogEntryView = e => e }
@@ -195,10 +195,10 @@ namespace Reusable.OmniLog
             }
 
             Assert.Equal(2, rx.Count());
-            Assert.Equal("FirstName", rx[0][LogProperty.Names.SnapshotName]?.Value);
-            Assert.Equal("John", rx[0][LogProperty.Names.Snapshot]?.Value);
-            Assert.Equal("LastName", rx[1][LogProperty.Names.SnapshotName]?.Value);
-            Assert.Equal("Doe", rx[1][LogProperty.Names.Snapshot]?.Value);
+            Assert.Equal("FirstName", rx[0][Names.Default.SnapshotName]?.Value);
+            Assert.Equal("John", rx[0][Names.Default.Snapshot]?.Value);
+            Assert.Equal("LastName", rx[1][Names.Default.SnapshotName]?.Value);
+            Assert.Equal("Doe", rx[1][Names.Default.Snapshot]?.Value);
             //Assert.Equal(timestamp, rx.First()["Timestamp"]);
         }
 
@@ -210,9 +210,9 @@ namespace Reusable.OmniLog
             var rx = new MemoryRx();
             var lf = new LoggerFactoryBuilder()
             {
-                new ServiceNode
+                new PropertyNode
                 {
-                    Services =
+                    Properties =
                     {
                         new Timestamp(new[] { timestamp })
                     }

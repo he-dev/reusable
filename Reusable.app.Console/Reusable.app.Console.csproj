@@ -5,17 +5,11 @@
     <TargetFramework>netcoreapp2.2</TargetFramework>
     <RootNamespace>Reusable</RootNamespace>
     <LangVersion>latest</LangVersion>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <LangVersion>latest</LangVersion>
+    <DebugType>full</DebugType>
+    <Nullable>enable</Nullable>
     <PlatformTarget>AnyCPU</PlatformTarget>
   </PropertyGroup>
-
-  <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
-    <PlatformTarget>AnyCPU</PlatformTarget>
-  </PropertyGroup>
-
+  
   <ItemGroup>
     <Compile Remove="src\AssertServerExperiment - Copy.cs" />
     <Compile Remove="src\Demos\RestClientDemo.cs" />

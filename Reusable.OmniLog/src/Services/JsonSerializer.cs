@@ -4,7 +4,7 @@ using Newtonsoft.Json.Serialization;
 using Reusable.OmniLog.Abstractions;
 using Reusable.Utilities.JsonNet.Converters;
 
-namespace Reusable.OmniLog.Utilities
+namespace Reusable.OmniLog.Services
 {
     public class JsonSerializer : ISerializer
     {
