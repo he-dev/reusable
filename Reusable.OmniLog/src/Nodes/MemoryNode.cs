@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
+using Reusable.Extensions;
 using Reusable.OmniLog.Abstractions;
 
 namespace Reusable.OmniLog.Nodes
@@ -11,7 +12,7 @@ namespace Reusable.OmniLog.Nodes
     /// </summary>
     public class MemoryNode : LoggerNode, IEnumerable<ILogEntry>
     {
-        private readonly LinkedList<ILogEntry> _entries = new LinkedList<ILogEntry>();
+        private readonly Queue<ILogEntry> _entries = new Queue<ILogEntry>();
 
         public int Capacity { get; set; } = 10_000;
 
@@ -19,11 +20,11 @@ namespace Reusable.OmniLog.Nodes
         {
             lock (_entries)
             {
-                _entries.AddLast(request);
+                _entries.Enqueue(request);
 
                 if (_entries.Count > Capacity)
                 {
-                    _entries.RemoveFirst();
+                    _entries.Dequeue();
                 }
             }
 
@@ -33,6 +34,12 @@ namespace Reusable.OmniLog.Nodes
         public IEnumerator<ILogEntry> GetEnumerator() => _entries.GetEnumerator();
 
         IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable)_entries).GetEnumerator();
+
+        public override void Dispose()
+        {
+            _entries.Clear();
+            base.Dispose();
+        }
     }
 
     public static class MemoryNodeHelper
@@ -40,7 +47,10 @@ namespace Reusable.OmniLog.Nodes
         /// <summary>
         /// Activates a new MemoryNode.
         /// </summary>
-        public static ILoggerScope UseMemory(this ILoggerScope scope, int capacity = 10_000) => scope.Append(new MemoryNode { Capacity = capacity });
+        public static ILoggerScope UseMemory(this ILoggerScope logger, int capacity = 10_000)
+        {
+            return logger.Pipe(x => x.Node<BranchNode>().First!.Node<MemoryNode>().Enable());
+        }
 
         /// <summary>
         /// Gets the MemoryNode in current scope.

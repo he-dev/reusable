@@ -4,15 +4,18 @@ using Reusable.OmniLog.Abstractions;
 
 namespace Reusable.OmniLog.Nodes
 {
+    /// <summary>
+    /// Sets default values for the specified properties when they are not set already. 
+    /// </summary>
     public class FallbackNode : LoggerNode
     {
-        public override bool Enabled => base.Enabled && Defaults.Any();
+        public override bool Enabled => base.Enabled && Properties.Any();
 
-        public Dictionary<string, object> Defaults { get; set; } = new Dictionary<string, object>();
+        public Dictionary<string, object> Properties { get; set; } = new Dictionary<string, object>();
 
         public override void Invoke(ILogEntry request)
         {
-            foreach (var (key, value) in Defaults.Select(x => (x.Key, x.Value)))
+            foreach (var (key, value) in Properties.Select(x => (x.Key, x.Value)))
             {
                 if (!request.TryGetProperty(key, out _))
                 {
@@ -23,6 +26,4 @@ namespace Reusable.OmniLog.Nodes
             InvokeNext(request);
         }
     }
-
-    
 }

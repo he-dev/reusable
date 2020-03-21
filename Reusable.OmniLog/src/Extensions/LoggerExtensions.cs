@@ -53,7 +53,7 @@ namespace Reusable.OmniLog
             logger.Log(LogLevel.Fatal, message, exception, alter);
         }
 
-        public static void Log(this ILogger logger, ProcessLogEntryDelegate process)
+        public static void Log(this ILogger logger, Action<ILogEntry> process)
         {
             logger.UseDelegate(process);
             logger.Log(new LogEntry());

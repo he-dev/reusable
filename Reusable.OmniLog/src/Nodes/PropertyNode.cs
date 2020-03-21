@@ -5,13 +5,13 @@ using Reusable.OmniLog.Abstractions;
 namespace Reusable.OmniLog.Nodes
 {
     /// <summary>
-    /// Computes a single value and adds to the log.
+    /// Adds computable properties to the log.
     /// </summary>
     public class PropertyNode : LoggerNode
     {
         public override bool Enabled => base.Enabled && Properties.Any();
 
-        public List<IService> Properties { get; set; } = new List<IService>();
+        public List<IPropertyService> Properties { get; set; } = new List<IPropertyService>();
 
         public override void Invoke(ILogEntry request)
         {

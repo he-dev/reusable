@@ -27,7 +27,10 @@ namespace Reusable.OmniLog.Nodes
             new WorkItemNode(),
         };
 
-        public ILoggerNode? First => AsyncScope<Branch>.Current?.Value.First;
+        /// <summary>
+        /// Gets the first node of the current branch.
+        /// </summary>
+        public ILoggerNode First => AsyncScope<Branch>.Current?.Value.First ?? throw new InvalidOperationException($"Cannot use {nameof(First)} when {nameof(BranchNode)} is disabled.");
 
         public IDisposable Push()
         {
@@ -39,12 +42,12 @@ namespace Reusable.OmniLog.Nodes
             var branch = AsyncScope<Branch>.Current;
             var scopes = branch.Enumerate().Select(x => x.Value.First.Node<CorrelationNode>()).ToList();
             request.Add(Names.Default.Correlation, scopes, m => m.ProcessWith<SerializerNode>());
-            First!.Invoke(request); // This is guaranteed to be non-null here because otherwise this node is disabled.
+            First.Invoke(request); // This is guaranteed to be non-null here because otherwise this node is disabled.
         }
 
         public ILoggerNode Append(ILoggerNode node)
         {
-            return First!.Last().Append(node); // This is guaranteed to be non-null here because at this point the node is properly initialized.
+            return First.Last().Append(node); // This is guaranteed to be non-null here because at this point the node is properly initialized.
         }
 
         internal class Branch : IDisposable
@@ -113,10 +116,12 @@ namespace Reusable.OmniLog.Nodes
 
         public static CorrelationNode Correlation(this BranchNode logger)
         {
-            return logger.First?.Node<CorrelationNode>() ?? throw new InvalidOperationException
-            (
-                $"Cannot get {nameof(CorrelationNode)} because there is no scope. Use Logger.BeginScope() first."
-            );
+            if (!logger.Enabled)
+            {
+                throw new InvalidOperationException($"Cannot get {nameof(CorrelationNode)} because there is no scope. Use Logger.BeginScope() first.");
+            }
+
+            return logger.First.Node<CorrelationNode>();
         }
     }
 }

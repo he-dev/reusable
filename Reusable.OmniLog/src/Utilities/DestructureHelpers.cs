@@ -8,16 +8,6 @@ namespace Reusable.OmniLog.Utilities
 {
     public static class DestructureHelpers
     {
-        public static IEnumerable<(string Name, object Value)> Destructure<T>(this T obj)
-        {
-            return obj switch
-            {
-                IDictionary<string, object> dictionary => dictionary.Select(item => (item.Key, item.Value)),
-                {} => obj.EnumerateProperties(),
-                _ => Enumerable.Empty<(string, object)>()
-            };
-        }
-
         public static IDictionary<string, object> ToDictionary<T>(this T obj)
         {
             return obj switch

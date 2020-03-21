@@ -2,7 +2,7 @@ using Reusable.OmniLog.Abstractions;
 
 namespace Reusable.OmniLog.Properties
 {
-    public class Constant : Service
+    public class Constant : PropertyService
     {
         private readonly object value;
 

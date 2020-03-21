@@ -6,7 +6,7 @@ using Reusable.Utilities.JsonNet.Converters;
 
 namespace Reusable.OmniLog.Services
 {
-    public class JsonSerializer : ISerializer
+    public class SerializeToJson : ISerialize
     {
         public JsonSerializerSettings Settings { get; set; } = new JsonSerializerSettings
         {
@@ -24,6 +24,6 @@ namespace Reusable.OmniLog.Services
             }
         };
 
-        public object Serialize(object obj) => JsonConvert.SerializeObject(obj, Settings);
+        public object Invoke(object obj) => JsonConvert.SerializeObject(obj, Settings);
     }
 }

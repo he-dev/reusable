@@ -4,11 +4,11 @@ using Reusable.OmniLog.Abstractions;
 
 namespace Reusable.OmniLog.Nodes
 {
-    public class LogLevelFromPropertyNode : LoggerNode
+    public class MapValueToLogLevelNode : LoggerNode
     {
         public string Property { get; set; } = default!;
 
-        public ILogLevelMapper Mapper { get; set; } = default!;
+        public IMapObjectToLogLevel Mapper { get; set; } = default!;
 
         public override void Invoke(ILogEntry request)
         {
@@ -17,23 +17,23 @@ namespace Reusable.OmniLog.Nodes
             
             if (!request.TryGetProperty(Names.Default.Level, out _) && request.TryGetProperty(Property, out var property))
             {
-                request.Add(Names.Default.Level, Mapper.Map(property.Value), m => m.ProcessWith<EchoNode>());
+                request.Add(Names.Default.Level, Mapper.Invoke(property.Value), m => m.ProcessWith<EchoNode>());
             }
 
             InvokeNext(request);
         }
     }
 
-    public interface ILogLevelMapper
+    public interface IMapObjectToLogLevel
     {
-        LogLevel Map(object? value);
+        LogLevel Invoke(object? value);
     }
 
-    public class StringLogLevelMapper : Dictionary<string, LogLevel>, ILogLevelMapper
+    public class MapStringToLogLevel : Dictionary<string, LogLevel>, IMapObjectToLogLevel
     {
-        public StringLogLevelMapper() : base(SoftString.Comparer) { }
+        public MapStringToLogLevel() : base(SoftString.Comparer) { }
 
-        public LogLevel Map(object? value)
+        public LogLevel Invoke(object? value)
         {
             return
                 value is {} && TryGetValue(value.ToString(), out var logLevel)

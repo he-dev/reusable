@@ -5,6 +5,7 @@ using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Linq;
 using JetBrains.Annotations;
+using Reusable.Exceptionize;
 using Reusable.Extensions;
 using Reusable.OmniLog.Abstractions;
 
@@ -15,7 +16,6 @@ namespace Reusable.OmniLog
     public class LogEntry : ILogEntry
     {
         private readonly IDictionary<string, IImmutableStack<LogProperty>> _properties;
-        private readonly IDictionary<Type, IImmutableStack<string>> _index = new Dictionary<Type, IImmutableStack<string>>();
 
         [DebuggerStepThrough]
         public LogEntry()
@@ -29,17 +29,14 @@ namespace Reusable.OmniLog
         }
 
         public static LogEntry Empty() => new LogEntry();
-        
-        public LogProperty? this[string key] => TryGetProperty(key, out var property) ? property : default;
 
-        public void Add(LogProperty property)
+        public LogProperty this[string name] => TryGetProperty(name, out var property) ? property : throw DynamicException.Create("PropertyNotFound", $"There is no property with the name '{name}'.");
+
+        public void Push(LogProperty property)
         {
             var current = _properties.TryGetValue(property.Name, out var versions) ? versions : ImmutableStack<LogProperty>.Empty;
             _properties[property.Name] = current.Push(property);
-            
         }
-
-        public ILogEntry Copy() => new LogEntry(this);
 
         public bool TryGetProperty(string name, out LogProperty property)
         {
@@ -57,14 +54,11 @@ namespace Reusable.OmniLog
 
         public override string ToString()
         {
-            return @"[{Timestamp:HH:mm:ss:fff}] [{Logger:u}] {Message}".Format(this);
+            return @"[{Timestamp:HH:mm:ss:fff}] [{Logger}] {Message}".Format(this);
         }
 
-        public IEnumerator<LogProperty> GetEnumerator() => _properties.Values.Select(h => h.Peek()).GetEnumerator();
+        public IEnumerator<LogProperty> GetEnumerator() => _properties.Values.Select(versions => versions.Peek()).GetEnumerator();
 
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
-
-        
-        
     }
 }

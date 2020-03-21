@@ -4,7 +4,7 @@ using Reusable.Diagnostics;
 
 namespace Reusable.OmniLog.Abstractions
 {
-    public interface IService : IEquatable<IService>
+    public interface IPropertyService : IEquatable<IPropertyService>
     {
         bool Enabled { get; }
 
@@ -14,9 +14,9 @@ namespace Reusable.OmniLog.Abstractions
         object? GetValue(ILogEntry logEntry);
     }
 
-    public abstract class Service : IService
+    public abstract class PropertyService : IPropertyService
     {
-        protected Service(string name) => Name = name;
+        protected PropertyService(string name) => Name = name;
 
         private string DebuggerDisplay() => this.ToDebuggerDisplayString(b => { b.DisplaySingle(x => x.Name).DisplaySingle(x => x.Enabled); });
 
@@ -28,11 +28,11 @@ namespace Reusable.OmniLog.Abstractions
 
         #region IEquatable
 
-        public bool Equals(IService? other) => AutoEquality<IService?>.Comparer.Equals(this, other);
+        public bool Equals(IPropertyService? other) => AutoEquality<IPropertyService?>.Comparer.Equals(this, other);
 
-        public override bool Equals(object? obj) => Equals(obj as IService);
+        public override bool Equals(object? obj) => Equals(obj as IPropertyService);
 
-        public override int GetHashCode() => AutoEquality<IService?>.Comparer.GetHashCode(this);
+        public override int GetHashCode() => AutoEquality<IPropertyService?>.Comparer.GetHashCode(this);
 
         #endregion
     }

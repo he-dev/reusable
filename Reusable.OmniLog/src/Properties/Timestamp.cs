@@ -4,7 +4,7 @@ using Reusable.OmniLog.Abstractions;
 
 namespace Reusable.OmniLog.Properties
 {
-    public class Timestamp : Service, IDisposable
+    public class Timestamp : PropertyService, IDisposable
     {
         private int _timestampCount;
 

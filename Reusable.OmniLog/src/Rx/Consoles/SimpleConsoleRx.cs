@@ -5,7 +5,7 @@ using Reusable.OmniLog.Abstractions;
 namespace Reusable.OmniLog
 {
     using static LogLevel;
-    
+
     public class SimpleConsoleRx : PlainConsoleRx
     {
         public IReadOnlyDictionary<LogLevel, ConsoleColor> LogLevelColor { get; set; } = new Dictionary<LogLevel, ConsoleColor>
@@ -29,7 +29,7 @@ namespace Reusable.OmniLog
 
         private ConsoleColor GetConsoleColor(ILogEntry entry)
         {
-            if (entry[Names.Default.Level]?.Value is LogLevel logLevel && LogLevelColor.TryGetValue(logLevel, out var consoleColor))
+            if (entry.TryGetProperty(Names.Default.Level, out var property) && property.Value is LogLevel logLevel && LogLevelColor.TryGetValue(logLevel, out var consoleColor))
             {
                 return consoleColor;
             }

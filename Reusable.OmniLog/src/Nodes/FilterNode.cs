@@ -3,18 +3,16 @@ using Reusable.OmniLog.Abstractions;
 
 namespace Reusable.OmniLog.Nodes
 {
+    /// <summary>
+    /// Filters log-entries and short-circuits the pipeline.
+    /// </summary>
     public class FilterNode : LoggerNode
     {
-        private readonly Func<ILogEntry, bool> _canLog;
-
-        public FilterNode(Func<ILogEntry, bool> canLog)
-        {
-            _canLog = canLog;
-        }
+        public Func<ILogEntry, bool> CanLog { get; set; } = _ => true;
 
         public override void Invoke(ILogEntry request)
         {
-            if (_canLog(request))
+            if (CanLog(request))
             {
                 InvokeNext(request);
             }

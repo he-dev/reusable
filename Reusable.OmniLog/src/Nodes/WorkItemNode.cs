@@ -36,8 +36,7 @@ namespace Reusable.OmniLog.Nodes
                 var propertyCopies =
                     from propertyName in CopyProperties
                     let property = request[propertyName]
-                    where property.HasValue
-                    select property.Value;
+                    select property;
 
                 LogWorkItemEnd = () => LogWorkItem(propertyCopies.ToList(), snapshotName);
             }
@@ -52,14 +51,14 @@ namespace Reusable.OmniLog.Nodes
             ((IDictionary<string, object>)snapshot.Value!).Add("status", WorkItemStatus.Begin); // At this point null is impossible.
         }
 
-        private void LogWorkItem(IEnumerable<LogProperty> propertyCopies, LogProperty snapshotName)
+        private void LogWorkItem(IEnumerable<LogProperty> properties, LogProperty snapshotName)
         {
             try
             {
                 Enabled = false;
                 var logger = ((ILoggerNode)this).First().Node<Logger>();
                 var exception = AsyncScope<Exception>.Current?.Value;
-                logger.Log(propertyCopies, Snapshot.Take(snapshotName.Value.ToString(), new { status = GetStatus(exception) }), GetLogLevel(exception), exception!);
+                logger.Log(properties, Snapshot.Take(snapshotName.Value.ToString(), new { status = GetStatus(exception) }), GetLogLevel(exception), exception!);
             }
             finally
             {

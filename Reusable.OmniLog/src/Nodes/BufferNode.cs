@@ -52,15 +52,20 @@ namespace Reusable.OmniLog.Nodes
         public static ILoggerScope UseBuffer(this ILoggerScope logger)
         {
             // Branch-node is properly initialized at this point.
-            return logger.Pipe(x => x.Node<BranchNode>().First!.Node<BufferNode>().Enable());
+            return logger.Pipe(x => x.Node<BranchNode>().First.Node<BufferNode>().Enable());
         }
 
         public static BufferNode Buffer(this BranchNode logger)
         {
-            return logger.First?.Node<BufferNode>() ?? throw new InvalidOperationException
-            (
-                $"Cannot get {nameof(BufferNode)} because it is not initialized. Use Logger.BeginScope() or check whether it is registered in the {nameof(BranchNode)}."
-            );
+            if (!logger.Enabled)
+            {
+                throw new InvalidOperationException
+                (
+                    $"Cannot get {nameof(BufferNode)} because it is not initialized. Use Logger.BeginScope() or check whether it is registered in the {nameof(BranchNode)}."
+                );
+            }
+
+            return logger.First.Node<BufferNode>();
         }
     }
 }

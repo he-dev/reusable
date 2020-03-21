@@ -12,9 +12,17 @@ namespace Reusable.OmniLog
             return entry.TryGetProperty(name, out var property) ? property : default;
         }
 
+        public static T GetValueOrDefault<T>(this ILogEntry entry, string name, T defaultValue)
+        {
+            return
+                entry.TryGetProperty(name, out var property) && property.Value is T result
+                    ? result
+                    : defaultValue;
+        }
+
         public static ILogEntry Add(this ILogEntry entry, string name, object value, Action<LogPropertyMeta.LogPropertyMetaBuilder> buildMeta)
         {
-            return entry.Pipe(e => e.Add(new LogProperty(name, value, LogPropertyMeta.From(buildMeta))));
+            return entry.Pipe(e => e.Push(new LogProperty(name, value, LogPropertyMeta.From(buildMeta))));
         }
     }
 }

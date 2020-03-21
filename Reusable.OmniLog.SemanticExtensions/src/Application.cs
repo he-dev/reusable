@@ -57,12 +57,12 @@ namespace Reusable.OmniLog.SemanticExtensions
         {
             return node.Then(e =>
             {
-                e.Add(new LogProperty(Names.Custom.Category, nameof(Flow), LogPropertyMeta.Builder.ProcessWith<EchoNode>()));
-                e.Add(new LogProperty(Names.Default.SnapshotName, nameof(decision), LogPropertyMeta.Builder.ProcessWith<EchoNode>()));
-                e.Add(new LogProperty(Names.Default.Snapshot, decision, LogPropertyMeta.Builder.ProcessWith<EchoNode>()));
+                e.Push(new LogProperty(Names.Custom.Category, nameof(Flow), LogPropertyMeta.Builder.ProcessWith<EchoNode>()));
+                e.Push(new LogProperty(Names.Default.SnapshotName, nameof(decision), LogPropertyMeta.Builder.ProcessWith<EchoNode>()));
+                e.Push(new LogProperty(Names.Default.Snapshot, decision, LogPropertyMeta.Builder.ProcessWith<EchoNode>()));
                 if (because is {})
                 {
-                    e.Add(new LogProperty(Names.Default.Message, because, LogPropertyMeta.Builder.ProcessWith<EchoNode>()));
+                    e.Push(new LogProperty(Names.Default.Message, because, LogPropertyMeta.Builder.ProcessWith<EchoNode>()));
                 }
             });
         }
@@ -77,7 +77,7 @@ namespace Reusable.OmniLog.SemanticExtensions
         {
             return node.Then(e =>
             {
-                e.Add(new LogProperty(Names.Custom.Category, nameof(Variable), LogPropertyMeta.Builder.ProcessWith<EchoNode>()));
+                e.Push(new LogProperty(Names.Custom.Category, nameof(Variable), LogPropertyMeta.Builder.ProcessWith<EchoNode>()));
                 e.Snapshot(value);
             });
         }
@@ -86,7 +86,7 @@ namespace Reusable.OmniLog.SemanticExtensions
         {
             return node.Then(e =>
             {
-                e.Add(new LogProperty(Names.Custom.Category, nameof(Counter), LogPropertyMeta.Builder.ProcessWith<EchoNode>()));
+                e.Push(new LogProperty(Names.Custom.Category, nameof(Counter), LogPropertyMeta.Builder.ProcessWith<EchoNode>()));
                 e.Snapshot(value);
             });
         }
@@ -95,22 +95,22 @@ namespace Reusable.OmniLog.SemanticExtensions
         {
             return node.Then(e =>
             {
-                e.Add(new LogProperty(Names.Custom.Category, nameof(Meta), LogPropertyMeta.Builder.ProcessWith<EchoNode>()));
+                e.Push(new LogProperty(Names.Custom.Category, nameof(Meta), LogPropertyMeta.Builder.ProcessWith<EchoNode>()));
                 e.Snapshot(value);
             });
         }
 
         public static Action<ILogEntry> Flow(this Action<ILogEntry> node)
         {
-            return node.Then(e => e.Add(new LogProperty(Names.Custom.Category, nameof(Flow), LogPropertyMeta.Builder.ProcessWith<EchoNode>())));
+            return node.Then(e => e.Push(new LogProperty(Names.Custom.Category, nameof(Flow), LogPropertyMeta.Builder.ProcessWith<EchoNode>())));
         }
 
         public static Action<ILogEntry> Decision(this Action<ILogEntry> node, string decision)
         {
             return node.Then(e =>
             {
-                e.Add(new LogProperty(Names.Default.SnapshotName, nameof(decision), LogPropertyMeta.Builder.ProcessWith<EchoNode>()));
-                e.Add(new LogProperty(Names.Default.Snapshot, decision, LogPropertyMeta.Builder.ProcessWith<EchoNode>()));
+                e.Push(new LogProperty(Names.Default.SnapshotName, nameof(decision), LogPropertyMeta.Builder.ProcessWith<EchoNode>()));
+                e.Push(new LogProperty(Names.Default.Snapshot, decision, LogPropertyMeta.Builder.ProcessWith<EchoNode>()));
             });
         }
 
@@ -145,7 +145,7 @@ namespace Reusable.OmniLog.SemanticExtensions
     {
         public static Action<ILogEntry> Layer(this Action<ILogEntry> node, [CallerMemberName] string? name = null)
         {
-            return node.Then(e => e.Add(new LogProperty(nameof(Layer), name!, LogPropertyMeta.Builder.ProcessWith<EchoNode>())));
+            return node.Then(e => e.Push(new LogProperty(nameof(Layer), name!, LogPropertyMeta.Builder.ProcessWith<EchoNode>())));
         }
 
         public static Action<ILogEntry> Level(this Action<ILogEntry> node, [CallerMemberName] string? name = null)
@@ -156,27 +156,27 @@ namespace Reusable.OmniLog.SemanticExtensions
 
         public static Action<ILogEntry> Level(this Action<ILogEntry> node, LogLevel logLevel)
         {
-            return node.Then(e => e.Add(new LogProperty(Names.Default.Level, logLevel, LogPropertyMeta.Builder.ProcessWith<EchoNode>())));
+            return node.Then(e => e.Push(new LogProperty(Names.Default.Level, logLevel, LogPropertyMeta.Builder.ProcessWith<EchoNode>())));
         }
 
         public static Action<ILogEntry> Category(this Action<ILogEntry> node, string snapshotName, object snapshot, [CallerMemberName] string? name = null)
         {
             return node.Then(e =>
             {
-                e.Add(new LogProperty(nameof(Category), name!, LogPropertyMeta.Builder.ProcessWith<EchoNode>()));
-                e.Add(new LogProperty(Names.Default.SnapshotName, snapshotName, LogPropertyMeta.Builder.ProcessWith<EchoNode>()));
-                e.Add(new LogProperty(Names.Default.Snapshot, snapshot, LogPropertyMeta.Builder.ProcessWith<DestructureNode>()));
+                e.Push(new LogProperty(nameof(Category), name!, LogPropertyMeta.Builder.ProcessWith<EchoNode>()));
+                e.Push(new LogProperty(Names.Default.SnapshotName, snapshotName, LogPropertyMeta.Builder.ProcessWith<EchoNode>()));
+                e.Push(new LogProperty(Names.Default.Snapshot, snapshot, LogPropertyMeta.Builder.ProcessWith<DestructureNode>()));
             });
         }
 
         public static Action<ILogEntry> Message(this Action<ILogEntry> node, string message)
         {
-            return node.Then(e => e.Add(new LogProperty(Names.Default.Message, message, LogPropertyMeta.Builder.ProcessWith<EchoNode>())));
+            return node.Then(e => e.Push(new LogProperty(Names.Default.Message, message, LogPropertyMeta.Builder.ProcessWith<EchoNode>())));
         }
 
         public static Action<ILogEntry> Exception(this Action<ILogEntry> node, Exception exception)
         {
-            return node.Then(e => e.Add(new LogProperty(Names.Default.Exception, exception, LogPropertyMeta.Builder.ProcessWith<EchoNode>())));
+            return node.Then(e => e.Push(new LogProperty(Names.Default.Exception, exception, LogPropertyMeta.Builder.ProcessWith<EchoNode>())));
         }
     }
 

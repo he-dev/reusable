@@ -32,7 +32,7 @@ namespace Reusable.OmniLog.Nodes
                 {
                     foreach (var property in CreateProperties(item))
                     {
-                        request.Add(property);
+                        request.Push(property);
                     }
                 }
 

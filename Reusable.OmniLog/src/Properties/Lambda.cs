@@ -3,7 +3,7 @@ using Reusable.OmniLog.Abstractions;
 
 namespace Reusable.OmniLog.Properties
 {
-    public class Lambda : Service
+    public class Lambda : PropertyService
     {
         private readonly Func<ILogEntry, object> getValue;
 

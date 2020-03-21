@@ -61,7 +61,7 @@ namespace Reusable.OmniLog
             var logger = lf.CreateLogger("test");
             logger.Log(l => l.Message("Hallo!"));
             Assert.Equal(1, rx.Count());
-            Assert.Equal("Hallo!", rx.First()["Message"]?.Value as string);
+            Assert.Equal("Hallo!", rx.First()["Message"].Value as string);
         }
 
         [Fact]
@@ -106,8 +106,8 @@ namespace Reusable.OmniLog
                 }
 
                 Assert.Equal(2, rx.Count());
-                Assert.Equal("Hallo!", rx[0]["Message"]?.Value);
-                Assert.Equal("Hi!", rx[1]["Message"]?.Value);
+                Assert.Equal("Hallo!", rx[0]["Message"].Value);
+                Assert.Equal("Hi!", rx[1]["Message"].Value);
             }
         }
 
@@ -137,9 +137,9 @@ namespace Reusable.OmniLog
             }
 
             Assert.Equal(1, rx.Count());
-            Assert.Equal("Hallo!", rx.First()["Message"]?.Value);
-            Assert.Equal("Greeting", rx.First()[Names.Default.SnapshotName]?.Value);
-            Assert.Equal("Hi!", rx.First()[Names.Default.Snapshot]?.Value);
+            Assert.Equal("Hallo!", rx.First()["Message"].Value);
+            Assert.Equal("Greeting", rx.First()[Names.Default.SnapshotName].Value);
+            Assert.Equal("Hi!", rx.First()[Names.Default.Snapshot].Value);
             //Assert.Equal("{\"Greeting\":\"Hi!\"}", rx.First()["Snapshot"]);
         }
 
@@ -171,8 +171,8 @@ namespace Reusable.OmniLog
             }
 
             Assert.Equal(1, rx.Count());
-            Assert.Equal("Hallo!", rx.First()["Message"]?.Value);
-            Assert.Equal(timestamp, rx.First()["Timestamp"]?.Value);
+            Assert.Equal("Hallo!", rx.First()["Message"].Value);
+            Assert.Equal(timestamp, rx.First()["Timestamp"].Value);
         }
 
         [Fact]
@@ -195,10 +195,10 @@ namespace Reusable.OmniLog
             }
 
             Assert.Equal(2, rx.Count());
-            Assert.Equal("FirstName", rx[0][Names.Default.SnapshotName]?.Value);
-            Assert.Equal("John", rx[0][Names.Default.Snapshot]?.Value);
-            Assert.Equal("LastName", rx[1][Names.Default.SnapshotName]?.Value);
-            Assert.Equal("Doe", rx[1][Names.Default.Snapshot]?.Value);
+            Assert.Equal("FirstName", rx[0][Names.Default.SnapshotName].Value);
+            Assert.Equal("John", rx[0][Names.Default.Snapshot].Value);
+            Assert.Equal("LastName", rx[1][Names.Default.SnapshotName].Value);
+            Assert.Equal("Doe", rx[1][Names.Default.Snapshot].Value);
             //Assert.Equal(timestamp, rx.First()["Timestamp"]);
         }
 
@@ -268,7 +268,7 @@ namespace Reusable.OmniLog
             var e = rx.First();
 
             Assert.Equal(1, rx.Count());
-            Assert.Equal("Hallo!", e["Message"]?.Value);
+            Assert.Equal("Hallo!", e["Message"].Value);
 
             using var dt = mn.ToDataTable();
 

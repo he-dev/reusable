@@ -23,7 +23,7 @@ namespace Reusable.OmniLog
 
         public void Log(ILogEntry logEntry)
         {
-            var loggerName = logEntry[Names.Default.Logger]?.Value as string ?? "Undefined";
+            var loggerName = logEntry.GetValueOrDefault(Names.Default.Logger, "Undefined");
             GetLogger(loggerName).Log(CreateLogEventInfo(logEntry));
         }
 
@@ -31,11 +31,11 @@ namespace Reusable.OmniLog
         {
             var logEventInfo = new NLog.LogEventInfo
             {
-                Level = LogLevels[logEntry[Names.Default.Level]?.Value is LogLevel logLevel ? logLevel : LogLevel.Information],
-                LoggerName = logEntry[Names.Default.Logger]?.Value as string,
-                Message = logEntry[Names.Default.Message]?.Value as string,
-                Exception = logEntry[Names.Default.Exception]?.Value as Exception,
-                TimeStamp = logEntry[Names.Default.Timestamp]?.Value is DateTime dt ? dt : DateTime.UtcNow,
+                Level = LogLevels[logEntry.GetValueOrDefault(Names.Default.Level, LogLevel.Information)],
+                LoggerName = logEntry.GetValueOrDefault(Names.Default.Logger, "Undefined"),
+                Message = logEntry.GetValueOrDefault(Names.Default.Message, default(string)),
+                Exception = logEntry.GetValueOrDefault(Names.Default.Exception, default(Exception)),
+                TimeStamp = logEntry.GetValueOrDefault(Names.Default.Timestamp, DateTime.UtcNow),
             };
 
             foreach (var item in logEntry.Where(LogProperty.CanLog.With<NLogRx>()))

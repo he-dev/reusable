@@ -2,7 +2,7 @@
 
 namespace Reusable.OmniLog.Properties
 {
-    public class Timestamp<T> : Service where T : IDateTime, new()
+    public class Timestamp<T> : PropertyService where T : IDateTime, new()
     {
         private readonly IDateTime _dateTime;
 

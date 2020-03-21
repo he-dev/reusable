@@ -3,8 +3,8 @@
 namespace Reusable.OmniLog.Abstractions
 {
     [PublicAPI]
-    public interface ISerializer
+    public interface ISerialize
     {
-        object Serialize(object obj);
+        object Invoke(object obj);
     }
 }

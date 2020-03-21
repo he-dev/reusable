@@ -28,21 +28,19 @@ namespace Reusable.OmniLog
         {
             lock (_syncLock)
             {
-                if (!(entry[Names.Default.Message]?.Value is IHtmlConsoleTemplateBuilder builder))
+                if (entry.TryGetProperty(Names.Default.Message, out var property) && property.Value is IHtmlConsoleTemplateBuilder builder)
                 {
-                    return;
-                }
+                    var template = builder.Build(entry);
 
-                var template = builder.Build(entry);
+                    using (ConsoleStyle.From(template).Apply())
+                    {
+                        Render(template.AsEnumerable());
+                    }
 
-                using (ConsoleStyle.From(template).Apply())
-                {
-                    Render(template.AsEnumerable());
-                }
-
-                if (template.Name.Equals(nameof(MarkupBuilder.Html.HtmlElementExtensions.p)))
-                {
-                    Console.WriteLine();
+                    if (template.Name.Equals(nameof(MarkupBuilder.Html.HtmlElementExtensions.p)))
+                    {
+                        Console.WriteLine();
+                    }
                 }
             }
         }

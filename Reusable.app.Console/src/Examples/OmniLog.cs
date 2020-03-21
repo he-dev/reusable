@@ -20,7 +20,6 @@ namespace Reusable
 
             var loggerFactoryBuilder = new LoggerFactoryBuilder
             {
-                // Adds computed properties to each log-entry.
                 new PropertyNode
                 {
                     Properties =
@@ -31,30 +30,22 @@ namespace Reusable
                         new Timestamp<DateTimeUtc>()
                     }
                 },
-                // Adds support for logger.Log(log => ..) overload.
                 new DelegateNode(),
                 new PropertyFactoryNode(),
-                // Copies everything from AbstractionBuilder to each log-entry.
-                // Contains properties Layer and Category and Meta#Dump.
                 new BuilderNode(),
-                // Explodes objects and dictionaries into multiple log-entries. One per each property/item.
                 new DestructureNode(),
-                // Converts #Serializable items. Objects and dictionaries are treated as collections of KeyValuePairs.
-                // They are added as Variable & #Serializable to each log-entry.
                 new ObjectMapperNode
                 {
-                    // Maps Person to a different type.
                     Mappings =
                     {
                         ObjectMapperNode.Mapping.For<Person>(x => new { FullName = $"{x.LastName}, {x.FirstName}".ToUpper() })
                     }
                 },
-                // Filters log-entries and short-circuits the pipeline when False.
-                new FilterNode(logEntry => true),
-                new LogLevelFromPropertyNode
+                new FilterNode { CanLog = _ => true },
+                new MapValueToLogLevelNode
                 {
                     Property = Names.Custom.Layer,
-                    Mapper = new StringLogLevelMapper
+                    Mapper = new MapStringToLogLevel
                     {
                         //[Layer. nameof(Business)] = LogLevel.Information,
                         [nameof(ApplicationLayers.Service)] = LogLevel.Debug,
@@ -65,11 +56,9 @@ namespace Reusable
                         //[nameof(Network)] = LogLevel.Trace,
                     }
                 },
-                // Renames properties.
-                // Sets default values for the specified keys when they are not set already. 
                 new FallbackNode
                 {
-                    Defaults =
+                    Properties =
                     {
                         [Names.Default.Level] = LogLevel.Information,
                         [Names.Custom.Layer] = "Undefined",
@@ -87,7 +76,6 @@ namespace Reusable
                         new WorkItemNode(),
                     }
                 },
-                // Serializes every #Serializable item in the log-entry and adds it as #Property.
                 new SerializerNode(),
                 new PropertyMapperNode
                 {
