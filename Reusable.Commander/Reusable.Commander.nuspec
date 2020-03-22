@@ -22,7 +22,6 @@
       <dependency id="Reusable.OneTo1" version="17.4.10" />
       <dependency id="Reusable.Core" version="17.4.10" />
       <dependency id="Reusable.MarkupBuilder" version="17.4.10" />
-      <dependency id="Reusable.OmniLog.SemanticExtensions" version="17.4.10" />
       <dependency id="Reusable.OmniLog" version="17.4.10" />
     </dependencies>
   </metadata>

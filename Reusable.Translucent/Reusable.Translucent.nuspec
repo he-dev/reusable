@@ -19,8 +19,6 @@
       <dependency id="System.Collections.Immutable" version="1.6.0" />
       <dependency id="Reusable.Core" version="17.4.10" />
       <dependency id="Reusable.Data" version="17.4.10" />
-      <dependency id="Reusable.OmniLog.Abstractions" version="17.4.10" />
-      <dependency id="Reusable.OmniLog.SemanticExtensions" version="17.4.10" />
       <dependency id="Reusable.OmniLog" version="17.4.10" />
       <dependency id="Reusable.Utilities.Autofac" version="17.4.10" />
       <dependency id="Reusable.Utilities.JsonNet" version="17.4.10" />

@@ -2,7 +2,6 @@ using System;
 using Reusable.Extensions;
 using Reusable.OmniLog.Abstractions;
 using Reusable.OmniLog.Nodes;
-using Buffer = Reusable.OmniLog.Nodes.Buffer;
 
 namespace Reusable.OmniLog.Extensions
 {
@@ -16,7 +15,7 @@ namespace Reusable.OmniLog.Extensions
         public static ILoggerScope UseBuffer(this ILoggerScope logger)
         {
             // Branch-node is properly initialized at this point.
-            return logger.Pipe(x => x.Node<Branch>().First.Node<Buffer>().Enable());
+            return logger.Pipe(x => x.Node<Branch>().First.Node<BufferLog>().Enable());
         }
 
         /// <summary>

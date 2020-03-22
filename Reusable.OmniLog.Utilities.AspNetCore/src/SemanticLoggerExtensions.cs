@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using Reusable.OmniLog.Abstractions;
+using Reusable.OmniLog.Extensions;
 using Reusable.OmniLog.Utilities.AspNetCore.Mvc.Filters;
 
 namespace Reusable.OmniLog.Utilities.AspNetCore

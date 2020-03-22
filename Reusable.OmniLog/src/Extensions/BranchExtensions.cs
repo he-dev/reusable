@@ -2,11 +2,11 @@ using Reusable.OmniLog.Nodes;
 
 namespace Reusable.OmniLog.Extensions
 {
-    public static class BranchNodeExtensions
+    public static class BranchExtensions
     {
         public static Correlate Correlation(this IBranch branch) => branch.First.Node<Correlate>();
         
-        public static Buffer Buffer(this IBranch branch) => branch.First.Node<Buffer>();
+        public static BufferLog Buffer(this IBranch branch) => branch.First.Node<BufferLog>();
         
         /// <summary>
         /// Gets the MemoryNode in current scope.

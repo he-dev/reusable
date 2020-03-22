@@ -23,7 +23,7 @@ namespace Reusable.OmniLog.Nodes
         {
             new Correlate(),
             new MeasureElapsedTime(),
-            new Buffer(),
+            new BufferLog(),
             new CacheInMemory(),
             new CollectWorkItemTelemetry(),
         };

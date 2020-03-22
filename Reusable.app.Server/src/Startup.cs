@@ -12,6 +12,7 @@ using Reusable.Beaver;
 using Reusable.OmniLog;
 using Reusable.OmniLog.Abstractions;
 using Reusable.OmniLog.Connectors;
+using Reusable.OmniLog.Extensions;
 using Reusable.OmniLog.Nodes;
 using Reusable.OmniLog.Properties;
 using Reusable.OmniLog.Utilities.AspNetCore;

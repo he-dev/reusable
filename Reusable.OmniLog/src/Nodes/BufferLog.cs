@@ -7,11 +7,11 @@ namespace Reusable.OmniLog.Nodes
     /// <summary>
     /// Temporarily holding log-entries while it's waiting to be transferred to another location. 
     /// </summary>
-    public class Buffer : LoggerNode
+    public class BufferLog : LoggerNode
     {
         private readonly Queue<ILogEntry> _buffer = new Queue<ILogEntry>();
 
-        public Buffer()
+        public BufferLog()
         {
             Enabled = false;
         }

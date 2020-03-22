@@ -20,8 +20,6 @@ namespace Reusable.OmniLog
 
         public static ILoggerFactory Empty() => new LoggerFactory(Enumerable.Empty<ILoggerNode>());
 
-        //public static LoggerFactoryBuilder Builder() => new LoggerFactoryBuilder();
-
         #region ILoggerFactory
 
         public ILogger CreateLogger(string name) => _loggers.GetOrAdd(name, n => CreatePipeline(n.ToString()));
@@ -31,13 +29,19 @@ namespace Reusable.OmniLog
             return (ILogger)CreateNodes().Prepend(new Logger { Name = loggerName }).Join().First();
         }
 
-        public void Dispose() { }
+        public void Dispose()
+        {
+            foreach (var logger in _loggers)
+            {
+                foreach (var node in ((ILoggerNode)logger.Value).EnumerateNext())
+                {
+                    node.Dispose();
+                }
+            }
+            _loggers.Clear();
+        }
 
         #endregion
-
-        //public IEnumerator<ILoggerNode> GetEnumerator() => _nodes.GetEnumerator();
-
-        //IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable)_nodes).GetEnumerator();
     }
 
     public static class LoggerFactoryExtensions

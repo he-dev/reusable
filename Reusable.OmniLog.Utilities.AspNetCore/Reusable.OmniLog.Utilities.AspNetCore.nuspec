@@ -18,12 +18,10 @@
       <dependency id="Microsoft.Extensions.Configuration.Abstractions" version="2.2.0" />
       <dependency id="Microsoft.Extensions.Configuration.Binder" version="2.2.4" />
       <dependency id="Microsoft.Extensions.Logging.Abstractions" version="2.2.0" />
-      <dependency id="System.Threading.Tasks.Dataflow" version="4.9.0" />
       <dependency id="System.ValueTuple" version="4.5.0" />
       <dependency id="Microsoft.AspNetCore.Http.Abstractions" version="2.2.0" />
       <dependency id="Reusable.Beaver" version="17.4.10" />
       <dependency id="Reusable.OmniLog" version="17.4.10" />
-      <dependency id="Reusable.OmniLog.SemanticExtensions" version="17.4.10" />
     </dependencies>
   </metadata>
   <files>
