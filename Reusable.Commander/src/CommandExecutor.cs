@@ -11,8 +11,8 @@ using JetBrains.Annotations;
 using Reusable.Exceptionize;
 using Reusable.Extensions;
 using Reusable.OmniLog;
+using Reusable.OmniLog.Extensions;
 using Reusable.OmniLog.Abstractions;
-using Reusable.OmniLog.SemanticExtensions;
 
 namespace Reusable.Commander
 {

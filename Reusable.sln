@@ -5,9 +5,7 @@ VisualStudioVersion = 16.0.29102.190
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Reusable.OmniLog", "Reusable.OmniLog\Reusable.OmniLog.csproj", "{6C0AB70F-1BCB-488C-B905-6681A3BF152F}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Reusable.OmniLog.SemanticExtensions", "Reusable.OmniLog.SemanticExtensions\Reusable.OmniLog.SemanticExtensions.csproj", "{896E8BDB-3A33-4D64-B785-7C6FFFF8EB2A}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Reusable.OmniLog.NLogRx", "Reusable.OmniLog.NLogRx\Reusable.OmniLog.NLogRx.csproj", "{2E315F60-6572-4E5E-866D-475D6A990CD5}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Reusable.OmniLog.Connectors.NLog", "Reusable.OmniLog.Connectors.NLog\Reusable.OmniLog.Connectors.NLog.csproj", "{2E315F60-6572-4E5E-866D-475D6A990CD5}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Reusable.Utilities.JsonNet", "Reusable.Utilities.JsonNet\Reusable.Utilities.JsonNet.csproj", "{4112D46D-2496-40D4-A0D0-33C190A11C7B}"
 EndProject
@@ -31,7 +29,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Reusable.app.Console", "Reu
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Reusable.app.Server", "Reusable.app.Server\Reusable.app.Server.csproj", "{1CA8ADE8-04FE-45C4-9D78-A74CF6E111EC}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Reusable.OmniLog.SemanticExtensions.AspNetCore", "Reusable.OmniLog.SemanticExtensions.AspNetCore\Reusable.OmniLog.SemanticExtensions.AspNetCore.csproj", "{645BDDA4-873B-4B20-9696-B442E85BD270}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Reusable.OmniLog.Utilities.AspNetCore", "Reusable.OmniLog.Utilities.AspNetCore\Reusable.OmniLog.Utilities.AspNetCore.csproj", "{645BDDA4-873B-4B20-9696-B442E85BD270}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Reusable.Utilities.AspNetCore", "Reusable.Utilities.AspNetCore\Reusable.Utilities.AspNetCore.csproj", "{37A5FD78-1DCF-4B31-AC03-81DC493BD0BB}"
 EndProject
@@ -98,10 +96,6 @@ Global
 		{6C0AB70F-1BCB-488C-B905-6681A3BF152F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6C0AB70F-1BCB-488C-B905-6681A3BF152F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6C0AB70F-1BCB-488C-B905-6681A3BF152F}.Release|Any CPU.Build.0 = Release|Any CPU
-		{896E8BDB-3A33-4D64-B785-7C6FFFF8EB2A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{896E8BDB-3A33-4D64-B785-7C6FFFF8EB2A}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{896E8BDB-3A33-4D64-B785-7C6FFFF8EB2A}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{896E8BDB-3A33-4D64-B785-7C6FFFF8EB2A}.Release|Any CPU.Build.0 = Release|Any CPU
 		{2E315F60-6572-4E5E-866D-475D6A990CD5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{2E315F60-6572-4E5E-866D-475D6A990CD5}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2E315F60-6572-4E5E-866D-475D6A990CD5}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -249,7 +243,6 @@ Global
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{6C0AB70F-1BCB-488C-B905-6681A3BF152F} = {E50273AB-3639-4A78-8DE1-D46E402EA3EF}
-		{896E8BDB-3A33-4D64-B785-7C6FFFF8EB2A} = {E50273AB-3639-4A78-8DE1-D46E402EA3EF}
 		{2E315F60-6572-4E5E-866D-475D6A990CD5} = {E50273AB-3639-4A78-8DE1-D46E402EA3EF}
 		{4112D46D-2496-40D4-A0D0-33C190A11C7B} = {E50273AB-3639-4A78-8DE1-D46E402EA3EF}
 		{41886267-C1A5-492E-AEDA-C55702405C28} = {E50273AB-3639-4A78-8DE1-D46E402EA3EF}

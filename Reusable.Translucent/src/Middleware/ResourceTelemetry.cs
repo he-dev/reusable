@@ -4,10 +4,11 @@ using JetBrains.Annotations;
 using Reusable.Exceptionize;
 using Reusable.Extensions;
 using Reusable.OmniLog;
+using Reusable.OmniLog.Extensions;
 using Reusable.OmniLog.Abstractions;
 using Reusable.OmniLog.Nodes;
-using Reusable.OmniLog.SemanticExtensions;
 using Reusable.Translucent.Abstractions;
+using LoggerScopeExtensions = Reusable.OmniLog.Extensions.LoggerScopeExtensions;
 
 namespace Reusable.Translucent.Middleware
 {

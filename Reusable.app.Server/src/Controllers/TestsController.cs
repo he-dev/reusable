@@ -1,8 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Reusable.OmniLog;
+using Reusable.OmniLog.Extensions;
 using Reusable.OmniLog.Abstractions;
-using Reusable.OmniLog.SemanticExtensions;
-using Reusable.OmniLog.SemanticExtensions.AspNetCore.Mvc.Filters;
+using Reusable.OmniLog.Utilities.AspNetCore.Mvc.Filters;
 
 
 namespace Reusable.Apps.Server.Controllers

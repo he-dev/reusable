@@ -19,7 +19,7 @@ namespace Reusable.OmniLog.Nodes
             {
                 if (computable.GetValue(request) is {} value)
                 {
-                    request.Add(computable.Name, value, LogProperty.Process.With<EchoNode>());
+                    request.Push(computable.Name, value, LogProperty.Process.With<EchoNode>());
                 }
             }
 

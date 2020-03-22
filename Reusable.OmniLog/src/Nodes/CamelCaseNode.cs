@@ -10,10 +10,8 @@ namespace Reusable.OmniLog.Nodes
 
         public HashSet<string> PropertyNames { get; set; } = new HashSet<string>(SoftString.Comparer)
         {
-            "Logger",
-            "Layer",
-            "Category",
-            "SnapshotName"
+            Names.Default.Logger,
+            Names.Default.SnapshotName,
         };
 
         public override void Invoke(ILogEntry request)
@@ -22,7 +20,7 @@ namespace Reusable.OmniLog.Nodes
             {
                 if (request.TryGetProperty(propertyName, out var property) && property.Value is string value)
                 {
-                    request.Add(property.Name, value.ToCamelCase(), LogProperty.Process.With<EchoNode>());
+                    request.Push(property.Name, value.ToCamelCase(), LogProperty.Process.With<EchoNode>());
                 }
             }
 

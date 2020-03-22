@@ -3,6 +3,8 @@ using System.Linq;
 using System.Threading;
 using Reusable.Collections.Generic;
 using Reusable.OmniLog.Abstractions;
+using Reusable.OmniLog.Connectors;
+using Reusable.OmniLog.Extensions;
 using Reusable.OmniLog.Nodes;
 using Reusable.OmniLog.Properties;
 using Xunit;
@@ -43,7 +45,7 @@ namespace Reusable.OmniLog
         [Fact]
         public void Can_log_message()
         {
-            var rx = new MemoryRx();
+            var rx = new MemoryConnector();
             using var lf = new LoggerFactoryBuilder
             {
                 new StopwatchNode(),
@@ -55,7 +57,7 @@ namespace Reusable.OmniLog
                 //new BufferNode(),
                 new EchoNode
                 {
-                    Rx = { rx },
+                    Connectors = { rx },
                 }
             }.Build();
             var logger = lf.CreateLogger("test");
@@ -69,7 +71,7 @@ namespace Reusable.OmniLog
         {
             ExecutionContext.SuppressFlow();
 
-            var rx = new MemoryRx();
+            var rx = new MemoryConnector();
             var lf = new LoggerFactoryBuilder
             {
                 new StopwatchNode(),
@@ -81,7 +83,7 @@ namespace Reusable.OmniLog
                 //new BufferNode(),
                 new EchoNode
                 {
-                    Rx = { rx },
+                    Connectors = { rx },
                 }
             }.Build();
             using (lf)
@@ -114,7 +116,7 @@ namespace Reusable.OmniLog
         [Fact]
         public void Can_serialize_data()
         {
-            var rx = new MemoryRx();
+            var rx = new MemoryConnector();
             var lf = new LoggerFactoryBuilder
             {
                 new StopwatchNode(),
@@ -127,7 +129,7 @@ namespace Reusable.OmniLog
                 //new BufferNode(),
                 new EchoNode
                 {
-                    Rx = { rx },
+                    Connectors = { rx },
                 }
             }.Build();
             using (lf)
@@ -148,7 +150,7 @@ namespace Reusable.OmniLog
         {
             var timestamp = DateTime.Parse("2019-05-01");
 
-            var rx = new MemoryRx();
+            var rx = new MemoryConnector();
             var lf = new LoggerFactoryBuilder
             {
                 new PropertyNode
@@ -161,7 +163,7 @@ namespace Reusable.OmniLog
                 new DelegateNode(),
                 new EchoNode
                 {
-                    Rx = { rx },
+                    Connectors = { rx },
                 }
             }.Build();
             using (lf)
@@ -180,13 +182,13 @@ namespace Reusable.OmniLog
         {
             var timestamp = DateTime.Parse("2019-05-01");
 
-            var rx = new MemoryRx();
+            var rx = new MemoryConnector();
             var lf = new LoggerFactoryBuilder
             {
                 new PropertyNode { Properties = { new Timestamp(new[] { timestamp }) } },
                 new DelegateNode(),
                 new DestructureNode(),
-                new EchoNode { Rx = { rx }, CreateLogEntryView = e => e }
+                new EchoNode { Connectors = { rx }, CreateLogEntryView = e => e }
             }.Build();
             using (lf)
             {
@@ -207,7 +209,7 @@ namespace Reusable.OmniLog
         {
             var timestamp = DateTime.Parse("2019-05-01");
 
-            var rx = new MemoryRx();
+            var rx = new MemoryConnector();
             var lf = new LoggerFactoryBuilder()
             {
                 new PropertyNode
@@ -228,7 +230,7 @@ namespace Reusable.OmniLog
                 },
                 new EchoNode
                 {
-                    Rx = { rx },
+                    Connectors = { rx },
                 }
             }.Build();
             using (lf)
@@ -251,7 +253,7 @@ namespace Reusable.OmniLog
                 new BranchNode(),
                 new EchoNode
                 {
-                    Rx = { new MemoryRx() },
+                    Connectors = { new MemoryConnector() },
                 }
             }.Build();
 
@@ -260,7 +262,7 @@ namespace Reusable.OmniLog
 
             l.Log(e => e.Message("Hallo!"));
 
-            var rx = lf.Receivers().OfType<MemoryRx>().Single();
+            var rx = lf.Receivers().OfType<MemoryConnector>().Single();
             var mn = l.Scope().Memory();
 
             //Assert.Same(rx.First(), mn.First());

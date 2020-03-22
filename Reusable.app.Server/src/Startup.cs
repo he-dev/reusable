@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -10,9 +11,10 @@ using Reusable.Apps.Server.Json;
 using Reusable.Beaver;
 using Reusable.OmniLog;
 using Reusable.OmniLog.Abstractions;
+using Reusable.OmniLog.Connectors;
+using Reusable.OmniLog.Nodes;
 using Reusable.OmniLog.Properties;
-using Reusable.OmniLog.SemanticExtensions.AspNetCore;
-using Reusable.OmniLog.SemanticExtensions.AspNetCore.Extensions;
+using Reusable.OmniLog.Utilities.AspNetCore;
 using Reusable.Utilities.AspNetCore;
 using Reusable.Utilities.AspNetCore.Hosting;
 using Reusable.Utilities.NLog.LayoutRenderers;
@@ -52,34 +54,38 @@ namespace Reusable.Apps.Server
             services.AddOmniLog(
                 LoggerFactory
                     .Builder()
-                    .UseStopwatch()
-                    .UseService
-                    (
+                    .Use<StopwatchNode>()
+                    .Use<PropertyNode>(node => node.Properties = new List<IPropertyService>
+                    {
                         new Constant("Environment", _hostingEnvironment.EnvironmentName),
                         new Constant("Product", "Reusable.app.Server"),
                         new Timestamp<DateTimeUtc>()
-                    )
-                    .UseDelegate()
-                    .UseScope()
-                    .UseBuilder()
-                    .UseDestructure()
-                    .UseObjectMapper()
-                    .UseSerializer()
-                    .UseCamelCase()
-                    .UsePropertyMapper
-                    (
-                        (Names.Default.SnapshotName, "Identifier")
-                    )
-                    .UseFallback((Names.Default.Level, LogLevel.Information))
-                    .UseEcho
-                    (
-#if DEBUG
-                        new SimpleConsoleRx
+                    })
+                    .Use<DelegateNode>()
+                    .Use<BranchNode>()
+                    .Use<BufferNode>()
+                    .Use<DestructureNode>()
+                    .Use<ObjectMapperNode>()
+                    .Use<SerializerNode>()
+                    .Use<CamelCaseNode>()
+                    .Use<PropertyMapperNode>(node => node.Mappings = new Dictionary<string, string>
+                    {
+                        { Names.Default.SnapshotName, "Identifier" }
+                    })
+                    .Use<FallbackNode>(node => node.Properties = new Dictionary<string, object>
+                    {
+                        { Names.Default.Level, LogLevel.Information }
+                    })
+                    .Use<EchoNode>(node => node.Connectors = new List<IConnector>
                         {
-                            Template = @"[{Timestamp:HH:mm:ss:fff}] [{Level}] {Layer} | {Category} | {Identifier}: {Snapshot} {Elapsed}ms | {Message} {Exception}"
-                        },
+#if DEBUG
+                            new SimpleConsoleRx
+                            {
+                                Template = @"[{Timestamp:HH:mm:ss:fff}] [{Level}] {Layer} | {Category} | {Identifier}: {Snapshot} {Elapsed}ms | {Message} {Exception}"
+                            },
 #endif
-                        new NLogRx()
+                            new NLogConnector()
+                        }
                     )
                     .Build()
             );

@@ -9,14 +9,14 @@ using Reusable.Collections.Generic;
 using Reusable.Exceptionize;
 using Reusable.Extensions;
 using Reusable.OmniLog.Abstractions;
+using Reusable.OmniLog.Connectors;
 using Reusable.OmniLog.Data;
-using Reusable.OmniLog.Helpers;
 using Reusable.OmniLog.Nodes;
-using Reusable.OmniLog.Utilities;
+using Reusable.OmniLog.Services;
 
 // ReSharper disable ExplicitCallerInfoArgument - yes, we want to explicitly set it via overloads.
 
-namespace Reusable.OmniLog
+namespace Reusable.OmniLog.Extensions
 {
     [PublicAPI]
     public static class LoggerExtensions
@@ -56,7 +56,7 @@ namespace Reusable.OmniLog
         public static void Log(this ILogger logger, Action<ILogEntry> process)
         {
             logger.UseDelegate(process);
-            logger.Log(new LogEntry());
+            logger.Log(LogEntry.Empty());
         }
 
         public static void Log(this ILogger logger, params object[] items)
@@ -120,7 +120,7 @@ namespace Reusable.OmniLog
 
         private static ILogEntry ConsoleTemplateBuilder(this ILogEntry logEntry, bool isParagraph, IConsoleStyle style, IEnumerable<IHtmlConsoleTemplateBuilder> builders)
         {
-            return logEntry.Add(Names.Default.Message, new HtmlConsoleTemplateBuilder(isParagraph, style, builders), m => m.ProcessWith<EchoNode>().LogWith<HtmlConsoleRx>());
+            return logEntry.Push(Names.Default.Message, new HtmlConsoleTemplateBuilder(isParagraph, style, builders), m => m.ProcessWith<EchoNode>().LogWith<HtmlConsoleRx>());
         }
 
         #endregion
@@ -155,10 +155,10 @@ namespace Reusable.OmniLog
         {
             logger.Log(log =>
             {
-                log.Add(context.Name, context, m => m.ProcessWith<BuilderNode>());
-                log.Add(Names.Default.CallerMemberName, callerMemberName!, m => m.ProcessWith<EchoNode>());
-                log.Add(Names.Default.CallerLineNumber, callerLineNumber!, m => m.ProcessWith<EchoNode>());
-                log.Add(Names.Default.CallerFilePath, Path.GetFileName(callerFilePath!), m => m.ProcessWith<EchoNode>());
+                log.Push(context.Name, context, m => m.ProcessWith<BuilderNode>());
+                log.Push(Names.Default.CallerMemberName, callerMemberName!, m => m.ProcessWith<EchoNode>());
+                log.Push(Names.Default.CallerLineNumber, callerLineNumber!, m => m.ProcessWith<EchoNode>());
+                log.Push(Names.Default.CallerFilePath, Path.GetFileName(callerFilePath!), m => m.ProcessWith<EchoNode>());
                 alter?.Invoke(log);
             });
         }
@@ -234,9 +234,9 @@ namespace Reusable.OmniLog
             logger.Log(log =>
             {
                 node(log);
-                log.Add(Names.Default.CallerMemberName, callerMemberName!, m => m.ProcessWith<EchoNode>());
-                log.Add(Names.Default.CallerLineNumber, callerLineNumber!, m => m.ProcessWith<EchoNode>());
-                log.Add(Names.Default.CallerFilePath, Path.GetFileName(callerFilePath!), m => m.ProcessWith<EchoNode>());
+                log.Push(Names.Default.CallerMemberName, callerMemberName!, m => m.ProcessWith<EchoNode>());
+                log.Push(Names.Default.CallerLineNumber, callerLineNumber!, m => m.ProcessWith<EchoNode>());
+                log.Push(Names.Default.CallerFilePath, Path.GetFileName(callerFilePath!), m => m.ProcessWith<EchoNode>());
             });
         }
 

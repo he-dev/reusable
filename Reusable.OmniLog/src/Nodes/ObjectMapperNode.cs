@@ -22,7 +22,7 @@ namespace Reusable.OmniLog.Nodes
                 if (property.Value is {} && Mappings.TryGetMapping(property.Value.GetType(), out var map))
                 {
                     var obj = map(property.Value);
-                    request.Add(property.Name, obj, LogProperty.Process.With<SerializerNode>()); // Replace the original object.
+                    request.Push(property.Name, obj, LogProperty.Process.With<SerializerNode>()); // Replace the original object.
                 }
             }
 
@@ -81,13 +81,5 @@ namespace Reusable.OmniLog.Nodes
 
             IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
         }
-    }
-
-    public static class MapperNodeHelper
-    {
-//        public static LogEntry Dump(this LogEntry logEntry, object obj)
-//        {
-//            return logEntry.SetItem(nameof(Dump), OneToManyNode.LogEntryItemTags.Explodable, obj);
-//        }
     }
 }

@@ -1,10 +1,10 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Linq.Custom;
 using JetBrains.Annotations;
 using Reusable.Collections.Generic;
 using Reusable.OmniLog.Abstractions;
+using Reusable.OmniLog.Extensions;
 using Reusable.OmniLog.Utilities;
 
 namespace Reusable.OmniLog.Nodes
@@ -96,13 +96,7 @@ namespace Reusable.OmniLog.Nodes
 
     public static class WorkItemHelper
     {
-        public static WorkItemNode WorkItem(this BranchNode branch)
-        {
-            return branch.First?.Node<WorkItemNode>() ?? throw new InvalidOperationException
-            (
-                $"Cannot get {nameof(WorkItemNode)} because it is not initialized. Use Logger.BeginScope() and Logger.Log(Application.Context.WorkItem(..) first."
-            );
-        }
+        
 
         public static Func<ILogEntry, bool> IsWorkItemBegin(string propertyName, string propertyValue)
         {

@@ -24,6 +24,9 @@ namespace Reusable.OmniLog.Services
             }
         };
 
-        public object Invoke(object obj) => JsonConvert.SerializeObject(obj, Settings);
+        public object Invoke(object obj)
+        {
+            return obj is string ? obj : JsonConvert.SerializeObject(obj, Settings);
+        }
     }
 }

@@ -1,6 +1,5 @@
 using System;
 using System.Diagnostics;
-using System.Diagnostics.CodeAnalysis;
 using JetBrains.Annotations;
 using Reusable.Diagnostics;
 using Reusable.OmniLog.Abstractions;
@@ -37,7 +36,7 @@ namespace Reusable.OmniLog
 
         public static class CanLog
         {
-            public static Func<LogProperty, bool> With<T>() where T : ILogRx
+            public static Func<LogProperty, bool> With<T>() where T : IConnector
             {
                 return property => property.Meta.Loggers.Count == 0 || property.Meta.Loggers.Contains(typeof(T));
             }
@@ -51,19 +50,21 @@ namespace Reusable.OmniLog
             }
         }
     }
-
+    
     public abstract class Names
     {
         public abstract class Default
         {
             public const string Timestamp = nameof(Timestamp);
+            public const string Correlation = nameof(Correlation);
+            public const string Layer = nameof(Layer);
             public const string Logger = nameof(Logger);
             public const string Level = nameof(Level);
-            public const string Message = nameof(Message);
-            public const string Correlation = nameof(Correlation);
+            public const string Category = nameof(Category);
             public const string SnapshotName = nameof(SnapshotName);
             public const string Snapshot = nameof(Snapshot);
-            public const string Elapsed = nameof(Stopwatch.Elapsed);
+            public const string Elapsed = nameof(Elapsed);
+            public const string Message = nameof(Message);
             public const string Exception = nameof(Exception);
             public const string CallerMemberName = nameof(CallerMemberName);
             public const string CallerLineNumber = nameof(CallerLineNumber);

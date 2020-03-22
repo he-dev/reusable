@@ -3,6 +3,8 @@ using Reusable.Apps;
 using Reusable.Exceptionize;
 using Reusable.OmniLog;
 using Reusable.OmniLog.Abstractions;
+using Reusable.OmniLog.Connectors;
+using Reusable.OmniLog.Extensions;
 using Reusable.OmniLog.Nodes;
 using Reusable.OmniLog.Properties;
 using Reusable.OmniLog.Utilities;
@@ -10,108 +12,38 @@ using Reusable.Utilities.NLog.LayoutRenderers;
 
 namespace Reusable
 {
-    using Reusable.OmniLog.SemanticExtensions;
-
     public static partial class Examples
     {
         public static void Log()
         {
             SmartPropertiesLayoutRenderer.Register();
 
-            var loggerFactoryBuilder = new LoggerFactoryBuilder
-            {
-                new PropertyNode
-                {
-                    Properties =
+            using var loggerFactory =
+                LoggerPipelines
+                    .Default
+                    .Configure<PropertyNode>(node =>
                     {
-                        new Constant("Environment", "Demo"),
-                        new Constant("Product", "Reusable.app.Console"),
-                        // Adds utc timestamp to each log-entry.
-                        new Timestamp<DateTimeUtc>()
-                    }
-                },
-                new DelegateNode(),
-                new PropertyFactoryNode(),
-                new BuilderNode(),
-                new DestructureNode(),
-                new ObjectMapperNode
-                {
-                    Mappings =
+                        node.Properties.Add(new Constant("Environment", "Demo"));
+                        node.Properties.Add(new Constant("Product", "Reusable.app.Console"));
+                    })
+                    .Configure<ObjectMapperNode>(node => { node.Mappings.Add(ObjectMapperNode.Mapping.For<Person>(x => new { FullName = $"{x.LastName}, {x.FirstName}".ToUpper() })); })
+                    .Configure<PropertyMapperNode>(node =>
                     {
-                        ObjectMapperNode.Mapping.For<Person>(x => new { FullName = $"{x.LastName}, {x.FirstName}".ToUpper() })
-                    }
-                },
-                new FilterNode { CanLog = _ => true },
-                new MapValueToLogLevelNode
-                {
-                    Property = Names.Custom.Layer,
-                    Mapper = new MapStringToLogLevel
+                        node.Mappings.Add(Names.Default.Correlation, "Scope");
+                        node.Mappings.Add(Names.Default.SnapshotName, "Identifier");
+                    })
+                    .Configure<EchoNode>(node =>
                     {
-                        //[Layer. nameof(Business)] = LogLevel.Information,
-                        [nameof(ApplicationLayers.Service)] = LogLevel.Debug,
-                        [nameof(ApplicationLayers.Telemetry)] = LogLevel.Information,
-                        //[nameof(Presentation)] = LogLevel.Trace,
-                        //[nameof(IO)] = LogLevel.Trace,
-                        //[nameof(Database)] = LogLevel.Trace,
-                        //[nameof(Network)] = LogLevel.Trace,
-                    }
-                },
-                new FallbackNode
-                {
-                    Properties =
-                    {
-                        [Names.Default.Level] = LogLevel.Information,
-                        [Names.Custom.Layer] = "Undefined",
-                        [Names.Custom.Category] = "Undefined"
-                    }
-                },
-                new BranchNode
-                {
-                    CreateNodes = () => new ILoggerNode[]
-                    {
-                        new CorrelationNode(),
-                        new StopwatchNode(),
-                        new BufferNode(),
-                        new MemoryNode(),
-                        new WorkItemNode(),
-                    }
-                },
-                new SerializerNode(),
-                new PropertyMapperNode
-                {
-                    Mappings =
-                    {
-                        //{ LogEntry.Names.Scope, "Scope" },
-                        { Names.Default.SnapshotName, "Identifier" },
-                        { Names.Default.Correlation, "Scope" },
-                        //{ LogEntry.Names.Snapshot, "Snapshot" },
-                    }
-                },
-                new CamelCaseNode
-                {
-                    PropertyNames =
-                    {
-                        "Identifier",
-                    }
-                },
-                // When activated, buffers log-entries until committed. Can be enabled with logger.UseTransaction(). Dispose to disable.
-                //new BufferNode(),
-                // The final node that sends log-entries to the receivers.
-                new EchoNode
-                {
-                    Rx =
-                    {
-                        new NLogRx(), // Use NLog.
-                        new SimpleConsoleRx // Use console.
+                        node.Connectors.Add(new NLogConnector());
+                        node.Connectors.Add(new SimpleConsoleRx
                         {
                             // Render output with this template. This is the default.
                             Template = @"[{Timestamp:HH:mm:ss:fff}] [{Level}] {Layer} | {Category} | {Identifier}: {Snapshot} {Elapsed}ms | {Message} {Exception}"
-                        }
-                    },
-                }
-            };
-
-            var logger = loggerFactoryBuilder.Build().CreateLogger("Demo");
+                        });
+                    })
+                    .ToLoggerFactory();
+            ;
+            var logger = loggerFactory.CreateLogger("Demo");
 
             logger.Information("Hallo omni-log!");
 
@@ -132,7 +64,7 @@ namespace Reusable
                 //logger.Log(Layer.Service, Category.WorkItem, Snapshot.Take("testFile", new { fileName = "test" }), CallerInfo.Create());
                 //logger.Log(Layer.Service, Category.WorkItem, new { testFile = new { fileName = "test" } }, CallSite.Create());
 
-                logger.Log(Application.Context.WorkItem("testFile", new { fileName = "test" }).Message("Blub!"));
+                logger.Log(Execution.Context.WorkItem("testFile", new { fileName = "test" }).Message("Blub!"));
                 logger.Scope().WorkItem().Push(new Exception());
 
 

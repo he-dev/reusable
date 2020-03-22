@@ -1,5 +1,6 @@
 using System;
 using Reusable.OmniLog.Abstractions;
+using Reusable.OmniLog.Extensions;
 
 namespace Reusable.OmniLog
 {

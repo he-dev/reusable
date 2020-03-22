@@ -17,7 +17,7 @@ namespace Reusable.OmniLog.Nodes
             {
                 if (request.TryGetProperty(key, out var property) && property.CanProcessWith<EchoNode>())
                 {
-                    request.Add(value!, property.Value, m => m.ProcessWith<EchoNode>());
+                    request.Push(value, property.Value, m => m.ProcessWith<EchoNode>());
                 }
             }
 

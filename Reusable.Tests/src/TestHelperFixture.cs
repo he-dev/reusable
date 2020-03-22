@@ -3,6 +3,7 @@ using JetBrains.Annotations;
 using Microsoft.Extensions.Caching.Memory;
 using Reusable.OmniLog;
 using Reusable.OmniLog.Abstractions;
+using Reusable.OmniLog.Connectors;
 using Reusable.Translucent;
 
 namespace Reusable
@@ -14,7 +15,7 @@ namespace Reusable
     {
         public TestHelperFixture()
         {
-            LoggerFactory = CreateLoggerFactory(new MemoryRx());
+            LoggerFactory = CreateLoggerFactory(new MemoryConnector());
             Cache = CreateCache();
             Resource = CreateResource();
         }

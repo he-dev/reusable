@@ -1,13 +1,11 @@
 using System;
-using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Custom;
 using Reusable.Collections.Generic;
 using Reusable.Extensions;
 using Reusable.OmniLog.Abstractions;
-using Reusable.OmniLog.Nodes;
-using Reusable.OmniLog.Properties;
 
 namespace Reusable.OmniLog
 {
@@ -17,7 +15,7 @@ namespace Reusable.OmniLog
 
         private readonly ConcurrentDictionary<SoftString, ILogger> _loggers = new ConcurrentDictionary<SoftString, ILogger>();
 
-        public LoggerFactory(IEnumerable<ILoggerNode> nodes) => _nodes = nodes.ToList();
+        public LoggerFactory(IEnumerable<ILoggerNode> nodes) => _nodes = nodes;
 
         public static ILoggerFactory Empty() => new LoggerFactory(Enumerable.Empty<ILoggerNode>());
 
@@ -25,57 +23,37 @@ namespace Reusable.OmniLog
 
         #region ILoggerFactory
 
-        public ILogger CreateLogger(string name) => _loggers.GetOrAdd(name!, n => CreatePipeline(n.ToString()));
+        public ILogger CreateLogger(string name) => _loggers.GetOrAdd(name, n => CreatePipeline(n.ToString()));
 
         private ILogger CreatePipeline(string loggerName)
         {
-            var loggerNode = new PropertyNode { Properties = { new Constant(nameof(Logger), loggerName) } };
-
-            return (ILogger)new ILoggerNode[] { new Logger(), loggerNode }.Concat(this).Join().First();
+            return (ILogger)_nodes.Prepend(new Logger { Name = loggerName }).Join().First();
         }
 
         public void Dispose() { }
 
         #endregion
 
-        public IEnumerator<ILoggerNode> GetEnumerator() => _nodes.GetEnumerator();
+        //public IEnumerator<ILoggerNode> GetEnumerator() => _nodes.GetEnumerator();
 
-        IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable)_nodes).GetEnumerator();
+        //IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable)_nodes).GetEnumerator();
     }
 
-    public class LoggerFactoryBuilder : List<ILoggerNode>
+    public static class LoggerFactoryExtensions
     {
-        public LoggerFactoryBuilder Use<T>(LoggerFactoryBuilder builder, Action<T>? configure = default) where T : ILoggerNode, new()
-        {
-            Add(new T().Pipe(configure));
-            return this;
-        }
-
-        public ILoggerFactory Build()
-        {
-            return new LoggerFactory(this);
-        }
+        public static ILogger<T> CreateLogger<T>(this ILoggerFactory loggerFactory) => new Logger<T>(loggerFactory);
     }
 
     public static class LoggerFactoryBuilderExtensions
     {
-        public static ILogger<T> CreateLogger<T>(this ILoggerFactory loggerFactory)
-        {
-            return new Logger<T>(loggerFactory);
-        }
-
         public static LoggerFactoryBuilder Use<T>(this LoggerFactoryBuilder builder, Action<T>? configure = default) where T : ILoggerNode, new()
         {
-            var node = new T();
-            configure?.Invoke(node);
-            return builder.Use(node);
+            return builder.Use(new T().Pipe(configure));
         }
-
 
         public static LoggerFactoryBuilder Use<T>(this LoggerFactoryBuilder builder, T node) where T : ILoggerNode
         {
-            builder.Add(node);
-            return builder;
+            return builder.Pipe(b => b.Add(node));
         }
     }
 }

@@ -40,13 +40,13 @@ namespace Reusable.OmniLog
                 return ProcessWith<T>();
             }
 
-            public LogPropertyMetaBuilder LogWith<T>() where T : ILogRx
+            public LogPropertyMetaBuilder LogWith<T>() where T : IConnector
             {
                 _meta.Loggers.Add(typeof(T));
                 return this;
             }
 
-            public LogPropertyMetaBuilder LogWith<T>(T rx) where T : ILogRx
+            public LogPropertyMetaBuilder LogWith<T>(T rx) where T : IConnector
             {
                 return LogWith<T>();
             }

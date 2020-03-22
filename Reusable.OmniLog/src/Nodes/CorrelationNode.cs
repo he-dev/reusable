@@ -1,6 +1,8 @@
 using System;
+using System.Linq;
 using Newtonsoft.Json;
 using Reusable.OmniLog.Abstractions;
+using Reusable.OmniLog.Extensions;
 
 namespace Reusable.OmniLog.Nodes
 {
@@ -24,9 +26,12 @@ namespace Reusable.OmniLog.Nodes
         [JsonProperty]
         public object? CorrelationHandle { get; set; }
 
-        //[JsonProperty]
-        public DateTime CreatedOn { get; set; } = DateTime.UtcNow;
-
-        public override void Invoke(ILogEntry request) => InvokeNext(request);
+        public override void Invoke(ILogEntry request)
+        {
+            var branch = BranchNode.Scope!;
+            var scopes = branch.Enumerate().Select(x => x.Value.First.Node<CorrelationNode>()).ToList();
+            request.Push(Names.Default.Correlation, scopes, m => m.ProcessWith<SerializerNode>());
+            InvokeNext(request);
+        }
     }
 }

@@ -17,7 +17,7 @@ namespace Reusable.OmniLog.Nodes
             
             if (!request.TryGetProperty(Names.Default.Level, out _) && request.TryGetProperty(Property, out var property))
             {
-                request.Add(Names.Default.Level, Mapper.Invoke(property.Value), m => m.ProcessWith<EchoNode>());
+                request.Push(Names.Default.Level, Mapper.Invoke(property.Value), m => m.ProcessWith<EchoNode>());
             }
 
             InvokeNext(request);

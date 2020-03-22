@@ -19,7 +19,7 @@ namespace Reusable.OmniLog.Nodes
             {
                 if (!request.TryGetProperty(key, out _))
                 {
-                    request.Add(key, value, m => m.ProcessWith<EchoNode>());
+                    request.Push(key, value, m => m.ProcessWith<EchoNode>());
                 }
             }
 

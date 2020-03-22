@@ -65,12 +65,6 @@ namespace Reusable.OmniLog.Nodes
                 yield break;
             }
 
-            if (obj is Exception)
-            {
-                yield return new LogProperty(Names.Default.Exception, obj, LogPropertyMeta.Builder.ProcessWith<EchoNode>());
-                yield break;
-            }
-
             foreach (var tryCreateProperties in TryCreateProperties)
             {
                 var any = false;

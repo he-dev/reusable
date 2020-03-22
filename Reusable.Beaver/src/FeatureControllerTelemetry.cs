@@ -5,8 +5,8 @@ using System.Threading.Tasks;
 using Reusable.Extensions;
 using Reusable.OmniLog;
 using Reusable.OmniLog.Abstractions;
+using Reusable.OmniLog.Extensions;
 using Reusable.OmniLog.Nodes;
-using Reusable.OmniLog.SemanticExtensions;
 
 namespace Reusable.Beaver
 {
@@ -41,7 +41,7 @@ namespace Reusable.Beaver
                 if (this.IsEnabled(Feature.Telemetry.CreateName(name)))
                 {
                     var feature = this[name];
-                    _logger.Log(Application.Layer.Service().Meta("featureTelemetry", new
+                    _logger.Log(Execution.Context.Service().Meta("featureTelemetry", new
                     {
                         name = feature.Name,
                         tags = feature.Tags,

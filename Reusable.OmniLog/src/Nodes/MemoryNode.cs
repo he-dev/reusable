@@ -4,6 +4,7 @@ using System.Data;
 using System.Linq;
 using Reusable.Extensions;
 using Reusable.OmniLog.Abstractions;
+using Reusable.OmniLog.Extensions;
 
 namespace Reusable.OmniLog.Nodes
 {
@@ -44,18 +45,9 @@ namespace Reusable.OmniLog.Nodes
 
     public static class MemoryNodeHelper
     {
-        /// <summary>
-        /// Activates a new MemoryNode.
-        /// </summary>
-        public static ILoggerScope UseMemory(this ILoggerScope logger, int capacity = 10_000)
-        {
-            return logger.Pipe(x => x.Node<BranchNode>().First!.Node<MemoryNode>().Enable());
-        }
+        
 
-        /// <summary>
-        /// Gets the MemoryNode in current scope.
-        /// </summary>
-        public static MemoryNode Memory(this ILoggerNode logger) => logger.Node<MemoryNode>();
+        
 
         public static DataTable ToDataTable(this MemoryNode memoryNode)
         {

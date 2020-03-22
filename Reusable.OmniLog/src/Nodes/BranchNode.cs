@@ -1,10 +1,10 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using JetBrains.Annotations;
 using Reusable.Extensions;
 using Reusable.OmniLog.Abstractions;
 using Reusable.Collections.Generic;
+using Reusable.OmniLog.Extensions;
 
 namespace Reusable.OmniLog.Nodes
 {
@@ -15,6 +15,8 @@ namespace Reusable.OmniLog.Nodes
         {
             AsyncScope<ILoggerNode>.Push(new CorrelationNode { CorrelationHandle = "Session" });
         }
+
+        public static AsyncScope<Branch>? Scope => AsyncScope<Branch>.Current;
 
         public override bool Enabled => AsyncScope<Branch>.Any;
 
@@ -30,7 +32,7 @@ namespace Reusable.OmniLog.Nodes
         /// <summary>
         /// Gets the first node of the current branch.
         /// </summary>
-        public ILoggerNode First => AsyncScope<Branch>.Current?.Value.First ?? throw new InvalidOperationException($"Cannot use {nameof(First)} when {nameof(BranchNode)} is disabled.");
+        public ILoggerNode First => AsyncScope<Branch>.Current?.Value.First ?? throw new InvalidOperationException($"Cannot use {nameof(First)} when {nameof(BranchNode)} is disabled. Use Logger.BeginScope() first.");
 
         public IDisposable Push()
         {
@@ -39,18 +41,15 @@ namespace Reusable.OmniLog.Nodes
 
         public override void Invoke(ILogEntry request)
         {
-            var branch = AsyncScope<Branch>.Current;
-            var scopes = branch.Enumerate().Select(x => x.Value.First.Node<CorrelationNode>()).ToList();
-            request.Add(Names.Default.Correlation, scopes, m => m.ProcessWith<SerializerNode>());
-            First.Invoke(request); // This is guaranteed to be non-null here because otherwise this node is disabled.
+            First.Invoke(request);
         }
 
         public ILoggerNode Append(ILoggerNode node)
         {
-            return First.Last().Append(node); // This is guaranteed to be non-null here because at this point the node is properly initialized.
+            return First.Last().Append(node);
         }
 
-        internal class Branch : IDisposable
+        public class Branch : IDisposable
         {
             public Branch(ILoggerNode branch, IEnumerable<ILoggerNode> nodes)
             {
@@ -76,7 +75,7 @@ namespace Reusable.OmniLog.Nodes
                     }
                 }
 
-                AsyncScope<Branch>.Current?.Dispose();
+                Scope?.Dispose();
             }
 
             private bool IsMainBranch(ILoggerNode node)
@@ -99,29 +98,11 @@ namespace Reusable.OmniLog.Nodes
             return new LoggerScope<BranchNode>(logger, node => node.Push());
         }
 
-        public static ILoggerScope WithCorrelationHandle(this ILoggerScope logger, object? correlationHandle)
-        {
-            return logger.Pipe(l => l.Scope().Correlation().CorrelationHandle = correlationHandle);
-        }
-
-        public static ILoggerScope Append(this ILoggerScope logger, ILoggerNode node)
-        {
-            return logger.Pipe(l => l.Scope().Append(node));
-        }
-
         /// <summary>
         /// Gets the current correlation scope.
         /// </summary>
         public static BranchNode Scope(this ILogger logger) => logger.Node<BranchNode>();
 
-        public static CorrelationNode Correlation(this BranchNode logger)
-        {
-            if (!logger.Enabled)
-            {
-                throw new InvalidOperationException($"Cannot get {nameof(CorrelationNode)} because there is no scope. Use Logger.BeginScope() first.");
-            }
-
-            return logger.First.Node<CorrelationNode>();
-        }
+        
     }
 }

@@ -1,4 +1,3 @@
-using Reusable.Data;
 using Reusable.OmniLog.Abstractions;
 
 // ReSharper disable once CheckNamespace

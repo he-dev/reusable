@@ -7,9 +7,9 @@ namespace Reusable.OmniLog.Nodes
 {
     public class EchoNode : LoggerNode
     {
-        public override bool Enabled => Rx?.Any() == true;
+        public override bool Enabled => Connectors?.Any() == true;
 
-        public List<ILogRx> Rx { get; set; } = new List<ILogRx>();
+        public List<IConnector> Connectors { get; set; } = new List<IConnector>();
 
         public Func<ILogEntry, ILogEntry> CreateLogEntryView { get; set; } = entry => new LogEntryView<EchoNode>(entry);
 
@@ -17,7 +17,7 @@ namespace Reusable.OmniLog.Nodes
         {
             var view = CreateLogEntryView(request);
 
-            foreach (var rx in Rx)
+            foreach (var rx in Connectors)
             {
                 rx.Log(view);
             }

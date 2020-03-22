@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace Reusable.OmniLog.Abstractions
 {
-    public interface ILoggerFactory : IDisposable, IEnumerable<ILoggerNode>
+    public interface ILoggerFactory : IDisposable
     {
         ILogger CreateLogger(string name);
     }

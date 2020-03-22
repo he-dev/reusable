@@ -17,7 +17,7 @@ namespace Reusable.OmniLog.Nodes
 
             foreach (var (property, dictionary) in dictionaries.ToList())
             {
-                request.Add(property.Name, dictionary, LogProperty.Process.With<SerializerNode>());
+                request.Push(property.Name, dictionary, LogProperty.Process.With<SerializerNode>());
             }
 
             InvokeNext(request);

@@ -20,7 +20,7 @@ namespace Reusable.OmniLog
                     : defaultValue;
         }
 
-        public static ILogEntry Add(this ILogEntry entry, string name, object value, Action<LogPropertyMeta.LogPropertyMetaBuilder> buildMeta)
+        public static ILogEntry Push(this ILogEntry entry, string name, object value, Action<LogPropertyMeta.LogPropertyMetaBuilder> buildMeta)
         {
             return entry.Pipe(e => e.Push(new LogProperty(name, value, LogPropertyMeta.From(buildMeta))));
         }
