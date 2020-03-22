@@ -53,7 +53,7 @@ namespace Reusable.OmniLog
                         new MeasureElapsedTime(),
                         new BufferLog(),
                         new CacheInMemory(),
-                        new CollectWorkItemTelemetry(),
+                        new CollectScopeTelemetry(),
                     }
                 };
                 yield return new SerializeProperty

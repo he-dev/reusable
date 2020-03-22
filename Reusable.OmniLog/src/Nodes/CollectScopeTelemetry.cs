@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Custom;
 using JetBrains.Annotations;
 using Reusable.Collections.Generic;
 using Reusable.OmniLog.Abstractions;
@@ -10,11 +11,12 @@ using Reusable.OmniLog.Utilities;
 namespace Reusable.OmniLog.Nodes
 {
     [UsedImplicitly]
-    public class CollectWorkItemTelemetry : LoggerNode
+    public class CollectScopeTelemetry : LoggerNode
     {
-        private static AsyncScope<Exception>? Context => AsyncScope<Exception>.Current;
+        private static AsyncScope<Exception>? Exception => AsyncScope<Exception>.Current;
+        private static AsyncScope<Action>? LogWorkItemEnd => AsyncScope<Action>.Current;
 
-        private Action LogWorkItemEnd { get; set; } = () => { };
+        //private Action LogWorkItemEnd { get; set; } = () => { };
 
         public HashSet<string> CopyProperties { get; set; } = new HashSet<string>
         {
@@ -39,7 +41,7 @@ namespace Reusable.OmniLog.Nodes
                     let property = request[propertyName]
                     select property;
 
-                LogWorkItemEnd = () => LogWorkItem(propertyCopies.ToList(), snapshotName);
+                AsyncScope<Action>.Push(() => LogWorkItem(propertyCopies.ToList(), snapshotName));
             }
 
             InvokeNext(request);
@@ -52,27 +54,34 @@ namespace Reusable.OmniLog.Nodes
             {
                 request.Push(Names.Properties.Snapshot, new { status = WorkItemStatus.Begin, value = snapshot.Value }, m => m.ProcessWith<SerializeProperty>());
             }
+            else
+            {
+                request.Push(Names.Properties.Snapshot, new { status = WorkItemStatus.Begin }, m => m.ProcessWith<SerializeProperty>());
+            }
         }
 
         private void LogWorkItem(IEnumerable<LogProperty> properties, LogProperty snapshotName)
         {
             try
             {
-                Enabled = false;
                 var logger = ((ILoggerNode)this).First().Node<Logger>();
-                var exception = Context?.Value;
-                logger.Log(properties, Snapshot.Take(snapshotName.Value.ToString(), new { status = GetStatus(exception) }), GetLogLevel(exception), exception!);
+                var exception = Exception?.Value;
+                var status = GetStatus(exception); // Sets work-item status and prevents recursive call of this node.
+                logger.Log(properties, Snapshot.Take(snapshotName.Value.ToString(), new { status }), GetLogLevel(exception), exception!, status);
             }
             finally
             {
-                Enabled = true;
-                Context?.Dispose();
+                Exception?.Dispose();
             }
         }
 
         private static bool IsWorkItemBegin(ILogEntry request)
         {
-            return request.TryGetProperty(Names.Properties.Category, out var category) && SoftString.Comparer.Equals(category.Value.ToString(), Names.Categories.WorkItem);
+            // Work-item-begin is only when there is no status and category matches.
+            return
+                request.GetValueOrDefault(nameof(WorkItemStatus), WorkItemStatus.Undefined) == WorkItemStatus.Undefined &&
+                request.TryGetProperty(Names.Properties.Category, out var category) &&
+                category.Value.ToString().SoftIn(Names.Categories.WorkItem, Names.Categories.Routine);
         }
 
         private static WorkItemStatus GetStatus(Exception? exception)
@@ -97,13 +106,21 @@ namespace Reusable.OmniLog.Nodes
 
         public override void Dispose()
         {
-            LogWorkItemEnd();
+            foreach (var logWorkItemEnd in LogWorkItemEnd.Enumerate())
+            {
+                using (logWorkItemEnd)
+                {
+                    logWorkItemEnd.Value();
+                }
+            }
+
             base.Dispose();
         }
     }
 
     public enum WorkItemStatus
     {
+        Undefined,
         Begin,
         Completed,
         Canceled,

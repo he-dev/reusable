@@ -34,14 +34,18 @@ namespace Reusable.OmniLog.Extensions
         public static Action<ILogEntry> Step(this Action<ILogEntry> node, string name, object value) => node.Category(name, value);
         public static Action<ILogEntry> Counter(this Action<ILogEntry> node, string name, object value) => node.Category(name, value);
         public static Action<ILogEntry> WorkItem(this Action<ILogEntry> node, string name, object value) => node.Telemetry().Category(name, value);
-        
-        private static Action<ILogEntry> Category(this Action<ILogEntry> node, string snapshotName, object snapshot, [CallerMemberName] string? name = null)
+        public static Action<ILogEntry> Routine(this Action<ILogEntry> node, string name) => node.Telemetry().Category(name, default);
+
+        private static Action<ILogEntry> Category(this Action<ILogEntry> node, string snapshotName, object? snapshot, [CallerMemberName] string? name = null)
         {
             return node.Then(e =>
             {
                 e.Push(new LogProperty(nameof(Category), name!, LogPropertyMeta.Builder.ProcessWith<Echo>()));
                 e.Push(new LogProperty(Names.Properties.SnapshotName, snapshotName, LogPropertyMeta.Builder.ProcessWith<Echo>()));
-                e.Push(new LogProperty(Names.Properties.Snapshot, snapshot, LogPropertyMeta.Builder.ProcessWith<Destructure>()));
+                if (snapshot is {})
+                {
+                    e.Push(new LogProperty(Names.Properties.Snapshot, snapshot, LogPropertyMeta.Builder.ProcessWith<Destructure>()));
+                }
             });
         }
 

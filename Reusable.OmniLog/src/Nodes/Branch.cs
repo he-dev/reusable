@@ -25,7 +25,7 @@ namespace Reusable.OmniLog.Nodes
             new MeasureElapsedTime(),
             new BufferLog(),
             new CacheInMemory(),
-            new CollectWorkItemTelemetry(),
+            new CollectScopeTelemetry(),
         };
 
         private Item Scope => Context?.Value ?? throw new InvalidOperationException($"Cannot use {nameof(Scope)} when {nameof(Branch)} is disabled. Use Logger.BeginScope() first.");

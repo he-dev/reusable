@@ -18,6 +18,6 @@ namespace Reusable.OmniLog.Extensions
         /// </summary>
         public static MeasureElapsedTime Stopwatch(this IBranch branch) => branch.First.Node<MeasureElapsedTime>();
         
-        public static CollectWorkItemTelemetry WorkItem(this IBranch branch) => branch.First.Node<CollectWorkItemTelemetry>();
+        public static CollectScopeTelemetry WorkItem(this IBranch branch) => branch.First.Node<CollectScopeTelemetry>();
     }
 }

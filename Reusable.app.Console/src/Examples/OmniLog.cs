@@ -88,6 +88,7 @@ namespace Reusable
                 //logger.Log(Layer.Service, Category.WorkItem, new { testFile = new { fileName = "test" } }, CallSite.Create());
 
                 logger.Log(Execution.Context.WorkItem("testFile", new { fileName = "test" }).Message("Blub!"));
+                logger.Log(Execution.Context.Routine(nameof(Log)).Message("Blub!"));
                 logger.Scope().WorkItem().Push(new Exception());
 
 

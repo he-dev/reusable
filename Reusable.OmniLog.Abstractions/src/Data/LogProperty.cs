@@ -74,6 +74,7 @@ namespace Reusable.OmniLog
         public abstract class Categories
         {
             public const string WorkItem = nameof(WorkItem);
+            public const string Routine = nameof(Routine);
         }
     }
 
