@@ -4,15 +4,11 @@ using Reusable.OmniLog.Abstractions;
 
 namespace Reusable.OmniLog.Nodes
 {
-    public class CamelCaseNode : LoggerNode
+    public class FormatAsCamelCase : LoggerNode
     {
         public override bool Enabled => true;
 
-        public HashSet<string> PropertyNames { get; set; } = new HashSet<string>(SoftString.Comparer)
-        {
-            Names.Default.Logger,
-            Names.Default.SnapshotName,
-        };
+        public HashSet<string> PropertyNames { get; set; } = new HashSet<string>(SoftString.Comparer);
 
         public override void Invoke(ILogEntry request)
         {
@@ -20,7 +16,7 @@ namespace Reusable.OmniLog.Nodes
             {
                 if (request.TryGetProperty(propertyName, out var property) && property.Value is string value)
                 {
-                    request.Push(property.Name, value.ToCamelCase(), LogProperty.Process.With<EchoNode>());
+                    request.Push(property.Name, value.ToCamelCase(), LogProperty.Process.With<Echo>());
                 }
             }
 

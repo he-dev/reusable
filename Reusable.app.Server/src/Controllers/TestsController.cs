@@ -9,6 +9,7 @@ namespace Reusable.Apps.Server.Controllers
 {
     //[ApiVersion("1.0")]
     [Route("/api/[controller]")]
+    [ServiceFilter(typeof(LogResponseBody))]
     public class TestsController : Controller
     {
         private readonly ILogger _logger;
@@ -19,7 +20,6 @@ namespace Reusable.Apps.Server.Controllers
         }
 
         [HttpGet]
-        [ServiceFilter(typeof(LogResponseBody))]
         public IActionResult Get(string message)
         {
             _logger.Log(Abstraction.Layer.Service().Meta(new { TestMeta = 123 }));
@@ -45,4 +45,3 @@ namespace Reusable.Apps.Server.Controllers
         }
     }
 }
-

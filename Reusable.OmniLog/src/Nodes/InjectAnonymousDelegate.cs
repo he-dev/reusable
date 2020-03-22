@@ -1,4 +1,5 @@
 using System;
+using Reusable.Extensions;
 using Reusable.OmniLog.Abstractions;
 
 namespace Reusable.OmniLog.Nodes
@@ -6,7 +7,7 @@ namespace Reusable.OmniLog.Nodes
     /// <summary>
     /// Adds support for logger.Log(log => ..) overload.
     /// </summary>
-    public class DelegateNode : LoggerNode
+    public class InjectAnonymousDelegate : LoggerNode
     {
         public override bool Enabled => AsyncScope<Item>.Any;
 
@@ -35,9 +36,9 @@ namespace Reusable.OmniLog.Nodes
 
     public static class LoggerLambdaHelper
     {
-        public static void UseDelegate(this ILogger logger, Action<ILogEntry> node)
+        public static ILogger PushDelegate(this ILogger logger, Action<ILogEntry> node)
         {
-            DelegateNode.Push(node);
+            return logger.Pipe(_ => InjectAnonymousDelegate.Push(node));
         }
     }
 }

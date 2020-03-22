@@ -1,18 +1,17 @@
 using System.Collections.Generic;
 using Reusable.OmniLog.Abstractions;
 using Reusable.Extensions;
-using Reusable.OmniLog.Extensions;
 
 namespace Reusable.OmniLog.Nodes
 {
     /// <summary>
     /// Temporarily holding log-entries while it's waiting to be transferred to another location. 
     /// </summary>
-    public class BufferNode : LoggerNode
+    public class Buffer : LoggerNode
     {
         private readonly Queue<ILogEntry> _buffer = new Queue<ILogEntry>();
 
-        public BufferNode()
+        public Buffer()
         {
             Enabled = false;
         }
@@ -43,12 +42,5 @@ namespace Reusable.OmniLog.Nodes
             _buffer.Clear();
             base.Dispose();
         }
-    }
-
-    public static class BufferNodeHelper
-    {
-        
-
-        
     }
 }

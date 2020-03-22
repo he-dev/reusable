@@ -23,6 +23,9 @@
     <Compile Remove="src\Nodes\ConstantNode.cs" />
     <Compile Remove="cfg\**" />
     <Compile Remove="src\AsyncScope.cs" />
+    <Compile Remove="src\LoggerFactoryBuilder.cs" />
+    <Compile Remove="src\Nodes\BuilderNode.cs" />
+    <Compile Remove="src\LogEntryBuilder.cs" />
   </ItemGroup>
 
   <ItemGroup>

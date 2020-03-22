@@ -14,9 +14,9 @@ namespace Reusable.OmniLog.Utilities
             [CallerFilePath] string? callerFilePath = null
         )
         {
-            yield return new LogProperty(Names.Default.CallerMemberName, callerMemberName!, LogPropertyMeta.Builder.ProcessWith<EchoNode>());
-            yield return new LogProperty(Names.Default.CallerLineNumber, callerLineNumber, LogPropertyMeta.Builder.ProcessWith<EchoNode>());
-            yield return new LogProperty(Names.Default.CallerFilePath, Path.GetFileName(callerFilePath!), LogPropertyMeta.Builder.ProcessWith<EchoNode>());
+            yield return new LogProperty(Names.Properties.CallerMemberName, callerMemberName!, LogPropertyMeta.Builder.ProcessWith<Echo>());
+            yield return new LogProperty(Names.Properties.CallerLineNumber, callerLineNumber, LogPropertyMeta.Builder.ProcessWith<Echo>());
+            yield return new LogProperty(Names.Properties.CallerFilePath, Path.GetFileName(callerFilePath!), LogPropertyMeta.Builder.ProcessWith<Echo>());
         }
     }
 }

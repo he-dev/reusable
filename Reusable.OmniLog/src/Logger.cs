@@ -6,11 +6,11 @@ namespace Reusable.OmniLog
 {
     public class Logger : LoggerNode, ILogger
     {
-        public string Name { get; set; }
+        public string Name { get; set; } = "Unknown";
 
         public override void Invoke(ILogEntry request)
         {
-            request.Push(Names.Default.Logger, Name, LogProperty.Process.With<EchoNode>());
+            request.Push(Names.Properties.Logger, Name, LogProperty.Process.With<Echo>());
             InvokeNext(request);
         }
 

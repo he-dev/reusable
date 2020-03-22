@@ -26,4 +26,8 @@
     <ProjectReference Include="..\Reusable.Core\Reusable.Core.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Compile Remove="src\ILogEntryBuilder.cs" />
+  </ItemGroup>
+
 </Project>

@@ -33,15 +33,19 @@ namespace Reusable.OmniLog.Utilities.AspNetCore
 
         public async Task Invoke(HttpContext context, IFeatureController featureController)
         {
-            using (_logger.BeginScope(_config.GetCorrelationId(context)).WithCorrelationHandle(_config.GetCorrelationHandle(context)).UseStopwatch())
+            using (_logger.BeginScope(_config.GetCorrelationId(context)).WithCorrelationHandle(_config.GetCorrelationHandle(context)))
             {
                 var requestBody =
                     _config.CanLogRequestBody(context)
                         ? await _config.SerializeRequestBody(context)
                         : default;
 
-
-                _config.LogRequest(_logger, context, requestBody);
+                _logger.Log(
+                    Execution
+                        .Context
+                        .Network()
+                        .WorkItem(nameof(HttpRequest), _config.TakeRequestSnapshot(context))
+                        .Message(requestBody));
 
                 try
                 {
@@ -69,11 +73,17 @@ namespace Reusable.OmniLog.Utilities.AspNetCore
                         }
                     }
 
-                    _config.LogResponse(_logger, context, responseBody);
+                    _logger.Log(
+                        Execution
+                            .Context
+                            .Network()
+                            .Meta(nameof(HttpResponse), _config.TakeResponseSnapshot(context))
+                            .Message(responseBody)
+                            .Level(_config.MapStatusCode(context.Response.StatusCode)));
                 }
                 catch (Exception inner)
                 {
-                    _config.LogError(_logger, context, inner);
+                    _logger.Scope().WorkItem().Push(inner);
                     throw;
                 }
             }

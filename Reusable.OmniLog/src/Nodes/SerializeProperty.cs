@@ -7,7 +7,7 @@ namespace Reusable.OmniLog.Nodes
     /// <summary>
     /// Serializes every #Serializable item in the log-entry and adds it as #Property.
     /// </summary>
-    public class SerializerNode : LoggerNode
+    public class SerializeProperty : LoggerNode
     {
         public ISerialize Serialize { get; set; } = new SerializeToJson();
 
@@ -16,7 +16,7 @@ namespace Reusable.OmniLog.Nodes
             foreach (var property in request.Where(LogProperty.CanProcess.With(this)).ToList())
             {
                 var obj = Serialize.Invoke(property.Value);
-                request.Push(property.Name, obj, m => m.ProcessWith<EchoNode>());
+                request.Push(property.Name, obj, m => m.ProcessWith<Echo>());
             }
 
             InvokeNext(request);

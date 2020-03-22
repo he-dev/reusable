@@ -9,7 +9,7 @@ namespace Reusable.OmniLog.Extensions
     {
         public static Action<ILogEntry> Exception(this Action<ILogEntry> node, Exception exception)
         {
-            return node.Then(e => e.Push(new LogProperty(Names.Default.Exception, exception, LogPropertyMeta.Builder.ProcessWith<EchoNode>())));
+            return node.Then(e => e.Push(new LogProperty(Names.Properties.Exception, exception, LogPropertyMeta.Builder.ProcessWith<Echo>())));
         }
     }
 }

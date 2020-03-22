@@ -6,6 +6,7 @@ using Autofac;
 using JetBrains.Annotations;
 using Reusable.Flexo.Abstractions;
 using Reusable.OmniLog;
+using Reusable.OmniLog.Abstractions;
 using Reusable.Translucent;
 using Reusable.Utilities.JsonNet.DependencyInjection;
 
@@ -24,7 +25,7 @@ namespace Reusable.Flexo
 
             builder.RegisterType<ExpressionUseCase>().AsSelf();
             builder.RegisterModule<JsonContractResolverModule>();
-            builder.RegisterModule(new LoggerModule(LoggerFactory.Builder().Build()));
+            builder.RegisterModule(new LoggerModule(new LoggerFactory(Enumerable.Empty<ILoggerNode>())));
             builder.RegisterModule(new ExpressionSerializerModule(Enumerable.Empty<Type>()));
 
             var container = builder.Build();

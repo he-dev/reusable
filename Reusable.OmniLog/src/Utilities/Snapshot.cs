@@ -7,8 +7,8 @@ namespace Reusable.OmniLog.Utilities
     {
         public static IEnumerable<LogProperty> Take(string name, object dump)
         {
-            yield return new LogProperty(Names.Default.SnapshotName, name, LogPropertyMeta.Builder.ProcessWith<EchoNode>());
-            yield return new LogProperty(Names.Default.Snapshot, dump.ToDictionary(), LogPropertyMeta.Builder.ProcessWith<SerializerNode>());
+            yield return new LogProperty(Names.Properties.SnapshotName, name, LogPropertyMeta.Builder.ProcessWith<Echo>());
+            yield return new LogProperty(Names.Properties.Snapshot, dump.ToDictionary(), LogPropertyMeta.Builder.ProcessWith<SerializeProperty>());
         }
     }
 }

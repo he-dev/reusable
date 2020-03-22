@@ -1,57 +1,55 @@
 using System;
 using System.Collections.Generic;
 using JetBrains.Annotations;
-using Reusable.Extensions;
 using Reusable.OmniLog.Abstractions;
 using Reusable.Collections.Generic;
 using Reusable.OmniLog.Extensions;
 
 namespace Reusable.OmniLog.Nodes
 {
-    [PublicAPI]
-    public class BranchNode : LoggerNode
+    public interface IBranch
     {
-        public BranchNode()
-        {
-            AsyncScope<ILoggerNode>.Push(new CorrelationNode { CorrelationHandle = "Session" });
-        }
+        ILoggerNode First { get; }
+    }
+    
+    [PublicAPI]
+    public class Branch : LoggerNode, IBranch
+    {
+        public static AsyncScope<Item>? Context => AsyncScope<Item>.Current;
 
-        public static AsyncScope<Branch>? Scope => AsyncScope<Branch>.Current;
-
-        public override bool Enabled => AsyncScope<Branch>.Any;
+        public override bool Enabled => AsyncScope<Item>.Any;
 
         public Func<IEnumerable<ILoggerNode>> CreateNodes { get; set; } = () => new ILoggerNode[]
         {
-            new CorrelationNode(),
-            new StopwatchNode(),
-            new BufferNode(),
-            new MemoryNode(),
-            new WorkItemNode(),
+            new Correlate(),
+            new MeasureElapsedTime(),
+            new Buffer(),
+            new CacheInMemory(),
+            new CollectWorkItemTelemetry(),
         };
 
-        /// <summary>
-        /// Gets the first node of the current branch.
-        /// </summary>
-        public ILoggerNode First => AsyncScope<Branch>.Current?.Value.First ?? throw new InvalidOperationException($"Cannot use {nameof(First)} when {nameof(BranchNode)} is disabled. Use Logger.BeginScope() first.");
+        private Item Scope => Context?.Value ?? throw new InvalidOperationException($"Cannot use {nameof(Scope)} when {nameof(Branch)} is disabled. Use Logger.BeginScope() first.");
+
+        public ILoggerNode First => Scope.First;
 
         public IDisposable Push()
         {
-            return AsyncScope<Branch>.Push(new Branch(this, CreateNodes())).Value;
+            return AsyncScope<Item>.Push(new Item(this, CreateNodes())).Value;
         }
 
         public override void Invoke(ILogEntry request)
         {
-            First.Invoke(request);
+            Scope.First.Invoke(request);
         }
 
         public ILoggerNode Append(ILoggerNode node)
         {
-            return First.Last().Append(node);
+            return Scope.First.Last().Append(node);
         }
 
-        public class Branch : IDisposable
+        public class Item : IDisposable
         {
-            public Branch(ILoggerNode branch, IEnumerable<ILoggerNode> nodes)
+            public Item(ILoggerNode branch, IEnumerable<ILoggerNode> nodes)
             {
                 var last = nodes.Join();
                 last.Next = branch.Next;
@@ -75,12 +73,12 @@ namespace Reusable.OmniLog.Nodes
                     }
                 }
 
-                Scope?.Dispose();
+                Context?.Dispose();
             }
 
             private bool IsMainBranch(ILoggerNode node)
             {
-                return !ReferenceEquals(node, First) && node.Prev is BranchNode;
+                return !ReferenceEquals(node, First) && node.Prev is Branch;
             }
         }
     }
@@ -95,14 +93,25 @@ namespace Reusable.OmniLog.Nodes
 
         public static ILoggerScope BeginScope(this ILogger logger, object? correlationId = default)
         {
-            return new LoggerScope<BranchNode>(logger, node => node.Push());
+            return new LoggerScope<Branch>(logger, branch =>
+            {
+                try
+                {
+                    return branch.Push();
+                }
+                finally
+                {
+                    if (correlationId is {} && branch.First.NodeOrDefault<Correlate>() is {} correlation)
+                    {
+                        correlation.CorrelationId = correlationId;
+                    }
+                }
+            });
         }
 
         /// <summary>
         /// Gets the current correlation scope.
         /// </summary>
-        public static BranchNode Scope(this ILogger logger) => logger.Node<BranchNode>();
-
-        
+        public static IBranch Scope(this ILogger logger) => logger.Node<Branch>();
     }
 }

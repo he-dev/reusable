@@ -7,7 +7,7 @@ namespace Reusable.OmniLog.Nodes
     /// <summary>
     /// Adds computable properties to the log.
     /// </summary>
-    public class PropertyNode : LoggerNode
+    public class AttachProperty : LoggerNode
     {
         public override bool Enabled => base.Enabled && Properties.Any();
 
@@ -19,7 +19,7 @@ namespace Reusable.OmniLog.Nodes
             {
                 if (computable.GetValue(request) is {} value)
                 {
-                    request.Push(computable.Name, value, LogProperty.Process.With<EchoNode>());
+                    request.Push(computable.Name, value, LogProperty.Process.With<Echo>());
                 }
             }
 

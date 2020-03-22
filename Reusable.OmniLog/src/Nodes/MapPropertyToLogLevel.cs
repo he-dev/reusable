@@ -4,20 +4,20 @@ using Reusable.OmniLog.Abstractions;
 
 namespace Reusable.OmniLog.Nodes
 {
-    public class MapValueToLogLevelNode : LoggerNode
+    public class MapPropertyToLogLevel : LoggerNode
     {
-        public string Property { get; set; } = default!;
+        public string PropertyName { get; set; } = default!;
 
         public IMapObjectToLogLevel Mapper { get; set; } = default!;
 
         public override void Invoke(ILogEntry request)
         {
-            if (Property is null) throw new InvalidOperationException($"{nameof(Property)} must be set first.");
+            if (PropertyName is null) throw new InvalidOperationException($"{nameof(PropertyName)} must be set first.");
             if (Mapper is null) throw new InvalidOperationException($"{nameof(Mapper)} must be set first.");
             
-            if (!request.TryGetProperty(Names.Default.Level, out _) && request.TryGetProperty(Property, out var property))
+            if (!request.TryGetProperty(Names.Properties.Level, out _) && request.TryGetProperty(PropertyName, out var property))
             {
-                request.Push(Names.Default.Level, Mapper.Invoke(property.Value), m => m.ProcessWith<EchoNode>());
+                request.Push(Names.Properties.Level, Mapper.Invoke(property.Value), m => m.ProcessWith<Echo>());
             }
 
             InvokeNext(request);

@@ -7,7 +7,7 @@ using Reusable.OmniLog.Extensions;
 namespace Reusable.OmniLog.Nodes
 {
     [JsonObject(MemberSerialization.OptIn)]
-    public class CorrelationNode : LoggerNode
+    public class Correlate : LoggerNode
     {
         private object? _correlationId;
 
@@ -28,9 +28,9 @@ namespace Reusable.OmniLog.Nodes
 
         public override void Invoke(ILogEntry request)
         {
-            var branch = BranchNode.Scope!;
-            var scopes = branch.Enumerate().Select(x => x.Value.First.Node<CorrelationNode>()).ToList();
-            request.Push(Names.Default.Correlation, scopes, m => m.ProcessWith<SerializerNode>());
+            var branch = Branch.Context!;
+            var scopes = branch.Enumerate().Select(x => x.Value.First.Node<Correlate>()).ToList();
+            request.Push(Names.Properties.Correlation, scopes, m => m.ProcessWith<SerializeProperty>());
             InvokeNext(request);
         }
     }

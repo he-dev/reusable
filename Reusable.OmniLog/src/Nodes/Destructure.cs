@@ -7,7 +7,7 @@ namespace Reusable.OmniLog.Nodes
     /// <summary>
     /// Turns objects into dictionaries and adds the result to the log.
     /// </summary>
-    public class DestructureNode : LoggerNode
+    public class Destructure : LoggerNode
     {
         public override void Invoke(ILogEntry request)
         {
@@ -17,7 +17,7 @@ namespace Reusable.OmniLog.Nodes
 
             foreach (var (property, dictionary) in dictionaries.ToList())
             {
-                request.Push(property.Name, dictionary, LogProperty.Process.With<SerializerNode>());
+                request.Push(property.Name, dictionary, LogProperty.Process.With<SerializeProperty>());
             }
 
             InvokeNext(request);

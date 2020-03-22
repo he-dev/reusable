@@ -3,7 +3,6 @@ using System.Linq.Custom;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.AspNetCore.Http;
-using Reusable.OmniLog.Abstractions;
 using Reusable.OmniLog.Utilities.AspNetCore.Extensions;
 using Reusable.OmniLog.Utilities.AspNetCore.Helpers;
 
@@ -22,11 +21,11 @@ namespace Reusable.OmniLog.Utilities.AspNetCore
         
         public Func<HttpContext, bool> CanUpdateOriginalResponseBody { get; set; } = c => !c.Response.StatusCode.In(204, 304);
         
-        public Action<ILogger, HttpContext, string?> LogRequest { get; set; } = LogHelper.LogRequest;
+        public Func<HttpContext, object> TakeRequestSnapshot { get; set; } = LogHelper.TakeRequestSnapshot;
 
-        public Action<ILogger, HttpContext, string?> LogResponse { get; set; } = LogHelper.LogResponse;
+        public Func<HttpContext, object> TakeResponseSnapshot { get; set; } = LogHelper.TakeResponseSnapshot;
 
-        public Action<ILogger, HttpContext, Exception> LogError { get; set; } = LogHelper.LogError;
+        public Func<int, LogLevel> MapStatusCode { get; set; } = LogHelper.MapStatusCode;
 
         public Func<HttpContext, Task<string?>> SerializeRequestBody { get; set; } = LogHelper.SerializeRequestBody;
     }

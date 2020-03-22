@@ -4,20 +4,20 @@ namespace Reusable.OmniLog.Extensions
 {
     public static class BranchNodeExtensions
     {
-        public static CorrelationNode Correlation(this BranchNode logger) => logger.First.Node<CorrelationNode>();
+        public static Correlate Correlation(this IBranch branch) => branch.First.Node<Correlate>();
         
-        public static BufferNode Buffer(this BranchNode logger) => logger.First.Node<BufferNode>();
+        public static Buffer Buffer(this IBranch branch) => branch.First.Node<Buffer>();
         
         /// <summary>
         /// Gets the MemoryNode in current scope.
         /// </summary>
-        public static MemoryNode Memory(this BranchNode logger) => logger.First.Node<MemoryNode>();
+        public static CacheInMemory InMemoryCache(this IBranch branch) => branch.First.Node<CacheInMemory>();
         
         /// <summary>
         /// Gets the stopwatch in current scope.
         /// </summary>
-        public static StopwatchNode Stopwatch(this BranchNode logger) => logger.First.Node<StopwatchNode>();
+        public static MeasureElapsedTime Stopwatch(this IBranch branch) => branch.First.Node<MeasureElapsedTime>();
         
-        public static WorkItemNode WorkItem(this BranchNode branch) => branch.First.Node<WorkItemNode>();
+        public static CollectWorkItemTelemetry WorkItem(this IBranch branch) => branch.First.Node<CollectWorkItemTelemetry>();
     }
 }

@@ -14,7 +14,7 @@ using Xunit;
 // ReSharper disable once CheckNamespace
 namespace Reusable.OmniLog
 {
-    public class LoggerMiddlewareTest
+    public class LoggerNodeTest
     {
         [Fact]
         public void Can_add_nodes_after()
@@ -46,20 +46,23 @@ namespace Reusable.OmniLog
         public void Can_log_message()
         {
             var rx = new MemoryConnector();
-            using var lf = new LoggerFactoryBuilder
+            using var lf = new LoggerFactory
             {
-                new StopwatchNode(),
-                new PropertyNode(),
-                new DelegateNode(),
-                new BranchNode(),
-                new SerializerNode(),
-                //new LoggerFilter()
-                //new BufferNode(),
-                new EchoNode
+                CreateNodes = () => new ILoggerNode[]
                 {
-                    Connectors = { rx },
+                    new MeasureElapsedTime(),
+                    new AttachProperty(),
+                    new InjectAnonymousDelegate(),
+                    new Branch(),
+                    new SerializeProperty(),
+                    //new LoggerFilter()
+                    //new BufferNode(),
+                    new Echo
+                    {
+                        Connectors = { rx },
+                    }
                 }
-            }.Build();
+            };
             var logger = lf.CreateLogger("test");
             logger.Log(l => l.Message("Hallo!"));
             Assert.Equal(1, rx.Count());
@@ -72,20 +75,23 @@ namespace Reusable.OmniLog
             ExecutionContext.SuppressFlow();
 
             var rx = new MemoryConnector();
-            var lf = new LoggerFactoryBuilder
+            var lf = new LoggerFactory
             {
-                new StopwatchNode(),
-                new PropertyNode(),
-                new DelegateNode(),
-                new BranchNode(),
-                new SerializerNode(),
-                //new LoggerFilter()
-                //new BufferNode(),
-                new EchoNode
+                CreateNodes = () => new ILoggerNode[]
                 {
-                    Connectors = { rx },
+                    new MeasureElapsedTime(),
+                    new AttachProperty(),
+                    new InjectAnonymousDelegate(),
+                    new Branch(),
+                    new SerializeProperty(),
+                    //new LoggerFilter()
+                    //new BufferNode(),
+                    new Echo
+                    {
+                        Connectors = { rx },
+                    }
                 }
-            }.Build();
+            };
             using (lf)
             {
                 var logger = lf.CreateLogger("test");
@@ -95,7 +101,7 @@ namespace Reusable.OmniLog
                     var scope1 = logger.Scope().Correlation();
                     logger.Log(l => l.Message("Hallo!"));
                     Assert.Same(outerCorrelationId, scope1.CorrelationId);
-                    Assert.NotNull(rx[0][Names.Default.Correlation]);
+                    Assert.NotNull(rx[0][Names.Properties.Correlation]);
 
                     var innerCorrelationId = "test-id-2";
                     using (logger.BeginScope(innerCorrelationId))
@@ -103,7 +109,7 @@ namespace Reusable.OmniLog
                         var scope2 = logger.Scope().Correlation();
                         logger.Log(l => l.Message("Hi!"));
                         Assert.Same(innerCorrelationId, scope2.CorrelationId);
-                        Assert.NotNull(rx[1][Names.Default.Correlation]);
+                        Assert.NotNull(rx[1][Names.Properties.Correlation]);
                     }
                 }
 
@@ -117,31 +123,34 @@ namespace Reusable.OmniLog
         public void Can_serialize_data()
         {
             var rx = new MemoryConnector();
-            var lf = new LoggerFactoryBuilder
+            var lf = new LoggerFactory
             {
-                new StopwatchNode(),
-                new PropertyNode(),
-                new DelegateNode(),
-                new BranchNode(),
-                new DestructureNode(),
-                new SerializerNode(),
-                //new LoggerFilter()
-                //new BufferNode(),
-                new EchoNode
+                CreateNodes = () => new ILoggerNode[]
                 {
-                    Connectors = { rx },
+                    new MeasureElapsedTime(),
+                    new AttachProperty(),
+                    new InjectAnonymousDelegate(),
+                    new Branch(),
+                    new Destructure(),
+                    new SerializeProperty(),
+                    //new LoggerFilter()
+                    //new BufferNode(),
+                    new Echo
+                    {
+                        Connectors = { rx },
+                    }
                 }
-            }.Build();
+            };
             using (lf)
             {
                 var logger = lf.CreateLogger("test");
-                logger.Log(l => l.Message("Hallo!").Snapshot(new { Greeting = "Hi!" }, m => m.ProcessWith<DestructureNode>()));
+                logger.Log(l => l.Message("Hallo!").Snapshot(new { Greeting = "Hi!" }, m => m.ProcessWith<Destructure>()));
             }
 
             Assert.Equal(1, rx.Count());
             Assert.Equal("Hallo!", rx.First()["Message"].Value);
-            Assert.Equal("Greeting", rx.First()[Names.Default.SnapshotName].Value);
-            Assert.Equal("Hi!", rx.First()[Names.Default.Snapshot].Value);
+            Assert.Equal("Greeting", rx.First()[Names.Properties.SnapshotName].Value);
+            Assert.Equal("Hi!", rx.First()[Names.Properties.Snapshot].Value);
             //Assert.Equal("{\"Greeting\":\"Hi!\"}", rx.First()["Snapshot"]);
         }
 
@@ -151,21 +160,24 @@ namespace Reusable.OmniLog
             var timestamp = DateTime.Parse("2019-05-01");
 
             var rx = new MemoryConnector();
-            var lf = new LoggerFactoryBuilder
+            var lf = new LoggerFactory
             {
-                new PropertyNode
+                CreateNodes = () => new ILoggerNode[]
                 {
-                    Properties =
+                    new AttachProperty
                     {
-                        new Timestamp(new[] { timestamp })
+                        Properties =
+                        {
+                            new Timestamp(new[] { timestamp })
+                        }
+                    },
+                    new InjectAnonymousDelegate(),
+                    new Echo
+                    {
+                        Connectors = { rx },
                     }
-                },
-                new DelegateNode(),
-                new EchoNode
-                {
-                    Connectors = { rx },
                 }
-            }.Build();
+            };
             using (lf)
             {
                 var logger = lf.CreateLogger("test");
@@ -183,24 +195,27 @@ namespace Reusable.OmniLog
             var timestamp = DateTime.Parse("2019-05-01");
 
             var rx = new MemoryConnector();
-            var lf = new LoggerFactoryBuilder
+            var lf = new LoggerFactory
             {
-                new PropertyNode { Properties = { new Timestamp(new[] { timestamp }) } },
-                new DelegateNode(),
-                new DestructureNode(),
-                new EchoNode { Connectors = { rx }, CreateLogEntryView = e => e }
-            }.Build();
+                CreateNodes = () => new ILoggerNode[]
+                {
+                    new AttachProperty { Properties = { new Timestamp(new[] { timestamp }) } },
+                    new InjectAnonymousDelegate(),
+                    new Destructure(),
+                    new Echo { Connectors = { rx }, CreateLogEntryView = e => e }
+                }
+            };
             using (lf)
             {
                 var logger = lf.CreateLogger("test");
-                logger.Log(l => l.Snapshot(new Person { FirstName = "John", LastName = "Doe" }, m => m.ProcessWith<DestructureNode>()));
+                logger.Log(l => l.Snapshot(new Person { FirstName = "John", LastName = "Doe" }, m => m.ProcessWith<Destructure>()));
             }
 
             Assert.Equal(2, rx.Count());
-            Assert.Equal("FirstName", rx[0][Names.Default.SnapshotName].Value);
-            Assert.Equal("John", rx[0][Names.Default.Snapshot].Value);
-            Assert.Equal("LastName", rx[1][Names.Default.SnapshotName].Value);
-            Assert.Equal("Doe", rx[1][Names.Default.Snapshot].Value);
+            Assert.Equal("FirstName", rx[0][Names.Properties.SnapshotName].Value);
+            Assert.Equal("John", rx[0][Names.Properties.Snapshot].Value);
+            Assert.Equal("LastName", rx[1][Names.Properties.SnapshotName].Value);
+            Assert.Equal("Doe", rx[1][Names.Properties.Snapshot].Value);
             //Assert.Equal(timestamp, rx.First()["Timestamp"]);
         }
 
@@ -210,33 +225,36 @@ namespace Reusable.OmniLog
             var timestamp = DateTime.Parse("2019-05-01");
 
             var rx = new MemoryConnector();
-            var lf = new LoggerFactoryBuilder()
+            var lf = new LoggerFactory
             {
-                new PropertyNode
+                CreateNodes = () => new ILoggerNode[]
                 {
-                    Properties =
+                    new AttachProperty
                     {
-                        new Timestamp(new[] { timestamp })
-                    }
-                },
-                new DelegateNode(),
-                new DestructureNode(),
-                new ObjectMapperNode
-                {
-                    Mappings =
+                        Properties =
+                        {
+                            new Timestamp(new[] { timestamp })
+                        }
+                    },
+                    new InjectAnonymousDelegate(),
+                    new Destructure(),
+                    new MapObject
                     {
-                        ObjectMapperNode.Mapping.For<Person>(p => new { FullName = p.LastName + ", " + p.FirstName })
+                        Mappings =
+                        {
+                            MapObject.Mapping.For<Person>(p => new { FullName = p.LastName + ", " + p.FirstName })
+                        }
+                    },
+                    new Echo
+                    {
+                        Connectors = { rx },
                     }
-                },
-                new EchoNode
-                {
-                    Connectors = { rx },
                 }
-            }.Build();
+            };
             using (lf)
             {
                 var logger = lf.CreateLogger("test");
-                logger.Log(l => l.Snapshot(new Person { FirstName = "John", LastName = "Doe" }, m => m.ProcessWith<EchoNode>()));
+                logger.Log(l => l.Snapshot(new Person { FirstName = "John", LastName = "Doe" }, m => m.ProcessWith<Echo>()));
             }
 
             Assert.Equal(1, rx.Count());
@@ -247,23 +265,26 @@ namespace Reusable.OmniLog
         [Fact]
         public void Can_log_to_memory()
         {
-            using var lf = new LoggerFactoryBuilder
+            using var lf = new LoggerFactory
             {
-                new DelegateNode(),
-                new BranchNode(),
-                new EchoNode
+                CreateNodes = () => new ILoggerNode[]
                 {
-                    Connectors = { new MemoryConnector() },
+                    new InjectAnonymousDelegate(),
+                    new Branch(),
+                    new Echo
+                    {
+                        Connectors = { new MemoryConnector() },
+                    }
                 }
-            }.Build();
+            };
 
             var l = lf.CreateLogger("test");
-            using var s = l.BeginScope().UseMemory();
+            using var s = l.BeginScope().UseInMemoryCache();
 
             l.Log(e => e.Message("Hallo!"));
 
-            var rx = lf.Receivers().OfType<MemoryConnector>().Single();
-            var mn = l.Scope().Memory();
+            var rx = l.Node<Echo>().Connectors.OfType<MemoryConnector>().Single();
+            var mn = l.Scope().InMemoryCache();
 
             //Assert.Same(rx.First(), mn.First());
 

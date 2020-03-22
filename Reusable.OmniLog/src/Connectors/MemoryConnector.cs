@@ -33,9 +33,7 @@ namespace Reusable.OmniLog.Connectors
                 }
             }
         }
-
-        public static MemoryConnector Create(int capacity = DefaultCapacity) => new MemoryConnector(capacity);
-
+        
         public IEnumerator<ILogEntry> GetEnumerator()
         {
             lock (_logs)

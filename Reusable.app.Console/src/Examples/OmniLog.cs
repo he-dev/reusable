@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using Reusable.Apps;
 using Reusable.Exceptionize;
 using Reusable.OmniLog;
@@ -21,18 +22,30 @@ namespace Reusable
             using var loggerFactory =
                 LoggerPipelines
                     .Default
-                    .Configure<PropertyNode>(node =>
+                    .Configure<AttachProperty>(node =>
                     {
                         node.Properties.Add(new Constant("Environment", "Demo"));
                         node.Properties.Add(new Constant("Product", "Reusable.app.Console"));
                     })
-                    .Configure<ObjectMapperNode>(node => { node.Mappings.Add(ObjectMapperNode.Mapping.For<Person>(x => new { FullName = $"{x.LastName}, {x.FirstName}".ToUpper() })); })
-                    .Configure<PropertyMapperNode>(node =>
+                    // .Configure<PropertyNode>().Add
+                    // (
+                    //     node => node.Properties,
+                    //     new Constant("Environment", "Demo"),
+                    //     new Constant("Product", "Reusable.app.Console")
+                    // )
+                    .Configure<MapObject>(node => { node.Mappings.Add(MapObject.Mapping.For<Person>(x => new { FullName = $"{x.LastName}, {x.FirstName}".ToUpper() })); })
+                    .Configure<RenameProperty>(node =>
                     {
-                        node.Mappings.Add(Names.Default.Correlation, "Scope");
-                        node.Mappings.Add(Names.Default.SnapshotName, "Identifier");
+                        node.Mappings.Add(Names.Properties.Correlation, "Scope");
+                        node.Mappings.Add(Names.Properties.SnapshotName, "Identifier");
                     })
-                    .Configure<EchoNode>(node =>
+                    // .Configure<PropertyMapperNode>().Add
+                    // (
+                    //     node => node.Mappings,
+                    //     (Names.Properties.Correlation, "Scope"),
+                    //     (Names.Properties.SnapshotName, "Identifier")
+                    // )
+                    .Configure<Echo>(node =>
                     {
                         node.Connectors.Add(new NLogConnector());
                         node.Connectors.Add(new SimpleConsoleRx
@@ -41,6 +54,16 @@ namespace Reusable
                             Template = @"[{Timestamp:HH:mm:ss:fff}] [{Level}] {Layer} | {Category} | {Identifier}: {Snapshot} {Elapsed}ms | {Message} {Exception}"
                         });
                     })
+                    // .Configure<EchoNode>().Add
+                    // (
+                    //     node => node.Connectors,
+                    //     new NLogConnector(),
+                    //     new SimpleConsoleRx
+                    //     {
+                    //         // Render output with this template. This is the default.
+                    //         Template = @"[{Timestamp:HH:mm:ss:fff}] [{Level}] {Layer} | {Category} | {Identifier}: {Snapshot} {Elapsed}ms | {Message} {Exception}"
+                    //     }
+                    // )
                     .ToLoggerFactory();
             ;
             var logger = loggerFactory.CreateLogger("Demo");

@@ -10,19 +10,19 @@ namespace Reusable.OmniLog.Nodes
     /// <summary>
     /// Maps one object into a different one.
     /// </summary>
-    public class ObjectMapperNode : LoggerNode
+    public class MapObject : LoggerNode
     {
         public MappingCollection Mappings { get; set; } = new MappingCollection();
 
         public override void Invoke(ILogEntry request)
         {
-            foreach (var property in request.Where(LogProperty.CanProcess.With<SerializerNode>()).ToList())
+            foreach (var property in request.Where(LogProperty.CanProcess.With<SerializeProperty>()).ToList())
             {
                 // Do we have a custom mapping for the dump?
                 if (property.Value is {} && Mappings.TryGetMapping(property.Value.GetType(), out var map))
                 {
                     var obj = map(property.Value);
-                    request.Push(property.Name, obj, LogProperty.Process.With<SerializerNode>()); // Replace the original object.
+                    request.Push(property.Name, obj, LogProperty.Process.With<SerializeProperty>()); // Replace the original object.
                 }
             }
 

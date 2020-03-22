@@ -21,12 +21,12 @@ namespace Reusable.OmniLog.Extensions
         {
             return node.Then(e =>
             {
-                e.Push(new LogProperty(Names.Default.Category, nameof(Flow), LogPropertyMeta.Builder.ProcessWith<EchoNode>()));
-                e.Push(new LogProperty(Names.Default.SnapshotName, nameof(decision), LogPropertyMeta.Builder.ProcessWith<EchoNode>()));
-                e.Push(new LogProperty(Names.Default.Snapshot, decision, LogPropertyMeta.Builder.ProcessWith<EchoNode>()));
+                e.Push(new LogProperty(Names.Properties.Category, nameof(Flow), LogPropertyMeta.Builder.ProcessWith<Echo>()));
+                e.Push(new LogProperty(Names.Properties.SnapshotName, nameof(decision), LogPropertyMeta.Builder.ProcessWith<Echo>()));
+                e.Push(new LogProperty(Names.Properties.Snapshot, decision, LogPropertyMeta.Builder.ProcessWith<Echo>()));
                 if (because is {})
                 {
-                    e.Push(new LogProperty(Names.Default.Message, because, LogPropertyMeta.Builder.ProcessWith<EchoNode>()));
+                    e.Push(new LogProperty(Names.Properties.Message, because, LogPropertyMeta.Builder.ProcessWith<Echo>()));
                 }
             });
         }
@@ -39,9 +39,9 @@ namespace Reusable.OmniLog.Extensions
         {
             return node.Then(e =>
             {
-                e.Push(new LogProperty(nameof(Category), name!, LogPropertyMeta.Builder.ProcessWith<EchoNode>()));
-                e.Push(new LogProperty(Names.Default.SnapshotName, snapshotName, LogPropertyMeta.Builder.ProcessWith<EchoNode>()));
-                e.Push(new LogProperty(Names.Default.Snapshot, snapshot, LogPropertyMeta.Builder.ProcessWith<DestructureNode>()));
+                e.Push(new LogProperty(nameof(Category), name!, LogPropertyMeta.Builder.ProcessWith<Echo>()));
+                e.Push(new LogProperty(Names.Properties.SnapshotName, snapshotName, LogPropertyMeta.Builder.ProcessWith<Echo>()));
+                e.Push(new LogProperty(Names.Properties.Snapshot, snapshot, LogPropertyMeta.Builder.ProcessWith<Destructure>()));
             });
         }
 
@@ -51,7 +51,7 @@ namespace Reusable.OmniLog.Extensions
         {
             return node.Then(e =>
             {
-                e.Push(new LogProperty(Names.Default.Category, nameof(Variable), LogPropertyMeta.Builder.ProcessWith<EchoNode>()));
+                e.Push(new LogProperty(Names.Properties.Category, nameof(Variable), LogPropertyMeta.Builder.ProcessWith<Echo>()));
                 e.Snapshot(value);
             });
         }
@@ -60,7 +60,7 @@ namespace Reusable.OmniLog.Extensions
         {
             return node.Then(e =>
             {
-                e.Push(new LogProperty(Names.Default.Category, nameof(Counter), LogPropertyMeta.Builder.ProcessWith<EchoNode>()));
+                e.Push(new LogProperty(Names.Properties.Category, nameof(Counter), LogPropertyMeta.Builder.ProcessWith<Echo>()));
                 e.Snapshot(value);
             });
         }
@@ -69,22 +69,22 @@ namespace Reusable.OmniLog.Extensions
         {
             return node.Then(e =>
             {
-                e.Push(new LogProperty(Names.Default.Category, nameof(Meta), LogPropertyMeta.Builder.ProcessWith<EchoNode>()));
+                e.Push(new LogProperty(Names.Properties.Category, nameof(Meta), LogPropertyMeta.Builder.ProcessWith<Echo>()));
                 e.Snapshot(value);
             });
         }
 
         public static Action<ILogEntry> Flow(this Action<ILogEntry> node)
         {
-            return node.Then(e => e.Push(new LogProperty(Names.Default.Category, nameof(Flow), LogPropertyMeta.Builder.ProcessWith<EchoNode>())));
+            return node.Then(e => e.Push(new LogProperty(Names.Properties.Category, nameof(Flow), LogPropertyMeta.Builder.ProcessWith<Echo>())));
         }
 
         public static Action<ILogEntry> Decision(this Action<ILogEntry> node, string decision)
         {
             return node.Then(e =>
             {
-                e.Push(new LogProperty(Names.Default.SnapshotName, nameof(decision), LogPropertyMeta.Builder.ProcessWith<EchoNode>()));
-                e.Push(new LogProperty(Names.Default.Snapshot, decision, LogPropertyMeta.Builder.ProcessWith<EchoNode>()));
+                e.Push(new LogProperty(Names.Properties.SnapshotName, nameof(decision), LogPropertyMeta.Builder.ProcessWith<Echo>()));
+                e.Push(new LogProperty(Names.Properties.Snapshot, decision, LogPropertyMeta.Builder.ProcessWith<Echo>()));
             });
         }
 
@@ -98,8 +98,8 @@ namespace Reusable.OmniLog.Extensions
             var dictionary = snapshot.ToDictionary();
             return
                 logEntry
-                    .Push(Names.Default.SnapshotName, dictionary.First().Key, m => m.ProcessWith<EchoNode>())
-                    .Push(Names.Default.Snapshot, dictionary.First().Value, m => m.ProcessWith<SerializerNode>());
+                    .Push(Names.Properties.SnapshotName, dictionary.First().Key, m => m.ProcessWith<Echo>())
+                    .Push(Names.Properties.Snapshot, dictionary.First().Value, m => m.ProcessWith<SerializeProperty>());
         }
 
         #endregion

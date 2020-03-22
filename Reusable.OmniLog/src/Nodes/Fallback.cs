@@ -7,7 +7,7 @@ namespace Reusable.OmniLog.Nodes
     /// <summary>
     /// Sets default values for the specified properties when they are not set already. 
     /// </summary>
-    public class FallbackNode : LoggerNode
+    public class Fallback : LoggerNode
     {
         public override bool Enabled => base.Enabled && Properties.Any();
 
@@ -19,7 +19,7 @@ namespace Reusable.OmniLog.Nodes
             {
                 if (!request.TryGetProperty(key, out _))
                 {
-                    request.Push(key, value, m => m.ProcessWith<EchoNode>());
+                    request.Push(key, value, m => m.ProcessWith<Echo>());
                 }
             }
 

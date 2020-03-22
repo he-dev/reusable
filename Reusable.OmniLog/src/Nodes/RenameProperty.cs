@@ -7,7 +7,7 @@ namespace Reusable.OmniLog.Nodes
     /// <summary>
     /// Renames log properties.
     /// </summary>
-    public class PropertyMapperNode : LoggerNode
+    public class RenameProperty : LoggerNode
     {
         public Dictionary<string, string> Mappings { get; set; } = new Dictionary<string, string>();
 
@@ -15,9 +15,9 @@ namespace Reusable.OmniLog.Nodes
         {
             foreach (var (key, value) in Mappings.Select(x => (x.Key, x.Value)))
             {
-                if (request.TryGetProperty(key, out var property) && property.CanProcessWith<EchoNode>())
+                if (request.TryGetProperty(key, out var property) && property.CanProcessWith<Echo>())
                 {
-                    request.Push(value, property.Value, m => m.ProcessWith<EchoNode>());
+                    request.Push(value, property.Value, m => m.ProcessWith<Echo>());
                 }
             }
 

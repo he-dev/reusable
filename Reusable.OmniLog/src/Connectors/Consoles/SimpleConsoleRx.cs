@@ -29,7 +29,7 @@ namespace Reusable.OmniLog.Connectors
 
         private ConsoleColor GetConsoleColor(ILogEntry entry)
         {
-            if (entry.TryGetProperty(Names.Default.Level, out var property) && property.Value is LogLevel logLevel && LogLevelColor.TryGetValue(logLevel, out var consoleColor))
+            if (entry.TryGetProperty(Names.Properties.Level, out var property) && property.Value is LogLevel logLevel && LogLevelColor.TryGetValue(logLevel, out var consoleColor))
             {
                 return consoleColor;
             }

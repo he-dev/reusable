@@ -51,43 +51,30 @@ namespace Reusable.Apps.Server
         {
             SmartPropertiesLayoutRenderer.Register();
 
-            services.AddOmniLog(
-                LoggerFactory
-                    .Builder()
-                    .Use<StopwatchNode>()
-                    .Use<PropertyNode>(node => node.Properties = new List<IPropertyService>
+            services.AddOmniLog
+            (
+                LoggerPipelines
+                    .Default
+                    .Configure<AttachProperty>(node =>
                     {
-                        new Constant("Environment", _hostingEnvironment.EnvironmentName),
-                        new Constant("Product", "Reusable.app.Server"),
-                        new Timestamp<DateTimeUtc>()
+                        node.Properties.Add(new Constant("Environment", _hostingEnvironment.EnvironmentName));
+                        node.Properties.Add(new Constant("Product", "Reusable.app.Server"));
                     })
-                    .Use<DelegateNode>()
-                    .Use<BranchNode>()
-                    .Use<BufferNode>()
-                    .Use<DestructureNode>()
-                    .Use<ObjectMapperNode>()
-                    .Use<SerializerNode>()
-                    .Use<CamelCaseNode>()
-                    .Use<PropertyMapperNode>(node => node.Mappings = new Dictionary<string, string>
+                    .Configure<RenameProperty>(node =>
                     {
-                        { Names.Default.SnapshotName, "Identifier" }
+                        node.Mappings.Add(Names.Properties.SnapshotName, "Identifier");
+                        node.Mappings.Add(Names.Properties.Correlation, "Scope");
                     })
-                    .Use<FallbackNode>(node => node.Properties = new Dictionary<string, object>
+                    .Configure<Echo>(node =>
                     {
-                        { Names.Default.Level, LogLevel.Information }
-                    })
-                    .Use<EchoNode>(node => node.Connectors = new List<IConnector>
-                        {
 #if DEBUG
-                            new SimpleConsoleRx
-                            {
-                                Template = @"[{Timestamp:HH:mm:ss:fff}] [{Level}] {Layer} | {Category} | {Identifier}: {Snapshot} {Elapsed}ms | {Message} {Exception}"
-                            },
+                        node.Connectors.Add(new SimpleConsoleRx
+                        {
+                            Template = @"[{Timestamp:HH:mm:ss:fff}] [{Level}] {Layer} | {Category} | {Identifier}: {Snapshot} {Elapsed}ms | {Message} {Exception}"
+                        });
 #endif
-                            new NLogConnector()
-                        }
-                    )
-                    .Build()
+                        node.Connectors.Add(new NLogConnector());
+                    })
             );
 
             // Add framework services.

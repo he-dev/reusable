@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Builder;
+﻿using System.Collections.Generic;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using Reusable.OmniLog.Abstractions;
 using Reusable.OmniLog.Utilities.AspNetCore.Mvc.Filters;
@@ -17,6 +18,11 @@ namespace Reusable.OmniLog.Utilities.AspNetCore
                     .AddSingleton(loggerFactory)
                     .AddSingleton(typeof(ILogger<>), typeof(Logger<>))
                     .AddScoped<LogResponseBody>();
+        }
+        
+        public static IServiceCollection AddOmniLog(this IServiceCollection services, IEnumerable<ILoggerNode> nodes)
+        {
+            return services.AddOmniLog(nodes.ToLoggerFactory());
         }
         
         /// <summary>

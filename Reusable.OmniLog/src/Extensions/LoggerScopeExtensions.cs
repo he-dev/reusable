@@ -2,6 +2,7 @@ using System;
 using Reusable.Extensions;
 using Reusable.OmniLog.Abstractions;
 using Reusable.OmniLog.Nodes;
+using Buffer = Reusable.OmniLog.Nodes.Buffer;
 
 namespace Reusable.OmniLog.Extensions
 {
@@ -9,21 +10,21 @@ namespace Reusable.OmniLog.Extensions
     {
         public static ILoggerScope WithCorrelationHandle(this ILoggerScope logger, object? correlationHandle)
         {
-            return logger.Pipe(l => l.Scope().Correlation().CorrelationHandle = correlationHandle);
+            return logger.Pipe(l => l.Scope().First.Node<Correlate>().CorrelationHandle = correlationHandle);
         }
 
         public static ILoggerScope UseBuffer(this ILoggerScope logger)
         {
             // Branch-node is properly initialized at this point.
-            return logger.Pipe(x => x.Node<BranchNode>().First.Node<BufferNode>().Enable());
+            return logger.Pipe(x => x.Node<Branch>().First.Node<Buffer>().Enable());
         }
 
         /// <summary>
         /// Activates a new MemoryNode.
         /// </summary>
-        public static ILoggerScope UseMemory(this ILoggerScope logger)
+        public static ILoggerScope UseInMemoryCache(this ILoggerScope logger)
         {
-            return logger.Pipe(x => x.Node<BranchNode>().First.Node<MemoryNode>().Enable());
+            return logger.Pipe(x => x.Node<Branch>().First.Node<CacheInMemory>().Enable());
         }
 
         /// <summary>

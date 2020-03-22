@@ -17,7 +17,7 @@ namespace Reusable.OmniLog.Extensions
 
         public static Action<ILogEntry> Level(this Action<ILogEntry> node, LogLevel logLevel)
         {
-            return node.Then(e => e.Push(new LogProperty(Names.Default.Level, logLevel, LogPropertyMeta.Builder.ProcessWith<EchoNode>())));
+            return node.Then(e => e.Push(new LogProperty(Names.Properties.Level, logLevel, LogPropertyMeta.Builder.ProcessWith<Echo>())));
         }
         
         private static Action<ILogEntry> Level(this Action<ILogEntry> node, [CallerMemberName] string? name = null)

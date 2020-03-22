@@ -27,7 +27,7 @@ namespace Reusable.OmniLog.Connectors
         {
             lock (_syncLock)
             {
-                if (entry.TryGetProperty(Names.Default.Message, out var property) && property.Value is IHtmlConsoleTemplateBuilder builder)
+                if (entry.TryGetProperty(Names.Properties.Message, out var property) && property.Value is IHtmlConsoleTemplateBuilder builder)
                 {
                     var template = builder.Build(entry);
 

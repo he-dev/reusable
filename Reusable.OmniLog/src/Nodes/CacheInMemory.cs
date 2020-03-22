@@ -2,16 +2,14 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
-using Reusable.Extensions;
 using Reusable.OmniLog.Abstractions;
-using Reusable.OmniLog.Extensions;
 
 namespace Reusable.OmniLog.Nodes
 {
     /// <summary>
     /// This node caches logs in memory.
     /// </summary>
-    public class MemoryNode : LoggerNode, IEnumerable<ILogEntry>
+    public class CacheInMemory : LoggerNode, IEnumerable<ILogEntry>
     {
         private readonly Queue<ILogEntry> _entries = new Queue<ILogEntry>();
 
@@ -49,13 +47,13 @@ namespace Reusable.OmniLog.Nodes
 
         
 
-        public static DataTable ToDataTable(this MemoryNode memoryNode)
+        public static DataTable ToDataTable(this CacheInMemory cacheInMemory)
         {
             var dt = new DataTable();
-            foreach (var logEntry in memoryNode)
+            foreach (var logEntry in cacheInMemory)
             {
                 var row = dt.NewRow();
-                foreach (var item in logEntry.Where(LogProperty.CanProcess.With<EchoNode>()))
+                foreach (var item in logEntry.Where(LogProperty.CanProcess.With<Echo>()))
                 {
                     if (!dt.Columns.Contains(item.Name))
                     {

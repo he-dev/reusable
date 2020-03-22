@@ -1,8 +1,3 @@
-using System.Collections.Generic;
-using System.Linq;
-using Reusable.OmniLog.Abstractions;
-using Reusable.OmniLog.Nodes;
-
 namespace Reusable.OmniLog.Extensions
 {
     public static class LoggerFactoryExtensions

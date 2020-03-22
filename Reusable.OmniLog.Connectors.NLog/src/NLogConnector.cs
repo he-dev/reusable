@@ -22,7 +22,7 @@ namespace Reusable.OmniLog.Connectors
 
         public void Log(ILogEntry logEntry)
         {
-            var loggerName = logEntry.GetValueOrDefault(Names.Default.Logger, "Undefined");
+            var loggerName = logEntry.GetValueOrDefault(Names.Properties.Logger, "Undefined");
             GetLogger(loggerName).Log(CreateLogEventInfo(logEntry));
         }
 
@@ -30,11 +30,11 @@ namespace Reusable.OmniLog.Connectors
         {
             var logEventInfo = new NLog.LogEventInfo
             {
-                Level = LogLevels[logEntry.GetValueOrDefault(Names.Default.Level, LogLevel.Information)],
-                LoggerName = logEntry.GetValueOrDefault(Names.Default.Logger, "Undefined"),
-                Message = logEntry.GetValueOrDefault(Names.Default.Message, default(string)),
-                Exception = logEntry.GetValueOrDefault(Names.Default.Exception, default(Exception)),
-                TimeStamp = logEntry.GetValueOrDefault(Names.Default.Timestamp, DateTime.UtcNow),
+                Level = LogLevels[logEntry.GetValueOrDefault(Names.Properties.Level, LogLevel.Information)],
+                LoggerName = logEntry.GetValueOrDefault(Names.Properties.Logger, "Undefined"),
+                Message = logEntry.GetValueOrDefault(Names.Properties.Message, default(string)),
+                Exception = logEntry.GetValueOrDefault(Names.Properties.Exception, default(Exception)),
+                TimeStamp = logEntry.GetValueOrDefault(Names.Properties.Timestamp, DateTime.UtcNow),
             };
 
             foreach (var item in logEntry.Where(LogProperty.CanLog.With<NLogConnector>()))
@@ -49,7 +49,5 @@ namespace Reusable.OmniLog.Connectors
         {
             return _cache.GetOrAdd(name!, n => NLog.LogManager.GetLogger(name));
         }
-
-        public static NLogConnector Create() => new NLogConnector();
     }
 }

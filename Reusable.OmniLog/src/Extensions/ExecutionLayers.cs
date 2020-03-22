@@ -20,7 +20,7 @@ namespace Reusable.OmniLog.Extensions
         
         private static Action<ILogEntry> Layer(this Action<ILogEntry> node, [CallerMemberName] string? name = null)
         {
-            return node.Then(e => e.Push(new LogProperty(nameof(Layer), name!, LogPropertyMeta.Builder.ProcessWith<EchoNode>())));
+            return node.Then(e => e.Push(new LogProperty(nameof(Layer), name!, LogPropertyMeta.Builder.ProcessWith<Echo>())));
         }
     }
 }

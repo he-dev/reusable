@@ -4,22 +4,23 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Custom;
 using Reusable.Collections.Generic;
-using Reusable.Extensions;
 using Reusable.OmniLog.Abstractions;
 
 namespace Reusable.OmniLog
 {
     public class LoggerFactory : ILoggerFactory
     {
-        private readonly IEnumerable<ILoggerNode> _nodes;
-
         private readonly ConcurrentDictionary<SoftString, ILogger> _loggers = new ConcurrentDictionary<SoftString, ILogger>();
 
-        public LoggerFactory(IEnumerable<ILoggerNode> nodes) => _nodes = nodes;
+        public LoggerFactory(IEnumerable<ILoggerNode> nodes) => CreateNodes = () => nodes;
+
+        public LoggerFactory() : this(Enumerable.Empty<ILoggerNode>()) { }
+
+        public Func<IEnumerable<ILoggerNode>> CreateNodes { get; set; }
 
         public static ILoggerFactory Empty() => new LoggerFactory(Enumerable.Empty<ILoggerNode>());
 
-        public static LoggerFactoryBuilder Builder() => new LoggerFactoryBuilder();
+        //public static LoggerFactoryBuilder Builder() => new LoggerFactoryBuilder();
 
         #region ILoggerFactory
 
@@ -27,7 +28,7 @@ namespace Reusable.OmniLog
 
         private ILogger CreatePipeline(string loggerName)
         {
-            return (ILogger)_nodes.Prepend(new Logger { Name = loggerName }).Join().First();
+            return (ILogger)CreateNodes().Prepend(new Logger { Name = loggerName }).Join().First();
         }
 
         public void Dispose() { }
@@ -42,18 +43,5 @@ namespace Reusable.OmniLog
     public static class LoggerFactoryExtensions
     {
         public static ILogger<T> CreateLogger<T>(this ILoggerFactory loggerFactory) => new Logger<T>(loggerFactory);
-    }
-
-    public static class LoggerFactoryBuilderExtensions
-    {
-        public static LoggerFactoryBuilder Use<T>(this LoggerFactoryBuilder builder, Action<T>? configure = default) where T : ILoggerNode, new()
-        {
-            return builder.Use(new T().Pipe(configure));
-        }
-
-        public static LoggerFactoryBuilder Use<T>(this LoggerFactoryBuilder builder, T node) where T : ILoggerNode
-        {
-            return builder.Pipe(b => b.Add(node));
-        }
     }
 }

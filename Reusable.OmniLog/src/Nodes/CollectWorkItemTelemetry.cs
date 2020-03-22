@@ -10,18 +10,19 @@ using Reusable.OmniLog.Utilities;
 namespace Reusable.OmniLog.Nodes
 {
     [UsedImplicitly]
-    public class WorkItemNode : LoggerNode
+    public class CollectWorkItemTelemetry : LoggerNode
     {
-        private Action LogWorkItemEnd { get; set; } = () => { };
+        private static AsyncScope<Exception>? Context => AsyncScope<Exception>.Current;
 
-        public Func<ILogEntry, bool> IsWorkItemBegin { get; set; } = WorkItemHelper.IsWorkItemBegin("Category", "WorkItem");
+        private Action LogWorkItemEnd { get; set; } = () => { };
 
         public HashSet<string> CopyProperties { get; set; } = new HashSet<string>
         {
-            "Layer",
-            "Category",
+            Names.Properties.Layer,
+            Names.Properties.Category
         };
 
+        // ReSharper disable once MemberCanBeMadeStatic.Global - this should remain instance method so that it must be accessed via logger-scope
         public void Push(Exception exception) => AsyncScope<Exception>.Push(exception);
 
         public override void Invoke(ILogEntry request)
@@ -31,7 +32,7 @@ namespace Reusable.OmniLog.Nodes
                 UpdateWorkItem(request);
 
                 // Use the same snapshot-name later.
-                request.TryGetProperty(Names.Default.SnapshotName, out var snapshotName);
+                request.TryGetProperty(Names.Properties.SnapshotName, out var snapshotName);
 
                 var propertyCopies =
                     from propertyName in CopyProperties
@@ -47,8 +48,10 @@ namespace Reusable.OmniLog.Nodes
         private static void UpdateWorkItem(ILogEntry request)
         {
             // Add work-item-status to the snapshot.
-            request.TryGetProperty(Names.Default.Snapshot, out var snapshot);
-            ((IDictionary<string, object>)snapshot.Value!).Add("status", WorkItemStatus.Begin); // At this point null is impossible.
+            if (request.TryGetProperty(Names.Properties.Snapshot, out var snapshot))
+            {
+                request.Push(Names.Properties.Snapshot, new { status = WorkItemStatus.Begin, value = snapshot.Value }, m => m.ProcessWith<SerializeProperty>());
+            }
         }
 
         private void LogWorkItem(IEnumerable<LogProperty> properties, LogProperty snapshotName)
@@ -57,14 +60,19 @@ namespace Reusable.OmniLog.Nodes
             {
                 Enabled = false;
                 var logger = ((ILoggerNode)this).First().Node<Logger>();
-                var exception = AsyncScope<Exception>.Current?.Value;
+                var exception = Context?.Value;
                 logger.Log(properties, Snapshot.Take(snapshotName.Value.ToString(), new { status = GetStatus(exception) }), GetLogLevel(exception), exception!);
             }
             finally
             {
                 Enabled = true;
-                AsyncScope<Exception>.Current?.Dispose();
+                Context?.Dispose();
             }
+        }
+
+        private static bool IsWorkItemBegin(ILogEntry request)
+        {
+            return request.TryGetProperty(Names.Properties.Category, out var category) && SoftString.Comparer.Equals(category.Value.ToString(), Names.Categories.WorkItem);
         }
 
         private static WorkItemStatus GetStatus(Exception? exception)
@@ -91,16 +99,6 @@ namespace Reusable.OmniLog.Nodes
         {
             LogWorkItemEnd();
             base.Dispose();
-        }
-    }
-
-    public static class WorkItemHelper
-    {
-        
-
-        public static Func<ILogEntry, bool> IsWorkItemBegin(string propertyName, string propertyValue)
-        {
-            return e => e.TryGetProperty(propertyName, out var property) && SoftString.Comparer.Equals(property.Value?.ToString(), propertyValue);
         }
     }
 

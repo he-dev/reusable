@@ -1,10 +1,12 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
-using Reusable.Extensions;
 using Reusable.OmniLog.Abstractions;
 using Reusable.OmniLog.Extensions;
 using Reusable.OmniLog.Nodes;
 using Reusable.OmniLog.Properties;
+using Reusable.OmniLog.Services;
+using Buffer = Reusable.OmniLog.Nodes.Buffer;
 
 namespace Reusable.OmniLog
 {
@@ -14,19 +16,19 @@ namespace Reusable.OmniLog
         {
             get
             {
-                yield return new PropertyNode
+                yield return new AttachProperty
                 {
                     Properties = { new Timestamp<DateTimeUtc>() }
                 };
-                yield return new DelegateNode();
-                yield return new PropertyFactoryNode();
-                yield return new BuilderNode();
-                yield return new DestructureNode();
-                yield return new ObjectMapperNode();
-                yield return new FilterNode();
-                yield return new MapValueToLogLevelNode
+                yield return new InjectAnonymousDelegate();
+                yield return new CreateProperty();
+                //yield return new BuilderNode();
+                yield return new Destructure();
+                yield return new MapObject();
+                yield return new Filter();
+                yield return new MapPropertyToLogLevel
                 {
-                    Property = Names.Default.Layer,
+                    PropertyName = Names.Properties.Layer,
                     Mapper = new MapStringToLogLevel
                     {
                         [nameof(ExecutionLayers.Service)] = LogLevel.Debug,
@@ -38,37 +40,42 @@ namespace Reusable.OmniLog
                         [nameof(ExecutionLayers.Presentation)] = LogLevel.Debug,
                     }
                 };
-                yield return new FallbackNode
+                yield return new Fallback
                 {
                     Properties =
                     {
-                        [Names.Default.Level] = LogLevel.Information,
-                        [Names.Default.Layer] = "Undefined",
-                        [Names.Default.Category] = "Undefined"
+                        [Names.Properties.Level] = LogLevel.Information,
+                        [Names.Properties.Layer] = "Undefined",
+                        [Names.Properties.Category] = "Undefined"
                     }
                 };
-                yield return new BranchNode
+                yield return new Branch
                 {
                     CreateNodes = () => new ILoggerNode[]
                     {
-                        new CorrelationNode(),
-                        new StopwatchNode(),
-                        new BufferNode(),
-                        new MemoryNode(),
-                        new WorkItemNode(),
+                        new Correlate(),
+                        new MeasureElapsedTime(),
+                        new Buffer(),
+                        new CacheInMemory(),
+                        new CollectWorkItemTelemetry(),
                     }
                 };
-                yield return new SerializerNode();
-                yield return new CamelCaseNode
+                yield return new SerializeProperty
+                {
+                    Serialize = new SerializeToJson()
+                };
+                yield return new FormatAsCamelCase
                 {
                     PropertyNames =
                     {
-                        Names.Default.Layer,
-                        Names.Default.Category,
+                        Names.Properties.Logger,
+                        Names.Properties.Layer,
+                        Names.Properties.Category,
+                        Names.Properties.SnapshotName,
                     }
                 };
-                yield return new PropertyMapperNode();
-                yield return new EchoNode();
+                yield return new RenameProperty();
+                yield return new Echo();
             }
         }
 
@@ -80,10 +87,66 @@ namespace Reusable.OmniLog
                 {
                     configure(configurable);
                 }
+
                 yield return node;
             }
         }
-        
+
+        public static ILoggerNodeConfiguration<T> Configure<T>(this IEnumerable<ILoggerNode> nodes) where T : ILoggerNode
+        {
+            return new LoggerNodeConfiguration<T>(nodes);
+        }
+
         public static ILoggerFactory ToLoggerFactory(this IEnumerable<ILoggerNode> nodes) => new LoggerFactory(nodes);
+    }
+
+
+    // ReSharper disable once UnusedTypeParameter - This interface carries the T so it must not be removed.
+    public interface ILoggerNodeConfiguration<T> : IEnumerable<ILoggerNode> { }
+
+    internal class LoggerNodeConfiguration<T> : ILoggerNodeConfiguration<T> where T : ILoggerNode
+    {
+        private readonly IEnumerable<ILoggerNode> _nodes;
+
+        public LoggerNodeConfiguration(IEnumerable<ILoggerNode> nodes) => _nodes = nodes;
+
+        public IEnumerator<ILoggerNode> GetEnumerator() => _nodes.GetEnumerator();
+
+        IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable)_nodes).GetEnumerator();
+    }
+
+    public static class LoggerNodeConfigurationExtensions
+    {
+        public static ILoggerNodeConfiguration<T> Add<T, TValue>
+        (
+            this ILoggerNodeConfiguration<T> configuration,
+            Func<T, ICollection<TValue>> selector,
+            params TValue[] values
+        ) where T : ILoggerNode
+        {
+            return new LoggerNodeConfiguration<T>(configuration.Configure<T>(node =>
+            {
+                foreach (var value in values)
+                {
+                    selector(node).Add(value);
+                }
+            }));
+        }
+
+        public static ILoggerNodeConfiguration<T> Add<T, TKey, TValue>
+        (
+            this ILoggerNodeConfiguration<T> configuration,
+            Func<T, IDictionary<TKey, TValue>> selector,
+            params (TKey Key, TValue Value)[] items
+        ) where T : ILoggerNode
+        {
+            return new LoggerNodeConfiguration<T>(configuration.Configure<T>(node =>
+            {
+                foreach (var (key, value) in items)
+                {
+                    selector(node).Add(key, value);
+                }
+            }));
+        }
     }
 }

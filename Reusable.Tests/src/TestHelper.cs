@@ -2,6 +2,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.Extensions.Caching.Memory;
 using Reusable.OmniLog;
 using Reusable.OmniLog.Abstractions;
+using Reusable.OmniLog.Nodes;
 using Reusable.OmniLog.Properties;
 using Reusable.Translucent;
 using Reusable.Translucent.Abstractions;
@@ -23,28 +24,16 @@ namespace Reusable
         public static ILoggerFactory CreateLoggerFactory(params IConnector[] logRx)
         {
             return
-                LoggerFactory
-                    .Builder()
-                    .UseStopwatch()
-                    .UseService
-                    (
-                        new Constant("Environment", "Test"),
-                        new Constant("Product", "Reusable.Tests"),
-                        new Timestamp<DateTimeUtc>()
-                    )
-                    .UseDelegate()
-                    .UseScope()
-                    .UseBuilder()
-                    .UseDestructure()
-                    .UseObjectMapper()
-                    .UseSerializer()
-                    .UsePropertyMapper
-                    (
-                        (Names.Default.SnapshotName, "Identifier")
-                    )
-                    .UseFallback((Names.Default.Level, LogLevel.Information))
-                    .UseEcho(logRx)
-                    .Build();
+                LoggerPipelines
+                    .Default
+                    .Configure<AttachProperty>(node =>
+                    {
+                        node.Properties.Add(new Constant("Environment", "Test"));
+                        node.Properties.Add(new Constant("Product", "Reusable.Tests"));
+                        node.Properties.Add(new Timestamp<DateTimeUtc>());
+                    })
+                    .Configure<Echo>(node => node.Connectors.AddRange(logRx))
+                    .ToLoggerFactory();
         }
 
         public static IResource CreateResource(IMemoryCache? memoryCache = default)

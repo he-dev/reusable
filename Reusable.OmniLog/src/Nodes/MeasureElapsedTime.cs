@@ -1,14 +1,13 @@
 using System;
 using System.Diagnostics;
 using Reusable.OmniLog.Abstractions;
-using Reusable.OmniLog.Extensions;
 
 namespace Reusable.OmniLog.Nodes
 {
     /// <summary>
     /// Adds 'Elapsed' time to the log.
     /// </summary>
-    public class StopwatchNode : LoggerNode
+    public class MeasureElapsedTime : LoggerNode
     {
         private readonly Stopwatch _stopwatch = Stopwatch.StartNew();
 
@@ -18,17 +17,10 @@ namespace Reusable.OmniLog.Nodes
 
         public override void Invoke(ILogEntry request)
         {
-            request.Push(Names.Default.Elapsed, (long)GetValue(Elapsed), LogProperty.Process.With<EchoNode>());
+            request.Push(Names.Properties.Elapsed, (long)GetValue(Elapsed), LogProperty.Process.With<Echo>());
             InvokeNext(request);
         }
 
         public void Reset() => _stopwatch.Reset();
-    }
-
-    public static class LoggerStopwatchHelper
-    {
-        
-
-        
     }
 }

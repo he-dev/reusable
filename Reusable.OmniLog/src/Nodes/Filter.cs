@@ -6,7 +6,7 @@ namespace Reusable.OmniLog.Nodes
     /// <summary>
     /// Filters log-entries and short-circuits the pipeline.
     /// </summary>
-    public class FilterNode : LoggerNode
+    public class Filter : LoggerNode
     {
         public Func<ILogEntry, bool> CanLog { get; set; } = _ => true;
 

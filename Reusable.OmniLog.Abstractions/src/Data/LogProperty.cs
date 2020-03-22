@@ -53,7 +53,7 @@ namespace Reusable.OmniLog
     
     public abstract class Names
     {
-        public abstract class Default
+        public abstract class Properties
         {
             public const string Timestamp = nameof(Timestamp);
             public const string Correlation = nameof(Correlation);
@@ -69,6 +69,11 @@ namespace Reusable.OmniLog
             public const string CallerMemberName = nameof(CallerMemberName);
             public const string CallerLineNumber = nameof(CallerLineNumber);
             public const string CallerFilePath = nameof(CallerFilePath);
+        }
+
+        public abstract class Categories
+        {
+            public const string WorkItem = nameof(WorkItem);
         }
     }
 

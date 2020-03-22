@@ -10,10 +10,10 @@ using Reusable.OmniLog.Abstractions;
 namespace Reusable.OmniLog.Nodes
 {
     [UsedImplicitly]
-    public class PropertyFactoryNode : LoggerNode
+    public class CreateProperty : LoggerNode
     {
         private static AsyncScope<Stack<object>>? Scope => AsyncScope<Stack<object>>.Current;
-        
+
         public override bool Enabled => AsyncScope<Stack<object>>.Any;
 
         public List<ITryCreateProperties> TryCreateProperties { get; set; } = new List<ITryCreateProperties>
@@ -83,9 +83,9 @@ namespace Reusable.OmniLog.Nodes
 
     public static class PropertyFactoryNodeHelper
     {
-        public static void UsePropertyFactory(this ILogger logger, IEnumerable<object>? items)
+        public static ILogger PushProperties(this ILogger logger, IEnumerable<object>? items)
         {
-            PropertyFactoryNode.Push(items ?? Enumerable.Empty<object>());
+            return logger.Pipe(_ => CreateProperty.Push(items ?? Enumerable.Empty<object>()));
         }
     }
 
@@ -102,7 +102,7 @@ namespace Reusable.OmniLog.Nodes
             {
                 // Don't ToString the value because it will break the log-level.
                 var name = type.GetCustomAttribute<PropertyNameAttribute>()?.ToString() ?? type.Name;
-                yield return new LogProperty(name, obj, LogPropertyMeta.Builder.ProcessWith<EchoNode>());
+                yield return new LogProperty(name, obj, LogPropertyMeta.Builder.ProcessWith<Echo>());
             }
         }
     }
@@ -113,7 +113,7 @@ namespace Reusable.OmniLog.Nodes
         {
             if (obj is Exception exception)
             {
-                yield return new LogProperty(Names.Default.Exception, exception, LogPropertyMeta.Builder.ProcessWith<EchoNode>());
+                yield return new LogProperty(Names.Properties.Exception, exception, LogPropertyMeta.Builder.ProcessWith<Echo>());
             }
         }
     }
