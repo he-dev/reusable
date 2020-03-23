@@ -54,11 +54,11 @@ namespace Reusable.OmniLog.Nodes
         private static void UpdateSnapshot(ILogEntry request)
         {
             // Add work-item-status to the snapshot.
-            var data = CreateFlowSnapshot(FlowStatus.Begin, request.GetValueOrDefault(Names.Properties.Snapshot, default(object?)));
+            var data = CreateFlowData(FlowStatus.Begin, request.GetValueOrDefault(Names.Properties.Snapshot, default(object?)));
             request.Push(Names.Properties.Snapshot, data, m => m.ProcessWith<SerializeProperty>());
         }
 
-        private static object CreateFlowSnapshot(FlowStatus status, object? value)
+        private static object CreateFlowData(FlowStatus status, object? value)
         {
             return value switch
             {
@@ -84,7 +84,7 @@ namespace Reusable.OmniLog.Nodes
 
         private bool IsFlowBegin(ILogEntry request)
         {
-            // Work-item-begin is only when there is no status and category matches.
+            // Flow-begin is only when there is no status and category matches.
             return
                 request.GetValueOrDefault(nameof(FlowStatus), FlowStatus.Undefined) == FlowStatus.Undefined &&
                 request.TryGetProperty(Names.Properties.Category, out var category) &&
