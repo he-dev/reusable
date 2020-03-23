@@ -8,7 +8,7 @@ namespace Reusable.OmniLog.Utilities {
         public static IEnumerable<LogProperty> Make(string decision, string? because = default)
         {
             yield return new LogProperty(Names.Properties.Category, nameof(ExecutionCategories.Flow), LogPropertyMeta.Builder.ProcessWith<Echo>());
-            yield return new LogProperty(Names.Properties.SnapshotName, nameof(Decision), LogPropertyMeta.Builder.ProcessWith<Echo>());
+            yield return new LogProperty(Names.Properties.Unit, nameof(Decision), LogPropertyMeta.Builder.ProcessWith<Echo>());
             yield return new LogProperty(Names.Properties.Snapshot, decision, LogPropertyMeta.Builder.ProcessWith<Echo>());
             if (because is {})
             {

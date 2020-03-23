@@ -63,7 +63,7 @@ namespace Reusable.Apps.Server
                     })
                     .Configure<RenameProperty>(node =>
                     {
-                        node.Mappings.Add(Names.Properties.SnapshotName, "Identifier");
+                        node.Mappings.Add(Names.Properties.Unit, "Identifier");
                         node.Mappings.Add(Names.Properties.Correlation, "Scope");
                     })
                     .Configure<Echo>(node =>

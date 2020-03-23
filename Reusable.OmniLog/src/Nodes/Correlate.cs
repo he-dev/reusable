@@ -28,7 +28,7 @@ namespace Reusable.OmniLog.Nodes
 
         public override void Invoke(ILogEntry request)
         {
-            var branch = Branch.Context!;
+            var branch = InjectFlowScope.Context!;
             var scopes = branch.Enumerate().Select(x => x.Value.First.Node<Correlate>()).ToList();
             request.Push(Names.Properties.Correlation, scopes, m => m.ProcessWith<SerializeProperty>());
             InvokeNext(request);

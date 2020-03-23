@@ -17,7 +17,7 @@ namespace Reusable.OmniLog
                 {
                     Properties = { new Timestamp<DateTimeUtc>() }
                 };
-                yield return new InjectAnonymousDelegate();
+                yield return new InjectAnonymousAction();
                 yield return new CreateProperty();
                 yield return new Destructure();
                 yield return new MapObject();
@@ -45,7 +45,7 @@ namespace Reusable.OmniLog
                         [Names.Properties.Category] = "Undefined"
                     }
                 };
-                yield return new Branch
+                yield return new InjectFlowScope
                 {
                     CreateNodes = () => new ILoggerNode[]
                     {
@@ -53,7 +53,7 @@ namespace Reusable.OmniLog
                         new MeasureElapsedTime(),
                         new BufferLog(),
                         new CacheInMemory(),
-                        new CollectScopeTelemetry(),
+                        new CollectFlowTelemetry(),
                     }
                 };
                 yield return new SerializeProperty
@@ -67,7 +67,7 @@ namespace Reusable.OmniLog
                         Names.Properties.Logger,
                         Names.Properties.Layer,
                         Names.Properties.Category,
-                        Names.Properties.SnapshotName,
+                        Names.Properties.Unit,
                     }
                 };
                 yield return new RenameProperty();

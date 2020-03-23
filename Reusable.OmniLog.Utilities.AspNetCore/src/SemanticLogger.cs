@@ -83,7 +83,7 @@ namespace Reusable.OmniLog.Utilities.AspNetCore
                 }
                 catch (Exception inner)
                 {
-                    _logger.Scope().WorkItem().Push(inner);
+                    _logger.Scope().Flow().Push(inner);
                     throw;
                 }
             }

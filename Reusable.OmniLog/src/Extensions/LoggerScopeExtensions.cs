@@ -15,7 +15,7 @@ namespace Reusable.OmniLog.Extensions
         public static ILoggerScope UseBuffer(this ILoggerScope logger)
         {
             // Branch-node is properly initialized at this point.
-            return logger.Pipe(x => x.Node<Branch>().First.Node<BufferLog>().Enable());
+            return logger.Pipe(x => x.Node<InjectFlowScope>().First.Node<BufferLog>().Enable());
         }
 
         /// <summary>
@@ -23,7 +23,7 @@ namespace Reusable.OmniLog.Extensions
         /// </summary>
         public static ILoggerScope UseInMemoryCache(this ILoggerScope logger)
         {
-            return logger.Pipe(x => x.Node<Branch>().First.Node<CacheInMemory>().Enable());
+            return logger.Pipe(x => x.Node<InjectFlowScope>().First.Node<CacheInMemory>().Enable());
         }
 
         /// <summary>

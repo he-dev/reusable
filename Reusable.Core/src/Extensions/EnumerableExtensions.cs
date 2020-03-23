@@ -319,10 +319,12 @@ namespace System.Linq.Custom
             return value.In(others.AsEnumerable());
         }
 
-        public static bool SoftIn([CanBeNull] this string value, params string[] others)
+        public static bool SoftIn([CanBeNull] this string value, IEnumerable<string> others)
         {
             return value.In(others, SoftString.Comparer);
         }
+
+        public static bool SoftIn([CanBeNull] this string value, params string[] others) => value.SoftIn(others.AsEnumerable());
 
         public static bool NotIn<T>([CanBeNull] this T value, params T[] others)
         {

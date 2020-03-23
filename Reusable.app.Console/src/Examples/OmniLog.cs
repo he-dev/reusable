@@ -37,7 +37,7 @@ namespace Reusable
                     .Configure<RenameProperty>(node =>
                     {
                         node.Mappings.Add(Names.Properties.Correlation, "Scope");
-                        node.Mappings.Add(Names.Properties.SnapshotName, "Identifier");
+                        node.Mappings.Add(Names.Properties.Unit, "Identifier");
                     })
                     // .Configure<PropertyMapperNode>().Add
                     // (
@@ -89,7 +89,7 @@ namespace Reusable
 
                 logger.Log(Execution.Context.WorkItem("testFile", new { fileName = "test" }).Message("Blub!"));
                 logger.Log(Execution.Context.Routine(nameof(Log)).Message("Blub!"));
-                logger.Scope().WorkItem().Push(new Exception());
+                logger.Scope().Flow().Push(new Exception());
 
 
                 // Opening inner-scope.

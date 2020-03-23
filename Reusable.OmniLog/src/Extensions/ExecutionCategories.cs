@@ -22,7 +22,7 @@ namespace Reusable.OmniLog.Extensions
             return node.Then(e =>
             {
                 e.Push(new LogProperty(Names.Properties.Category, nameof(Flow), LogPropertyMeta.Builder.ProcessWith<Echo>()));
-                e.Push(new LogProperty(Names.Properties.SnapshotName, nameof(decision), LogPropertyMeta.Builder.ProcessWith<Echo>()));
+                e.Push(new LogProperty(Names.Properties.Unit, nameof(decision), LogPropertyMeta.Builder.ProcessWith<Echo>()));
                 e.Push(new LogProperty(Names.Properties.Snapshot, decision, LogPropertyMeta.Builder.ProcessWith<Echo>()));
                 if (because is {})
                 {
@@ -41,7 +41,7 @@ namespace Reusable.OmniLog.Extensions
             return node.Then(e =>
             {
                 e.Push(new LogProperty(nameof(Category), name!, LogPropertyMeta.Builder.ProcessWith<Echo>()));
-                e.Push(new LogProperty(Names.Properties.SnapshotName, snapshotName, LogPropertyMeta.Builder.ProcessWith<Echo>()));
+                e.Push(new LogProperty(Names.Properties.Unit, snapshotName, LogPropertyMeta.Builder.ProcessWith<Echo>()));
                 if (snapshot is {})
                 {
                     e.Push(new LogProperty(Names.Properties.Snapshot, snapshot, LogPropertyMeta.Builder.ProcessWith<Destructure>()));
@@ -87,7 +87,7 @@ namespace Reusable.OmniLog.Extensions
         {
             return node.Then(e =>
             {
-                e.Push(new LogProperty(Names.Properties.SnapshotName, nameof(decision), LogPropertyMeta.Builder.ProcessWith<Echo>()));
+                e.Push(new LogProperty(Names.Properties.Unit, nameof(decision), LogPropertyMeta.Builder.ProcessWith<Echo>()));
                 e.Push(new LogProperty(Names.Properties.Snapshot, decision, LogPropertyMeta.Builder.ProcessWith<Echo>()));
             });
         }
@@ -102,7 +102,7 @@ namespace Reusable.OmniLog.Extensions
             var dictionary = snapshot.ToDictionary();
             return
                 logEntry
-                    .Push(Names.Properties.SnapshotName, dictionary.First().Key, m => m.ProcessWith<Echo>())
+                    .Push(Names.Properties.Unit, dictionary.First().Key, m => m.ProcessWith<Echo>())
                     .Push(Names.Properties.Snapshot, dictionary.First().Value, m => m.ProcessWith<SerializeProperty>());
         }
 

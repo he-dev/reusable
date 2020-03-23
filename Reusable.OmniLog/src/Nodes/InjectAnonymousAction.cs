@@ -7,7 +7,7 @@ namespace Reusable.OmniLog.Nodes
     /// <summary>
     /// Adds support for logger.Log(log => ..) overload.
     /// </summary>
-    public class InjectAnonymousDelegate : LoggerNode
+    public class InjectAnonymousAction : LoggerNode
     {
         public override bool Enabled => AsyncScope<Item>.Any;
 
@@ -19,7 +19,7 @@ namespace Reusable.OmniLog.Nodes
             {
                 using (current)
                 {
-                    current.Value.Node(request);
+                    current.Value.Action(request);
                 }
             }
 
@@ -28,17 +28,17 @@ namespace Reusable.OmniLog.Nodes
 
         private class Item
         {
-            public Item(Action<ILogEntry> node) => Node = node;
+            public Item(Action<ILogEntry> node) => Action = node;
 
-            public Action<ILogEntry> Node { get; }
+            public Action<ILogEntry> Action { get; }
         }
     }
 
     public static class LoggerLambdaHelper
     {
-        public static ILogger PushDelegate(this ILogger logger, Action<ILogEntry> node)
+        public static ILogger PushDelegate(this ILogger logger, Action<ILogEntry> action)
         {
-            return logger.Pipe(_ => InjectAnonymousDelegate.Push(node));
+            return logger.Pipe(_ => InjectAnonymousAction.Push(action));
         }
     }
 }

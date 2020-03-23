@@ -52,8 +52,8 @@ namespace Reusable.OmniLog
                 {
                     new MeasureElapsedTime(),
                     new AttachProperty(),
-                    new InjectAnonymousDelegate(),
-                    new Branch(),
+                    new InjectAnonymousAction(),
+                    new InjectFlowScope(),
                     new SerializeProperty(),
                     //new LoggerFilter()
                     //new BufferNode(),
@@ -81,8 +81,8 @@ namespace Reusable.OmniLog
                 {
                     new MeasureElapsedTime(),
                     new AttachProperty(),
-                    new InjectAnonymousDelegate(),
-                    new Branch(),
+                    new InjectAnonymousAction(),
+                    new InjectFlowScope(),
                     new SerializeProperty(),
                     //new LoggerFilter()
                     //new BufferNode(),
@@ -129,8 +129,8 @@ namespace Reusable.OmniLog
                 {
                     new MeasureElapsedTime(),
                     new AttachProperty(),
-                    new InjectAnonymousDelegate(),
-                    new Branch(),
+                    new InjectAnonymousAction(),
+                    new InjectFlowScope(),
                     new Destructure(),
                     new SerializeProperty(),
                     //new LoggerFilter()
@@ -149,7 +149,7 @@ namespace Reusable.OmniLog
 
             Assert.Equal(1, rx.Count());
             Assert.Equal("Hallo!", rx.First()["Message"].Value);
-            Assert.Equal("Greeting", rx.First()[Names.Properties.SnapshotName].Value);
+            Assert.Equal("Greeting", rx.First()[Names.Properties.Unit].Value);
             Assert.Equal("Hi!", rx.First()[Names.Properties.Snapshot].Value);
             //Assert.Equal("{\"Greeting\":\"Hi!\"}", rx.First()["Snapshot"]);
         }
@@ -171,7 +171,7 @@ namespace Reusable.OmniLog
                             new Timestamp(new[] { timestamp })
                         }
                     },
-                    new InjectAnonymousDelegate(),
+                    new InjectAnonymousAction(),
                     new Echo
                     {
                         Connectors = { rx },
@@ -200,7 +200,7 @@ namespace Reusable.OmniLog
                 CreateNodes = () => new ILoggerNode[]
                 {
                     new AttachProperty { Properties = { new Timestamp(new[] { timestamp }) } },
-                    new InjectAnonymousDelegate(),
+                    new InjectAnonymousAction(),
                     new Destructure(),
                     new Echo { Connectors = { rx }, CreateLogEntryView = e => e }
                 }
@@ -212,9 +212,9 @@ namespace Reusable.OmniLog
             }
 
             Assert.Equal(2, rx.Count());
-            Assert.Equal("FirstName", rx[0][Names.Properties.SnapshotName].Value);
+            Assert.Equal("FirstName", rx[0][Names.Properties.Unit].Value);
             Assert.Equal("John", rx[0][Names.Properties.Snapshot].Value);
-            Assert.Equal("LastName", rx[1][Names.Properties.SnapshotName].Value);
+            Assert.Equal("LastName", rx[1][Names.Properties.Unit].Value);
             Assert.Equal("Doe", rx[1][Names.Properties.Snapshot].Value);
             //Assert.Equal(timestamp, rx.First()["Timestamp"]);
         }
@@ -236,7 +236,7 @@ namespace Reusable.OmniLog
                             new Timestamp(new[] { timestamp })
                         }
                     },
-                    new InjectAnonymousDelegate(),
+                    new InjectAnonymousAction(),
                     new Destructure(),
                     new MapObject
                     {
@@ -269,8 +269,8 @@ namespace Reusable.OmniLog
             {
                 CreateNodes = () => new ILoggerNode[]
                 {
-                    new InjectAnonymousDelegate(),
-                    new Branch(),
+                    new InjectAnonymousAction(),
+                    new InjectFlowScope(),
                     new Echo
                     {
                         Connectors = { new MemoryConnector() },

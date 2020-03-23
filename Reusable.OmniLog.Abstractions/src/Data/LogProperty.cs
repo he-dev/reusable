@@ -61,7 +61,7 @@ namespace Reusable.OmniLog
             public const string Logger = nameof(Logger);
             public const string Level = nameof(Level);
             public const string Category = nameof(Category);
-            public const string SnapshotName = nameof(SnapshotName);
+            public const string Unit = nameof(Unit);
             public const string Snapshot = nameof(Snapshot);
             public const string Elapsed = nameof(Elapsed);
             public const string Message = nameof(Message);
@@ -73,6 +73,13 @@ namespace Reusable.OmniLog
 
         public abstract class Categories
         {
+            public const string Variable = nameof(Variable);
+            public const string Property = nameof(Property);
+            public const string Argument = nameof(Argument);
+            public const string Meta = nameof(Meta);
+            public const string Flow = nameof(Flow);
+            public const string Step = nameof(Step);
+            public const string Counter = nameof(Counter);
             public const string WorkItem = nameof(WorkItem);
             public const string Routine = nameof(Routine);
         }

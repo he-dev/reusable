@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using JetBrains.Annotations;
 using Reusable.OmniLog.Abstractions;
 using Reusable.Collections.Generic;
@@ -7,28 +8,21 @@ using Reusable.OmniLog.Extensions;
 
 namespace Reusable.OmniLog.Nodes
 {
-    public interface IBranch
+    public interface IFlowScope
     {
         ILoggerNode First { get; }
     }
     
     [PublicAPI]
-    public class Branch : LoggerNode, IBranch
+    public class InjectFlowScope : LoggerNode, IFlowScope
     {
         public static AsyncScope<Item>? Context => AsyncScope<Item>.Current;
 
         public override bool Enabled => AsyncScope<Item>.Any;
 
-        public Func<IEnumerable<ILoggerNode>> CreateNodes { get; set; } = () => new ILoggerNode[]
-        {
-            new Correlate(),
-            new MeasureElapsedTime(),
-            new BufferLog(),
-            new CacheInMemory(),
-            new CollectScopeTelemetry(),
-        };
+        public Func<IEnumerable<ILoggerNode>> CreateNodes { get; set; } = Enumerable.Empty<ILoggerNode>;
 
-        private Item Scope => Context?.Value ?? throw new InvalidOperationException($"Cannot use {nameof(Scope)} when {nameof(Branch)} is disabled. Use Logger.BeginScope() first.");
+        private Item Scope => Context?.Value ?? throw new InvalidOperationException($"Cannot use {nameof(Scope)} when {nameof(InjectFlowScope)} is disabled. Use Logger.BeginScope() first.");
 
         public ILoggerNode First => Scope.First;
 
@@ -63,7 +57,7 @@ namespace Reusable.OmniLog.Nodes
             {
                 foreach (var node in First.EnumerateNext())
                 {
-                    if (IsMainBranch(node))
+                    if (IsMainPipeline(node))
                     {
                         break;
                     }
@@ -76,14 +70,14 @@ namespace Reusable.OmniLog.Nodes
                 Context?.Dispose();
             }
 
-            private bool IsMainBranch(ILoggerNode node)
+            private bool IsMainPipeline(ILoggerNode node)
             {
-                return !ReferenceEquals(node, First) && node.Prev is Branch;
+                return !ReferenceEquals(node, First) && node.Prev is InjectFlowScope;
             }
         }
     }
 
-    public static class BranchNodeHelper
+    public static class InjectFlowScopeHelper
     {
         [Obsolete("Use 'BeginScope'.")]
         public static ILoggerScope UseScope(this ILogger logger, object? correlationId = default, object? correlationHandle = default)
@@ -93,7 +87,7 @@ namespace Reusable.OmniLog.Nodes
 
         public static ILoggerScope BeginScope(this ILogger logger, object? correlationId = default)
         {
-            return new LoggerScope<Branch>(logger, branch =>
+            return new LoggerScope<InjectFlowScope>(logger, branch =>
             {
                 try
                 {
@@ -112,6 +106,6 @@ namespace Reusable.OmniLog.Nodes
         /// <summary>
         /// Gets the current correlation scope.
         /// </summary>
-        public static IBranch Scope(this ILogger logger) => logger.Node<Branch>();
+        public static IFlowScope Scope(this ILogger logger) => logger.Node<InjectFlowScope>();
     }
 }
