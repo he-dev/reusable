@@ -7,6 +7,7 @@ using Reusable.Collections.Generic;
 using Reusable.OmniLog.Abstractions;
 using Reusable.OmniLog.Extensions;
 using Reusable.OmniLog.Utilities;
+using Reusable.OmniLog.Utilities.Logging;
 
 namespace Reusable.OmniLog.Nodes
 {
@@ -14,7 +15,7 @@ namespace Reusable.OmniLog.Nodes
     public class CollectFlowTelemetry : LoggerNode
     {
         private static AsyncScope<FlowData>? CurrentFlowData => AsyncScope<FlowData>.Current;
-        private static AsyncScope<FlowEnd>? CurrentFlowEnd => AsyncScope<FlowEnd>.Current;
+        //private static AsyncScope<FlowEnd>? CurrentFlowEnd => AsyncScope<FlowEnd>.Current;
 
         public HashSet<string> Categories { get; set; } = new HashSet<string>
         {
@@ -29,7 +30,12 @@ namespace Reusable.OmniLog.Nodes
         };
 
         // ReSharper disable once MemberCanBeMadeStatic.Global - this should remain instance method so that it must be accessed via logger-scope
-        public void Push(Exception exception) => AsyncScope<FlowData>.Push(new FlowData { Exception = exception });
+        public void Push(Exception? exception)
+        {
+            //if(CurrentFlowEnd is null) throw new InvalidOperationException($"Cannot push exception because there is no valid flow scope.");
+            //InjectFlowScope.Current.Value.DeferredWorkItems.Push();
+            AsyncScope<FlowData>.Push(new FlowData { Exception = exception });
+        }
 
         public override void Invoke(ILogEntry request)
         {
@@ -45,7 +51,7 @@ namespace Reusable.OmniLog.Nodes
                     let property = request[propertyName]
                     select property;
 
-                AsyncScope<FlowEnd>.Push(new FlowEnd { Log = () => LogWorkItem(propertyCopies.ToList(), unit) });
+                InjectFlowScope.Current!.Value.DeferredWorkItems.Push(new FlowEnd { Log = () => LogWorkItem(propertyCopies.ToList(), unit) });
             }
 
             InvokeNext(request);
@@ -111,22 +117,24 @@ namespace Reusable.OmniLog.Nodes
             };
         }
 
-        public override void Dispose()
-        {
-            while (CurrentFlowEnd is {} flowEnd)
-            {
-                using (flowEnd)
-                {
-                    flowEnd.Value.Log();
-                }
-            }
+        // public override void Dispose()
+        // {
+        //     if (CurrentFlowEnd is {} flowEnd)
+        //     {
+        //         using (flowEnd)
+        //         {
+        //             flowEnd.Value.Log();
+        //         }
+        //     }
+        //
+        //     base.Dispose();
+        // }
 
-            base.Dispose();
-        }
-
-        private class FlowEnd
+        private class FlowEnd : IDisposable
         {
             public Action Log { get; set; } = default!;
+            
+            public void Dispose() => Log();
         }
 
         private class FlowData

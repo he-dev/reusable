@@ -2,7 +2,8 @@ using System.Collections.Generic;
 using Reusable.OmniLog.Extensions;
 using Reusable.OmniLog.Nodes;
 
-namespace Reusable.OmniLog.Utilities {
+namespace Reusable.OmniLog.Utilities.Logging
+{
     public static class Decision
     {
         public static IEnumerable<LogProperty> Make(string decision, string? because = default)

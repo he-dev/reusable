@@ -1,7 +1,5 @@
 using System.Collections;
 using System.Collections.Generic;
-using System.Data;
-using System.Linq;
 using Reusable.OmniLog.Abstractions;
 
 namespace Reusable.OmniLog.Nodes
@@ -38,35 +36,6 @@ namespace Reusable.OmniLog.Nodes
         {
             _entries.Clear();
             base.Dispose();
-        }
-    }
-
-    public static class MemoryNodeHelper
-    {
-        
-
-        
-
-        public static DataTable ToDataTable(this CacheInMemory cacheInMemory)
-        {
-            var dt = new DataTable();
-            foreach (var logEntry in cacheInMemory)
-            {
-                var row = dt.NewRow();
-                foreach (var item in logEntry.Where(LogProperty.CanProcess.With<Echo>()))
-                {
-                    if (!dt.Columns.Contains(item.Name))
-                    {
-                        dt.Columns.Add(item.Name, item.Value?.GetType() ?? typeof(object));
-                    }
-
-                    row[item.Name] = item.Value;
-                }
-
-                dt.Rows.Add(row);
-            }
-
-            return dt;
         }
     }
 }

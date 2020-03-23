@@ -62,8 +62,9 @@ namespace Reusable.OmniLog
                 };
                 yield return new FormatAsCamelCase
                 {
-                    PropertyNames =
+                    Identifiers =
                     {
+                        Names.Properties.Environment,
                         Names.Properties.Logger,
                         Names.Properties.Layer,
                         Names.Properties.Category,
@@ -71,6 +72,14 @@ namespace Reusable.OmniLog
                     }
                 };
                 yield return new RenameProperty();
+                yield return new Echo();
+            }
+        }
+        
+        public static IEnumerable<ILoggerNode> Minimal
+        {
+            get
+            {
                 yield return new Echo();
             }
         }

@@ -56,6 +56,7 @@ namespace Reusable.OmniLog
         public abstract class Properties
         {
             public const string Timestamp = nameof(Timestamp);
+            public const string Environment = nameof(Environment);
             public const string Correlation = nameof(Correlation);
             public const string Layer = nameof(Layer);
             public const string Logger = nameof(Logger);

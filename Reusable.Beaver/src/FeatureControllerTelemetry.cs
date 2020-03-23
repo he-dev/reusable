@@ -35,19 +35,24 @@ namespace Reusable.Beaver
 
         public async Task<FeatureResult<T>> Use<T>(string name, Func<Task<T>> onEnabled, Func<Task<T>>? onDisabled = default, object? parameter = default)
         {
+            var feature = this[name];
+
             using var featureScope = _logger.BeginScope().WithCorrelationHandle("UseFeature");
+            _logger.Log(Execution.Context.WorkItem("feature", new { name = feature.Name, tags = feature.Tags, policy = feature.Policy.GetType().ToPrettyString() }));
+
             return await _controller.Use(name, onEnabled, onDisabled, parameter).ContinueWith(t =>
             {
-                if (this.IsEnabled(Feature.Telemetry.CreateName(name)))
-                {
-                    var feature = this[name];
-                    _logger.Log(Execution.Context.Service().Meta("featureTelemetry", new
-                    {
-                        name = feature.Name,
-                        tags = feature.Tags,
-                        policy = feature.Policy.GetType().ToPrettyString()
-                    }).Exception(t.Exception));
-                }
+                _logger.Scope().Flow().Push(t.Exception);
+
+                // if (this.IsEnabled(Feature.Telemetry.CreateName(name)))
+                // {
+                //     _logger.Log(Execution.Context.Service().Meta("featureTelemetry", new
+                //     {
+                //         name = feature.Name,
+                //         tags = feature.Tags,
+                //         policy = feature.Policy.GetType().ToPrettyString()
+                //     }).Exception(t.Exception));
+                // }
 
                 return t.Result;
             });

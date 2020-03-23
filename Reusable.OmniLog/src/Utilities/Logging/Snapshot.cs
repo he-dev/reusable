@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using Reusable.OmniLog.Nodes;
 
-namespace Reusable.OmniLog.Utilities
+namespace Reusable.OmniLog.Utilities.Logging
 {
     public static class Snapshot
     {

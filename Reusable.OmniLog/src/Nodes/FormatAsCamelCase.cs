@@ -8,11 +8,11 @@ namespace Reusable.OmniLog.Nodes
     {
         public override bool Enabled => true;
 
-        public HashSet<string> PropertyNames { get; set; } = new HashSet<string>(SoftString.Comparer);
+        public HashSet<string> Identifiers { get; set; } = new HashSet<string>(SoftString.Comparer);
 
         public override void Invoke(ILogEntry request)
         {
-            foreach (var propertyName in PropertyNames)
+            foreach (var propertyName in Identifiers)
             {
                 if (request.TryGetProperty(propertyName, out var property) && property.Value is string value)
                 {

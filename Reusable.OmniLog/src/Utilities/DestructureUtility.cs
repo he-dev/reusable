@@ -6,7 +6,7 @@ using Reusable.Exceptionize;
 
 namespace Reusable.OmniLog.Utilities
 {
-    public static class DestructureHelpers
+    public static class DestructureUtility
     {
         public static IDictionary<string, object> ToDictionary<T>(this T obj)
         {

@@ -4,10 +4,8 @@ using Reusable.OmniLog.Nodes;
 
 namespace Reusable.OmniLog.Extensions
 {
-    public static class LogExtensions
+    public static class LogEntryExtensions
     {
-        #region Log properties
-
         public static ILogEntry Logger(this ILogEntry logEntry, string value) => logEntry.Push(Names.Properties.Logger, value, m => m.ProcessWith<Echo>());
 
         public static ILogEntry Timestamp(this ILogEntry logEntry, DateTime value) => logEntry.Push(Names.Properties.Timestamp, value, m => m.ProcessWith<Echo>());
@@ -32,6 +30,5 @@ namespace Reusable.OmniLog.Extensions
             return logEntry.Push(Names.Properties.Snapshot, value, buildMeta);
         }
 
-        #endregion
     }
 }

@@ -33,59 +33,58 @@ namespace Reusable.OmniLog.Utilities.AspNetCore
 
         public async Task Invoke(HttpContext context, IFeatureController featureController)
         {
-            using (_logger.BeginScope(_config.GetCorrelationId(context)).WithCorrelationHandle(_config.GetCorrelationHandle(context)))
+            using var scope = _logger.BeginScope(_config.GetCorrelationId(context)).WithCorrelationHandle(_config.GetCorrelationHandle(context));
+            
+            var requestBody =
+                _config.CanLogRequestBody(context)
+                    ? await _config.SerializeRequestBody(context)
+                    : default;
+
+            _logger.Log(
+                Execution
+                    .Context
+                    .Network()
+                    .WorkItem(nameof(HttpRequest), _config.TakeRequestSnapshot(context))
+                    .Message(requestBody));
+
+            try
             {
-                var requestBody =
-                    _config.CanLogRequestBody(context)
-                        ? await _config.SerializeRequestBody(context)
-                        : default;
+                var responseBody = default(string);
+                var responseBodyOriginal = context.Response.Body;
+
+                using (var memory = new MemoryStream())
+                {
+                    context.Response.Body = memory;
+
+                    await _next(context);
+
+                    using (var reader = new StreamReader(memory.Rewind()))
+                    {
+                        responseBody = await featureController.Use(Features.LogResponseBody, async () => await reader.ReadToEndAsync());
+
+                        if (_config.CanUpdateOriginalResponseBody(context))
+                        {
+                            // Update the original response-body.
+                            await memory.Rewind().CopyToAsync(responseBodyOriginal);
+                        }
+
+                        // Restore the original response-body.
+                        context.Response.Body = responseBodyOriginal;
+                    }
+                }
 
                 _logger.Log(
                     Execution
                         .Context
                         .Network()
-                        .WorkItem(nameof(HttpRequest), _config.TakeRequestSnapshot(context))
-                        .Message(requestBody));
-
-                try
-                {
-                    var responseBody = default(string);
-                    var responseBodyOriginal = context.Response.Body;
-
-                    using (var memory = new MemoryStream())
-                    {
-                        context.Response.Body = memory;
-
-                        await _next(context);
-
-                        using (var reader = new StreamReader(memory.Rewind()))
-                        {
-                            responseBody = await featureController.Use(Features.LogResponseBody, async () => await reader.ReadToEndAsync());
-
-                            if (_config.CanUpdateOriginalResponseBody(context))
-                            {
-                                // Update the original response-body.
-                                await memory.Rewind().CopyToAsync(responseBodyOriginal);
-                            }
-
-                            // Restore the original response-body.
-                            context.Response.Body = responseBodyOriginal;
-                        }
-                    }
-
-                    _logger.Log(
-                        Execution
-                            .Context
-                            .Network()
-                            .Meta(nameof(HttpResponse), _config.TakeResponseSnapshot(context))
-                            .Message(responseBody)
-                            .Level(_config.MapStatusCode(context.Response.StatusCode)));
-                }
-                catch (Exception inner)
-                {
-                    _logger.Scope().Flow().Push(inner);
-                    throw;
-                }
+                        .Meta(nameof(HttpResponse), _config.TakeResponseSnapshot(context))
+                        .Message(responseBody)
+                        .Level(_config.MapStatusCode(context.Response.StatusCode)));
+            }
+            catch (Exception inner)
+            {
+                _logger.Scope().Flow().Push(inner);
+                throw;
             }
         }
 

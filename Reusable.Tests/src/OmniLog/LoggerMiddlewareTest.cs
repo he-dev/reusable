@@ -7,6 +7,7 @@ using Reusable.OmniLog.Connectors;
 using Reusable.OmniLog.Extensions;
 using Reusable.OmniLog.Nodes;
 using Reusable.OmniLog.Properties;
+using Reusable.OmniLog.Utilities;
 using Xunit;
 
 //using Reusable.OmniLog.Attachments;

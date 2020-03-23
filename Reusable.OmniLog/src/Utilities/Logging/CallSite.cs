@@ -3,7 +3,7 @@ using System.IO;
 using System.Runtime.CompilerServices;
 using Reusable.OmniLog.Nodes;
 
-namespace Reusable.OmniLog.Utilities
+namespace Reusable.OmniLog.Utilities.Logging
 {
     public static class CallSite
     {
