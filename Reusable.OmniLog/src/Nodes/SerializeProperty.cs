@@ -5,7 +5,7 @@ using Reusable.OmniLog.Services;
 namespace Reusable.OmniLog.Nodes
 {
     /// <summary>
-    /// Serializes every #Serializable item in the log-entry and adds it as #Property.
+    /// This nodes serializes properties that are targeted for this node.
     /// </summary>
     public class SerializeProperty : LoggerNode
     {

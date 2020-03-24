@@ -4,6 +4,9 @@ using Reusable.OmniLog.Abstractions;
 
 namespace Reusable.OmniLog.Nodes
 {
+    /// <summary>
+    /// This nodes maps properties into log-levels.
+    /// </summary>
     public class MapPropertyToLogLevel : LoggerNode
     {
         public string PropertyName { get; set; } = default!;

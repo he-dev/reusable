@@ -5,7 +5,7 @@ using Reusable.OmniLog.Utilities;
 namespace Reusable.OmniLog.Nodes
 {
     /// <summary>
-    /// Turns objects into dictionaries and adds the result to the log.
+    /// This node turns objects into dictionaries and sends them to the <c>SerializeProperty</c> node.
     /// </summary>
     public class Destructure : LoggerNode
     {

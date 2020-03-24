@@ -5,7 +5,7 @@ using Reusable.OmniLog.Abstractions;
 namespace Reusable.OmniLog.Nodes
 {
     /// <summary>
-    /// This node caches logs in memory. This node is disabled by default.
+    /// This node caches logs in memory. It is disabled by default.
     /// </summary>
     public class CacheInMemory : LoggerNode, IEnumerable<ILogEntry>
     {

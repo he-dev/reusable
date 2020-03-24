@@ -5,7 +5,7 @@ using Reusable.OmniLog.Abstractions;
 namespace Reusable.OmniLog.Nodes
 {
     /// <summary>
-    /// Renames log properties.
+    /// This node renames log properties.
     /// </summary>
     public class RenameProperty : LoggerNode
     {

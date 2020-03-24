@@ -7,6 +7,9 @@ using Reusable.OmniLog.Extensions;
 
 namespace Reusable.OmniLog.Nodes
 {
+    /// <summary>
+    /// This nodes provides properties for log-entry correlation.
+    /// </summary>
     [JsonObject(MemberSerialization.OptIn)]
     public class Correlate : LoggerNode
     {

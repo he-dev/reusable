@@ -5,7 +5,7 @@ using Reusable.OmniLog.Abstractions;
 namespace Reusable.OmniLog.Nodes
 {
     /// <summary>
-    /// Adds support for logger.Log(log => ..) overload.
+    /// This node adds support for <c>Logger.Log(log => ..)</c> overload.
     /// </summary>
     public class InjectAnonymousAction : LoggerNode
     {

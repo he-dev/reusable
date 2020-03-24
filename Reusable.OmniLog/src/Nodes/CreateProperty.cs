@@ -2,14 +2,15 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using JetBrains.Annotations;
 using Reusable.Exceptionize;
 using Reusable.Extensions;
 using Reusable.OmniLog.Abstractions;
 
 namespace Reusable.OmniLog.Nodes
 {
-    [UsedImplicitly]
+    /// <summary>
+    /// This node creates properties using factories specified in <c>TryCreateProperties</c>.
+    /// </summary>
     public class CreateProperty : LoggerNode
     {
         private static AsyncScope<Stack<object>>? Scope => AsyncScope<Stack<object>>.Current;

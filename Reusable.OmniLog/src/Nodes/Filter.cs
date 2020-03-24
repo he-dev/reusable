@@ -4,7 +4,7 @@ using Reusable.OmniLog.Abstractions;
 namespace Reusable.OmniLog.Nodes
 {
     /// <summary>
-    /// Filters log-entries and short-circuits the pipeline.
+    /// This node filters log-entries and short-circuits the pipeline.
     /// </summary>
     public class Filter : LoggerNode
     {

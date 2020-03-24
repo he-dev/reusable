@@ -4,6 +4,9 @@ using Reusable.OmniLog.Abstractions;
 
 namespace Reusable.OmniLog.Nodes
 {
+    /// <summary>
+    /// This nodes formats the specified <c>Identifiers</c> as camel-case.
+    /// </summary>
     public class FormatAsCamelCase : LoggerNode
     {
         public override bool Enabled => true;

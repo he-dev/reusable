@@ -5,7 +5,7 @@ using Reusable.Extensions;
 namespace Reusable.OmniLog.Nodes
 {
     /// <summary>
-    /// Temporarily holding log-entries while it's waiting to be transferred to another location. This node is disabled by default. 
+    /// This node temporarily stores log-entries. You need to use Flush to log empty the buffer. This node is disabled by default. 
     /// </summary>
     public class BufferLog : LoggerNode
     {

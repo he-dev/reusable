@@ -5,6 +5,9 @@ using Reusable.OmniLog.Abstractions;
 
 namespace Reusable.OmniLog.Nodes
 {
+    /// <summary>
+    /// This node passes the received entry to the specified <c>Connectors</c>. It's usually the last node.
+    /// </summary>
     public class Echo : LoggerNode
     {
         public override bool Enabled => Connectors?.Any() == true;
@@ -22,7 +25,7 @@ namespace Reusable.OmniLog.Nodes
                 rx.Log(view);
             }
 
-            Next?.Invoke(request);
+            InvokeNext(request);
         }
     }
 }

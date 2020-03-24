@@ -8,7 +8,7 @@ using Reusable.OmniLog.Abstractions;
 namespace Reusable.OmniLog.Nodes
 {
     /// <summary>
-    /// Maps one object into a different one.
+    /// This node maps one object into a different one.
     /// </summary>
     public class MapObject : LoggerNode
     {

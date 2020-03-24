@@ -8,7 +8,9 @@ using Reusable.OmniLog.Extensions;
 
 namespace Reusable.OmniLog.Nodes
 {
-    [PublicAPI]
+    /// <summary>
+    /// This node turn logger-scope on or off. By default it logs BeginScope and EndScope entries for each scope.
+    /// </summary>
     public class ToggleScope : LoggerNode
     {
         public override bool Enabled => AsyncScope<ILoggerScope>.Any;

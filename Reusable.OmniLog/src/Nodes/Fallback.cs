@@ -5,7 +5,7 @@ using Reusable.OmniLog.Abstractions;
 namespace Reusable.OmniLog.Nodes
 {
     /// <summary>
-    /// Sets default values for the specified properties when they are not set already. 
+    /// This node sets default values for the specified properties when they are not set already. 
     /// </summary>
     public class Fallback : LoggerNode
     {
