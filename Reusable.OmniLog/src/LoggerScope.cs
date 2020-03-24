@@ -10,13 +10,13 @@ namespace Reusable.OmniLog
 {
     public class LoggerScope : ILoggerScope
     {
-        public ILogger Logger { get; set; }
+        public ILogger Logger { get; set; } = default!;
 
-        public ILoggerNode First { get; set; }
+        public ILoggerNode First { get; set; } = default!;
 
         public Stack<Exception> Exceptions { get; } = new Stack<Exception>();
-        
-        internal Action<ILogger, Exception?> OnEndScope { get; set; }
+
+        internal Action<ILogger, Exception?> OnEndScope { get; set; } = default!;
 
         // Helps to prevent enumerating nodes beyond the scope pipeline.
         private bool IsMainPipeline(ILoggerNode node)
@@ -47,7 +47,7 @@ namespace Reusable.OmniLog
 
             OnEndScope(Logger, exception);
             
-            AsyncScope<ILoggerScope>.Current.Dispose();
+            AsyncScope<ILoggerScope>.Current?.Dispose();
         }
     }
 }

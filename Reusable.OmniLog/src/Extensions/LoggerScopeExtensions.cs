@@ -7,12 +7,12 @@ namespace Reusable.OmniLog.Extensions
 {
     public static class LoggerScopeExtensions
     {
-        public static ILoggerScope WithCorrelationId(this ILoggerScope scope, object? correlationId)
+        public static ILoggerScope WithCorrelationId(this ILoggerScope scope, object correlationId)
         {
             return scope.Pipe(x => x.First.Node<Correlate>().CorrelationId = correlationId);
         }
         
-        public static ILoggerScope WithCorrelationHandle(this ILoggerScope scope, object? correlationHandle)
+        public static ILoggerScope WithCorrelationHandle(this ILoggerScope scope, object correlationHandle)
         {
             return scope.Pipe(x => x.First.Node<Correlate>().CorrelationHandle = correlationHandle);
         }

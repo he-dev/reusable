@@ -32,8 +32,11 @@ namespace Reusable.OmniLog.Nodes
 
         public override void Invoke(ILogEntry request)
         {
-            var correlations = Prev.EnumeratePrev().OfType<ToggleScope>().Single().Current.Select(x => x.First.Node<Correlate>()).ToList();
-            request.Push(Names.Properties.Correlation, correlations, m => m.ProcessWith<SerializeProperty>());
+            if (Prev is { } prev)
+            {
+                var correlations = prev.EnumeratePrev().OfType<ToggleScope>().Single().Current.Select(x => x.First.Node<Correlate>()).ToList();
+                request.Push(Names.Properties.Correlation, correlations, m => m.ProcessWith<SerializeProperty>());
+            }
             InvokeNext(request);
         }
     }

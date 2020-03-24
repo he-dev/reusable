@@ -37,7 +37,10 @@ namespace Reusable.OmniLog.Nodes
             }
             finally
             {
-                OnBeginScope(Next.First().Node<Logger>(), name);
+                if (Next?.First() is { } first)
+                {
+                    OnBeginScope(first.Node<Logger>(), name);
+                }
             }
         }
 
