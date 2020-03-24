@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
@@ -9,35 +10,26 @@ using Reusable.OmniLog.Extensions;
 
 namespace Reusable.OmniLog.Nodes
 {
-    public interface IFlowScope
-    {
-        ILoggerNode First { get; }
-
-        IFlowScope Push(Exception exception);
-    }
-
     [PublicAPI]
-    public class ToggleScope : LoggerNode, IFlowScope
+    public class ToggleScope : LoggerNode
     {
-        public static AsyncScope<Item>? Current => AsyncScope<Item>.Current;
-
-        public override bool Enabled => AsyncScope<Item>.Any;
+        public override bool Enabled => AsyncScope<Pipeline>.Any;
 
         public Func<IEnumerable<ILoggerNode>> CreateNodes { get; set; } = Enumerable.Empty<ILoggerNode>;
 
-        private Item Scope => Current?.Value ?? throw new InvalidOperationException($"Cannot use {nameof(Scope)} when {nameof(ToggleScope)} is disabled. Use Logger.BeginScope() first.");
-
-        public ILoggerNode First => Scope.First;
+        public Pipeline Current => AsyncScope<Pipeline>.Current?.Value ?? throw new InvalidOperationException($"Cannot use {nameof(Current)} when {nameof(ToggleScope)} is disabled. Use Logger.BeginScope() first.");
 
         public Action<ILogger, string> OnBeginScope { get; set; } = (logger, name) => logger.Log(Execution.Context.BeginScope(name));
 
         public Action<ILogger, Exception?> OnEndScope { get; set; } = (logger, exception) => logger.Log(Execution.Context.EndScope(exception));
 
+        public Stack<Exception> Exceptions { get; set; } = new Stack<Exception>();
+
         public IDisposable Push(string name)
         {
             try
             {
-                return AsyncScope<Item>.Push(new Item(this, CreateNodes()) { OnEndScope = OnEndScope }).Value;
+                return AsyncScope<Pipeline>.Push(new Pipeline(this, CreateNodes()) { }).Value;
             }
             finally
             {
@@ -45,19 +37,14 @@ namespace Reusable.OmniLog.Nodes
             }
         }
 
-        public IFlowScope Push(Exception exception)
-        {
-            return this.Pipe(_ => AsyncScope<Item>.Current.Value.Exceptions.Push(exception));
-        }
-
         public override void Invoke(ILogEntry request)
         {
-            Scope.First.Invoke(request);
+            Current.First.Invoke(request);
         }
 
-        public class Item : IDisposable
+        public class Pipeline : IEnumerable<ILoggerNode>, IDisposable
         {
-            public Item(ILoggerNode branch, IEnumerable<ILoggerNode> nodes)
+            public Pipeline(ILoggerNode branch, IEnumerable<ILoggerNode> nodes)
             {
                 var last = nodes.Join();
                 last.Next = branch.Next;
@@ -67,40 +54,39 @@ namespace Reusable.OmniLog.Nodes
 
             public ILoggerNode First { get; }
 
-            public Action<ILogger, Exception> OnEndScope { get; set; } = (logger, exception) => { };
-
-            public Stack<Exception> Exceptions { get; set; } = new Stack<Exception>();
-
             public void Dispose()
             {
-                var exception =
-                    Exceptions.Any()
-                        ? Exceptions.Count > 1
-                            ? new AggregateException(Exceptions)
-                            : Exceptions.Peek()
-                        : default;
-
-                OnEndScope(First.First().Node<Logger>(), exception);
-
-                foreach (var node in First.EnumerateNext())
+                foreach (var node in this)
                 {
-                    if (IsMainPipeline(node))
-                    {
-                        break;
-                    }
-                    else
-                    {
-                        node.Dispose();
-                    }
+                    node.Dispose();
                 }
 
-                Current?.Dispose();
+                AsyncScope<Pipeline>.Current.Dispose();
             }
 
             private bool IsMainPipeline(ILoggerNode node)
             {
                 return !ReferenceEquals(node, First) && node.Prev is ToggleScope;
             }
+
+            public IEnumerator<ILoggerNode> GetEnumerator()
+            {
+                return First.EnumerateNext().TakeWhile(node => !IsMainPipeline(node)).GetEnumerator();
+            }
+
+            IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+        }
+
+        public override void Dispose()
+        {
+            var exception =
+                Exceptions.Any()
+                    ? Exceptions.Count > 1
+                        ? new AggregateException(Exceptions)
+                        : Exceptions.Peek()
+                    : default;
+
+            OnEndScope(((ILoggerNode)this).First().Node<Logger>(), exception);
         }
     }
 
@@ -113,7 +99,7 @@ namespace Reusable.OmniLog.Nodes
         Faulted
     }
 
-    public static class InjectFlowScopeHelper
+    public static class ToggleScopeHelper
     {
         // [Obsolete("Use 'BeginScope'.")]
         // public static ILoggerScope UseScope(this ILogger logger, object? correlationId = default, object? correlationHandle = default)
@@ -121,7 +107,7 @@ namespace Reusable.OmniLog.Nodes
         //     return logger.BeginScope(correlationId).WithCorrelationHandle(correlationHandle);
         // }
 
-        public static ILoggerScope BeginScope(this ILogger logger, string name, object? correlationId = default, object? correlationHandle = default)
+        public static ILoggerScope BeginScope(this ILogger logger, string name)
         {
             return new LoggerScope<ToggleScope>(logger, branch => branch.Push(name));
         }
@@ -129,6 +115,9 @@ namespace Reusable.OmniLog.Nodes
         /// <summary>
         /// Gets the current correlation scope.
         /// </summary>
-        public static IFlowScope Scope(this ILogger logger) => logger.Node<ToggleScope>();
+        public static ToggleScope.Pipeline Scope(this ILogger logger)
+        {
+            return logger.Node<ToggleScope>().Current;
+        }
     }
 }
