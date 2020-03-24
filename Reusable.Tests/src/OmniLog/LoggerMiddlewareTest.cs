@@ -54,7 +54,7 @@ namespace Reusable.OmniLog
                     new MeasureElapsedTime(),
                     new AttachProperty(),
                     new InjectAnonymousAction(),
-                    new InjectFlowScope(),
+                    new ToggleScope(),
                     new SerializeProperty(),
                     //new LoggerFilter()
                     //new BufferNode(),
@@ -83,7 +83,7 @@ namespace Reusable.OmniLog
                     new MeasureElapsedTime(),
                     new AttachProperty(),
                     new InjectAnonymousAction(),
-                    new InjectFlowScope(),
+                    new ToggleScope(),
                     new SerializeProperty(),
                     //new LoggerFilter()
                     //new BufferNode(),
@@ -131,7 +131,7 @@ namespace Reusable.OmniLog
                     new MeasureElapsedTime(),
                     new AttachProperty(),
                     new InjectAnonymousAction(),
-                    new InjectFlowScope(),
+                    new ToggleScope(),
                     new Destructure(),
                     new SerializeProperty(),
                     //new LoggerFilter()
@@ -271,7 +271,7 @@ namespace Reusable.OmniLog
                 CreateNodes = () => new ILoggerNode[]
                 {
                     new InjectAnonymousAction(),
-                    new InjectFlowScope(),
+                    new ToggleScope(),
                     new Echo
                     {
                         Connectors = { new MemoryConnector() },
@@ -280,7 +280,7 @@ namespace Reusable.OmniLog
             };
 
             var l = lf.CreateLogger("test");
-            using var s = l.BeginScope().UseInMemoryCache();
+            using var s = l.BeginScope("test").UseInMemoryCache();
 
             l.Log(e => e.Message("Hallo!"));
 

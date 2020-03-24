@@ -18,6 +18,6 @@ namespace Reusable.OmniLog.Extensions
         /// </summary>
         public static MeasureElapsedTime Stopwatch(this IFlowScope flowScope) => flowScope.First.Node<MeasureElapsedTime>();
         
-        public static CollectFlowTelemetry Flow(this IFlowScope flowScope) => flowScope.First.Node<CollectFlowTelemetry>();
+        //public static CollectFlowTelemetry Flow(this IFlowScope flowScope) => flowScope.First.Node<CollectFlowTelemetry>();
     }
 }

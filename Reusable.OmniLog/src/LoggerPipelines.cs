@@ -45,7 +45,7 @@ namespace Reusable.OmniLog
                         [Names.Properties.Category] = "Undefined"
                     }
                 };
-                yield return new InjectFlowScope
+                yield return new ToggleScope
                 {
                     CreateNodes = () => new ILoggerNode[]
                     {
@@ -53,7 +53,7 @@ namespace Reusable.OmniLog
                         new MeasureElapsedTime(),
                         new BufferLog(),
                         new CacheInMemory(),
-                        new CollectFlowTelemetry(),
+                        //new CollectFlowTelemetry(),
                     }
                 };
                 yield return new SerializeProperty

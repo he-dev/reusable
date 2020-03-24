@@ -51,7 +51,7 @@ namespace Reusable.OmniLog.Nodes
                     let property = request[propertyName]
                     select property;
 
-                InjectFlowScope.Current!.Value.DeferredWorkItems.Push(new FlowEnd { Log = () => LogWorkItem(propertyCopies.ToList(), unit) });
+                ToggleScope.Current!.Value.DeferredWorkItems.Push(new FlowEnd { Log = () => LogWorkItem(propertyCopies.ToList(), unit) });
             }
 
             InvokeNext(request);
@@ -143,12 +143,21 @@ namespace Reusable.OmniLog.Nodes
         }
     }
 
-    public enum FlowStatus
+    
+
+    public class LogBeginScope : LoggerNode
     {
-        Undefined,
-        Begin,
-        Completed,
-        Canceled,
-        Faulted
+        public override void Invoke(ILogEntry request)
+        {
+            throw new NotImplementedException();
+        }
+    }
+    
+    public class LogEndScope : LoggerNode
+    {
+        public override void Invoke(ILogEntry request)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

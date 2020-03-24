@@ -33,7 +33,7 @@ namespace Reusable.OmniLog.Utilities.AspNetCore
 
         public async Task Invoke(HttpContext context, IFeatureController featureController)
         {
-            using var scope = _logger.BeginScope(_config.GetCorrelationId(context)).WithCorrelationHandle(_config.GetCorrelationHandle(context));
+            using var scope = _logger.BeginScope("LogRequest").WithCorrelationId(_config.GetCorrelationId(context)).WithCorrelationHandle(_config.GetCorrelationHandle(context));
             
             var requestBody =
                 _config.CanLogRequestBody(context)
@@ -83,7 +83,7 @@ namespace Reusable.OmniLog.Utilities.AspNetCore
             }
             catch (Exception inner)
             {
-                _logger.Scope().Flow().Push(inner);
+                _logger.Scope().Push(inner);
                 throw;
             }
         }

@@ -83,6 +83,44 @@ namespace Reusable.OmniLog.Extensions
             return node.Then(e => e.Push(new LogProperty(Names.Properties.Category, nameof(Flow), LogPropertyMeta.Builder.ProcessWith<Echo>())));
         }
 
+        internal static Action<ILogEntry> BeginScope(this Action<ILogEntry> node, string name)
+        {
+            return node.Telemetry().Flow().Level(LogLevel.Information).Then(e =>
+            {
+                e.Push(new LogProperty(Names.Properties.Unit, nameof(BeginScope), LogPropertyMeta.Builder.ProcessWith<Echo>()));
+                e.Push(new LogProperty(Names.Properties.Snapshot, new { name }, LogPropertyMeta.Builder.ProcessWith<SerializeProperty>()));
+            });
+        }
+
+        internal static Action<ILogEntry> EndScope(this Action<ILogEntry> node, Exception? exception)
+        {
+            return node.Telemetry().Flow().Level(GetLogLevel(exception)).Then(e =>
+            {
+                e.Push(new LogProperty(Names.Properties.Unit, nameof(EndScope), LogPropertyMeta.Builder.ProcessWith<Echo>()));
+                e.Push(new LogProperty(Names.Properties.Snapshot, new { status = GetFlowStatus(exception) }, LogPropertyMeta.Builder.ProcessWith<SerializeProperty>()));
+            });
+
+            static FlowStatus GetFlowStatus(Exception? exception)
+            {
+                return exception switch
+                {
+                    null => FlowStatus.Completed,
+                    OperationCanceledException _ => FlowStatus.Canceled,
+                    {} => FlowStatus.Faulted
+                };
+            }
+
+            static LogLevel GetLogLevel(Exception? exception)
+            {
+                return exception switch
+                {
+                    null => LogLevel.Information,
+                    OperationCanceledException e => LogLevel.Warning,
+                    {} e => LogLevel.Error
+                };
+            }
+        }
+
         public static Action<ILogEntry> Decision(this Action<ILogEntry> node, string decision)
         {
             return node.Then(e =>

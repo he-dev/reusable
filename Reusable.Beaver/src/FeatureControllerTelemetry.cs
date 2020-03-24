@@ -37,12 +37,12 @@ namespace Reusable.Beaver
         {
             var feature = this[name];
 
-            using var featureScope = _logger.BeginScope().WithCorrelationHandle("UseFeature");
+            using var featureScope = _logger.BeginScope("UseFeature");
             _logger.Log(Execution.Context.WorkItem("feature", new { name = feature.Name, tags = feature.Tags, policy = feature.Policy.GetType().ToPrettyString() }));
 
             return await _controller.Use(name, onEnabled, onDisabled, parameter).ContinueWith(t =>
             {
-                _logger.Scope().Flow().Push(t.Exception);
+                _logger.Scope().Push(t.Exception);
 
                 // if (this.IsEnabled(Feature.Telemetry.CreateName(name)))
                 // {

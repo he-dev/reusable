@@ -20,7 +20,7 @@ namespace Reusable.Commander.Commands
 
         public override async Task ExecuteAsync(object? parameter, CancellationToken cancellationToken)
         {
-            using var commandScope = _logger.BeginScope().WithCorrelationHandle("ExecuteCommand");
+            using var commandScope = _logger.BeginScope("ExecuteCommand");
             _logger.Log(Execution.Context.Service().WorkItem("Command", new { commandName = Decoratee.Name.Primary }));
             try
             {
@@ -28,7 +28,7 @@ namespace Reusable.Commander.Commands
             }
             catch (Exception taskEx)
             {
-                _logger.Scope().Flow().Push(taskEx);
+                _logger.Scope().Push(taskEx);
                 throw;
             }
         }

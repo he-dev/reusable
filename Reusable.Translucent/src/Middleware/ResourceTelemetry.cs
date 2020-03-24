@@ -40,7 +40,7 @@ namespace Reusable.Translucent.Middleware
 
         private async Task LogTelemetry(ResourceContext context)
         {
-            using (_logger.BeginScope().WithCorrelationHandle("ResourceTelemetry").UseStopwatch())
+            using (_logger.BeginScope("CollectResourceTelemetry"))
             {
                 try
                 {

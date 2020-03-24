@@ -21,6 +21,7 @@
   <ItemGroup>
     <Compile Remove="cfg\**" />
     <Compile Remove="src\Nodes\BuilderNode.cs" />
+    <Compile Remove="src\Nodes\CollectFlowTelemetry.cs" />
   </ItemGroup>
 
   <ItemGroup>

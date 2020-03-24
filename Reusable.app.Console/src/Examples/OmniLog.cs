@@ -76,7 +76,7 @@ namespace Reusable
             logger.Log(Abstraction.Layer.Service().Meta(new { Null = (string)default }));
 
             // Opening outer-scope.
-            using (logger.BeginScope().WithCorrelationHandle("outer").UseStopwatch())
+            using (logger.BeginScope("outer").WithCorrelationHandle("outer").UseStopwatch())
             {
                 var variable = new { John = "Doe" };
                 // Logging some single business variable and a message.
@@ -90,11 +90,12 @@ namespace Reusable
 
                 logger.Log(Execution.Context.WorkItem("testFile", new { fileName = "test" }).Message("Blub!"));
                 logger.Log(Execution.Context.Routine(nameof(Log)).Message("Blub!"));
-                logger.Scope().Flow().Push(new Exception());
+                //logger.Scope().Flow().Push(new Exception());
+                logger.Scope().Push(new Exception());
 
 
                 // Opening inner-scope.
-                using (logger.BeginScope().WithCorrelationHandle("inner").UseStopwatch())
+                using (logger.BeginScope("inner").WithCorrelationHandle("inner").UseStopwatch())
                 {
                     // Logging an entire object in a single line.
                     var customer = new Person
@@ -119,20 +120,20 @@ namespace Reusable
                 logger.Log(Abstraction.Layer.Service().Meta(new { GoodBye = "Bye bye scopes!" }));
             }
 
-            using (logger.UseScope(correlationHandle: "Transaction").UseStopwatch())
+            using (logger.BeginScope("Transaction").UseStopwatch())
             {
-                using (logger.UseScope().UseBuffer())
+                using (logger.BeginScope("no-logs-1").UseBuffer())
                 {
                     logger.Information("This message is not logged.");
                 }
 
-                using (logger.UseScope().UseBuffer())
+                using (logger.BeginScope("no-logs-2").UseBuffer())
                 {
                     logger.Information("This message is not logged.");
                     //logger.Information("This message overrides the transaction.", LoggerTransaction.Override);
                 }
 
-                using (logger.UseScope().UseBuffer())
+                using (logger.BeginScope("delayed").UseBuffer())
                 {
                     logger.Information("This message is delayed.");
                     logger.Information("This message is delayed too.");
