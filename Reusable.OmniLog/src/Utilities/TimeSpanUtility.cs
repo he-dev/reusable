@@ -1,6 +1,5 @@
 using System;
 using Reusable.OmniLog.Data;
-using Reusable.OmniLog.Nodes;
 
 namespace Reusable.OmniLog.Utilities
 {

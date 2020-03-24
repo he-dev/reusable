@@ -2,7 +2,6 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
-using System.Linq.Custom;
 using Reusable.Collections.Generic;
 using Reusable.OmniLog.Abstractions;
 
@@ -22,11 +21,12 @@ namespace Reusable.OmniLog
 
         #region ILoggerFactory
 
-        public ILogger CreateLogger(string name) => _loggers.GetOrAdd(name, n => CreatePipeline(n.ToString()));
+        public ILogger CreateLogger(string name) => _loggers.GetOrAdd(name, CreatePipeline(name));
 
         private ILogger CreatePipeline(string loggerName)
         {
-            return (ILogger)CreateNodes().Prepend(new Logger { Name = loggerName }).Join().First();
+            // Prepend does not work with .net-framework.
+            return (ILogger)new ILoggerNode[] { new Logger { Name = loggerName } }.Concat(CreateNodes()).Join().First();
         }
 
         public void Dispose()
@@ -38,6 +38,7 @@ namespace Reusable.OmniLog
                     node.Dispose();
                 }
             }
+
             _loggers.Clear();
         }
 

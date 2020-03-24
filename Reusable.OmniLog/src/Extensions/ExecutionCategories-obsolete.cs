@@ -1,12 +1,7 @@
 using System;
-using System.Linq;
-using System.Runtime.CompilerServices;
-using JetBrains.Annotations;
 using Reusable.Extensions;
 using Reusable.OmniLog.Abstractions;
-using Reusable.OmniLog.Data;
 using Reusable.OmniLog.Nodes;
-using Reusable.OmniLog.Utilities;
 
 namespace Reusable.OmniLog.Extensions
 {
