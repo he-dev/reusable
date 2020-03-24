@@ -1,42 +1,53 @@
 using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
+using Reusable.Collections.Generic;
 using Reusable.OmniLog.Abstractions;
-using Reusable.OmniLog.Extensions;
+using Reusable.OmniLog.Nodes;
 
 namespace Reusable.OmniLog
 {
-    public class LoggerScope<T> : ILoggerScope where T : ILoggerNode
+    public class LoggerScope : ILoggerScope
     {
-        private readonly ILogger _logger;
-        private readonly IDisposable _scope;
+        public ILogger Logger { get; set; }
 
-        public LoggerScope(ILogger logger, Func<T, IDisposable> configureNode)
+        public ILoggerNode First { get; set; }
+
+        public Stack<Exception> Exceptions { get; } = new Stack<Exception>();
+        
+        internal Action<ILogger, Exception?> OnEndScope { get; set; }
+
+        // Helps to prevent enumerating nodes beyond the scope pipeline.
+        private bool IsMainPipeline(ILoggerNode node)
         {
-            _logger = logger;
-            _scope = configureNode(logger.Node<T>());
+            return !ReferenceEquals(node, First) && node.Prev is ToggleScope;
         }
 
-        public void Log(ILogEntry logEntry) => _logger.Log(logEntry);
-
-        public bool Enabled
+        public IEnumerator<ILoggerScope> GetEnumerator()
         {
-            get => _logger.Enabled;
-            set => _logger.Enabled = value;
+            return AsyncScope<ILoggerScope>.Current.Enumerate().Select(s => s.Value).GetEnumerator();
         }
 
-        public ILoggerNode? Prev
+        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+
+        public void Dispose()
         {
-            get => _logger.Prev;
-            set => _logger.Prev = value;
+            foreach (var node in First.EnumerateNext().TakeWhile(node => !IsMainPipeline(node)))
+            {
+                node.Dispose();
+            }
+            
+            var exception =
+                Exceptions.Any()
+                    ? Exceptions.Count > 1
+                        ? new AggregateException(Exceptions)
+                        : Exceptions.Peek()
+                    : default;
+
+            OnEndScope(Logger, exception);
+            
+            AsyncScope<ILoggerScope>.Current.Dispose();
         }
-
-        public ILoggerNode? Next
-        {
-            get => _logger.Next;
-            set => _logger.Next = value;
-        }
-
-        public void Invoke(ILogEntry request) => _logger.Invoke(request);
-
-        public void Dispose() => _scope.Dispose();
     }
 }

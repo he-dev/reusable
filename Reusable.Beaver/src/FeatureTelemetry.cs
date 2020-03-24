@@ -13,13 +13,13 @@ namespace Reusable.Beaver
     /// <summary>
     /// This class adds telemetry logging to feature-controller.
     /// </summary>
-    public class FeatureControllerTelemetry : IFeatureController
+    public class FeatureTelemetry : IFeatureController
     {
         private readonly IFeatureController _controller;
 
-        private readonly ILogger<FeatureControllerTelemetry> _logger;
+        private readonly ILogger<FeatureTelemetry> _logger;
 
-        public FeatureControllerTelemetry(IFeatureController controller, ILogger<FeatureControllerTelemetry> logger)
+        public FeatureTelemetry(IFeatureController controller, ILogger<FeatureTelemetry> logger)
         {
             _controller = controller;
             _logger = logger;
@@ -42,7 +42,7 @@ namespace Reusable.Beaver
 
             return await _controller.Use(name, onEnabled, onDisabled, parameter).ContinueWith(t =>
             {
-                _logger.Scope().Push(t.Exception);
+                _logger.Scope().Exceptions.Push(t.Exception);
 
                 // if (this.IsEnabled(Feature.Telemetry.CreateName(name)))
                 // {

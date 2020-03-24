@@ -28,7 +28,7 @@ namespace Reusable.Commander.Commands
             }
             catch (Exception taskEx)
             {
-                _logger.Scope().Push(taskEx);
+                _logger.Scope().Exceptions.Push(taskEx);
                 throw;
             }
         }

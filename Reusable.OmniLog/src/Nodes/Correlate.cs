@@ -1,6 +1,7 @@
 using System;
 using System.Linq;
 using Newtonsoft.Json;
+using Reusable.Collections.Generic;
 using Reusable.OmniLog.Abstractions;
 using Reusable.OmniLog.Extensions;
 
@@ -12,7 +13,7 @@ namespace Reusable.OmniLog.Nodes
         private object? _correlationId;
 
         /// <summary>
-        /// Gets or sets the factory for the default correlation-id. By default it's a Guid.
+        /// Gets or sets the factory for the correlation-id. Uses a continuous GUID by default.
         /// </summary>
         public Func<object> NewCorrelationId { get; set; } = () => Guid.NewGuid().ToString("N");
 
@@ -28,9 +29,8 @@ namespace Reusable.OmniLog.Nodes
 
         public override void Invoke(ILogEntry request)
         {
-            var branch = ToggleScope.Current!;
-            var scopes = branch.Enumerate().Select(x => x.Value.First.Node<Correlate>()).ToList();
-            request.Push(Names.Properties.Correlation, scopes, m => m.ProcessWith<SerializeProperty>());
+            var correlations = Prev.EnumeratePrev().OfType<ToggleScope>().Single().Current.Select(x => x.First.Node<Correlate>()).ToList();
+            request.Push(Names.Properties.Correlation, correlations, m => m.ProcessWith<SerializeProperty>());
             InvokeNext(request);
         }
     }

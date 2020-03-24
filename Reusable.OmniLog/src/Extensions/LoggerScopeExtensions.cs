@@ -7,28 +7,28 @@ namespace Reusable.OmniLog.Extensions
 {
     public static class LoggerScopeExtensions
     {
-        public static ILoggerScope WithCorrelationId(this ILoggerScope logger, object? correlationId)
+        public static ILoggerScope WithCorrelationId(this ILoggerScope scope, object? correlationId)
         {
-            return logger.Pipe(l => l.Scope().First.Node<Correlate>().CorrelationId = correlationId);
+            return scope.Pipe(x => x.First.Node<Correlate>().CorrelationId = correlationId);
         }
         
-        public static ILoggerScope WithCorrelationHandle(this ILoggerScope logger, object? correlationHandle)
+        public static ILoggerScope WithCorrelationHandle(this ILoggerScope scope, object? correlationHandle)
         {
-            return logger.Pipe(l => l.Scope().First.Node<Correlate>().CorrelationHandle = correlationHandle);
+            return scope.Pipe(x => x.First.Node<Correlate>().CorrelationHandle = correlationHandle);
         }
 
-        public static ILoggerScope UseBuffer(this ILoggerScope logger)
+        public static ILoggerScope UseBuffer(this ILoggerScope scope)
         {
             // Branch-node is properly initialized at this point.
-            return logger.Pipe(x => x.Node<ToggleScope>().First.Node<BufferLog>().Enable());
+            return scope.Pipe(x => x.First.Node<BufferLog>().Enable());
         }
 
         /// <summary>
         /// Activates a new MemoryNode.
         /// </summary>
-        public static ILoggerScope UseInMemoryCache(this ILoggerScope logger)
+        public static ILoggerScope UseInMemoryCache(this ILoggerScope scope)
         {
-            return logger.Pipe(x => x.Node<ToggleScope>().First.Node<CacheInMemory>().Enable());
+            return scope.Pipe(x => x.First.Node<CacheInMemory>().Enable());
         }
 
         /// <summary>
@@ -40,5 +40,22 @@ namespace Reusable.OmniLog.Extensions
             //return scope.Append(new StopwatchNode());
             return scope;
         }
+        
+        
+        public static Correlate Correlation(this ILoggerScope scope) => scope.First.Node<Correlate>();
+        
+        public static BufferLog Buffer(this ILoggerScope scope) => scope.First.Node<BufferLog>();
+        
+        /// <summary>
+        /// Gets the MemoryNode in current scope.
+        /// </summary>
+        public static CacheInMemory InMemoryCache(this ILoggerScope scope) => scope.First.Node<CacheInMemory>();
+        
+        /// <summary>
+        /// Gets the stopwatch in current scope.
+        /// </summary>
+        public static MeasureElapsedTime Stopwatch(this ILoggerScope scope) => scope.First.Node<MeasureElapsedTime>();
+        
+        //public static CollectFlowTelemetry Flow(this IFlowScope flowScope) => flowScope.First.Node<CollectFlowTelemetry>();
     }
 }

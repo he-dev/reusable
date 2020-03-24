@@ -5,16 +5,13 @@ using Reusable.Extensions;
 namespace Reusable.OmniLog.Nodes
 {
     /// <summary>
-    /// Temporarily holding log-entries while it's waiting to be transferred to another location. 
+    /// Temporarily holding log-entries while it's waiting to be transferred to another location. This node is disabled by default. 
     /// </summary>
     public class BufferLog : LoggerNode
     {
         private readonly Queue<ILogEntry> _buffer = new Queue<ILogEntry>();
 
-        public BufferLog()
-        {
-            Enabled = false;
-        }
+        public override bool Enabled { get; set; }
 
         public override void Invoke(ILogEntry request)
         {
@@ -39,6 +36,7 @@ namespace Reusable.OmniLog.Nodes
 
         public override void Dispose()
         {
+            Enabled = false;
             _buffer.Clear();
             base.Dispose();
         }

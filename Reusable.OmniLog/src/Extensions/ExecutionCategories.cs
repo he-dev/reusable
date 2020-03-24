@@ -4,33 +4,21 @@ using System.Runtime.CompilerServices;
 using JetBrains.Annotations;
 using Reusable.Extensions;
 using Reusable.OmniLog.Abstractions;
+using Reusable.OmniLog.Data;
 using Reusable.OmniLog.Nodes;
 using Reusable.OmniLog.Utilities;
 
 namespace Reusable.OmniLog.Extensions
 {
     [PublicAPI]
-    public static class ExecutionCategories
+    public static partial class ExecutionCategories
     {
+        // Categories
+
         public static Action<ILogEntry> Variable(this Action<ILogEntry> node, string name, object value) => node.Category(name, value);
         public static Action<ILogEntry> Property(this Action<ILogEntry> node, string name, object value) => node.Category(name, value);
         public static Action<ILogEntry> Argument(this Action<ILogEntry> node, string name, object value) => node.Category(name, value);
         public static Action<ILogEntry> Meta(this Action<ILogEntry> node, string name, object value) => node.Category(name, value);
-
-        public static Action<ILogEntry> Flow(this Action<ILogEntry> node, string decision, string? because = default)
-        {
-            return node.Then(e =>
-            {
-                e.Push(new LogProperty(Names.Properties.Category, nameof(Flow), LogPropertyMeta.Builder.ProcessWith<Echo>()));
-                e.Push(new LogProperty(Names.Properties.Unit, nameof(decision), LogPropertyMeta.Builder.ProcessWith<Echo>()));
-                e.Push(new LogProperty(Names.Properties.Snapshot, decision, LogPropertyMeta.Builder.ProcessWith<Echo>()));
-                if (because is {})
-                {
-                    e.Push(new LogProperty(Names.Properties.Message, because, LogPropertyMeta.Builder.ProcessWith<Echo>()));
-                }
-            });
-        }
-
         public static Action<ILogEntry> Step(this Action<ILogEntry> node, string name, object value) => node.Category(name, value);
         public static Action<ILogEntry> Counter(this Action<ILogEntry> node, string name, object value) => node.Category(name, value);
         public static Action<ILogEntry> WorkItem(this Action<ILogEntry> node, string name, object value) => node.Telemetry().Category(name, value);
@@ -49,35 +37,23 @@ namespace Reusable.OmniLog.Extensions
             });
         }
 
-        #region For backward compatibility
+        // Templates
 
-        public static Action<ILogEntry> Variable(this Action<ILogEntry> node, object value)
+        public static Action<ILogEntry> Decision(this Action<ILogEntry> node, string decision, string? because = default)
         {
-            return node.Then(e =>
-            {
-                e.Push(new LogProperty(Names.Properties.Category, nameof(Variable), LogPropertyMeta.Builder.ProcessWith<Echo>()));
-                e.Snapshot(value);
-            });
+            return node.Flow().Unit(nameof(Decision)).Snapshot(decision).Message(because);
         }
 
-        public static Action<ILogEntry> Counter(this Action<ILogEntry> node, object value)
+        public static Action<ILogEntry> Unit(this Action<ILogEntry> node, string name)
         {
-            return node.Then(e =>
-            {
-                e.Push(new LogProperty(Names.Properties.Category, nameof(Counter), LogPropertyMeta.Builder.ProcessWith<Echo>()));
-                e.Snapshot(value);
-            });
+            return node.Then(e => e.Push(new LogProperty(Names.Properties.Unit, name, LogPropertyMeta.Builder.ProcessWith<Echo>())));
         }
 
-        public static Action<ILogEntry> Meta(this Action<ILogEntry> node, object value)
+        public static Action<ILogEntry> Snapshot(this Action<ILogEntry> node, object snapshot)
         {
-            return node.Then(e =>
-            {
-                e.Push(new LogProperty(Names.Properties.Category, nameof(Meta), LogPropertyMeta.Builder.ProcessWith<Echo>()));
-                e.Snapshot(value);
-            });
+            return node.Then(e => e.Push(new LogProperty(Names.Properties.Snapshot, snapshot, LogPropertyMeta.Builder.ProcessWith<SerializeProperty>())));
         }
-
+        
         public static Action<ILogEntry> Flow(this Action<ILogEntry> node)
         {
             return node.Then(e => e.Push(new LogProperty(Names.Properties.Category, nameof(Flow), LogPropertyMeta.Builder.ProcessWith<Echo>())));
@@ -121,20 +97,6 @@ namespace Reusable.OmniLog.Extensions
             }
         }
 
-        public static Action<ILogEntry> Decision(this Action<ILogEntry> node, string decision)
-        {
-            return node.Then(e =>
-            {
-                e.Push(new LogProperty(Names.Properties.Unit, nameof(decision), LogPropertyMeta.Builder.ProcessWith<Echo>()));
-                e.Push(new LogProperty(Names.Properties.Snapshot, decision, LogPropertyMeta.Builder.ProcessWith<Echo>()));
-            });
-        }
-
-        public static Action<ILogEntry> Because(this Action<ILogEntry> node, string because)
-        {
-            return node.Then(e => { e.Message(because); });
-        }
-
         private static ILogEntry Snapshot(this ILogEntry logEntry, object snapshot)
         {
             var dictionary = snapshot.ToDictionary();
@@ -143,7 +105,5 @@ namespace Reusable.OmniLog.Extensions
                     .Push(Names.Properties.Unit, dictionary.First().Key, m => m.ProcessWith<Echo>())
                     .Push(Names.Properties.Snapshot, dictionary.First().Value, m => m.ProcessWith<SerializeProperty>());
         }
-
-        #endregion
     }
 }

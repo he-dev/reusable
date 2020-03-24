@@ -9,7 +9,10 @@ namespace Reusable.OmniLog
 {
     public static class LoggerPipelines
     {
-        public static IEnumerable<ILoggerNode> Default
+        /// <summary>
+        /// Get a pipeline that contains all supported features.
+        /// </summary>
+        public static IEnumerable<ILoggerNode> Complete
         {
             get
             {
@@ -42,7 +45,9 @@ namespace Reusable.OmniLog
                     {
                         [Names.Properties.Level] = LogLevel.Information,
                         [Names.Properties.Layer] = "Undefined",
-                        [Names.Properties.Category] = "Undefined"
+                        [Names.Properties.Category] = "Undefined",
+                        [Names.Properties.Unit] = "Undefined",
+                        [Names.Properties.Snapshot] = "Undefined"
                     }
                 };
                 yield return new ToggleScope
@@ -53,7 +58,6 @@ namespace Reusable.OmniLog
                         new MeasureElapsedTime(),
                         new BufferLog(),
                         new CacheInMemory(),
-                        //new CollectFlowTelemetry(),
                     }
                 };
                 yield return new SerializeProperty
@@ -76,10 +80,33 @@ namespace Reusable.OmniLog
             }
         }
         
+        /// <summary>
+        /// Gets a pipeline that contains only popular features like timestamp and message.
+        /// </summary>
+        public static IEnumerable<ILoggerNode> Popular
+        {
+            get
+            {
+                yield return new AttachProperty
+                {
+                    Properties = { new Timestamp<DateTimeUtc>() }
+                };
+                yield return new InjectAnonymousAction();
+                yield return new CreateProperty();
+                yield return new Filter();
+                yield return new Echo();
+            }
+        }
+        
+        /// <summary>
+        /// Gets a pipeline that does not contain any features but property creation and echo.
+        /// </summary>
         public static IEnumerable<ILoggerNode> Minimal
         {
             get
             {
+                yield return new InjectAnonymousAction();
+                yield return new CreateProperty();
                 yield return new Echo();
             }
         }

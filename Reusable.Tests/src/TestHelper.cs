@@ -26,7 +26,7 @@ namespace Reusable
         {
             return
                 LoggerPipelines
-                    .Default
+                    .Complete
                     .Configure<AttachProperty>(node =>
                     {
                         node.Properties.Add(new Constant("Environment", "Test"));

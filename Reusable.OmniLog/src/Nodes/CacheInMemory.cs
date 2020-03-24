@@ -5,11 +5,13 @@ using Reusable.OmniLog.Abstractions;
 namespace Reusable.OmniLog.Nodes
 {
     /// <summary>
-    /// This node caches logs in memory.
+    /// This node caches logs in memory. This node is disabled by default.
     /// </summary>
     public class CacheInMemory : LoggerNode, IEnumerable<ILogEntry>
     {
         private readonly Queue<ILogEntry> _entries = new Queue<ILogEntry>();
+
+        public override bool Enabled { get; set; }
 
         public int Capacity { get; set; } = 10_000;
 
@@ -34,6 +36,7 @@ namespace Reusable.OmniLog.Nodes
 
         public override void Dispose()
         {
+            Enabled = false;
             _entries.Clear();
             base.Dispose();
         }

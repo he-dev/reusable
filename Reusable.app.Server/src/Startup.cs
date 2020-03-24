@@ -55,7 +55,7 @@ namespace Reusable.Apps.Server
             services.AddOmniLog
             (
                 LoggerPipelines
-                    .Default
+                    .Complete
                     .Configure<AttachProperty>(node =>
                     {
                         node.Properties.Add(new Constant("Environment", _hostingEnvironment.EnvironmentName));
@@ -90,7 +90,7 @@ namespace Reusable.Apps.Server
                 .AddScoped<IFeatureController>(s =>
                 {
                     var agent = new FeatureController(s.GetService<IFeatureToggle>());
-                    return new FeatureControllerTelemetry(agent, s.GetService<ILogger<FeatureControllerTelemetry>>());
+                    return new FeatureTelemetry(agent, s.GetService<ILogger<FeatureTelemetry>>());
                 });
 
             services.Configure<RazorViewEngineOptions>(options => { options.ViewLocationExpanders.Add(new RelativeViewLocationExpander("src")); });

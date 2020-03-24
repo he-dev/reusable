@@ -22,7 +22,7 @@ namespace Reusable
 
             using var loggerFactory =
                 LoggerPipelines
-                    .Default
+                    .Complete
                     .Configure<AttachProperty>(node =>
                     {
                         node.Properties.Add(new Constant("Environment", "Demo"));
@@ -83,7 +83,7 @@ namespace Reusable
                 logger.Log(Abstraction.Layer.Business().Variable(variable).Message("I'm a variable!"));
                 logger.Log(Abstraction.Layer.Database().Counter(new { Prime = 7 }));
                 logger.Log(Abstraction.Layer.Database().Flow().Decision("Log something.").Because("Logger works!"));
-                logger.Log(Abstraction.Layer.Database().Flow("Log something.", because: "Logger works!"));
+                logger.Log(Abstraction.Layer.Database().Decision("Log something.", because: "Logger works!"));
                 //logger.Log(Layer.Service, Category.WorkItem, new { test = new { fileName = "test" } });
                 //logger.Log(Layer.Service, Category.WorkItem, Snapshot.Take("testFile", new { fileName = "test" }), CallerInfo.Create());
                 //logger.Log(Layer.Service, Category.WorkItem, new { testFile = new { fileName = "test" } }, CallSite.Create());
@@ -91,7 +91,7 @@ namespace Reusable
                 logger.Log(Execution.Context.WorkItem("testFile", new { fileName = "test" }).Message("Blub!"));
                 logger.Log(Execution.Context.Routine(nameof(Log)).Message("Blub!"));
                 //logger.Scope().Flow().Push(new Exception());
-                logger.Scope().Push(new Exception());
+                logger.Scope().Exceptions.Push(new Exception());
 
 
                 // Opening inner-scope.

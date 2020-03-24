@@ -1,11 +1,9 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
 using Reusable.OmniLog.Abstractions;
 using Reusable.Collections.Generic;
-using Reusable.Extensions;
 using Reusable.OmniLog.Extensions;
 
 namespace Reusable.OmniLog.Nodes
@@ -13,23 +11,27 @@ namespace Reusable.OmniLog.Nodes
     [PublicAPI]
     public class ToggleScope : LoggerNode
     {
-        public override bool Enabled => AsyncScope<Pipeline>.Any;
+        public override bool Enabled => AsyncScope<ILoggerScope>.Any;
 
         public Func<IEnumerable<ILoggerNode>> CreateNodes { get; set; } = Enumerable.Empty<ILoggerNode>;
 
-        public Pipeline Current => AsyncScope<Pipeline>.Current?.Value ?? throw new InvalidOperationException($"Cannot use {nameof(Current)} when {nameof(ToggleScope)} is disabled. Use Logger.BeginScope() first.");
+        public ILoggerScope Current => AsyncScope<ILoggerScope>.Current?.Value ?? throw new InvalidOperationException($"Cannot use {nameof(Current)} when {nameof(ToggleScope)} is disabled. Use Logger.BeginScope() first.");
 
         public Action<ILogger, string> OnBeginScope { get; set; } = (logger, name) => logger.Log(Execution.Context.BeginScope(name));
 
         public Action<ILogger, Exception?> OnEndScope { get; set; } = (logger, exception) => logger.Log(Execution.Context.EndScope(exception));
 
-        public Stack<Exception> Exceptions { get; set; } = new Stack<Exception>();
-
-        public IDisposable Push(string name)
+        public ILoggerScope Push(ILogger logger, string name)
         {
             try
             {
-                return AsyncScope<Pipeline>.Push(new Pipeline(this, CreateNodes()) { }).Value;
+                var scope = new LoggerScope
+                {
+                    Logger = logger,
+                    First = CreatePipeline(this, CreateNodes()),
+                    OnEndScope = OnEndScope
+                };
+                return AsyncScope<ILoggerScope>.Push(scope).Value;
             }
             finally
             {
@@ -39,83 +41,35 @@ namespace Reusable.OmniLog.Nodes
 
         public override void Invoke(ILogEntry request)
         {
+            // Does not call InvokeNext because it routes the request over the scope which is connected to the next node.
             Current.First.Invoke(request);
         }
 
-        public class Pipeline : IEnumerable<ILoggerNode>, IDisposable
+        private static ILoggerNode CreatePipeline(ILoggerNode main, IEnumerable<ILoggerNode> branch)
         {
-            public Pipeline(ILoggerNode branch, IEnumerable<ILoggerNode> nodes)
-            {
-                var last = nodes.Join();
-                last.Next = branch.Next;
-                First = last.First();
-                First.Prev = branch.Prev;
-            }
+            var last = branch.Join();
+            last.Next = main.Next;
+            var first = last.First();
+            first.Prev = main;
 
-            public ILoggerNode First { get; }
-
-            public void Dispose()
-            {
-                foreach (var node in this)
-                {
-                    node.Dispose();
-                }
-
-                AsyncScope<Pipeline>.Current.Dispose();
-            }
-
-            private bool IsMainPipeline(ILoggerNode node)
-            {
-                return !ReferenceEquals(node, First) && node.Prev is ToggleScope;
-            }
-
-            public IEnumerator<ILoggerNode> GetEnumerator()
-            {
-                return First.EnumerateNext().TakeWhile(node => !IsMainPipeline(node)).GetEnumerator();
-            }
-
-            IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+            return first;
         }
-
-        public override void Dispose()
-        {
-            var exception =
-                Exceptions.Any()
-                    ? Exceptions.Count > 1
-                        ? new AggregateException(Exceptions)
-                        : Exceptions.Peek()
-                    : default;
-
-            OnEndScope(((ILoggerNode)this).First().Node<Logger>(), exception);
-        }
-    }
-
-    public enum FlowStatus
-    {
-        Undefined,
-        Begin,
-        Completed,
-        Canceled,
-        Faulted
     }
 
     public static class ToggleScopeHelper
     {
-        // [Obsolete("Use 'BeginScope'.")]
-        // public static ILoggerScope UseScope(this ILogger logger, object? correlationId = default, object? correlationHandle = default)
-        // {
-        //     return logger.BeginScope(correlationId).WithCorrelationHandle(correlationHandle);
-        // }
-
+        /// <summary>
+        /// Creates a new scope that is open until disposed.
+        /// </summary>
         public static ILoggerScope BeginScope(this ILogger logger, string name)
         {
-            return new LoggerScope<ToggleScope>(logger, branch => branch.Push(name));
+            return logger.Node<ToggleScope>().Push(logger, name);
         }
 
         /// <summary>
-        /// Gets the current correlation scope.
+        /// Gets the current scope.
         /// </summary>
-        public static ToggleScope.Pipeline Scope(this ILogger logger)
+        public static ILoggerScope Scope(this ILogger logger)
         {
             return logger.Node<ToggleScope>().Current;
         }
