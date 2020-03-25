@@ -16,6 +16,6 @@ namespace Reusable.OmniLog.Abstractions
     {
         ILoggerNode First { get; }
         
-        Stack<Exception> Exceptions { get; }
+        Stack<(Exception Exception, Data.CallSite CallSite)> Exceptions { get; }
     }
 }

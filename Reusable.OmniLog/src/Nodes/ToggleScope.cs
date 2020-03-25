@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using Reusable.OmniLog.Abstractions;
 using Reusable.Collections.Generic;
 using Reusable.OmniLog.Extensions;
@@ -18,11 +19,11 @@ namespace Reusable.OmniLog.Nodes
 
         public ILoggerScope Current => AsyncScope<ILoggerScope>.Current?.Value ?? throw new InvalidOperationException($"Cannot use {nameof(Current)} when {nameof(ToggleScope)} is disabled. Use Logger.BeginScope() first.");
 
-        public Action<ILogger, string> OnBeginScope { get; set; } = (logger, name) => logger.Log(Execution.Context.BeginScope(name));
+        public Action<ILogger, string, Data.CallSite> OnBeginScope { get; set; } = (logger, name, callSite) => logger.Log(Execution.Context.BeginScope(name), callSite.CallerMemberName, callSite.CallerLineNumber, callSite.CallerFilePath);
 
-        public Action<ILogger, Exception?> OnEndScope { get; set; } = (logger, exception) => logger.Log(Execution.Context.EndScope(exception));
+        public Action<ILogger, Exception?, Data.CallSite?> OnEndScope { get; set; } = (logger, exception, callSite) => logger.Log(Execution.Context.EndScope(exception), callSite?.CallerMemberName, callSite?.CallerLineNumber, callSite?.CallerFilePath);
 
-        public ILoggerScope Push(ILogger logger, string name)
+        public ILoggerScope Push(ILogger logger, string name, Data.CallSite callSite)
         {
             try
             {
@@ -38,7 +39,7 @@ namespace Reusable.OmniLog.Nodes
             {
                 if (Next?.First() is { } first)
                 {
-                    OnBeginScope(first.Node<Logger>(), name);
+                    OnBeginScope(first.Node<Logger>(), name, callSite);
                 }
             }
         }
@@ -65,9 +66,16 @@ namespace Reusable.OmniLog.Nodes
         /// <summary>
         /// Creates a new scope that is open until disposed.
         /// </summary>
-        public static ILoggerScope BeginScope(this ILogger logger, string name)
+        public static ILoggerScope BeginScope
+        (
+            this ILogger logger,
+            string name,
+            [CallerMemberName] string? callerMemberName = null,
+            [CallerLineNumber] int callerLineNumber = 0,
+            [CallerFilePath] string? callerFilePath = null
+        )
         {
-            return logger.Node<ToggleScope>().Push(logger, name);
+            return logger.Node<ToggleScope>().Push(logger, name, new Reusable.OmniLog.Data.CallSite(callerMemberName, callerLineNumber, callerFilePath));
         }
 
         /// <summary>
