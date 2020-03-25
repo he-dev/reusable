@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Security.Authentication;
 using Reusable.Apps;
 using Reusable.Exceptionize;
 using Reusable.OmniLog;
@@ -115,8 +116,11 @@ namespace Reusable
                     //logger.Log(Abstraction.Layer.Service().Routine(nameof(Log)).Faulted(DynamicException.Create("Test", "This is only a test.")));
                     logger.Log(Abstraction.Layer.Service().Flow().Decision("Don't do this.").Because("Disabled."));
                     logger.Log(Layer.Service, Decision.Make("Don't do this either.", because: "It's disabled as well."));
+                    
+                    logger.Scope().Exceptions.Push(new InvalidCredentialException());
                 }
 
+                logger.Scope().Exceptions.Push(new DivideByZeroException());
                 logger.Log(Abstraction.Layer.Service().Meta(new { GoodBye = "Bye bye scopes!" }));
             }
 

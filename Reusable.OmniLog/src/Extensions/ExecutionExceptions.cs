@@ -7,9 +7,15 @@ namespace Reusable.OmniLog.Extensions
 {
     public static class ExecutionExceptions
     {
-        public static Action<ILogEntry> Exception(this Action<ILogEntry> node, Exception exception)
+        public static Action<ILogEntry> Exception(this Action<ILogEntry> node, Exception? exception)
         {
-            return node.Then(e => e.Push(new LogProperty(Names.Properties.Exception, exception, LogPropertyMeta.Builder.ProcessWith<Echo>())));
+            return node.Then(e =>
+            {
+                if (exception is {})
+                {
+                    e.Push(new LogProperty(Names.Properties.Exception, exception, LogPropertyMeta.Builder.ProcessWith<Echo>()));
+                }
+            });
         }
     }
 }

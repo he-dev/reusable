@@ -62,7 +62,7 @@ namespace Reusable.Flowingo.Steps
         [DebuggerStepThrough]
         public virtual void Add(IStep<T> step)
         {
-            _first.Tail().Append(step);
+            _first.Last().Append(step);
         }
 
         /// <summary>

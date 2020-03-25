@@ -70,7 +70,7 @@ namespace Reusable.OmniLog.Extensions
 
         internal static Action<ILogEntry> EndScope(this Action<ILogEntry> node, Exception? exception)
         {
-            return node.Telemetry().Flow().Level(GetLogLevel(exception)).Then(e =>
+            return node.Telemetry().Flow().Level(GetLogLevel(exception)).Exception(exception).Then(e =>
             {
                 e.Push(new LogProperty(Names.Properties.Unit, nameof(EndScope), LogPropertyMeta.Builder.ProcessWith<Echo>()));
                 e.Push(new LogProperty(Names.Properties.Snapshot, new { status = GetFlowStatus(exception) }, LogPropertyMeta.Builder.ProcessWith<SerializeProperty>()));

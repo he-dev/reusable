@@ -6,9 +6,9 @@ using Reusable.Collections.Generic;
 using Reusable.Extensions;
 using Reusable.Flowingo.Data;
 using Reusable.OmniLog;
+using Reusable.OmniLog.Extensions;
 using Reusable.OmniLog.Abstractions;
 using Reusable.OmniLog.Nodes;
-using Reusable.OmniLog.SemanticExtensions;
 
 namespace Reusable.Flowingo.Abstractions
 {
@@ -42,11 +42,13 @@ namespace Reusable.Flowingo.Abstractions
         {
             try
             {
-                using var scope = Logger?.BeginScope().WithCorrelationHandle("ExecuteStep").UseStopwatch();
-                Logger?.Log(Abstraction.Layer.Service().Step(new { Tag }, GetType().ToPrettyString()));
+                using var scope = Logger?.BeginScope("ExecuteStep");
+                Logger?.Log(Execution.Context.WorkItem("Step", new { name = GetType().ToPrettyString(), Tag }));
                 var flow = await ExecuteBody(context).ContinueWith(t =>
                 {
-                    Logger?.Log(Abstraction.Layer.Service().Step(new { flow = t.Result }, GetType().ToPrettyString()), l => l.Exception(t.Exception));
+                    Logger?.Log(Execution.Context.Service().Meta("workflowExecution", t.Result));
+                    Logger?.Scope().Exceptions.Push(t.Exception);
+                    
                     return (t.Exception is null || t.Result == Flow.Continue) ? Flow.Continue : Flow.Break;
                 });
 
@@ -57,7 +59,7 @@ namespace Reusable.Flowingo.Abstractions
             }
             catch (Exception inner)
             {
-                Logger?.Log(Abstraction.Layer.Service().Routine(GetType().ToPrettyString()).Faulted(inner));
+                Logger?.Scope().Exceptions.Push(inner);
             }
         }
 

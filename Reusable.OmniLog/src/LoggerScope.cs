@@ -42,7 +42,7 @@ namespace Reusable.OmniLog
                 Exceptions.Any()
                     ? Exceptions.Count > 1
                         ? new AggregateException(Exceptions)
-                        : Exceptions.Peek()
+                        : Exceptions.Pop()
                     : default;
 
             OnEndScope(Logger, exception);
