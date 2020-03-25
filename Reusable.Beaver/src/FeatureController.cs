@@ -62,8 +62,8 @@ namespace Reusable.Beaver
                 {
                     throw DynamicException.Create
                     (
-                        $"FeatureAction",
-                        $"An error occured while trying to invoke '{state}' feature action for '{context.Feature}'. See the inner exception for details.",
+                        $"Feature",
+                        $"Could not use {(state == FeatureState.Enabled ? "default" : "fallback")} feature action for '{context.Feature}'. See the inner exception for details.",
                         inner
                     );
                 }
