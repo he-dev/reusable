@@ -2,7 +2,7 @@
 <package>
   <metadata>
     <id>Reusable.Beaver</id>
-    <version>18.0.2</version>
+    <version>18.0.6</version>
     <title>Reusable.Beaver</title>
     <authors>He-Dev</authors>
     <owners>He-Dev</owners>
@@ -14,8 +14,8 @@
     <tags>Utility Extension</tags>
     <dependencies>
       <dependency id="JetBrains.Annotations" version="2019.1.3" />
-      <dependency id="Reusable.Core" version="18.0.2" />
-      <dependency id="Reusable.OmniLog" version="18.0.2" />
+      <dependency id="Reusable.Core" version="18.0.6" />
+      <dependency id="Reusable.OmniLog" version="18.0.6" />
     </dependencies>
   </metadata>
   <files>

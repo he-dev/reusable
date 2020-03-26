@@ -48,32 +48,36 @@ namespace Reusable
             ;
             var logger = loggerFactory.CreateLogger("Demo");
 
-            logger.Information("Hallo omni-log!");
+            logger.Trace("Hallo Trace!");
+            logger.Debug("Hallo Debug!");
+            logger.Warning("Hallo Warning!");
+            logger.Error("Hallo Error!");
+            logger.Fatal("Hallo Fatal!");
 
-            //logger.Log(Abstraction.Layer.Service().Routine(nameof(Log)).Running());
-            logger.Log(Telemetry.Collect.Application().Metadata("Greeting", "Hallo omni-log!"));
-            logger.Log(Telemetry.Collect.Application().Metadata("Nothing", new { Null = (string)default }));
 
             // Opening outer-scope.
-            using (logger.BeginScope("outer").WithCorrelationHandle("outer").UseStopwatch())
+            using (logger.BeginScope("outer").WithCorrelationHandle("outer"))
             {
-                var variable = new { John = "Doe" };
-                // Logging some single business variable and a message.
-                logger.Log(Telemetry.Collect.Business().Variable("person", variable).Message("I'm a variable!"));
-                logger.Log(Telemetry.Collect.Dependency().Database().Unit("localdb"));
-                logger.Log(Telemetry.Collect.Application().Metric("prime", 7));
-                logger.Log(Telemetry.Collect.Business().Logic().Decision("Log something.", "Logger works!"));
-                //logger.Log(Layer.Service, Category.WorkItem, new { test = new { fileName = "test" } });
-                //logger.Log(Layer.Service, Category.WorkItem, Snapshot.Take("testFile", new { fileName = "test" }), CallerInfo.Create());
-                //logger.Log(Layer.Service, Category.WorkItem, new { testFile = new { fileName = "test" } }, CallSite.Create());
+                logger.Log(Telemetry.Collect.Application().Argument("arg", "a"));
+                logger.Log(Telemetry.Collect.Application().Variable("var", "v").Warning());
+                logger.Log(Telemetry.Collect.Application().Property("prop", "p"));
+                logger.Log(Telemetry.Collect.Application().Metadata("meta", new { m = "m" }));
+                logger.Log(Telemetry.Collect.Application().Metadata("Nothing", new { Null = (string)default }));
+                logger.Log(Telemetry.Collect.Application().Metric("LayerCount", 4));
+                logger.Log(Telemetry.Collect.Application().Metric("Performance", "excellent"));
+                logger.Log(Telemetry.Collect.Business().Metadata("meta", new { m = "m" }));
+                logger.Log(Telemetry.Collect.Presentation().Metadata("meta", new { m = "m" }));
+                logger.Log(Telemetry.Collect.Dependency().File().Metadata("meta", new { m = "m" }));
+                logger.Log(Telemetry.Collect.Dependency().Database().Metadata("storage", new { meta = "data" }));
+                logger.Log(Telemetry.Collect.Dependency().Http().Metadata("www", new { meta = "data" }));
+                logger.Log(Telemetry.Collect.Dependency().Network().Metadata("ip", new { meta = "data" }));
+                logger.Log(Telemetry.Collect.Dependency().Resource().Metadata("image", new { meta = "data" }));
+                logger.Log(Telemetry.Collect.Dependency().File().Metadata("note", new { meta = "data" }));
 
-                logger.Log(Telemetry.Collect.Business().WorkItem("testFile", new { fileName = "test" }).Message("Blub!"));
-
-                //logger.Scope().Flow().Push(new Exception());
                 logger.Scope().Exceptions.Push(new Exception());
 
                 // Opening inner-scope.
-                using (logger.BeginScope("inner", new { fileName = "note.txt" }).WithCorrelationHandle("inner").UseStopwatch())
+                using (logger.BeginScope("inner", new { fileName = "note.txt" }).WithCorrelationHandle("inner"))
                 {
                     // Logging an entire object in a single line.
                     var customer = new Person
@@ -87,11 +91,7 @@ namespace Reusable
                     };
                     logger.Log(Telemetry.Collect.Business().Metadata("customer", customer));
 
-                    // Logging action results.
-                    //logger.Log(Telemetry.Data.Service().Routine(nameof(Log)).Running());
-                    //logger.Log(Telemetry.Data.Service().Routine(nameof(Log)).Canceled().Because("No connection."));
-                    //logger.Log(Telemetry.Data.Service().Routine(nameof(Log)).Faulted(DynamicException.Create("Test", "This is only a test.")));
-                    logger.Log(Telemetry.Collect.Application().Logic().Decision("Don't do this.", "Disabled."));
+                    logger.Log(Telemetry.Collect.Application().Logic().Decision("Don't do this.").Because("Disabled."));
                     logger.Log(Layer.Service, Decision.Make("Don't do this either.", because: "It's disabled as well."));
 
                     logger.Scope().Exceptions.Push(new InvalidCredentialException());
@@ -101,7 +101,7 @@ namespace Reusable
                 logger.Log(Telemetry.Collect.Application().Metadata("Goodbye", "Bye bye scopes!"));
             }
 
-            using (logger.BeginScope("Transaction").UseStopwatch())
+            using (logger.BeginScope("Transaction"))
             {
                 using (logger.BeginScope("no-logs-1").UseBuffer())
                 {

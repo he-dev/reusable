@@ -2,7 +2,7 @@
 <package>
   <metadata>
     <id>Reusable.OmniLog.Utilities.AspNetCore</id>
-    <version>18.0.2</version>
+    <version>18.0.6</version>
     <title>Reusable.OmniLog.Utilities.AspNetCore</title>
     <authors>He-Dev</authors>
     <owners>He-Dev</owners>
@@ -20,8 +20,8 @@
       <dependency id="Microsoft.Extensions.Logging.Abstractions" version="2.2.0" />
       <dependency id="System.ValueTuple" version="4.5.0" />
       <dependency id="Microsoft.AspNetCore.Http.Abstractions" version="2.2.0" />
-      <dependency id="Reusable.Beaver" version="18.0.2" />
-      <dependency id="Reusable.OmniLog" version="18.0.2" />
+      <dependency id="Reusable.Beaver" version="18.0.6" />
+      <dependency id="Reusable.OmniLog" version="18.0.6" />
     </dependencies>
   </metadata>
   <files>
