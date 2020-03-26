@@ -36,7 +36,7 @@ namespace Reusable.OmniLog.Extensions
 
     public static class Telemetry
     {
-        public static Link<ITelemetry?>? Collect => (log, _) => { };
+        public static Link<ITelemetry?> Collect => (log, _) => { };
     }
 
     public static class TelemetryLayers

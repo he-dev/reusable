@@ -12,16 +12,16 @@ namespace Reusable.OmniLog.Data
             [CallerFilePath] string? callerFilePath = null
         )
         {
-            CallerMemberName = callerMemberName;
+            CallerMemberName = callerMemberName!;
             CallerLineNumber = callerLineNumber;
-            CallerFilePath = callerFilePath;
+            CallerFilePath = callerFilePath!;
         }
 
-        public string? CallerMemberName { get; }
+        public string CallerMemberName { get; }
 
         public int CallerLineNumber { get; }
 
-        public string? CallerFilePath { get; }
+        public string CallerFilePath { get; }
 
 
         // public IEnumerator<LogProperty> GetEnumerator()
