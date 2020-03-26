@@ -5,7 +5,6 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Runtime.Serialization.Formatters.Binary;
 using JetBrains.Annotations;
-using Reusable.Flawless;
 
 namespace Reusable.Cryptography
 {
@@ -16,10 +15,10 @@ namespace Reusable.Cryptography
     [PublicAPI]
     public class FingerprintBuilder<T>
     {
-        private static readonly ValidationRuleCollection<FingerprintBuilder<T>, object> FingerprintBuilderValidator =
-            ValidationRuleCollection
-                .For<FingerprintBuilder<T>>()
-                .Accept(b => b.When(x => x._valueSelectors.Any()).Message($"{nameof(FingerprintBuilder<T>)} requires at least one value-selector."));
+        // private static readonly ValidationRuleCollection<FingerprintBuilder<T>, object> FingerprintBuilderValidator =
+        //     ValidationRuleCollection
+        //         .For<FingerprintBuilder<T>>()
+        //         .Accept(b => b.When(x => x._valueSelectors.Any()).Message($"{nameof(FingerprintBuilder<T>)} requires at least one value-selector."));
 
         private readonly SortedDictionary<string, Func<T, object>> _valueSelectors;
 
@@ -60,24 +59,23 @@ namespace Reusable.Cryptography
         {
             if (computeHashCallback == null) throw new ArgumentNullException(nameof(computeHashCallback));
 
-            this.ValidateWith(FingerprintBuilderValidator).ThrowOnFailure();
+            //this.ValidateWith(FingerprintBuilderValidator).ThrowOnFailure();
+            if (_valueSelectors.Any() == false) throw new InvalidOperationException("You need to specify at least one selector.");
 
             var binaryFormatter = new BinaryFormatter();
 
             return obj =>
             {
-                using (var memory = new MemoryStream())
+                using var memory = new MemoryStream();
+                foreach (var item in _valueSelectors)
                 {
-                    foreach (var item in _valueSelectors)
+                    if (item.Value(obj) is {} value)
                     {
-                        var value = item.Value(obj);
-                        if (!(value is null))
-                        {
-                            binaryFormatter.Serialize(memory, value);
-                        }
+                        binaryFormatter.Serialize(memory, value);
                     }
-                    return computeHashCallback(memory.ToArray());
                 }
+
+                return computeHashCallback(memory.ToArray());
             };
         }
     }

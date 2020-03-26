@@ -40,7 +40,7 @@ namespace Reusable.Translucent.Middleware
 
         private async Task LogTelemetry(ResourceContext context)
         {
-            using (_logger.BeginScope("CollectResourceTelemetry"))
+            using (_logger.BeginScope("RequestResource"))
             {
                 try
                 {
@@ -69,28 +69,22 @@ namespace Reusable.Translucent.Middleware
     {
         public static void LogRequest(ILogger logger, ResourceContext context)
         {
-            logger.Log(Abstraction.Layer.IO().Meta(new
+            logger.Log(Telemetry.Collect.Application().Metadata("ResourceRequest", new
             {
-                resourceRequest = new
-                {
-                    method = context.Request.Method.ToString().ToUpper(),
-                    resourceName = context.Request.ResourceName,
-                    controllerName = context.Request.ControllerName?.ToString(),
-                    controllerTags = context.Request.ControllerTags,
-                    items = context.Request.Items,
-                }
+                method = context.Request.Method.ToString().ToUpper(),
+                resourceName = context.Request.ResourceName,
+                controllerName = context.Request.ControllerName?.ToString(),
+                controllerTags = context.Request.ControllerTags,
+                items = context.Request.Items,
             }));
         }
 
         public static void LogResponse(ILogger logger, ResourceContext context)
         {
-            logger.Log(Abstraction.Layer.IO().Meta(new
+            logger.Log(Telemetry.Collect.Application().Metadata("ResourceResponse", new
             {
-                resourceResponse = new
-                {
-                    statusCode = context.Response!.StatusCode,
-                    bodyType = context.Response!.Body?.GetType().ToPrettyString()
-                }
+                statusCode = context.Response!.StatusCode,
+                bodyType = context.Response!.Body?.GetType().ToPrettyString()
             }));
         }
     }

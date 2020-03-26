@@ -66,7 +66,9 @@ namespace Reusable.Commander
 
             var async = executables.ToLookup(e => _commandParameterBinder.Bind<CommandParameter>(e.args).Async);
 
-            _logger.Log(Abstraction.Layer.Service().Counter(new { CommandCount = async.Count, SequentialCommandCount = async[false].Count(), AsyncCommandCount = async[true].Count() }));
+            _logger.Log(Telemetry.Collect.Application().Metric("CommandCount", async.Count));
+            _logger.Log(Telemetry.Collect.Application().Metric("SequentialCommandCount", async[false].Count()));
+            _logger.Log(Telemetry.Collect.Application().Metric("AsyncCommandCount", async[true].Count()));
 
             var exceptions = new ConcurrentBag<Exception>();
 
@@ -88,7 +90,7 @@ namespace Reusable.Commander
         )
         {
             using var cts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
-            
+
             // Execute sequential commands first.
             foreach (var executable in executables)
             {
@@ -124,7 +126,7 @@ namespace Reusable.Commander
         )
         {
             using var cts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
-            
+
             // Now execute async commands.
             var actionBlock = new ActionBlock<(ICommand command, List<CommandLineArgument> args)>
             (

@@ -29,6 +29,8 @@
         </None>
         <None Remove="res\Beaver\Features.json" />
         <EmbeddedResource Include="res\Beaver\Features.json" />
+        <EmbeddedResource Remove="src\Flawless\**" />
+        <None Remove="src\Flawless\**" />
     </ItemGroup>
     <ItemGroup>
         <PackageReference Include="Autofac" Version="4.9.4" />
@@ -51,7 +53,6 @@
         <ProjectReference Include="..\Reusable.Core\Reusable.Core.csproj" />
         <ProjectReference Include="..\Reusable.Cryptography\Reusable.Cryptography.csproj" />
         <ProjectReference Include="..\Reusable.Deception\Reusable.Deception.csproj" />
-        <ProjectReference Include="..\Reusable.Flawless\Reusable.Flawless.csproj" />
         <ProjectReference Include="..\Reusable.Flexo\Reusable.Flexo.csproj" />
         <ProjectReference Include="..\Reusable.Translucent\Reusable.Translucent.csproj" />
         <ProjectReference Include="..\Reusable.Translucent.config\Reusable.Translucent.config.csproj" />
@@ -96,6 +97,7 @@
         <Compile Remove="src\Translucent\RequestDelegateBuilderTest.cs" />
         <Compile Remove="src\Translucent\ComplexNameTest.cs" />
         <Compile Remove="src\Commander\CommandLineTokenizerTest - Copy.cs" />
+        <Compile Remove="src\Flawless\**" />
 <!--        <Compile Remove="src\Commander\**" />-->
     </ItemGroup>
     

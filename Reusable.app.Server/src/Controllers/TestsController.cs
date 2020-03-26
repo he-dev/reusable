@@ -22,7 +22,7 @@ namespace Reusable.Apps.Server.Controllers
         [HttpGet]
         public IActionResult Get(string message)
         {
-            _logger.Log(Abstraction.Layer.Service().Meta(new { TestMeta = 123 }));
+            _logger.Log(Telemetry.Collect.Application().Metadata("Test", 123));
             return Ok("Hallo GET!");
         }
 

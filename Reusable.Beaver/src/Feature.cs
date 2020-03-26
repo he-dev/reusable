@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
-using Newtonsoft.Json;
 using Reusable.Beaver.Annotations;
 using Reusable.Beaver.Policies;
 

@@ -4,10 +4,18 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using Reusable.OmniLog.Abstractions;
 using Reusable.Collections.Generic;
+using Reusable.OmniLog.Data;
 using Reusable.OmniLog.Extensions;
+using CallSite = Reusable.OmniLog.Data.CallSite;
+
+// ReSharper disable ExplicitCallerInfoArgument - this is fine because it needs to be overriden
 
 namespace Reusable.OmniLog.Nodes
 {
+    public delegate void OnBeginScopeDelegate(ILogger logger, string scopeName, CallSite callSite);
+
+    public delegate void OnEndScopeDelegate(ILogger logger, Exception? exception, CallSite? callSite);
+
     /// <summary>
     /// This node turn logger-scope on or off. By default it logs BeginScope and EndScope entries for each scope.
     /// </summary>
@@ -17,21 +25,26 @@ namespace Reusable.OmniLog.Nodes
 
         public Func<IEnumerable<ILoggerNode>> CreateNodes { get; set; } = Enumerable.Empty<ILoggerNode>;
 
-        public ILoggerScope Current => AsyncScope<ILoggerScope>.Current?.Value ?? throw new InvalidOperationException($"Cannot use {nameof(Current)} when {nameof(ToggleScope)} is disabled. Use Logger.BeginScope() first.");
-
-        public Action<ILogger, string, Data.CallSite> OnBeginScope { get; set; } = (logger, name, callSite) => logger.Log(Execution.Context.BeginScope(name), callSite.CallerMemberName, callSite.CallerLineNumber, callSite.CallerFilePath);
-
-        public Action<ILogger, Exception?, Data.CallSite?> OnEndScope { get; set; } = (logger, exception, callSite) => logger.Log(Execution.Context.EndScope(exception), callSite?.CallerMemberName, callSite?.CallerLineNumber, callSite?.CallerFilePath);
-
-        public ILoggerScope Push(ILogger logger, string name, Data.CallSite callSite)
+        public ILoggerScope Current
+        {
+            get
+            {
+                return
+                    AsyncScope<ILoggerScope>.Current?.Value
+                    ?? throw new InvalidOperationException($"Cannot use {nameof(Current)} when {nameof(ToggleScope)} is disabled. Use Logger.BeginScope() first.");
+            }
+        }
+        public ILoggerScope Push(ILogger logger, string name, object? workItem, CallSite callSite)
         {
             try
             {
                 var scope = new LoggerScope
                 {
+                    Name = name,
                     Logger = logger,
+                    WorkItem = workItem,
+                    CallSite = callSite,
                     First = CreatePipeline(this, CreateNodes()),
-                    OnEndScope = OnEndScope
                 };
                 return AsyncScope<ILoggerScope>.Push(scope).Value;
             }
@@ -39,7 +52,7 @@ namespace Reusable.OmniLog.Nodes
             {
                 if (Next?.First() is { } first)
                 {
-                    OnBeginScope(first.Node<Logger>(), name, callSite);
+                    //OnBeginScope(first.Node<Logger>(), name, callSite);
                 }
             }
         }
@@ -70,12 +83,13 @@ namespace Reusable.OmniLog.Nodes
         (
             this ILogger logger,
             string name,
+            object? workItem = default,
             [CallerMemberName] string? callerMemberName = null,
             [CallerLineNumber] int callerLineNumber = 0,
             [CallerFilePath] string? callerFilePath = null
         )
         {
-            return logger.Node<ToggleScope>().Push(logger, name, new Reusable.OmniLog.Data.CallSite(callerMemberName, callerLineNumber, callerFilePath));
+            return logger.Node<ToggleScope>().Push(logger, name, workItem, new CallSite(callerMemberName, callerLineNumber, callerFilePath));
         }
 
         /// <summary>

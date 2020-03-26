@@ -37,25 +37,19 @@ namespace Reusable.Beaver
         {
             var feature = this[name];
 
-            using var featureScope = _logger.BeginScope("UseFeature");
-            _logger.Log(Execution.Context.WorkItem("feature", new { name = feature.Name, tags = feature.Tags, policy = feature.Policy.GetType().ToPrettyString() }));
-
-            return await _controller.Use(name, onEnabled, onDisabled, parameter).ContinueWith(t =>
+            using (_logger.BeginScope("UseFeature", new { feature = feature.Name, policy = feature.Policy.GetType().ToPrettyString(), tags = feature.Tags }))
             {
-                _logger.Scope().Exceptions.Push(t.Exception);
+                try
+                {
+                    return await _controller.Use(name, onEnabled, onDisabled, parameter);
+                }
+                catch (Exception ex)
+                {
+                    _logger.Scope().Exceptions.Push(ex);
+                }
+            }
 
-                // if (this.IsEnabled(Feature.Telemetry.CreateName(name)))
-                // {
-                //     _logger.Log(Execution.Context.Service().Meta("featureTelemetry", new
-                //     {
-                //         name = feature.Name,
-                //         tags = feature.Tags,
-                //         policy = feature.Policy.GetType().ToPrettyString()
-                //     }).Exception(t.Exception));
-                // }
-
-                return t.Result;
-            });
+            return default;
         }
 
         public IEnumerator<Feature> GetEnumerator() => _controller.GetEnumerator();

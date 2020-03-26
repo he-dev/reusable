@@ -22,12 +22,13 @@ namespace Reusable.Utilities.AspNetCore.ActionFilters
             {
                 return;
             }
-            
-            _logger.Log(Abstraction.Layer.Network().Meta(new
-            {
-                ModelErrors = context.ModelState.Values.Select(value => value.Errors.Select(error => error.Exception.Message))
-            })
-            .Error());
+
+            _logger.Log(
+                Telemetry
+                    .Collect
+                    .Application()
+                    .Metadata("ModelErrors", context.ModelState.Values.Select(value => value.Errors.Select(error => error.Exception.Message)))
+                    .Error());
 
             context.Result = new BadRequestObjectResult(context.ModelState);
         }

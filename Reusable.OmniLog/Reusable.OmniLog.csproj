@@ -22,6 +22,8 @@
     <Compile Remove="cfg\**" />
     <Compile Remove="src\Nodes\BuilderNode.cs" />
     <Compile Remove="src\Nodes\CollectFlowTelemetry.cs" />
+    <Compile Remove="src\Extensions\ExecutionCategories-obsolete.cs" />
+    <Compile Remove="src\ExecutionContext.cs" />
   </ItemGroup>
 
   <ItemGroup>

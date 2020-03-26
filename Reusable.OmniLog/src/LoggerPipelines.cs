@@ -30,13 +30,10 @@ namespace Reusable.OmniLog
                     PropertyName = Names.Properties.Layer,
                     Mapper = new MapStringToLogLevel
                     {
-                        [nameof(ExecutionLayers.Service)] = LogLevel.Debug,
-                        [nameof(ExecutionLayers.IO)] = LogLevel.Trace,
-                        [nameof(ExecutionLayers.Database)] = LogLevel.Trace,
-                        [nameof(ExecutionLayers.Network)] = LogLevel.Trace,
-                        [nameof(ExecutionLayers.Telemetry)] = LogLevel.Information,
-                        [nameof(ExecutionLayers.Business)] = LogLevel.Information,
-                        [nameof(ExecutionLayers.Presentation)] = LogLevel.Debug,
+                        [nameof(TelemetryLayers.Dependency)] = LogLevel.Trace,
+                        [nameof(TelemetryLayers.Application)] = LogLevel.Trace,
+                        [nameof(TelemetryLayers.Business)] = LogLevel.Information,
+                        [nameof(TelemetryLayers.Presentation)] = LogLevel.Trace,
                     }
                 };
                 yield return new Fallback

@@ -33,7 +33,11 @@ namespace Reusable.OmniLog.Utilities.AspNetCore
 
         public async Task Invoke(HttpContext context, IFeatureController featureController)
         {
-            using var scope = _logger.BeginScope("LogRequest").WithCorrelationId(_config.GetCorrelationId(context)).WithCorrelationHandle(_config.GetCorrelationHandle(context));
+            using var scope = 
+                _logger
+                    .BeginScope("LogRequest")
+                    .WithCorrelationId(_config.GetCorrelationId(context))
+                    .WithCorrelationHandle(_config.GetCorrelationHandle(context));
             
             var requestBody =
                 _config.CanLogRequestBody(context)
@@ -41,10 +45,10 @@ namespace Reusable.OmniLog.Utilities.AspNetCore
                     : default;
 
             _logger.Log(
-                Execution
-                    .Context
-                    .Network()
-                    .WorkItem(nameof(HttpRequest), _config.TakeRequestSnapshot(context))
+                Telemetry
+                    .Collect
+                    .Application()
+                    .Metadata(nameof(HttpRequest), _config.TakeRequestSnapshot(context))
                     .Message(requestBody));
 
             try
@@ -74,10 +78,10 @@ namespace Reusable.OmniLog.Utilities.AspNetCore
                 }
 
                 _logger.Log(
-                    Execution
-                        .Context
-                        .Network()
-                        .Meta(nameof(HttpResponse), _config.TakeResponseSnapshot(context))
+                    Telemetry
+                        .Collect
+                        .Application()
+                        .Metadata(nameof(HttpResponse), _config.TakeResponseSnapshot(context))
                         .Message(responseBody)
                         .Level(_config.MapStatusCode(context.Response.StatusCode)));
             }

@@ -8,7 +8,6 @@ using JetBrains.Annotations;
 using Reusable.Diagnostics;
 using Reusable.Exceptionize;
 using Reusable.Extensions;
-using Reusable.Flawless;
 
 namespace Reusable
 {
@@ -18,12 +17,12 @@ namespace Reusable
     [DebuggerDisplay(DebuggerDisplayString.DefaultNoQuotes)]
     public class SemanticVersion : IEquatable<SemanticVersion>, IComparable<SemanticVersion>, IComparer<SemanticVersion>
     {
-        private static readonly ValidationRuleCollection<SemanticVersion, object> VersionRules = 
-            ValidationRuleCollection
-                .For<SemanticVersion>()
-                .Reject(b => b.When(x => x.Major < 0))
-                .Reject(b => b.When(x => x.Minor < 0))
-                .Reject(b => b.When(x => x.Patch < 0));
+        // private static readonly ValidationRuleCollection<SemanticVersion, object> VersionRules = 
+        //     ValidationRuleCollection
+        //         .For<SemanticVersion>()
+        //         .Reject(b => b.When(x => x.Major < 0))
+        //         .Reject(b => b.When(x => x.Minor < 0))
+        //         .Reject(b => b.When(x => x.Patch < 0));
         
 
         private static readonly string Pattern;
@@ -40,7 +39,7 @@ namespace Reusable
             Minor = minor;
             Patch = patch;
             Labels = labels.ToImmutableList();
-            this.ValidateWith(VersionRules).ThrowOnFailure();
+            //this.ValidateWith(VersionRules).ThrowOnFailure();
         }
 
         public SemanticVersion(int major, int minor, int patch)

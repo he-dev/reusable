@@ -31,9 +31,26 @@ namespace Reusable.OmniLog.Nodes
             {
                 foreach (var item in current.Value.Consume())
                 {
-                    foreach (var property in CreateProperties(item))
+                    var nodes = item switch
                     {
-                        request.Push(property);
+                        Action<ILogEntry> action => new[] { action },
+                        IEnumerable<Action<ILogEntry>> actions => actions,
+                        _ => default
+                    };
+
+                    if (nodes is {})
+                    {
+                        foreach (var node in nodes)
+                        {
+                            node(request);
+                        }
+                    }
+                    else
+                    {
+                        foreach (var property in CreateProperties(item))
+                        {
+                            request.Push(property);
+                        }
                     }
                 }
 

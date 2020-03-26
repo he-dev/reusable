@@ -4,7 +4,6 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
-using Reusable.Beaver.Policies;
 
 namespace Reusable.Beaver
 {
