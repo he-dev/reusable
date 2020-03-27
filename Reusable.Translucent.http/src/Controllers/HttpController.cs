@@ -19,13 +19,11 @@ namespace Reusable.Translucent.Controllers
     [PublicAPI]
     public class HttpController : ResourceController<HttpRequest>
     {
-        private readonly HttpClient _client;
+        private HttpClient? _client;
 
-        public HttpController(HttpClient httpClient) : base(httpClient.BaseAddress.ToString())
-        {
-            _client = httpClient;
-            _client.DefaultRequestHeaders.Clear();
-        }
+        public Func<HttpClient> CreateHttpClient { get; set; }
+
+        public override string? BaseUri => HttpClient.BaseAddress.ToString();
 
         public JsonSerializer Serializer { get; set; } = new JsonSerializer
         {
@@ -39,16 +37,7 @@ namespace Reusable.Translucent.Controllers
 
         public List<Action<HttpRequestHeaders>> HeaderActions { get; set; } = new List<Action<HttpRequestHeaders>>();
 
-        /// <summary>
-        /// Create a HttpProvider that doesn't use a proxy for requests.
-        /// </summary>
-        public static HttpController FromBaseUri(string baseUri)
-        {
-            return new HttpController(new HttpClient(new HttpClientHandler { UseProxy = false })
-            {
-                BaseAddress = new Uri(baseUri)
-            });
-        }
+        private HttpClient HttpClient => _client ??= CreateHttpClient();
 
         public override async Task<Response> ReadAsync(HttpRequest request) => await InvokeAsync(HttpMethod.Get, request);
 
@@ -76,7 +65,7 @@ namespace Reusable.Translucent.Controllers
                 headerAction(requestMessage.Headers);
             }
 
-            using var responseMessage = await _client.SendAsync(requestMessage, HttpCompletionOption.ResponseContentRead, request.CancellationToken).ConfigureAwait(false);
+            using var responseMessage = await HttpClient.SendAsync(requestMessage, HttpCompletionOption.ResponseContentRead, request.CancellationToken).ConfigureAwait(false);
 
             var responseContentCopy = new MemoryStream();
 
@@ -96,6 +85,6 @@ namespace Reusable.Translucent.Controllers
             };
         }
 
-        public override void Dispose() => _client.Dispose();
+        public override void Dispose() => HttpClient.Dispose();
     }
 }

@@ -105,7 +105,7 @@ namespace Reusable.OmniLog.Extensions
         public static void Log(this ILogger logger, params object[] items)
         {
             logger.PushProperties(items?.Where(x => x is {}));
-            logger.Log(new LogEntry());
+            logger.Log(LogEntry.Empty());
         }
 
         public static void Log

@@ -6,7 +6,7 @@ using Reusable.OmniLog.Data;
 
 namespace Reusable.OmniLog.Extensions
 {
-    public delegate void Link<in T>(ILogEntry log, T from);
+    public delegate void Link<in T>(ILogEntry log, T from = default);
 
     public interface ITelemetry { }
 
@@ -24,15 +24,15 @@ namespace Reusable.OmniLog.Extensions
 
     public interface ITelemetryCategoryLogic { }
 
-    public interface ITelemetryCategoryEvent { }
-
     // Units
 
     public interface ITelemetryUnit { }
 
-    // Extensions
+    // Other
 
     public interface IDecision { }
+
+    // Extensions
 
     public static class Telemetry
     {
@@ -41,43 +41,43 @@ namespace Reusable.OmniLog.Extensions
 
     public static class TelemetryLayers
     {
-        public static Link<ITelemetryCategoryDependency?> Dependency(this Link<ITelemetry?> telemetry) => (log, _) => telemetry(log, default);
+        public static Link<ITelemetryCategoryDependency?> Dependency(this Link<ITelemetry?> telemetry) => (log, _) => telemetry(log);
 
-        public static Link<ITelemetryLayer?> File(this Link<ITelemetryCategoryDependency?> telemetry) => (log, _) => telemetry(log.Layer(nameof(File)), default);
-        public static Link<ITelemetryLayer?> Directory(this Link<ITelemetryCategoryDependency?> telemetry) => (log, _) => telemetry(log.Layer(nameof(Directory)), default);
-        public static Link<ITelemetryLayer?> Http(this Link<ITelemetryCategoryDependency?> telemetry) => (log, _) => telemetry(log.Layer(nameof(Http)), default);
-        public static Link<ITelemetryLayer?> Database(this Link<ITelemetryCategoryDependency?> telemetry) => (log, _) => telemetry(log.Layer(nameof(Database)), default);
-        public static Link<ITelemetryLayer?> Resource(this Link<ITelemetryCategoryDependency?> telemetry) => (log, _) => telemetry(log.Layer(nameof(Resource)), default);
-        public static Link<ITelemetryLayer?> Network(this Link<ITelemetryCategoryDependency?> telemetry) => (log, _) => telemetry(log.Layer(nameof(Network)), default);
+        public static Link<ITelemetryLayer?> File(this Link<ITelemetryCategoryDependency?> telemetry) => (log, _) => telemetry(log.Layer(nameof(File)));
+        public static Link<ITelemetryLayer?> Directory(this Link<ITelemetryCategoryDependency?> telemetry) => (log, _) => telemetry(log.Layer(nameof(Directory)));
+        public static Link<ITelemetryLayer?> Http(this Link<ITelemetryCategoryDependency?> telemetry) => (log, _) => telemetry(log.Layer(nameof(Http)));
+        public static Link<ITelemetryLayer?> Database(this Link<ITelemetryCategoryDependency?> telemetry) => (log, _) => telemetry(log.Layer(nameof(Database)));
+        public static Link<ITelemetryLayer?> Resource(this Link<ITelemetryCategoryDependency?> telemetry) => (log, _) => telemetry(log.Layer(nameof(Resource)));
+        public static Link<ITelemetryLayer?> Network(this Link<ITelemetryCategoryDependency?> telemetry) => (log, _) => telemetry(log.Layer(nameof(Network)));
 
-        public static Link<ITelemetryLayer?> Application(this Link<ITelemetry?> telemetry) => (log, _) => telemetry(log.Layer(nameof(Application)), default);
-        public static Link<ITelemetryLayer?> Business(this Link<ITelemetry?> telemetry) => (log, _) => telemetry(log.Layer(nameof(Business)), default);
-        public static Link<ITelemetryLayer?> Presentation(this Link<ITelemetry?> telemetry) => (log, _) => telemetry(log.Layer(nameof(Presentation)), default);
+        public static Link<ITelemetryLayer?> Application(this Link<ITelemetry?> telemetry) => (log, _) => telemetry(log.Layer(nameof(Application)));
+        public static Link<ITelemetryLayer?> Business(this Link<ITelemetry?> telemetry) => (log, _) => telemetry(log.Layer(nameof(Business)));
+        public static Link<ITelemetryLayer?> Presentation(this Link<ITelemetry?> telemetry) => (log, _) => telemetry(log.Layer(nameof(Presentation)));
     }
 
     public static class TelemetryCategories
     {
-        public static Link<ITelemetryCategoryProcess?> Task(this Link<ITelemetryLayer?> telemetry, string name) => (log, _) => telemetry(log.Category(nameof(Task)).Unit(name), default);
-        public static Link<ITelemetryCategoryLogic?> Logic(this Link<ITelemetryLayer?> telemetry) => (log, _) => telemetry(log.Category(nameof(Logic)), default);
+        public static Link<ITelemetryCategoryProcess?> Task(this Link<ITelemetryLayer?> telemetry, string name) => (log, _) => telemetry(log.Category(nameof(Task)).Unit(name));
+        public static Link<ITelemetryCategoryLogic?> Logic(this Link<ITelemetryLayer?> telemetry) => (log, _) => telemetry(log.Category(nameof(Logic)));
 
-        public static Action<ILogEntry> Metric(this Link<ITelemetryLayer?> telemetry, string name, double value) => (log) => telemetry(log.Category(nameof(Metric)).Unit(name, value), default);
-        public static Action<ILogEntry> Metric(this Link<ITelemetryLayer?> telemetry, string name, string value) => (log) => telemetry(log.Category(nameof(Metric)).Unit(name, value), default);
+        public static Action<ILogEntry> Metric(this Link<ITelemetryLayer?> telemetry, string name, double value) => (log) => telemetry(log.Category(nameof(Metric)).Unit(name, value));
+        public static Action<ILogEntry> Metric(this Link<ITelemetryLayer?> telemetry, string name, string value) => (log) => telemetry(log.Category(nameof(Metric)).Unit(name, value));
 
-        public static Action<ILogEntry> Argument(this Link<ITelemetryLayer?> telemetry, string name, object value) => (log) => telemetry(log.Category(nameof(Argument)).Unit(name, value), default);
-        public static Action<ILogEntry> Variable(this Link<ITelemetryLayer?> telemetry, string name, object value) => (log) => telemetry(log.Category(nameof(Variable)).Unit(name, value), default);
-        public static Action<ILogEntry> Property(this Link<ITelemetryLayer?> telemetry, string name, object value) => (log) => telemetry(log.Category(nameof(Property)).Unit(name, value), default);
-        public static Action<ILogEntry> Metadata(this Link<ITelemetryLayer?> telemetry, string name, object value) => (log) => telemetry(log.Category(nameof(Metadata)).Unit(name, value), default);
-        public static Action<ILogEntry> WorkItem(this Link<ITelemetryLayer?> telemetry, string name, object value) => (log) => telemetry(log.Category(nameof(WorkItem)).Unit(name, value), default);
+        public static Action<ILogEntry> Argument(this Link<ITelemetryLayer?> telemetry, string name, object value) => (log) => telemetry(log.Category(nameof(Argument)).Unit(name, value));
+        public static Action<ILogEntry> Variable(this Link<ITelemetryLayer?> telemetry, string name, object value) => (log) => telemetry(log.Category(nameof(Variable)).Unit(name, value));
+        public static Action<ILogEntry> Property(this Link<ITelemetryLayer?> telemetry, string name, object value) => (log) => telemetry(log.Category(nameof(Property)).Unit(name, value));
+        public static Action<ILogEntry> Metadata(this Link<ITelemetryLayer?> telemetry, string name, object value) => (log) => telemetry(log.Category(nameof(Metadata)).Unit(name, value));
+        public static Action<ILogEntry> WorkItem(this Link<ITelemetryLayer?> telemetry, string name, object value) => (log) => telemetry(log.Category(nameof(WorkItem)).Unit(name, value));
     }
 
     public static class TelemetryUnits
     {
-        public static Action<ILogEntry> Unit(this Link<ITelemetryUnit?> telemetry, string name, object? value = default) => (log) => telemetry(log.Unit(name, value), default);
+        public static Action<ILogEntry> Unit(this Link<ITelemetryUnit?> telemetry, string name, object? value = default) => (log) => telemetry(log.Unit(name, value));
 
-        public static Action<ILogEntry> Status(this Link<ITelemetryCategoryProcess?> telemetry, FlowStatus status, object? workItem = default) => (log) => telemetry(log.Snapshot(new { status, workItem }), default);
-        
-        public static Link<IDecision> Decision(this Link<ITelemetryCategoryLogic?> telemetry, string decision) => (log, _) => telemetry(log.Unit(nameof(Decision), decision), default);
-        public static Action<ILogEntry> Because(this Link<IDecision?> telemetry, string reason) => (log) => telemetry(log.Message(reason), default);
+        public static Action<ILogEntry> Status(this Link<ITelemetryCategoryProcess?> telemetry, FlowStatus status, object? item = default) => (log) => telemetry(log.Snapshot(new { status, item }));
+
+        public static Link<IDecision> Decision(this Link<ITelemetryCategoryLogic?> telemetry, string decision) => (log, _) => telemetry(log.Unit(nameof(Decision), decision));
+        public static Action<ILogEntry> Because(this Link<IDecision?> telemetry, string reason) => (log) => telemetry(log.Message(reason));
     }
 
     public static class TelemetryPopular

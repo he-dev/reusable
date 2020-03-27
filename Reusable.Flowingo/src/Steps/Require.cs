@@ -14,16 +14,7 @@ namespace Reusable.Flowingo.Steps
 
         protected override Task<Flow> ExecuteBody(T context)
         {
-            if (That.Invoke(context) is var canExecuteNext && canExecuteNext)
-            {
-                Logger?.Log(Execution.Context.Service().Flow().Decision("Do not execute next step.", because: $"The required condition #{Tag} is not met."));
-            }
-            else
-            {
-                Logger?.Log(Execution.Context.Service().Flow().Decision("Execute next step.", because: $"The required condition #{Tag} is met."));
-            }
-
-            return (canExecuteNext ? Flow.Continue : Flow.Break).ToTask();
+            return (That.Invoke(context) ? Flow.Continue : Flow.Break).ToTask();
         }
     }
 }

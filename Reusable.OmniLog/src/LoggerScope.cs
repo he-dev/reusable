@@ -66,7 +66,7 @@ namespace Reusable.OmniLog
                     .Status(Helpers.GetFlowStatus(exception), WorkItem)
                     .Level(Helpers.GetLogLevel(exception))
                     .Exception(exception)
-                    .Then(x => x.CallSite(CallSite))
+                    .Then(x => x.CallSite(CallSite).Priority(LogEntryPriority.High))
             );
 
             AsyncScope<ILoggerScope>.Current?.Dispose();

@@ -35,11 +35,6 @@ namespace Reusable.Translucent.Abstractions
     [DebuggerDisplay(DebuggerDisplayString.DefaultNoQuotes)]
     public abstract class ResourceController<T> : IResourceController where T : Request
     {
-        protected ResourceController(string? baseUri = default)
-        {
-            BaseUri = baseUri;
-        }
-
         private string DebuggerDisplay => this.ToDebuggerDisplayString(builder =>
         {
             builder.DisplaySingle(c => c.Name);
@@ -52,7 +47,7 @@ namespace Reusable.Translucent.Abstractions
 
         public ISet<SoftString> Tags { get; } = new SortedSet<SoftString>();
 
-        public string? BaseUri { get; }
+        public virtual string? BaseUri { get; }
 
         public Type RequestType => typeof(T);
 

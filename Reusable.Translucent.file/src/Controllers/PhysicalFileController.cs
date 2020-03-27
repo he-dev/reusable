@@ -11,7 +11,12 @@ namespace Reusable.Translucent.Controllers
     [PublicAPI]
     public class PhysicalFileResourceController : ResourceController<FileRequest>
     {
-        public PhysicalFileResourceController(string? baseUri = default) : base(baseUri) { }
+        public PhysicalFileResourceController(string? baseUri = default)
+        {
+            BaseUri = baseUri;
+        }
+
+        public override string? BaseUri { get; }
 
         public override Task<Response> ReadAsync(FileRequest request)
         {
@@ -54,6 +59,4 @@ namespace Reusable.Translucent.Controllers
                         : path;
         }
     }
-    
-    
 }

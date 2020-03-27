@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using JetBrains.Annotations;
 using Reusable.OmniLog.Abstractions;
 using Reusable.Collections.Generic;
 using Reusable.OmniLog.Data;
@@ -12,10 +13,6 @@ using CallSite = Reusable.OmniLog.Data.CallSite;
 
 namespace Reusable.OmniLog.Nodes
 {
-    public delegate void OnBeginScopeDelegate(ILogger logger, string scopeName, CallSite callSite);
-
-    public delegate void OnEndScopeDelegate(ILogger logger, Exception? exception, CallSite? callSite);
-
     /// <summary>
     /// This node turn logger-scope on or off. By default it logs BeginScope and EndScope entries for each scope.
     /// </summary>
@@ -34,6 +31,7 @@ namespace Reusable.OmniLog.Nodes
                     ?? throw new InvalidOperationException($"Cannot use {nameof(Current)} when {nameof(ToggleScope)} is disabled. Use Logger.BeginScope() first.");
             }
         }
+
         public ILoggerScope Push(ILogger logger, string name, object? workItem, CallSite callSite)
         {
             try
@@ -79,6 +77,7 @@ namespace Reusable.OmniLog.Nodes
         /// <summary>
         /// Creates a new scope that is open until disposed.
         /// </summary>
+        [MustUseReturnValue]
         public static ILoggerScope BeginScope
         (
             this ILogger logger,

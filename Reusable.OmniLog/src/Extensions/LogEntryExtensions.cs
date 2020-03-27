@@ -76,5 +76,9 @@ namespace Reusable.OmniLog.Extensions
                 }
             });
         }
+        
+        public static ILogEntry Priority(this ILogEntry logEntry, LogEntryPriority priority) => logEntry.Push(Names.Properties.Priority, priority, m => m.ProcessWith<Echo>());
+        
+        public static ILogEntry Important(this ILogEntry logEntry) => logEntry.Priority(LogEntryPriority.High);
     }
 }

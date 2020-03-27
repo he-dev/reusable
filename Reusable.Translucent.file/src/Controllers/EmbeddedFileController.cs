@@ -13,10 +13,13 @@ namespace Reusable.Translucent.Controllers
     {
         private readonly Assembly _assembly;
 
-        public EmbeddedFileController(string baseUri, Assembly assembly) : base(baseUri)
+        public EmbeddedFileController(string baseUri, Assembly assembly)
         {
+            BaseUri = baseUri;
             _assembly = assembly;
         }
+        
+        public override string BaseUri { get; }
 
         public override Task<Response> ReadAsync(FileRequest request)
         {

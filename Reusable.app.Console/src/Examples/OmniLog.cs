@@ -118,6 +118,7 @@ namespace Reusable
                 {
                     logger.Information("This message is delayed.");
                     logger.Information("This message is delayed too.");
+                    logger.Information("This message is logged anyway.", l => l.Important());
                     //logger.Information("This message overrides the transaction as first.", LoggerTransaction.Override);
                     logger.Scope().Buffer().Flush();
                 }

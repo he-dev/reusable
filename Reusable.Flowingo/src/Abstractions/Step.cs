@@ -40,27 +40,27 @@ namespace Reusable.Flowingo.Abstractions
 
         public virtual async Task ExecuteAsync(T context)
         {
-            try
+            using (Logger?.BeginScope("ExecuteStep", new { Tag }))
             {
-                using var scope = Logger?.BeginScope("ExecuteStep");
-                Logger?.Log(Execution.Context.WorkItem("Step", new { name = GetType().ToPrettyString(), Tag }));
-                var flow = await ExecuteBody(context).ContinueWith(t =>
+                try
                 {
-                    Logger?.Log(Execution.Context.Service().Meta("workflowExecution", t.Result));
-                    Logger?.Scope().Exceptions.Push(t.Exception);
-                    
-                    return (t.Exception is null || t.Result == Flow.Continue) ? Flow.Continue : Flow.Break;
-                });
-
-                if (flow == Flow.Continue)
+                    if (await ExecuteBody(context) == Flow.Break)
+                    {
+                        Logger?.Log(Telemetry.Collect.Application().Logic().Decision("Do not execute the next step.").Because($"{Flow.Break}"));
+                        return;
+                    }
+                    else
+                    {
+                        Logger?.Log(Telemetry.Collect.Application().Logic().Decision("Execute the next step.").Because($"{Flow.Continue}"));
+                    }
+                }
+                catch (Exception e)
                 {
-                    await ExecuteNextAsync(context);
+                    Logger?.Scope().Exceptions.Push(e);
                 }
             }
-            catch (Exception inner)
-            {
-                Logger?.Scope().Exceptions.Push(inner);
-            }
+
+            await ExecuteNextAsync(context);
         }
 
         protected abstract Task<Flow> ExecuteBody(T context);
@@ -75,11 +75,6 @@ namespace Reusable.Flowingo.Abstractions
 
         public class Continue : Step<T>
         {
-            public Continue()
-            {
-                Tag = nameof(Continue).ToLower();
-            }
-
             public override Task ExecuteAsync(T context) => ExecuteNextAsync(context);
 
             protected override Task<Flow> ExecuteBody(T context) => Flow.Continue.ToTask();
@@ -87,11 +82,6 @@ namespace Reusable.Flowingo.Abstractions
 
         public class Break : Step<T>
         {
-            public Break()
-            {
-                Tag = nameof(Continue).ToLower();
-            }
-
             public override Task ExecuteAsync(T context) => ExecuteNextAsync(context);
 
             protected override Task<Flow> ExecuteBody(T context) => Flow.Break.ToTask();
@@ -112,11 +102,5 @@ namespace Reusable.Flowingo.Abstractions
                 return $"-{m.Value.Trim('<')}";
             }).ToLower();
         }
-    }
-
-    public enum StepState
-    {
-        Begin,
-        End
     }
 }

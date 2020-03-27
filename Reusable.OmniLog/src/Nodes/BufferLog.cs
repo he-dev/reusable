@@ -15,8 +15,15 @@ namespace Reusable.OmniLog.Nodes
 
         public override void Invoke(ILogEntry request)
         {
-            _buffer.Enqueue(request);
-            // Don't call Next until Flush.
+            if (request.TryGetProperty(Names.Properties.Priority, out var property) && property.Value.Equals(LogEntryPriority.High))
+            {
+                InvokeNext(request);
+            }
+            else
+            {
+                _buffer.Enqueue(request);
+                // Don't call Next until Flush.
+            }
         }
 
         public int Count => _buffer.Count;

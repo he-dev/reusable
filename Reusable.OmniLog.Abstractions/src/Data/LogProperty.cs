@@ -70,6 +70,7 @@ namespace Reusable.OmniLog
             public const string CallerMemberName = nameof(CallerMemberName);
             public const string CallerLineNumber = nameof(CallerLineNumber);
             public const string CallerFilePath = nameof(CallerFilePath);
+            public const string Priority = nameof(Priority);
         }
 
         public abstract class Categories
