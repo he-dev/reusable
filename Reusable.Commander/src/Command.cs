@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Custom;
 using System.Reflection;
@@ -7,11 +6,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Reusable.Extensions;
-using Reusable.OmniLog.Abstractions;
-using Autofac;
-using Autofac.Builder;
 using Reusable.Commander.Annotations;
-using Reusable.Commander.Commands;
 using Reusable.Exceptionize;
 
 namespace Reusable.Commander

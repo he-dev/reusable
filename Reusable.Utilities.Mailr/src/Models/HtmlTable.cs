@@ -101,11 +101,9 @@ namespace Reusable.Utilities.Mailr.Models
         }
 
         [JsonIgnore]
-        [NotNull]
         public HtmlTableCell this[SoftString name] => this.Single(cell => cell.Column.Name.Equals(name));
 
         [JsonIgnore]
-        [NotNull]
         public HtmlTableCell this[int ordinal] => this.Single(cell => cell.Column.Ordinal.Equals(ordinal));
 
         public IEnumerator<HtmlTableCell> GetEnumerator() => _cells.GetEnumerator();
@@ -124,9 +122,9 @@ namespace Reusable.Utilities.Mailr.Models
         public HtmlTableColumn Column { get; }
 
         [Obsolete("Use 'Tags'.")]
-        public ISet<string> Styles { get; } = new HashSet<string>(SoftString.Comparer);
+        public HashSet<string> Styles { get; } = new HashSet<string>(SoftString.Comparer);
 
-        public ISet<string> Tags { get; } = new HashSet<string>(SoftString.Comparer);
+        public HashSet<string> Tags { get; } = new HashSet<string>(SoftString.Comparer);
 
         public object Value { get; set; }
 
@@ -166,7 +164,7 @@ namespace Reusable.Utilities.Mailr.Models
         [CanBeNull]
         public static T ValueOrDefault<T>(this HtmlTableRow row, int ordinal) => row[ordinal] is T value ? value : default;
 
-        public static HtmlTableRow Set(this HtmlTableRow row, string column, object value, params string[] tags)
+        public static HtmlTableRow Set(this HtmlTableRow row, string column, object? value, params string[] tags)
         {
             row[column].Value = value;
             row[column].Tags.UnionWith(tags);

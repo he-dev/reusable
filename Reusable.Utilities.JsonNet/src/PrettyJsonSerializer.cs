@@ -14,7 +14,7 @@ namespace Reusable.Utilities.JsonNet
 {
     public interface IPrettyJsonSerializer
     {
-        T Deserialize<T>(string json, IImmutableDictionary<SoftString, Type> knownTypes);
+        T Deserialize<T>(string json, IImmutableDictionary<string, Type> knownTypes);
     }
 
     [PublicAPI]
@@ -38,7 +38,7 @@ namespace Reusable.Utilities.JsonNet
             configure?.Invoke(jsonSerializer);
         }
 
-        public T Deserialize<T>(string json, IImmutableDictionary<SoftString, Type> knownTypes)
+        public T Deserialize<T>(string json, IImmutableDictionary<string, Type> knownTypes)
         {
             var visitor = new CompositeJsonVisitor
             {
@@ -52,12 +52,12 @@ namespace Reusable.Utilities.JsonNet
 
     public interface IConvertPrettyJson
     {
-        JToken Read(string json, IImmutableDictionary<SoftString, Type> knownTypes);
+        JToken Read(string json, IImmutableDictionary<string, Type> knownTypes);
     }
 
     public class ConvertPrettyJson : IConvertPrettyJson
     {
-        public JToken Read(string json, IImmutableDictionary<SoftString, Type> knownTypes)
+        public JToken Read(string json, IImmutableDictionary<string, Type> knownTypes)
         {
             var visitor = new CompositeJsonVisitor
             {
@@ -70,7 +70,7 @@ namespace Reusable.Utilities.JsonNet
 
     public static class PrettyJsonSerializerExtensions
     {
-        public static async Task<T> DeserializeAsync<T>(this IPrettyJsonSerializer serializer, Stream jsonStream, IImmutableDictionary<SoftString, Type> knownTypes)
+        public static async Task<T> DeserializeAsync<T>(this IPrettyJsonSerializer serializer, Stream jsonStream, IImmutableDictionary<string, Type> knownTypes)
         {
             return serializer.Deserialize<T>(await ReadJsonAsync(jsonStream), knownTypes);
         }

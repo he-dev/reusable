@@ -1,4 +1,5 @@
 using System;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
@@ -44,6 +45,7 @@ namespace Reusable.Flowingo.Abstractions
             {
                 try
                 {
+                    Validator.ValidateObject(this, new ValidationContext(this), true);
                     if (await ExecuteBody(context) == Flow.Break)
                     {
                         Logger?.Log(Telemetry.Collect.Application().Logic().Decision("Do not execute the next step.").Because($"{Flow.Break}"));
@@ -67,25 +69,25 @@ namespace Reusable.Flowingo.Abstractions
 
         protected async Task ExecuteNextAsync(T context)
         {
-            if (this.EnumerateNextWithoutSelf<IStep<T>>().FirstOrDefault(s => !(s is Continue) && s.Enabled) is {} next)
+            if (this.EnumerateNextWithoutSelf<IStep<T>>().FirstOrDefault(s => !(s is Continue<T>) && s.Enabled) is {} next)
             {
                 await next.ExecuteAsync(context);
             }
         }
+    }
 
-        public class Continue : Step<T>
-        {
-            public override Task ExecuteAsync(T context) => ExecuteNextAsync(context);
+    public class Continue<T> : Step<T>
+    {
+        public override Task ExecuteAsync(T context) => ExecuteNextAsync(context);
 
-            protected override Task<Flow> ExecuteBody(T context) => Flow.Continue.ToTask();
-        }
+        protected override Task<Flow> ExecuteBody(T context) => Flow.Continue.ToTask();
+    }
 
-        public class Break : Step<T>
-        {
-            public override Task ExecuteAsync(T context) => ExecuteNextAsync(context);
+    public class Break<T> : Step<T>
+    {
+        public override Task ExecuteAsync(T context) => ExecuteNextAsync(context);
 
-            protected override Task<Flow> ExecuteBody(T context) => Flow.Break.ToTask();
-        }
+        protected override Task<Flow> ExecuteBody(T context) => Flow.Break.ToTask();
     }
 
     public static class StepHelper

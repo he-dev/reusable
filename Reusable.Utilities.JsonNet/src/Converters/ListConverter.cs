@@ -1,39 +1,34 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 using System.Linq.Custom;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Reusable.Exceptionize;
 using Reusable.Extensions;
+using Reusable.Reflection;
 
 namespace Reusable.Utilities.JsonNet.Converters
 {
-    public class ListConverter<TItemBase> : JsonConverter
+    public class ListConverter<T> : JsonConverter
     {
-        // ReSharper disable once StaticMemberInGenericType - We want this to be static for the current type.
-        private static readonly IDictionary<string, Type> Types;
-
-        static ListConverter()
+        public ListConverter(string typePropertyName = "$t")
         {
-            Types =
-                typeof(TItemBase)
-                    .Assembly
-                    .GetTypes()
-                    .Where(t => t.IsClass && typeof(TItemBase).IsAssignableFrom(t))
-                    .ToDictionary(t => t.Name, SoftString.Comparer);
+            TypePropertyName = typePropertyName;
+            Types = TypeHelper.GetTypesAssignableFrom<T>().ToImmutableDictionary(t => t.ToPrettyString());
         }
+        
+        public string TypePropertyName { get; }
+
+        public IImmutableDictionary<string, Type> Types { get; set; }
 
         public override bool CanConvert(Type objectType)
         {
             return
                 objectType.IsGenericType &&
-                objectType.GetGenericTypeDefinition().In(
-                    typeof(IEnumerable<>),
-                    typeof(IList<>),
-                    typeof(List<>)
-                );
+                objectType.GetInterfaces().Any(i => i == typeof(IList<T>));
         }
 
         public override object ReadJson(JsonReader reader, Type objectType, object? existingValue, JsonSerializer serializer)
@@ -51,7 +46,7 @@ namespace Reusable.Utilities.JsonNet.Converters
                     case JsonToken.StartObject:
                     {
                         var typeToken = JToken.ReadFrom(reader);
-                        var typeName = typeToken.SelectToken("$.$t")?.Value<string>() ?? throw DynamicException.Create("TypeNameNotFound", $"Type name is missing at '{reader.Path}'.");
+                        var typeName = typeToken.SelectToken($"$.{TypePropertyName}")?.Value<string>() ?? throw DynamicException.Create("TypeNameNotFound", $"Type name is missing at '{reader.Path}'.");
                         var obj = serializer.Deserialize(typeToken.CreateReader(), Types[typeName]);
                         collection.Add(obj);
                     }

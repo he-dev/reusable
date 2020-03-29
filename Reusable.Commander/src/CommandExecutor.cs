@@ -10,7 +10,6 @@ using Autofac;
 using JetBrains.Annotations;
 using Reusable.Exceptionize;
 using Reusable.Extensions;
-using Reusable.OmniLog;
 using Reusable.OmniLog.Extensions;
 using Reusable.OmniLog.Abstractions;
 

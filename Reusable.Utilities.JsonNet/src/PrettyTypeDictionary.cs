@@ -14,9 +14,9 @@ namespace Reusable.Utilities.JsonNet
         /// <summary>
         /// Gets a dictionary of primitive types.
         /// </summary>
-        public static readonly IImmutableDictionary<SoftString, Type> BuiltInTypes =
-            ImmutableDictionary<SoftString, Type>
-                .Empty
+        public static readonly IImmutableDictionary<string, Type> BuiltInTypes =
+            ImmutableDictionary
+                .Create<string, Type>(SoftString.Comparer)
                 .Add("bool", typeof(Boolean))
                 .Add("byte", typeof(Byte))
                 .Add("sbyte", typeof(SByte))
@@ -33,7 +33,7 @@ namespace Reusable.Utilities.JsonNet
                 .Add("ushort", typeof(UInt16))
                 .Add("string", typeof(String));
 
-        public static IImmutableDictionary<SoftString, Type> From(IEnumerable<Assembly> assemblies)
+        public static IImmutableDictionary<string, Type> From(IEnumerable<Assembly> assemblies)
         {
             var assemblyTypes =
                 from assembly in assemblies
@@ -43,8 +43,10 @@ namespace Reusable.Utilities.JsonNet
             return From(assemblyTypes);
         }
 
-        public static IImmutableDictionary<SoftString, Type> From(IEnumerable<Type> types)
+        public static IImmutableDictionary<string, Type> From(IEnumerable<Type> types, IComparer<string>? keyComparer = default)
         {
+            keyComparer ??= SoftString.Comparer;
+
             var items =
                 from type in types.Pipe(t => t.ValidateHasNoGenericArguments())
                 let prettyName = type.ToPrettyString()
@@ -56,10 +58,10 @@ namespace Reusable.Utilities.JsonNet
                         ? new[] { (prettyName, type) }
                         : ns.Select(n => (prettyName: $"{n}.{prettyName}", type));
 
-            return items.SelectMany(x => x).ToImmutableDictionary(t => t.prettyName.ToSoftString()!, t => t.type);
+            return items.SelectMany(x => x).ToImmutableSortedDictionary(t => t.prettyName, t => t.type, keyComparer);
         }
 
-        public static IImmutableDictionary<SoftString, Type> From(params Type[] types) => From(types.AsEnumerable());
+        public static IImmutableDictionary<string, Type> From(params Type[] types) => From(types.AsEnumerable());
 
         private static bool IsDynamicType(this string name)
         {

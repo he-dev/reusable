@@ -7,15 +7,11 @@ using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Reusable.Commander.Annotations;
-using Reusable.Commander.Utilities;
 using Reusable.Data.Annotations;
 using Reusable.Extensions;
-using Reusable.MarkupBuilder.Html;
-using Reusable.OmniLog;
 using Reusable.OmniLog.Abstractions;
 using Reusable.OmniLog.Data;
 using Reusable.OmniLog.Extensions;
-using Reusable.OmniLog.Utilities;
 using t = Reusable.Commander.ConsoleTemplates;
 
 namespace Reusable.Commander.Commands

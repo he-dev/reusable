@@ -5,6 +5,7 @@ using System.Runtime.CompilerServices;
 using JetBrains.Annotations;
 using Reusable.OmniLog.Abstractions;
 using Reusable.Collections.Generic;
+using Reusable.Extensions;
 using Reusable.OmniLog.Data;
 using Reusable.OmniLog.Extensions;
 using CallSite = Reusable.OmniLog.Data.CallSite;
@@ -90,6 +91,35 @@ namespace Reusable.OmniLog.Nodes
         {
             return logger.Node<ToggleScope>().Push(logger, name, workItem, new CallSite(callerMemberName, callerLineNumber, callerFilePath));
         }
+        
+        [MustUseReturnValue]
+        public static ILoggerScope BeginScope<T>
+        (
+            this ILogger logger,
+            object? workItem = default,
+            [CallerMemberName] string? callerMemberName = null,
+            [CallerLineNumber] int callerLineNumber = 0,
+            [CallerFilePath] string? callerFilePath = null
+        )
+        {
+            return logger.Node<ToggleScope>().Push(logger, typeof(T).ToPrettyString(), workItem, new CallSite(callerMemberName, callerLineNumber, callerFilePath));
+        }
+        
+        [MustUseReturnValue]
+        public static ILoggerScope BeginScope<T>
+        (
+            this ILogger logger,
+            T instance,
+            object? workItem = default,
+            [CallerMemberName] string? callerMemberName = null,
+            [CallerLineNumber] int callerLineNumber = 0,
+            [CallerFilePath] string? callerFilePath = null
+        )
+        {
+            return logger.Node<ToggleScope>().Push(logger, typeof(T).ToPrettyString(), workItem, new CallSite(callerMemberName, callerLineNumber, callerFilePath));
+        }
+        
+        
 
         /// <summary>
         /// Gets the current scope.

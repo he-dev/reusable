@@ -52,6 +52,8 @@ namespace Reusable.Collections
             );
         }
     }
+    
+    //public delegate bool EqualsDelegate<T>([all])
 
     public static class EqualityComparerFactory<T>
     {

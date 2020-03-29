@@ -30,7 +30,7 @@ namespace Reusable.Flexo
 
         public ExpressionSerializer
         (
-            IImmutableDictionary<SoftString, Type> expressionTypes,
+            IImmutableDictionary<string, Type> expressionTypes,
             IContractResolver contractResolver,
             Action<JsonSerializer>? configureSerializer = null
         )

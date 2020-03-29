@@ -76,7 +76,7 @@ namespace Reusable.OmniLog.Extensions
 
         public static Action<ILogEntry> Status(this Link<ITelemetryCategoryProcess?> telemetry, FlowStatus status, object? item = default) => (log) => telemetry(log.Snapshot(new { status, item }));
 
-        public static Link<IDecision> Decision(this Link<ITelemetryCategoryLogic?> telemetry, string decision) => (log, _) => telemetry(log.Unit(nameof(Decision), decision));
+        public static Link<IDecision?> Decision(this Link<ITelemetryCategoryLogic?> telemetry, string decision) => (log, _) => telemetry(log.Unit(nameof(Decision), decision));
         public static Action<ILogEntry> Because(this Link<IDecision?> telemetry, string reason) => (log) => telemetry(log.Message(reason));
     }
 

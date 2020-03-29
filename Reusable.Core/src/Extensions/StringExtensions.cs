@@ -110,5 +110,10 @@ namespace Reusable.Extensions
         public static bool SoftEquals(this string? value, string? other) => SoftString.Comparer.Equals(value, other);
 
         public static string ToCamelCase(this string? value) => value is {} ? Regex.Replace(value, @"\A([A-Z]+)", m => m.Value.ToLower()) : string.Empty;
+
+        public static string Replace(this string? value, [RegexPattern] string pattern, string replacement = "", RegexOptions options = RegexOptions.None)
+        {
+            return value is {} ? Regex.Replace(value, pattern, replacement, options) : string.Empty;
+        }
     }
 }

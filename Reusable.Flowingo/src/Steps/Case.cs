@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Threading.Tasks;
 using Reusable.Flowingo.Abstractions;
 using Reusable.Flowingo.Data;
@@ -8,9 +9,11 @@ namespace Reusable.Flowingo.Steps
 {
     public class Case<T> : Step<T>
     {
-        public IPredicate<T> When { get; set; }
+        [Required]
+        public IPredicate<T> When { get; set; } = default!;
 
-        public IStep<T> Then { get; set; }
+        [Required]
+        public IStep<T> Then { get; set; } = default!;
 
         public bool Break { get; set; } = true;
 

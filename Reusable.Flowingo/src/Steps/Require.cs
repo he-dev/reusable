@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Threading.Tasks;
 using Reusable.Extensions;
 using Reusable.Flowingo.Abstractions;
@@ -10,7 +11,8 @@ namespace Reusable.Flowingo.Steps
 {
     public class Require<T> : Step<T>
     {
-        public IPredicate<T> That { get; set; }
+        [Required]
+        public IPredicate<T> That { get; set; } = default!;
 
         protected override Task<Flow> ExecuteBody(T context)
         {

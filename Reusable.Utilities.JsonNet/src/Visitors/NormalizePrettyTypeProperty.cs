@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using JetBrains.Annotations;
 using Newtonsoft.Json.Linq;
+using Reusable.Extensions;
 using Reusable.Utilities.JsonNet.Services;
 
 namespace Reusable.Utilities.JsonNet.Visitors
@@ -20,11 +21,11 @@ namespace Reusable.Utilities.JsonNet.Visitors
             _normalizePrettyTypeString = normalizePrettyTypeString;
         }
 
-        public NormalizePrettyTypeProperty(IImmutableDictionary<SoftString, Type> types) : this(new NormalizePrettyTypeString(types)) { }
+        public NormalizePrettyTypeProperty(IImmutableDictionary<string, Type> types) : this(new NormalizePrettyTypeString(types)) { }
 
         protected override JProperty VisitProperty(JProperty property)
         {
-            if (ParseTypeName(property) is {} typeName)
+            if (!property.Name.Matches(@"^\$type") && ParseTypeName(property) is {} typeName)
             {
                 return new JProperty(DefaultTypePropertyName, _normalizePrettyTypeString.Format(typeName));
             }

@@ -13,7 +13,7 @@ namespace Reusable.Flexo
 {
     public class ExpressionSerializerModule : Module
     {
-        private readonly IImmutableDictionary<SoftString, Type> _expressionTypes;
+        private readonly IImmutableDictionary<string, Type> _expressionTypes;
         private readonly Action<JsonSerializer>? _configureSerializer;
 
         public ExpressionSerializerModule(IEnumerable<Type> expressionTypes, Action<JsonSerializer>? configureSerializer = default)

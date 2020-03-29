@@ -24,7 +24,7 @@ namespace Reusable.Utilities.JsonNet.Services
 
         public NormalizePrettyTypeString(IResolveType resolveType) => _resolveType = resolveType;
 
-        public NormalizePrettyTypeString(IImmutableDictionary<SoftString, Type> types) : this(new ResolveType(types)) { }
+        public NormalizePrettyTypeString(IImmutableDictionary<string, Type> types) : this(new ResolveType(types)) { }
 
         public string Format(string prettyType)
         {

@@ -21,5 +21,18 @@ namespace Reusable.Utilities.Autofac
                 builder.RegisterInstance(item).Pipe(configure);
             }
         }
+
+        public static void RegisterWith<T>
+        (
+            this IEnumerable<T> source,
+            ContainerBuilder builder,
+            Action<IRegistrationBuilder<T, SimpleActivatorData, SingleRegistrationStyle>>? configure = default
+        ) where T : class
+        {
+            foreach (var item in source)
+            {
+                builder.RegisterInstance(item).Pipe(configure);
+            }
+        }
     }
 }

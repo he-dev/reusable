@@ -11,12 +11,12 @@ namespace Reusable.Utilities.JsonNet.Services
     
     public class ResolveType : IResolveType
     {
-        public ResolveType(IImmutableDictionary<SoftString, Type> types)
+        public ResolveType(IImmutableDictionary<string, Type> types)
         {
             Types = types;
         }
 
-        private IImmutableDictionary<SoftString, Type> Types { get; }
+        private IImmutableDictionary<string, Type> Types { get; }
 
         public Type Invoke(string typeName)
         {

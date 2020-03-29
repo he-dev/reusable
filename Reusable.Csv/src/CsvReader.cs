@@ -10,6 +10,41 @@ using Reusable.Extensions;
 
 namespace Reusable.Csv
 {
+    public class CsvModel<T>
+    {
+        public void Map(int field, string value)
+        {
+            
+        }
+    }
+    
+    public class ReadCsv
+    {
+        public async Task<IEnumerable<object>> LineByLine<TModel>()
+        {
+            using var csv = new StreamReader(default);
+            
+            var buffer = new char[1];
+            var index = 0;
+            var field = new StringBuilder();
+            var escape = false;
+            
+            while (await csv.ReadAsync(buffer, index, 1) > 0)
+            {
+                var c = buffer[0];
+
+                switch (c)
+                {
+                    case '"':
+                        escape = !escape;
+                        break;
+                }
+            }
+            
+            return default;
+        }
+    }
+    
     [PublicAPI]
     public interface ICsvReader : IDisposable
     {
