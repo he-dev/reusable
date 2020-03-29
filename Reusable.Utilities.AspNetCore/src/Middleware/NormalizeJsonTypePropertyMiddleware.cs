@@ -2,6 +2,7 @@ using System;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
@@ -13,45 +14,32 @@ using Reusable.Extensions;
 using Reusable.OmniLog;
 using Reusable.OmniLog.Abstractions;
 using Reusable.OmniLog.Nodes;
-using Reusable.Utilities.AspNetCore.Abstractions;
 using Reusable.Utilities.JsonNet;
+using Reusable.Utilities.JsonNet.Abstractions;
 using Reusable.Utilities.JsonNet.Visitors;
 
 namespace Reusable.Utilities.AspNetCore.Middleware
 {
     [UsedImplicitly]
-    public class NormalizeJsonTypeMiddleware
+    public class NormalizeJsonTypePropertyMiddleware
     {
         private readonly RequestDelegate _next;
         private readonly ILogger _logger;
         private readonly IJsonVisitor _normalize;
 
-        public NormalizeJsonTypeMiddleware
+        public NormalizeJsonTypePropertyMiddleware
         (
             RequestDelegate next,
-            ILogger<NormalizeJsonTypeMiddleware> logger
+            ILogger<NormalizeJsonTypePropertyMiddleware> logger,
+            ITypeDictionary typeDictionary
         )
         {
             _next = next;
             _logger = logger;
-
-            var knownTypes =
-                from a in AppDomain.CurrentDomain.GetAssemblies()
-                from t in a.GetTypes()
-                where t.IsClass && typeof(IGetJsonTypes).IsAssignableFrom(t)
-                let getJsonTypes = (IGetJsonTypes)Activator.CreateInstance(t)
-                from x in getJsonTypes.Execute()
-                select x;
-
-            var knownTypeDictionary =
-                PrettyTypeDictionary
-                    .BuiltInTypes
-                    .AddRange(PrettyTypeDictionary.From(knownTypes));
-
             _normalize = new CompositeJsonVisitor
             {
                 new TrimPropertyName(),
-                new NormalizePrettyTypeProperty(knownTypeDictionary)
+                new NormalizeTypeProperty(typeDictionary)
             };
         }
 
@@ -74,7 +62,7 @@ namespace Reusable.Utilities.AspNetCore.Middleware
 
                     await normalized.WriteToAsync(jsonWriter);
                     await jsonWriter.FlushAsync();
-                    
+
                     var content = new StreamContent(memoryStream.Rewind());
                     context.Request.Body = await content.ReadAsStreamAsync();
                 }

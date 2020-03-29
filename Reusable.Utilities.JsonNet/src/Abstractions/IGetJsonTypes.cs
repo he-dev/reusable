@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace Reusable.Utilities.AspNetCore.Abstractions
+namespace Reusable.Utilities.JsonNet.Abstractions
 {
     public interface IGetJsonTypes
     {

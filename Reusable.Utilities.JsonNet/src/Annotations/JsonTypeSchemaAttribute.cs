@@ -10,11 +10,11 @@ namespace Reusable.Utilities.JsonNet.Annotations
     
     [UsedImplicitly]
     [AttributeUsage(Class | Interface)]
-    public class NamespaceAttribute : Attribute, IEnumerable<string>
+    public class JsonTypeSchemaAttribute : Attribute, IEnumerable<string>
     {
         private readonly string _name;
 
-        public NamespaceAttribute(string name) => _name = name;
+        public JsonTypeSchemaAttribute(string name) => _name = name;
 
         public string? Alias { get; set; }
 

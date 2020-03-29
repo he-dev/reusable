@@ -32,4 +32,8 @@
     <ProjectReference Include="..\Reusable.OmniLog\Reusable.OmniLog.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="src\Abstractions" />
+  </ItemGroup>
+
 </Project>

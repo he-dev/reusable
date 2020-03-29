@@ -30,6 +30,8 @@
   
   <ItemGroup>
     <Compile Remove="src\PrettyTypeReader.cs" />
+    <Compile Remove="src\PrettyJsonSerializer.cs" />
+    <Compile Remove="src\Services\ResolveType.cs" />
   </ItemGroup>
 
 </Project>

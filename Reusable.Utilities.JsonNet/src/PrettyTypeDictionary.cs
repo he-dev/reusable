@@ -5,10 +5,17 @@ using System.Linq;
 using System.Reflection;
 using Reusable.Exceptionize;
 using Reusable.Extensions;
+using Reusable.Utilities.JsonNet.Abstractions;
 using Reusable.Utilities.JsonNet.Annotations;
+using Reusable.Utilities.JsonNet.TypeDictionaries;
 
 namespace Reusable.Utilities.JsonNet
 {
+    public static class TypeDictionaryExtensions
+    {
+        public static ITypeDictionary Add(this ITypeDictionary typeDictionary, ITypeDictionary other) => new CompositeTypeDictionary(typeDictionary, other);
+    }
+
     public static class PrettyTypeDictionary
     {
         /// <summary>
@@ -52,7 +59,7 @@ namespace Reusable.Utilities.JsonNet
                 let prettyName = type.ToPrettyString()
                 where !prettyName.IsDynamicType()
                 // Pick the nearest namespace-attribute or one derived from it. 
-                let ns = type.GetCustomAttributes<NamespaceAttribute>().FirstOrDefault()
+                let ns = type.GetCustomAttributes<JsonTypeSchemaAttribute>().FirstOrDefault()
                 select
                     ns is null
                         ? new[] { (prettyName, type) }

@@ -6,6 +6,7 @@ using JetBrains.Annotations;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json.Serialization;
+using Reusable.Utilities.JsonNet.Abstractions;
 using Reusable.Utilities.JsonNet.Converters;
 using Reusable.Utilities.JsonNet.Services;
 using Reusable.Utilities.JsonNet.Visitors;
@@ -14,7 +15,7 @@ namespace Reusable.Utilities.JsonNet
 {
     public interface IPrettyJsonSerializer
     {
-        T Deserialize<T>(string json, IImmutableDictionary<string, Type> knownTypes);
+        T Deserialize<T>(string json, ITypeDictionary typeDictionary);
     }
 
     [PublicAPI]
@@ -38,47 +39,47 @@ namespace Reusable.Utilities.JsonNet
             configure?.Invoke(jsonSerializer);
         }
 
-        public T Deserialize<T>(string json, IImmutableDictionary<string, Type> knownTypes)
+        public T Deserialize<T>(string json, ITypeDictionary typeDictionary)
         {
             var visitor = new CompositeJsonVisitor
             {
                 new TrimPropertyName(),
-                new RewriteTypeVisitor(new NormalizePrettyTypeString(knownTypes))
+                new RewriteTypeVisitor(new NormalizeTypeName(typeDictionary))
             };
             var token = visitor.Visit(JToken.Parse(json));
             return token.ToObject<T>(jsonSerializer);
         }
     }
 
-    public interface IConvertPrettyJson
-    {
-        JToken Read(string json, IImmutableDictionary<string, Type> knownTypes);
-    }
+    // public interface IConvertPrettyJson
+    // {
+    //     JToken Read(string json, IImmutableDictionary<string, Type> knownTypes);
+    // }
+    //
+    // public class ConvertPrettyJson : IConvertPrettyJson
+    // {
+    //     public JToken Read(string json, IImmutableDictionary<string, Type> knownTypes)
+    //     {
+    //         var visitor = new CompositeJsonVisitor
+    //         {
+    //             new TrimPropertyName(),
+    //             new RewriteTypeVisitor(new NormalizeTypeName(knownTypes))
+    //         };
+    //         return visitor.Visit(JToken.Parse(json));
+    //     }
+    // }
 
-    public class ConvertPrettyJson : IConvertPrettyJson
-    {
-        public JToken Read(string json, IImmutableDictionary<string, Type> knownTypes)
-        {
-            var visitor = new CompositeJsonVisitor
-            {
-                new TrimPropertyName(),
-                new RewriteTypeVisitor(new NormalizePrettyTypeString(knownTypes))
-            };
-            return visitor.Visit(JToken.Parse(json));
-        }
-    }
-
-    public static class PrettyJsonSerializerExtensions
-    {
-        public static async Task<T> DeserializeAsync<T>(this IPrettyJsonSerializer serializer, Stream jsonStream, IImmutableDictionary<string, Type> knownTypes)
-        {
-            return serializer.Deserialize<T>(await ReadJsonAsync(jsonStream), knownTypes);
-        }
-
-        private static async Task<string> ReadJsonAsync(Stream jsonStream)
-        {
-            using var streamReader = new StreamReader(jsonStream);
-            return await streamReader.ReadToEndAsync();
-        }
-    }
+    // public static class PrettyJsonSerializerExtensions
+    // {
+    //     public static async Task<T> DeserializeAsync<T>(this IPrettyJsonSerializer serializer, Stream jsonStream, IImmutableDictionary<string, Type> knownTypes)
+    //     {
+    //         return serializer.Deserialize<T>(await ReadJsonAsync(jsonStream), knownTypes);
+    //     }
+    //
+    //     private static async Task<string> ReadJsonAsync(Stream jsonStream)
+    //     {
+    //         using var streamReader = new StreamReader(jsonStream);
+    //         return await streamReader.ReadToEndAsync();
+    //     }
+    // }
 }

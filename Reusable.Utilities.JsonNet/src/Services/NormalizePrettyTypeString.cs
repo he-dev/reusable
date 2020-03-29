@@ -1,44 +1,50 @@
 using System;
 using System.Collections.Immutable;
 using System.Linq;
+using System.Linq.Custom;
 using System.Text.RegularExpressions;
+using JetBrains.Annotations;
+using Reusable.Exceptionize;
 using Reusable.Extensions;
+using Reusable.Utilities.JsonNet.Abstractions;
 
 namespace Reusable.Utilities.JsonNet.Services
 {
-    
-
-    public interface INormalizePrettyTypeString
+    [PublicAPI]
+    public class NormalizeTypeName : INormalizeTypeName
     {
-        string Format(string name);
-    }
+        public static class TypeNamePatterns
+        {
+            // language=regexp
+            /// <summary>
+            /// Specifies the regular c-sharp style type names like: "List<int>" instead of "List`1[System.Int32...]" etc.
+            /// </summary>
+            /// <remarks>https://regex101.com/r/QZ5T5I/1/</remarks>
+            public const string CSharp = @"(?<type>(?i)[a-z0-9_.]+)(?:\<(?<genericArguments>(?i)[a-z0-9_., ]+)\>)?";
+        }
 
-    public class NormalizePrettyTypeString : INormalizePrettyTypeString
-    {
-        // Used to specify user-friendly type names like: "List<int>" instead of "List`1[System.Int32...]" etc.
-        // https://regex101.com/r/QZ5T5I/1/
-        // language=regexp
-        private const string PrettyTypePattern = @"(?<type>(?i)[a-z0-9_.]+)(?:\<(?<genericArguments>(?i)[a-z0-9_., ]+)\>)?";
+        private readonly ITypeDictionary _typeDictionary;
 
-        private readonly IResolveType _resolveType;
-
-        public NormalizePrettyTypeString(IResolveType resolveType) => _resolveType = resolveType;
-
-        public NormalizePrettyTypeString(IImmutableDictionary<string, Type> types) : this(new ResolveType(types)) { }
+        public NormalizeTypeName(ITypeDictionary typeDictionary)
+        {
+            _typeDictionary = typeDictionary;
+        }
 
         public string Format(string prettyType)
         {
-            if (prettyType == null) throw new ArgumentNullException(nameof(prettyType));
-
-            var match =
-                Regex
-                    .Match(prettyType, PrettyTypePattern, RegexOptions.ExplicitCapture)
-                    .OnFailure(_ => new ArgumentException($"Invalid type alias: '{prettyType}'."));
-
+            var match = ParseTypeName(prettyType, TypeNamePatterns.CSharp);
             var generic = GetGenericsInfo(match.Groups["genericArguments"]);
             var typeName = match.Groups["type"].Value;
-            var type = _resolveType.Invoke($"{typeName}{generic.Placeholder}");
+            var type = ResolveType($"{typeName}{generic.Placeholder}");
             return $"{type.FullName}{generic.Signature}, {type.Assembly.GetName().Name}";
+        }
+
+        private static Match ParseTypeName(string typeName, [RegexPattern] string pattern)
+        {
+            return
+                Regex
+                    .Match(typeName, pattern, RegexOptions.ExplicitCapture)
+                    .OnFailure(_ => new ArgumentException($"Invalid type name: '{typeName}'. Expected c-sharp-style type name."));
         }
 
         // Placeholder: "<, >"
@@ -48,14 +54,14 @@ namespace Reusable.Utilities.JsonNet.Services
             if (genericArguments.Success)
             {
                 // "<, >"
-                var commas = string.Join(string.Empty, genericArguments.Value.Where(c => c == ',').Select(c => $"{c} "));
+                var commas = genericArguments.Value.Where(c => c == ',').Select(c => $"{c} ").Join(string.Empty);
                 var placeholder = $"<{commas}>";
 
                 var genericArgumentNames = genericArguments.Value.Split(',').Select(x => x.Trim()).ToList();
                 var genericArgumentFullNames =
                 (
                     from name in genericArgumentNames
-                    let genericType = _resolveType.Invoke(name)
+                    let genericType = ResolveType(name)
                     select $"[{genericType.FullName}, {genericType.Assembly.GetName().Name}]"
                 );
 
@@ -68,6 +74,11 @@ namespace Reusable.Utilities.JsonNet.Services
             {
                 return (default, default);
             }
+        }
+
+        private Type ResolveType(string typeName)
+        {
+            return _typeDictionary.Resolve(typeName) ?? throw DynamicException.Create("TypeNotFound", $"Could not resolve '{typeName}'.");
         }
     }
 }

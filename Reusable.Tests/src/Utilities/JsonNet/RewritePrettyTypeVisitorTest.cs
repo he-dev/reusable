@@ -3,8 +3,11 @@ using JetBrains.Annotations;
 using Newtonsoft.Json;
 using Reusable.Exceptionize;
 using Reusable.Translucent;
+using Reusable.Utilities.JsonNet.Abstractions;
 using Reusable.Utilities.JsonNet.Annotations;
 using Reusable.Utilities.JsonNet.Services;
+using Reusable.Utilities.JsonNet.TypeDictionaries;
+using Reusable.Utilities.JsonNet.Visitors;
 using Xunit;
 
 namespace Reusable.Utilities.JsonNet
@@ -18,16 +21,12 @@ namespace Reusable.Utilities.JsonNet
             TypeNameHandling = TypeNameHandling.Auto
         };
 
-        private static readonly IJsonVisitor RewritePrettyTypeVisitor =
-            new RewriteTypeVisitor(
-                new NormalizePrettyTypeString(
-                    PrettyTypeDictionary
-                        .BuiltInTypes
-                        .AddRange(PrettyTypeDictionary.From(
-                            typeof(JsonTestClass0),
-                            typeof(JsonTestClass1<>),
-                            typeof(JsonTestClass2<,>)
-                        ))));
+        private static readonly IJsonVisitor RewritePrettyTypeVisitor = new NormalizeTypeProperty(BuildInTypeDictionary.Default.Add(new CustomTypeDictionary
+        (
+            typeof(JsonTestClass0),
+            typeof(JsonTestClass1<>),
+            typeof(JsonTestClass2<,>)
+        )));
 
         public RewritePrettyTypeVisitorTest(TestHelperFixture testHelper)
         {
@@ -37,7 +36,7 @@ namespace Reusable.Utilities.JsonNet
         [Fact]
         public void Disallows_types_with_explicit_generic_arguments()
         {
-            Assert.ThrowsAny<DynamicException>(() => new RewriteTypeVisitor(new NormalizePrettyTypeString(PrettyTypeDictionary.From(typeof(List<int>)))));
+            Assert.ThrowsAny<DynamicException>(() => new NormalizeTypeProperty(new CustomTypeDictionary(typeof(List<int>))));
         }
 
         [Fact]
@@ -79,7 +78,7 @@ namespace Reusable.Utilities.JsonNet
 
     [UsedImplicitly]
     [PublicAPI]
-    [Namespace("test")]
+    [JsonTypeSchema("test")]
     internal class JsonTestClass
     {
         public IJsonTestInterface Test0 { get; set; }
@@ -91,12 +90,12 @@ namespace Reusable.Utilities.JsonNet
 
     internal interface IJsonTestInterface { }
 
-    [Namespace("test")]
+    [JsonTypeSchema("test")]
     internal class JsonTestClass0 : IJsonTestInterface { }
 
-    [Namespace("test")]
+    [JsonTypeSchema("test")]
     internal class JsonTestClass1<T1> : IJsonTestInterface { }
 
-    [Namespace("test")]
+    [JsonTypeSchema("test")]
     internal class JsonTestClass2<T1, T2> : IJsonTestInterface { }
 }

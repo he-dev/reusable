@@ -8,33 +8,35 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 using Reusable.Flexo.Abstractions;
 using Reusable.Utilities.JsonNet;
+using Reusable.Utilities.JsonNet.Abstractions;
+using Reusable.Utilities.JsonNet.TypeDictionaries;
 
 namespace Reusable.Flexo
 {
     public class ExpressionSerializerModule : Module
     {
-        private readonly IImmutableDictionary<string, Type> _expressionTypes;
+        private readonly ITypeDictionary _typeDictionary;
         private readonly Action<JsonSerializer>? _configureSerializer;
 
-        public ExpressionSerializerModule(IEnumerable<Type> expressionTypes, Action<JsonSerializer>? configureSerializer = default)
+        public ExpressionSerializerModule(IEnumerable<Type> customTypes, Action<JsonSerializer>? configureSerializer = default)
         {
-            _expressionTypes =
-                PrettyTypeDictionary
-                    .BuiltInTypes
-                    .AddRange(PrettyTypeDictionary.From(Expression.BuiltInTypes))
-                    .AddRange(PrettyTypeDictionary.From(expressionTypes));
+            _typeDictionary =
+                BuildInTypeDictionary
+                    .Default
+                    .Add(new CustomTypeDictionary(Expression.BuiltInTypes))
+                    .Add(new CustomTypeDictionary(customTypes));
             _configureSerializer = configureSerializer;
         }
 
         protected override void Load(ContainerBuilder builder)
         {
             // Register all types but the built-in ones.
-            foreach (var type in _expressionTypes.Except(PrettyTypeDictionary.BuiltInTypes, x => x.Value).Select(x => x.Value).Distinct())
+            foreach (var x in _typeDictionary.Where(x => !x.Key.Contains(".")).Distinct())
             {
-                builder.RegisterType(type);
+                builder.RegisterType(x.Value);
             }
 
-            builder.Register(ctx => new ExpressionSerializer(_expressionTypes, ctx.Resolve<IContractResolver>(), _configureSerializer));
+            builder.Register(ctx => new ExpressionSerializer(_typeDictionary, ctx.Resolve<IContractResolver>(), _configureSerializer));
         }
     }
 }

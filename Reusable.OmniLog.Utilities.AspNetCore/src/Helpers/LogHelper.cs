@@ -34,7 +34,7 @@ namespace Reusable.OmniLog.Utilities.AspNetCore.Helpers
                 {
                     using var requestCopy = new MemoryStream();
                     using var requestReader = new StreamReader(requestCopy);
-                    context.Request.EnableRewind();
+                    context.Request.EnableBuffering();
                     await context.Request.Body.CopyToAsync(requestCopy);
                     requestCopy.Rewind();
                     return await requestReader.ReadToEndAsync();

@@ -1,4 +1,5 @@
-﻿using System.Net.Http;
+﻿using System;
+using System.Net.Http;
 using System.Threading.Tasks;
 using Reusable.Translucent;
 using Reusable.Translucent.Controllers;
@@ -47,7 +48,7 @@ namespace Reusable.Teapot
             //{
             // Request made by the application somewhere deep down the rabbit hole
 
-            var resources = new Resource(new[] { HttpController.FromBaseUri($"{BaseUri}/api") });
+            var resources = new Resource(new[] { new HttpController { CreateHttpClient = () => new HttpClient { BaseAddress = new Uri($"{BaseUri}/api") } } });
 
             using var response = await resources.CreateAsync<HttpRequest.Json>("/test?param=true", new { Greeting = "Hallo" }, http =>
             {

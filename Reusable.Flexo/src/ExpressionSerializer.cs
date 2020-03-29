@@ -7,6 +7,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 using Reusable.Flexo.Json;
 using Reusable.Utilities.JsonNet;
+using Reusable.Utilities.JsonNet.Abstractions;
 using Reusable.Utilities.JsonNet.Converters;
 using Reusable.Utilities.JsonNet.Services;
 using Reusable.Utilities.JsonNet.Visitors;
@@ -30,7 +31,7 @@ namespace Reusable.Flexo
 
         public ExpressionSerializer
         (
-            IImmutableDictionary<string, Type> expressionTypes,
+            ITypeDictionary typeDictionary,
             IContractResolver contractResolver,
             Action<JsonSerializer>? configureSerializer = null
         )
@@ -40,7 +41,7 @@ namespace Reusable.Flexo
             Transform = new CompositeJsonVisitor
             {
                 new TrimPropertyName(),
-                new RewriteTypeVisitor(new NormalizePrettyTypeString(expressionTypes)),
+                new NormalizeTypeProperty(typeDictionary),
             };
 
             JsonSerializer = new JsonSerializer

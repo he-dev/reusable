@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Http;
 using System.Threading.Tasks;
 using Reusable.Data;
 using Reusable.Diagnostics;
@@ -47,8 +48,18 @@ namespace Reusable
 
         public static async Task SendEmailOverMailr()
         {
-            var resources = new Resource(new[] { HttpController.FromBaseUri("http://localhost:7000/api").Pipe(x => x.Name = "Mailr") });
-
+            var resources = new Resource(new[]
+            {
+                new HttpController
+                {
+                    CreateHttpClient = () => new HttpClient
+                    {
+                        BaseAddress = new Uri("http://localhost:7000/api")
+                    },
+                    Name = "Mailr"
+                }
+            });
+            
             await resources.SendEmailAsync
             (
                 "v1.0/mailr/messages/plaintext",

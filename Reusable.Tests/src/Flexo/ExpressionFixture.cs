@@ -17,7 +17,6 @@ namespace Reusable.Flexo
     {
         private readonly ILifetimeScope _scope;
         private readonly IDisposable _disposer;
-        private readonly ConcurrentDictionary<string, IList<IExpression>> _expressions = new ConcurrentDictionary<string, IList<IExpression>>();
 
         public ExpressionFixture()
         {

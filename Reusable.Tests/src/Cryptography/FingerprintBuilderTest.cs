@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using Reusable.Exceptionize;
 using Xunit;
@@ -126,7 +127,7 @@ namespace Reusable.Cryptography
         [Fact]
         public void Throws_when_builder_does_not_have_any_value_selectors()
         {
-            Assert.ThrowsAny<DynamicException>(() => FingerprintBuilder.For<Person>().Build(SHA256.ComputeHash));
+            Assert.Throws<InvalidOperationException>(() => FingerprintBuilder.For<Person>().Build(SHA256.ComputeHash));
         }
 
         private class Person

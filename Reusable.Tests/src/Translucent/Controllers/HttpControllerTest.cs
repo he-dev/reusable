@@ -1,4 +1,5 @@
 using System;
+using System.Net.Http;
 using System.Threading.Tasks;
 using Reusable.Extensions;
 using Reusable.Teapot;
@@ -52,13 +53,24 @@ namespace Reusable.Translucent.Controllers
                 Body = new { Greeting = "Hallo Mailr!" }
             };
 
-            var resources = new Resource(new[] { HttpController.FromBaseUri("http://localhost:30002/api").Pipe(x => x.Name = "Mailr") });
+            var resources = new Resource(new[]
+            {
+                new HttpController
+                {
+                    CreateHttpClient = () => new HttpClient
+                    {
+                        BaseAddress = new Uri("http://localhost:30002/api")
+                    },
+
+                    Name = "Mailr"
+                }
+            });
+            
             var response = await resources.SendEmailAsync("mailr/messages/test", email, http =>
             {
                 http.HeaderActions.Add(headers => headers.UserAgent("xunit", "1.0"));
                 http.ControllerName = "Mailr";
             });
-
             serverContext.Assert();
             Assert.Equal("OK!", response);
         }

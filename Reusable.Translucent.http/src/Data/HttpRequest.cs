@@ -23,4 +23,12 @@ namespace Reusable.Translucent.Data
             }
         }
     }
+
+    public static class HttpRequestExtensions
+    {
+        public static void CorrelationId(this HttpRequest request, string correlationId)
+        {
+            request.HeaderActions.Add(headers => headers.Add("X-Correlation-ID", correlationId));
+        }
+    }
 }

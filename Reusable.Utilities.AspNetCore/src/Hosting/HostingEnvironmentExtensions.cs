@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Hosting;
+﻿using System;
+using Microsoft.AspNetCore.Hosting;
 
 namespace Reusable.Utilities.AspNetCore.Hosting
 {
@@ -11,7 +12,7 @@ namespace Reusable.Utilities.AspNetCore.Hosting
 
         public static bool IsDevelopmentAny(this IHostingEnvironment env)
         {
-            return env.EnvironmentName?.StartsWith("Development") ?? false;
+            return env.EnvironmentName?.StartsWith("Development", StringComparison.OrdinalIgnoreCase) ?? false;
         }
     }
 }

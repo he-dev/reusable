@@ -52,7 +52,7 @@ namespace Reusable.Flexo.Abstractions
     }
 
     [PublicAPI]
-    [Namespace("Flexo", Alias = "F")]
+    [JsonTypeSchema("Flexo", Alias = "F")]
     public abstract class Expression : IExpression
     {
         // ReSharper disable RedundantNameQualifier - Use full namespace to avoid conflicts with other types.

@@ -42,4 +42,8 @@
     <Compile Remove="src\Exceptionize\DynamicExceptionTemplate.cs" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="src\Services" />
+  </ItemGroup>
+
 </Project>
