@@ -2,44 +2,62 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text.RegularExpressions;
+using System.Linq.Custom;
 using JetBrains.Annotations;
 using Reusable.Extensions;
 
 namespace Reusable.IO
 {
-    public interface IDirectoryTree
+    [PublicAPI]
+    public class WalkOptions
     {
-        IEnumerable<IDirectoryTreeNode> Walk(string path, Func<IDirectoryTreeNode, bool>? predicate = default, Action<Exception>? onException = default);
+        public Func<IDirectoryTreeNode, bool> Predicate { get; set; } = _ => true;
+
+        public Action<Exception> OnException { get; set; } = ex => throw ex;
+
+        public static WalkOptions None => new WalkOptions();
     }
 
-    public static class DirectoryTreePredicates
+    [PublicAPI]
+    public static class WalkOptionsExtensions
     {
-        /// <summary>
-        /// Specifies the max depth of the directory tree. The upper limit is exclusive.
-        /// </summary>
-        public static Func<IDirectoryTreeNode, bool> MaxDepth(int maxDepth) => node => node.Depth < maxDepth;
+        public static WalkOptions SuppressExceptions(this WalkOptions options)
+        {
+            return options.Pipe(x => x.OnException = _ => { });
+        }
+
+        public static WalkOptions Where(this WalkOptions options, Func<IDirectoryTreeNode, bool> predicate)
+        {
+            return options.Pipe(x => x.Predicate = predicate);
+        }
         
-        public static Func<IDirectoryTreeNode, bool> Unfiltered { get; } = _ => true;
+        public static WalkOptions MaxDepth(this WalkOptions options, int maxDepth)
+        {
+            return options.Where(node => node.Depth < maxDepth);
+        }
+    }
+
+    public interface IDirectoryTree
+    {
+        IEnumerable<IDirectoryTreeNode> Walk(string path, WalkOptions? options = default);
+
+        Func<string, string, string> Combine { get; }
     }
 
     public class PhysicalDirectoryTree : IDirectoryTree
     {
-        public static Action<Exception> IgnoreExceptions { get; } = _ => { };
-        
-        public IEnumerable<IDirectoryTreeNode> Walk(string path, Func<IDirectoryTreeNode, bool>? predicate = default, Action<Exception>? onException = default)
+        public Func<string, string, string> Combine { get; } = Path.Combine;
+
+        public IEnumerable<IDirectoryTreeNode> Walk(string path, WalkOptions? options = default)
         {
-            predicate ??= DirectoryTreePredicates.Unfiltered;
-            onException ??= IgnoreExceptions;
+            options ??= new WalkOptions();
 
-            path = Environment.ExpandEnvironmentVariables(path);
-
-            var nodes = new Queue<PhysicalDirectoryTreeNode>
+            var nodes = new Queue<IDirectoryTreeNode>
             {
                 new PhysicalDirectoryTreeNode(path)
             };
 
-            while (nodes.Any() && nodes.Dequeue() is var current && predicate(current))
+            foreach (var current in nodes.Consume().Where(options.Predicate))
             {
                 yield return current;
 
@@ -47,12 +65,12 @@ namespace Reusable.IO
                 {
                     foreach (var directory in current.DirectoryNames)
                     {
-                        nodes.Enqueue(new PhysicalDirectoryTreeNode(Path.Combine(current.DirectoryName, directory), current.Depth + 1));
+                        nodes.Enqueue(new PhysicalDirectoryTreeNode(Combine(current.DirectoryName, directory), current.Depth + 1));
                     }
                 }
                 catch (Exception inner)
                 {
-                    onException(inner);
+                    options.OnException(inner);
                 }
             }
         }
@@ -60,19 +78,21 @@ namespace Reusable.IO
 
     public class RelativeDirectoryTree : IDirectoryTree, IDecorator<IDirectoryTree>
     {
-        public RelativeDirectoryTree(IDirectoryTree directoryTree, string basePath)
+        public RelativeDirectoryTree(IDirectoryTree directoryTree, string directoryNameBase)
         {
             Decoratee = directoryTree;
-            BasePath = basePath ?? throw new ArgumentNullException(nameof(basePath));
+            DirectoryNameBase = directoryNameBase;
         }
 
         public IDirectoryTree Decoratee { get; }
 
-        public string BasePath { get; }
+        public string DirectoryNameBase { get; }
 
-        public IEnumerable<IDirectoryTreeNode> Walk(string path, Func<IDirectoryTreeNode, bool>? predicate = default, Action<Exception>? onException = default)
+        public Func<string, string, string> Combine => Decoratee.Combine;
+
+        public IEnumerable<IDirectoryTreeNode> Walk(string path, WalkOptions? walkOptions = default)
         {
-            return Decoratee.Walk(Path.Combine(BasePath, path), predicate, onException);
+            return Decoratee.Walk(Combine(DirectoryNameBase, path), walkOptions);
         }
     }
 
@@ -86,33 +106,19 @@ namespace Reusable.IO
         IEnumerable<string> DirectoryNames { get; }
 
         IEnumerable<string> FileNames { get; }
+
+        Func<string, string, string> Combine { get; }
     }
 
-    internal class PhysicalDirectoryTreeNode : IDirectoryTreeNode
+    public class DirectoryTreeNode : IDirectoryTreeNode
     {
-        internal PhysicalDirectoryTreeNode(string path, int depth = 0)
-        {
-            DirectoryName = path;
-            Depth = depth;
-        }
-
-        public string DirectoryName { get; }
-
-        public int Depth { get; }
-
-        public IEnumerable<string> DirectoryNames => Directory.EnumerateDirectories(DirectoryName).Select(Path.GetFileName);
-
-        public IEnumerable<string> FileNames => Directory.EnumerateFiles(DirectoryName).Select(Path.GetFileName);
-    }
-    
-    public class DirectoryTreeNodeView : IDirectoryTreeNode
-    {
-        public DirectoryTreeNodeView(string path, int depth, IEnumerable<string> directoryNames, IEnumerable<string> fileNames)
+        public DirectoryTreeNode(string path, int depth, IEnumerable<string> directoryNames, IEnumerable<string> fileNames, Func<string, string, string> combine)
         {
             DirectoryName = path;
             Depth = depth;
             DirectoryNames = directoryNames;
             FileNames = fileNames;
+            Combine = combine;
         }
 
         public int Depth { get; }
@@ -122,73 +128,99 @@ namespace Reusable.IO
         public IEnumerable<string> DirectoryNames { get; }
 
         public IEnumerable<string> FileNames { get; }
+
+        public Func<string, string, string> Combine { get; }
+
+        public override string ToString()
+        {
+            return ToStringFields().Join(", ");
+        }
+
+        private IEnumerable<string> ToStringFields()
+        {
+            yield return $"'{DirectoryName}'";
+            yield return $"Depth: {Depth}";
+#if DEBUG
+            yield return $"Directories: {DirectoryNames.Count()}";
+            yield return $"Files: {FileNames.Count()}";
+#endif
+        }
+    }
+
+    internal class PhysicalDirectoryTreeNode : DirectoryTreeNode
+    {
+        internal PhysicalDirectoryTreeNode(string directoryName, int depth = 0) : base
+        (
+            directoryName,
+            depth,
+            Directory.EnumerateDirectories(directoryName).Select(Path.GetFileName),
+            Directory.EnumerateFiles(directoryName).Select(Path.GetFileName),
+            Path.Combine
+        ) { }
     }
 
     public static class DirectoryTreeExtensions
     {
-        public static IEnumerable<IDirectoryTreeNode> IgnoreDirectories(this IEnumerable<IDirectoryTreeNode> nodes, [RegexPattern] string directoryNamePattern)
+        public static IEnumerable<IDirectoryTreeNode> Walk(this IDirectoryTree tree, string path, Func<IDirectoryTreeNode, bool>? predicate = default, Action<Exception>? onException = default)
+        {
+            return tree.Walk(path, new WalkOptions
+            {
+                Predicate = predicate ?? (_ => true),
+                OnException = onException ?? (_ => { })
+            });
+        }
+
+        public static IEnumerable<IDirectoryTreeNode> WhereDirectory(this IEnumerable<IDirectoryTreeNode> nodes, Func<string, bool> predicate)
         {
             return
                 from node in nodes
-                where !node.DirectoryName.Matches(directoryNamePattern, RegexOptions.IgnoreCase)
-                select new DirectoryTreeNodeView
+                select new DirectoryTreeNode
                 (
                     node.DirectoryName,
                     node.Depth,
-                    from dirname in node.DirectoryNames where !dirname.Matches(directoryNamePattern, RegexOptions.IgnoreCase) select dirname,
-                    node.FileNames
+                    from directoryName in node.DirectoryNames where predicate(node.Combine(node.DirectoryName, directoryName)) select directoryName,
+                    node.FileNames,
+                    node.Combine
                 );
         }
 
-        public static IEnumerable<IDirectoryTreeNode> IgnoreFiles(this IEnumerable<IDirectoryTreeNode> nodes, [RegexPattern] string fileNamePattern)
+        public static IEnumerable<IDirectoryTreeNode> WhereFile(this IEnumerable<IDirectoryTreeNode> nodes, Func<string, bool> predicate)
         {
             return
                 from node in nodes
-                select new DirectoryTreeNodeView
+                select new DirectoryTreeNode
                 (
                     node.DirectoryName,
                     node.Depth,
                     node.DirectoryNames,
-                    from fileName in node.FileNames where !fileName.Matches(fileNamePattern, RegexOptions.IgnoreCase) select fileName
-                );
-        }
-
-        public static IEnumerable<IDirectoryTreeNode> WhereDirectories(this IEnumerable<IDirectoryTreeNode> nodes, [RegexPattern] string directoryNamePattern)
-        {
-            return
-                from node in nodes
-                where node.DirectoryName.Matches(directoryNamePattern, RegexOptions.IgnoreCase)
-                select new DirectoryTreeNodeView
-                (
-                    node.DirectoryName,
-                    node.Depth,
-                    from dirname in node.DirectoryNames where dirname.Matches(directoryNamePattern, RegexOptions.IgnoreCase) select dirname,
-                    node.FileNames
-                );
-        }
-
-        public static IEnumerable<IDirectoryTreeNode> WhereFiles(this IEnumerable<IDirectoryTreeNode> nodes, [RegexPattern] string fileNamePattern)
-        {
-            return
-                from node in nodes
-                select new DirectoryTreeNodeView
-                (
-                    node.DirectoryName,
-                    node.Depth,
-                    node.DirectoryNames,
-                    from fileName in node.FileNames where fileName.Matches(fileNamePattern, RegexOptions.IgnoreCase) select fileName
+                    from fileName in node.FileNames where predicate(node.Combine(node.DirectoryName, fileName)) select fileName,
+                    node.Combine
                 );
         }
     }
 
     public static class DirectoryTreeNodeExtensions
     {
-        public static IEnumerable<string> FullNames(this IEnumerable<IDirectoryTreeNode> nodes)
+        /// <summary>
+        /// Enumerates full directory names.
+        /// </summary>
+        public static IEnumerable<string> Directories(this IEnumerable<IDirectoryTreeNode> nodes)
         {
             return
-                from n in nodes
-                from f in n.FileNames
-                select Path.Combine(n.DirectoryName, f);
+                from node in nodes
+                from name in node.DirectoryNames
+                select node.Combine(node.DirectoryName, name);
+        }
+
+        /// <summary>
+        /// Enumerates full file names.
+        /// </summary>
+        public static IEnumerable<string> Files(this IEnumerable<IDirectoryTreeNode> nodes)
+        {
+            return
+                from node in nodes
+                from name in node.FileNames
+                select node.Combine(node.DirectoryName, name);
         }
 
         public static void Deconstruct

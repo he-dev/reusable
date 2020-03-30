@@ -97,12 +97,12 @@ namespace Reusable.Extensions
             return new MemoryStream((encoding ?? Encoding.UTF8).GetBytes(value));
         }
 
-        public static bool Matches(this string? value, [RegexPattern] string pattern, RegexOptions options = RegexOptions.None)
+        public static bool RegexMatches(this string? value, [RegexPattern] string pattern, RegexOptions options = RegexOptions.None)
         {
             return value is {} && Regex.IsMatch(value, pattern, options);
         }
 
-        public static bool Matches(this string? value, [RegexPattern] IEnumerable<string> patterns, RegexOptions options = RegexOptions.None)
+        public static bool RegexMatches(this string? value, [RegexPattern] IEnumerable<string> patterns, RegexOptions options = RegexOptions.None)
         {
             return value is {} && patterns.Any(pattern => Regex.IsMatch(value, pattern, options));
         }
@@ -111,7 +111,7 @@ namespace Reusable.Extensions
 
         public static string ToCamelCase(this string? value) => value is {} ? Regex.Replace(value, @"\A([A-Z]+)", m => m.Value.ToLower()) : string.Empty;
 
-        public static string Replace(this string? value, [RegexPattern] string pattern, string replacement = "", RegexOptions options = RegexOptions.None)
+        public static string RegexReplace(this string? value, [RegexPattern] string pattern, string replacement = "", RegexOptions options = RegexOptions.None)
         {
             return value is {} ? Regex.Replace(value, pattern, replacement, options) : string.Empty;
         }

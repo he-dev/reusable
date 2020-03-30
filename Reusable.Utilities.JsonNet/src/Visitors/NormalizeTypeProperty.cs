@@ -26,7 +26,7 @@ namespace Reusable.Utilities.JsonNet.Visitors
 
         protected override JProperty VisitProperty(JProperty property)
         {
-            if (!property.Name.Matches(@"^\$type") && ParseTypeName(property) is {} typeName)
+            if (!property.Name.RegexMatches(@"^\$type") && ParseTypeName(property) is {} typeName)
             {
                 return new JProperty(DefaultTypePropertyName, _normalizeTypeName.Format(typeName));
             }

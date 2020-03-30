@@ -16,6 +16,13 @@ namespace Reusable.Translucent.Controllers
 {
     public class SmtpController : MailToController<SmtpRequest>
     {
+        private readonly SmtpClient _smtpClient;
+
+        public SmtpController()
+        {
+            _smtpClient = new SmtpClient();
+        }
+
         public override async Task<Response> CreateAsync(SmtpRequest smtp)
         {
             var message = new MimeMessage();
@@ -53,18 +60,25 @@ namespace Reusable.Translucent.Controllers
 
             message.Body = multipart;
 
-            using (var smtpClient = new SmtpClient())
+            if (!_smtpClient.IsConnected)
             {
-                await smtpClient.ConnectAsync
+                await _smtpClient.ConnectAsync
                 (
                     smtp.Host,
                     smtp.Port,
                     smtp.UseSsl
                 );
-                await smtpClient.SendAsync(message);
             }
 
+            await _smtpClient.SendAsync(message);
+
             return Success<Translucent.Data.SmtpResponse>(smtp.ResourceName);
+        }
+
+        public override void Dispose()
+        {
+            _smtpClient.Disconnect(true);
+            _smtpClient.Dispose();
         }
     }
 }
