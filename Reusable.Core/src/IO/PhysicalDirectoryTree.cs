@@ -13,7 +13,7 @@ namespace Reusable.IO
     {
         public Func<IDirectoryTreeNode, bool> Predicate { get; set; } = _ => true;
 
-        public Action<Exception> OnException { get; set; } = ex => throw ex;
+        public Action<IDirectoryTreeNode, Exception>? Catch { get; set; }
 
         public static WalkOptions None => new WalkOptions();
     }
@@ -23,17 +23,22 @@ namespace Reusable.IO
     {
         public static WalkOptions SuppressExceptions(this WalkOptions options)
         {
-            return options.Pipe(x => x.OnException = _ => { });
+            return options.Pipe(x => x.Catch = (node, ex) => { });
         }
 
         public static WalkOptions Where(this WalkOptions options, Func<IDirectoryTreeNode, bool> predicate)
         {
             return options.Pipe(x => x.Predicate = predicate);
         }
-        
+
         public static WalkOptions MaxDepth(this WalkOptions options, int maxDepth)
         {
             return options.Where(node => node.Depth < maxDepth);
+        }
+
+        public static WalkOptions OnException(this WalkOptions options, Action<IDirectoryTreeNode, Exception> onException)
+        {
+            return options.Pipe(node => node.Catch = onException);
         }
     }
 
@@ -70,7 +75,14 @@ namespace Reusable.IO
                 }
                 catch (Exception inner)
                 {
-                    options.OnException(inner);
+                    if (options.Catch is {} onException)
+                    {
+                        onException(current, inner);
+                    }
+                    else
+                    {
+                        throw;
+                    }
                 }
             }
         }
@@ -161,15 +173,6 @@ namespace Reusable.IO
 
     public static class DirectoryTreeExtensions
     {
-        public static IEnumerable<IDirectoryTreeNode> Walk(this IDirectoryTree tree, string path, Func<IDirectoryTreeNode, bool>? predicate = default, Action<Exception>? onException = default)
-        {
-            return tree.Walk(path, new WalkOptions
-            {
-                Predicate = predicate ?? (_ => true),
-                OnException = onException ?? (_ => { })
-            });
-        }
-
         public static IEnumerable<IDirectoryTreeNode> WhereDirectory(this IEnumerable<IDirectoryTreeNode> nodes, Func<string, bool> predicate)
         {
             return

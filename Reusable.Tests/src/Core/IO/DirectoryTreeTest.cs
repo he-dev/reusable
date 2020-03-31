@@ -8,7 +8,7 @@ namespace Reusable.Core.IO
         [Fact]
         public void CanWalk()
         {
-            var nodes = new PhysicalDirectoryTree().Walk(@"c:\temp", WalkOptions.None.SuppressExceptions().MaxDepth(1));
+            var nodes = new PhysicalDirectoryTree().Walk(@"c:\temp", WalkOptions.None.SuppressExceptions().MaxDepth(1).OnException((node, ex) => {}));
 
             foreach (var node in nodes) { }
         }
