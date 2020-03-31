@@ -2,7 +2,7 @@
 <package>
   <metadata>
     <id>Reusable.Translucent.http</id>
-    <version>18.0.7</version>
+    <version>18.0.8</version>
     <title>Reusable.Translucent.http</title>
     <authors>He-Dev</authors>
     <owners>He-Dev</owners>
@@ -15,8 +15,8 @@
     <dependencies>
       <dependency id="JetBrains.Annotations" version="2019.1.3" />
       <dependency id="Microsoft.AspNet.WebApi.Client" version="5.2.7" />
-      <dependency id="Reusable.Core" version="18.0.7" />
-      <dependency id="Reusable.Translucent" version="18.0.7" />
+      <dependency id="Reusable.Core" version="18.0.8" />
+      <dependency id="Reusable.Translucent" version="18.0.8" />
     </dependencies>
   </metadata>
   <files>

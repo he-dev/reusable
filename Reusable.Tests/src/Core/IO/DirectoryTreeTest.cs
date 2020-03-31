@@ -1,4 +1,5 @@
 using Reusable.IO;
+using Telerik.JustMock;
 using Xunit;
 
 namespace Reusable.Core.IO
@@ -11,6 +12,12 @@ namespace Reusable.Core.IO
             var nodes = new PhysicalDirectoryTree().Walk(@"c:\temp", WalkOptions.None.SuppressExceptions().MaxDepth(1).OnException((node, ex) => {}));
 
             foreach (var node in nodes) { }
+        }
+
+        [Fact]
+        public void CanFilter()
+        {
+            var tree = Mock.Create<IDirectoryTree>();
         }
     }
 }

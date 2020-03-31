@@ -29,7 +29,7 @@ namespace System.Linq.Custom
         (
             this IEnumerable<TFirst> first,
             IEnumerable<TSecond> second,
-            Func<TFirst, TSecond, TResult>? resultSelector = default
+            Func<TFirst, TSecond, TResult> resultSelector = default
         )
         {
             using var x = first.GetEnumerator();
