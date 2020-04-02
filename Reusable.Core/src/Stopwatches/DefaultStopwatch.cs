@@ -1,24 +1,20 @@
 ﻿using System;
 using System.Diagnostics;
+using Reusable.Extensions;
 
 namespace Reusable
 {
-    public class StopwatchDefault : IStopwatch
+    public class DefaultStopwatch : IStopwatch
     {
         private readonly Stopwatch _stopwatch;
 
-        public StopwatchDefault() => _stopwatch = new Stopwatch();
+        public DefaultStopwatch() => _stopwatch = new Stopwatch();
 
         public bool IsRunning => _stopwatch.IsRunning;
 
         public TimeSpan Elapsed => _stopwatch.Elapsed;
 
-        public static IStopwatch StartNew()
-        {
-            var stopwatch = new StopwatchDefault();
-            stopwatch.Start();
-            return stopwatch;
-        }
+        public static IStopwatch StartNew() => new DefaultStopwatch().Pipe(x => x.Start());
 
         public void Start() => _stopwatch.Start();
 

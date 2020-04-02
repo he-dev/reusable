@@ -19,7 +19,7 @@ namespace Reusable
             _stopwatch.Start();
         }
 
-        public AsyncDetector() : this(new StopwatchDefault())
+        public AsyncDetector() : this(new DefaultStopwatch())
         {
         }
 

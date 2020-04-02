@@ -2,9 +2,6 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Text.RegularExpressions;
-using JetBrains.Annotations;
-using Reusable.Extensions;
 
 namespace Reusable
 {
@@ -19,32 +16,20 @@ namespace Reusable
         private readonly string _value;
 
         [DebuggerStepThrough]
-        public SoftString(string value) => _value = value.Trim();
+        public SoftString(string? value) => _value = value?.Trim() ?? string.Empty;
 
         public SoftString() : this(string.Empty) { }
 
         [DebuggerStepThrough]
-        public SoftString(char value)
-            : this(value.ToString()) { }
-
-        [NotNull]
+        public SoftString(char value) : this(value.ToString()) { }
+        
         public static SoftString Empty { get; } = new SoftString();
 
         public char this[int index] => _value[index];
 
         public int Length => _value.Length;
 
-        [NotNull]
         public static SoftString Create(string value) => new SoftString(value);
-
-        public bool StartsWith(string value) => _value.StartsWith(value.ToSoftString()!.ToString(), StringComparison.OrdinalIgnoreCase);
-
-        public bool EndsWith(string value) => _value.EndsWith(value.ToSoftString()!.ToString(), StringComparison.OrdinalIgnoreCase);
-
-        public bool IsMatch([RegexPattern] string pattern, RegexOptions options = RegexOptions.None)
-        {
-            return Regex.IsMatch(ToString(), pattern, options | RegexOptions.IgnoreCase);
-        }
 
         public override string ToString() => _value;
 
@@ -55,9 +40,5 @@ namespace Reusable
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
         #endregion
-
-        public static bool IsNullOrEmpty(SoftString? value) => string.IsNullOrEmpty(value?._value);
-
-        public static bool IsNullOrWhiteSpace(SoftString? value) => string.IsNullOrWhiteSpace(value?._value);
     }
 }

@@ -13,7 +13,7 @@ namespace Reusable
         public static implicit operator SoftString(string value) => value is {} ? new SoftString(value) : default;
 
         [DebuggerStepThrough]
-        public static implicit operator bool(SoftString? value) => !IsNullOrEmpty(value);
+        public static implicit operator bool(SoftString? value) => !value.IsNullOrEmpty();
 
         public static bool operator ==(SoftString? left, SoftString? right) => Comparer.Equals(left, right);
 

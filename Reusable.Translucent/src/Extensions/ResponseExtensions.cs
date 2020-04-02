@@ -84,7 +84,7 @@ namespace Reusable.Translucent.Extensions
             switch (request.Body)
             {
                 case Stream stream: return stream.ToTask();
-                case string str: return str.ToStream().ToTask();
+                case string str: return str.ToMemoryStream().ToTask();
                 default:
                     throw new ArgumentOutOfRangeException($"Cannot create body stream."); // because {nameof(Request.CreateBodyStreamCallback)} is not set.");
             }

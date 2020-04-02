@@ -14,7 +14,7 @@ namespace Reusable.Translucent.Extensions
             {
                 null => Stream.Null.ToTask(),
                 Stream stream => stream.ToTask(),
-                string text => text.ToStream().ToTask(),
+                string text => text.ToMemoryStream().ToTask(),
                 CreateBodyStreamDelegate createBodyStream => createBodyStream(),
                 _ => throw new ArgumentOutOfRangeException($"Body of type '{request.Body.GetType().ToPrettyString()}' is not supported.")
             };

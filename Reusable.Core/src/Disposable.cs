@@ -6,30 +6,12 @@ namespace Reusable
     {
         private readonly Action _dispose;
 
-        private Disposable(Action dispose)
-        {
-            _dispose = dispose;
-        }
+        private Disposable(Action dispose) => _dispose = dispose;
 
         public static IDisposable Empty => new Disposable(() => { });
 
-        public static IDisposable Create(Action dispose)
-        {
-            return new Disposable(dispose);
-        }
+        public static IDisposable Create(Action dispose) => new Disposable(dispose);
 
-        public void Dispose()
-        {
-            _dispose();
-        }
-    }
-
-    public static class DisposableExtensions
-    {
-        public static IDisposable Attach(this IDisposable first, IDisposable second) => Disposable.Create(() =>
-        {
-            first.Dispose();
-            second.Dispose();
-        });
+        public void Dispose() => _dispose();
     }
 }

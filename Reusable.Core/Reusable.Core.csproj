@@ -40,6 +40,9 @@
   <ItemGroup>
     <Compile Remove="src\Option.cs" />
     <Compile Remove="src\Exceptionize\DynamicExceptionTemplate.cs" />
+    <Compile Remove="src\Functions.cs" />
+    <Compile Remove="src\Abstractions\IFilterFactory.cs" />
+    <Compile Remove="src\ServiceProviderExtensions.cs" />
   </ItemGroup>
 
   <ItemGroup>

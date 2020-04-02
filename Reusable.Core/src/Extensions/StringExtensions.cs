@@ -71,28 +71,22 @@ namespace Reusable.Extensions
             return value.IndexOf(other, comparisonType) >= 0;
         }
 
-        [ContractAnnotation("value: null => null; notnull => notnull")]
-        public static SoftString? ToSoftString(this string? value) => value is {} ? SoftString.Create(value) : default;
+        public static SoftString ToSoftString(this string? value) => SoftString.Create(value);
 
         [NotNull, ContractAnnotation("value: null => halt; encoding: null => halt")]
-        public static StreamReader ToStreamReader(this string value, [NotNull] Encoding encoding)
+        public static StreamReader ToStreamReader(this string value, Encoding encoding)
         {
-            if (value == null) throw new ArgumentNullException(nameof(value));
-            if (encoding == null) throw new ArgumentNullException(nameof(encoding));
-
             return new StreamReader(new MemoryStream(encoding.GetBytes(value)));
         }
 
         [NotNull, ContractAnnotation("value: null => halt; value: notnull => notnull")]
-        public static StreamReader ToStreamReader([NotNull] this string value)
+        public static StreamReader ToStreamReader(this string value)
         {
-            if (value == null) throw new ArgumentNullException(nameof(value));
-
             return value.ToStreamReader(Encoding.UTF8);
         }
 
         [NotNull, ContractAnnotation("value: null => halt; value: notnull => notnull")]
-        public static Stream ToStream(this string value, Encoding? encoding = default)
+        public static Stream ToMemoryStream(this string value, Encoding? encoding = default)
         {
             return new MemoryStream((encoding ?? Encoding.UTF8).GetBytes(value));
         }
