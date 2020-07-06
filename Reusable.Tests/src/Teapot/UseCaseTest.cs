@@ -23,7 +23,7 @@ namespace Reusable.Teapot
         [Fact]
         public async Task Can_post_json()
         {
-            using var teapot = new TeapotServer(BaseUri);
+            using var teapot = new AssertServer(BaseUri);
             using var teacup = teapot.BeginScope();
 
             teacup

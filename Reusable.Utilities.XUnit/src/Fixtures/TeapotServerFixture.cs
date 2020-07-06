@@ -8,11 +8,11 @@ namespace Reusable.Utilities.XUnit.Fixtures
     [UsedImplicitly]
     public class TeapotServerFixture : IDisposable
     {
-        private readonly ConcurrentDictionary<string, TeapotServer> _servers;
+        private readonly ConcurrentDictionary<string, AssertServer> _servers;
 
-        public TeapotServerFixture() => _servers = new ConcurrentDictionary<string, TeapotServer>();
+        public TeapotServerFixture() => _servers = new ConcurrentDictionary<string, AssertServer>();
 
-        public TeapotServer GetServer(string url) => _servers.GetOrAdd(url, u => new TeapotServer(u));
+        public AssertServer GetServer(string url) => _servers.GetOrAdd(url, u => new AssertServer(u));
 
         public void Dispose()
         {

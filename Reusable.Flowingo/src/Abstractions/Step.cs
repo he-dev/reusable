@@ -27,6 +27,7 @@ namespace Reusable.Flowingo.Abstractions
         protected Step()
         {
             Tag = this.CreateTag();
+            Logger = ServiceContext.Resolve<ILoggerFactory>().CreateLogger(GetType().ToPrettyString());
         }
 
         public IStep<T>? Prev { get; set; }
@@ -37,7 +38,7 @@ namespace Reusable.Flowingo.Abstractions
 
         public object Tag { get; set; }
 
-        protected ILogger? Logger => AsyncScope<ILoggerFactory>.Current?.Value.CreateLogger(GetType().ToPrettyString());
+        protected ILogger? Logger { get; }
 
         public virtual async Task ExecuteAsync(T context)
         {
