@@ -2,7 +2,7 @@
 <package>
   <metadata>
     <id>Reusable.Flexo</id>
-    <version>18.0.8</version>
+    <version>19.0.0</version>
     <title>Reusable.Flexo</title>
     <authors>He-Dev</authors>
     <owners>He-Dev</owners>
@@ -15,11 +15,11 @@
     <dependencies>
       <dependency id="Autofac" version="4.9.4" />
       <dependency id="JetBrains.Annotations" version="2019.1.3" />
-      <dependency id="Reusable.Core" version="18.0.8" />
-      <dependency id="Reusable.Data" version="18.0.8" />
-      <dependency id="Reusable.OmniLog.Abstractions" version="18.0.8" />
-      <dependency id="Reusable.Quickey" version="18.0.8" />
-      <dependency id="Reusable.Utilities.JsonNet" version="18.0.8" />
+      <dependency id="Reusable.Core" version="19.0.0" />
+      <dependency id="Reusable.Data" version="19.0.0" />
+      <dependency id="Reusable.OmniLog.Abstractions" version="19.0.0" />
+      <dependency id="Reusable.Quickey" version="19.0.0" />
+      <dependency id="Reusable.Utilities.JsonNet" version="19.0.0" />
     </dependencies>
   </metadata>
   <files>

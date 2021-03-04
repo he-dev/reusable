@@ -30,6 +30,7 @@
   <ItemGroup>
     <ProjectReference Include="..\Reusable.Core\Reusable.Core.csproj" />
     <ProjectReference Include="..\Reusable.OmniLog\Reusable.OmniLog.csproj" />
+    <ProjectReference Include="..\Reusable.Utilities.JsonNet\RReusable.Utilities.JsonNet.csproj" />
   </ItemGroup>
 
   <ItemGroup>

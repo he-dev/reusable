@@ -4,7 +4,6 @@ using System.Linq;
 using System.Linq.Custom;
 using System.Reflection;
 using System.Threading.Tasks;
-using Autofac;
 using Reusable.Exceptionize;
 using Reusable.Extensions;
 
@@ -103,17 +102,7 @@ namespace Reusable
         }
     }
 
-    public class MiddlewareBuilderWithAutofac : MiddlewareBuilder
-    {
-        public MiddlewareBuilderWithAutofac(IComponentContext componentContext)
-        {
-            Resolve =
-                type =>
-                    componentContext.IsRegistered(type)
-                        ? componentContext.Resolve(type)
-                        : throw DynamicException.Create("TypeNotFound", $"Could not resolve '{type.ToPrettyString()}'.");
-        }
-    }
+    
 
     public static class MethodInfoExtensions
     {
