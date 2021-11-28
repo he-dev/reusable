@@ -30,6 +30,7 @@ namespace Reusable
 #if NETCOREAPP2_2
             var assemblyBuilder = AssemblyBuilder.DefineDynamicAssembly(assemblyName, AssemblyBuilderAccess.Run);
 #endif
+            var assemblyBuilder = AssemblyBuilder.DefineDynamicAssembly(assemblyName, AssemblyBuilderAccess.Run);
             var moduleBuilder = assemblyBuilder.DefineDynamicModule("DynamicModule");
             var typeName = $"{RemoveInterfacePrefix(interfaceType.Name)}_{Guid.NewGuid():N}";
             var typeBuilder = moduleBuilder.DefineType(typeName, TypeAttributes.Public);

@@ -31,7 +31,7 @@ namespace Reusable.OmniLog.Extensions
             [CallerFilePath] string? callerFilePath = null
         )
         {
-            logger.Log(e => e.Level(LogLevel.Trace).Message(message).Pipe(action), callerMemberName, callerLineNumber, callerFilePath);
+            logger.Log(e => e.Level(LogLevel.Trace).Message(message).Also(action), callerMemberName, callerLineNumber, callerFilePath);
         }
 
         public static void Debug
@@ -44,7 +44,7 @@ namespace Reusable.OmniLog.Extensions
             [CallerFilePath] string? callerFilePath = null
         )
         {
-            logger.Log(e => e.Level(LogLevel.Debug).Message(message).Pipe(action), callerMemberName, callerLineNumber, callerFilePath);
+            logger.Log(e => e.Level(LogLevel.Debug).Message(message).Also(action), callerMemberName, callerLineNumber, callerFilePath);
         }
         
         public static void Warning
@@ -57,7 +57,7 @@ namespace Reusable.OmniLog.Extensions
             [CallerFilePath] string? callerFilePath = null
         )
         {
-            logger.Log(e => e.Level(LogLevel.Warning).Message(message).Pipe(action), callerMemberName, callerLineNumber, callerFilePath);
+            logger.Log(e => e.Level(LogLevel.Warning).Message(message).Also(action), callerMemberName, callerLineNumber, callerFilePath);
         }
         
         public static void Information
@@ -70,7 +70,7 @@ namespace Reusable.OmniLog.Extensions
             [CallerFilePath] string? callerFilePath = null
         )
         {
-            logger.Log(e => e.Level(LogLevel.Information).Message(message).Pipe(action), callerMemberName, callerLineNumber, callerFilePath);
+            logger.Log(e => e.Level(LogLevel.Information).Message(message).Also(action), callerMemberName, callerLineNumber, callerFilePath);
         }
         
         public static void Error
@@ -83,7 +83,7 @@ namespace Reusable.OmniLog.Extensions
             [CallerFilePath] string? callerFilePath = null
         )
         {
-            logger.Log(e => e.Level(LogLevel.Error).Message(message).Pipe(action), callerMemberName, callerLineNumber, callerFilePath);
+            logger.Log(e => e.Level(LogLevel.Error).Message(message).Also(action), callerMemberName, callerLineNumber, callerFilePath);
         }
         
         public static void Fatal
@@ -96,7 +96,7 @@ namespace Reusable.OmniLog.Extensions
             [CallerFilePath] string? callerFilePath = null
         )
         {
-            logger.Log(e => e.Level(LogLevel.Fatal).Message(message).Pipe(action), callerMemberName, callerLineNumber, callerFilePath);
+            logger.Log(e => e.Level(LogLevel.Fatal).Message(message).Also(action), callerMemberName, callerLineNumber, callerFilePath);
         }
         
 

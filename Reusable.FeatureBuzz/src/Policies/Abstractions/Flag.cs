@@ -1,4 +1,4 @@
-namespace Reusable.Beaver.Policies
+namespace Reusable.FeatureBuzz.Policies.Abstractions
 {
     public abstract class Flag : FeaturePolicy
     {

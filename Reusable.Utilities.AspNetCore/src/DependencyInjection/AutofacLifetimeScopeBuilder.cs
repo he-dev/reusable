@@ -2,11 +2,13 @@ using System;
 using Autofac;
 using Autofac.Core;
 using Autofac.Extensions.DependencyInjection;
+using JetBrains.Annotations;
 using Microsoft.Extensions.DependencyInjection;
 using Reusable.Extensions;
 
 namespace Reusable.Utilities.AspNetCore.DependencyInjection
 {
+    [PublicAPI]
     public class AutofacLifetimeScopeBuilder
     {
         private readonly ContainerBuilder _builder;
@@ -19,12 +21,12 @@ namespace Reusable.Utilities.AspNetCore.DependencyInjection
 
         public static AutofacLifetimeScopeBuilder From(IServiceCollection services)
         {
-            return new AutofacLifetimeScopeBuilder(services);
+            return new(services);
         }
 
         public AutofacLifetimeScopeBuilder Configure(Action<ContainerBuilder> configure)
         {
-            return this.Pipe(_ => configure(_builder));
+            return this.Also(_ => configure(_builder));
         }
 
         public ILifetimeScope Build() => _builder.Build();

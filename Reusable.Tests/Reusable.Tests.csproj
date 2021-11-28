@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
-        <TargetFramework>netcoreapp3.1</TargetFramework>
+        <TargetFramework>net6.0</TargetFramework>
         <RootNamespace>Reusable</RootNamespace>
         <Nullable>enable</Nullable>
         <LangVersion>8</LangVersion>
@@ -32,27 +32,28 @@
         <None Remove="src\Flawless\**" />
     </ItemGroup>
     <ItemGroup>
-        <PackageReference Include="Autofac" Version="4.9.4" />
-        <PackageReference Include="JetBrains.Annotations" Version="2019.1.3" />
-        <PackageReference Include="JustMock" Version="2019.3.910.4" />
+        <PackageReference Include="Autofac" Version="6.1.0" />
+        <PackageReference Include="JetBrains.Annotations" Version="2021.3.0" />
+        <PackageReference Include="JustMock" Version="2021.1.222.1" />
         <PackageReference Include="Microsoft.AspNetCore" Version="2.2.0" />
         <PackageReference Include="Microsoft.AspNetCore.Server.Kestrel" Version="2.2.0" />
-        <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="2.2.6" />
-        <PackageReference Include="Dapper" Version="2.0.30" />
-        <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.4.0" />
-        <PackageReference Include="xunit.runner.visualstudio" Version="2.4.1" />
+        <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="5.0.4" />
+        <PackageReference Include="Dapper" Version="2.0.78" />
+        <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.9.1" />
+        <PackageReference Include="xunit.runner.visualstudio" Version="2.4.3" />
         <PackageReference Include="xunit" Version="2.4.1" />
 <!--        <PackageReference Include="System.Memory" Version="4.5.3" />-->
 <!--        <PackageReference Include="xunit.extensibility.execution" Version="2.4.1" />-->
         <!--<PackageReference Include="xunit.assert" Version="2.4.1" />-->
     </ItemGroup>
     <ItemGroup>
-        <ProjectReference Include="..\Reusable.Beaver\Reusable.Beaver.csproj" />
         <ProjectReference Include="..\Reusable.Commander\Reusable.Commander.csproj" />
         <ProjectReference Include="..\Reusable.Core\Reusable.Core.csproj" />
         <ProjectReference Include="..\Reusable.Cryptography\Reusable.Cryptography.csproj" />
         <ProjectReference Include="..\Reusable.Deception\Reusable.Deception.csproj" />
+        <ProjectReference Include="..\Reusable.FeatureBuzz\Reusable.FeatureBuzz.csproj" />
         <ProjectReference Include="..\Reusable.Flexo\Reusable.Flexo.csproj" />
+        <ProjectReference Include="..\Reusable.SemanticVersion\Reusable.SemanticVersion.csproj" />
         <ProjectReference Include="..\Reusable.Translucent\Reusable.Translucent.csproj" />
         <ProjectReference Include="..\Reusable.Translucent.config\Reusable.Translucent.config.csproj" />
         <ProjectReference Include="..\Reusable.Translucent.config.AppConfig\Reusable.Translucent.config.AppConfig.csproj" />
@@ -98,7 +99,14 @@
         <Compile Remove="src\Translucent\ComplexNameTest.cs" />
         <Compile Remove="src\Commander\CommandLineTokenizerTest - Copy.cs" />
         <Compile Remove="src\Flawless\**" />
+        <Compile Remove="src\Beaver\FeatureToggleTest.cs" />
+        <Compile Remove="src\Translucent\Middleware\ResourceMiddlewareTest.cs" />
+        <Compile Remove="src\Translucent\Middleware\EnvironmentVariableMiddlewareTest.cs" />
 <!--        <Compile Remove="src\Commander\**" />-->
+    </ItemGroup>
+    <ItemGroup>
+      <Folder Include="src\Beaver" />
+      <Folder Include="src\Translucent\Middleware" />
     </ItemGroup>
     
 </Project>

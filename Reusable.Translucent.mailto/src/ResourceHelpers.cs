@@ -29,7 +29,7 @@ namespace Reusable.Translucent
                 request.From = email.From;
                 request.IsHtml = email.IsHtml;
                 request.IsHighPriority = email.IsHighPriority;
-                request.Pipe(requestAction);
+                request.Also(requestAction);
             });
         }
     }

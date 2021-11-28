@@ -1,28 +1,32 @@
 using System;
-using System.Collections.Generic;
-using System.Linq;
+using System.Collections.Immutable;
 using JetBrains.Annotations;
-using Reusable.Beaver.Annotations;
-using Reusable.Beaver.Policies;
+using Reusable.Extensions;
+using Reusable.FeatureBuzz.Annotations;
+using Reusable.FeatureBuzz.Policies;
 
-namespace Reusable.Beaver
+namespace Reusable.FeatureBuzz
 {
-    [Beaver]
+    [FeatureBuzz]
     [PublicAPI]
     public class Feature : IEquatable<Feature>, IEquatable<string>
     {
         private IFeaturePolicy _policy;
 
-        public Feature(string name, IFeaturePolicy policy, IEnumerable<string>? tags = default)
+        public Feature(string name, IFeaturePolicy policy, IImmutableSet<string>? tags = default)
         {
             Name = name;
             _policy = policy;
-            Tags = new SortedSet<string>(tags ?? Enumerable.Empty<string>(), SoftString.Comparer);
+            Tags = tags ?? ImmutableHashSet<string>.Empty;
         }
+
+        public bool AllowPolicyChange { get; set; } = true;
+
+        public Action<string, IFeaturePolicy, IFeaturePolicy>? OnPolicyChange { get; set; }
 
         public string Name { get; }
 
-        public IEnumerable<string> Tags { get; }
+        public IImmutableSet<string> Tags { get; }
 
         /// <summary>
         /// Gets or sets feature-policy. Throws when feature is locked. Does nothing when locking an already locked feature.
@@ -33,11 +37,14 @@ namespace Reusable.Beaver
             get => _policy;
             set
             {
-                if (_policy is Lock && !(value is Lock))
+                if (AllowPolicyChange)
                 {
-                    throw new InvalidOperationException($"Feature '{this}' is locked and cannot be changed.");
+                    _policy.Also(previous =>
+                    {
+                        _policy = value;
+                        OnPolicyChange?.Invoke(Name, previous, value);
+                    });
                 }
-                _policy = value;
             }
         }
 
@@ -51,13 +58,13 @@ namespace Reusable.Beaver
 
         public bool Equals(string? other) => SoftString.Comparer.Equals(Name, other);
 
-        public static implicit operator Feature(string name) => new Feature(name, FeaturePolicy.AlwaysOff);
+        public static implicit operator Feature(string name) => new Feature(name, FeaturePolicy.Disabled);
 
         public static implicit operator string(Feature feature) => feature.ToString();
 
         public class Fallback : Feature
         {
-            public Fallback(string name, IFeaturePolicy policy) : base(name, policy.Lock()) { }
+            public Fallback(string name, IFeaturePolicy policy) : base(name, policy) { }
         }
 
         public class Telemetry : Feature

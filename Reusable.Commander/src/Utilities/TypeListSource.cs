@@ -10,9 +10,14 @@ namespace Reusable.Commander.Utilities
 {
     internal class TypeListSource : IRegistrationSource
     {
+        // public IEnumerable<IComponentRegistration> RegistrationsFor(Service service, Func<Service, IEnumerable<ServiceRegistration>> registrationAccessor)
+        // {
+        //     throw new NotImplementedException();
+        // }
+
         public bool IsAdapterForIndividualComponents => false;
 
-        public IEnumerable<IComponentRegistration> RegistrationsFor(Service service, Func<Service, IEnumerable<IComponentRegistration>> registrationAccessor)
+        public IEnumerable<IComponentRegistration> RegistrationsFor(Service service, Func<Service, IEnumerable<ServiceRegistration>> registrationAccessor)
         {
             if (service is IServiceWithType swt && IsTypeList(swt.ServiceType))
             {

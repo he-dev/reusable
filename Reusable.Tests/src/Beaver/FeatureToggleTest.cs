@@ -1,6 +1,7 @@
 using System;
 using System.Threading.Tasks;
-using Reusable.Beaver.Policies;
+using Reusable.FeatureBuzz;
+using Reusable.FeatureBuzz.Policies;
 using Xunit;
 
 namespace Reusable.Beaver
@@ -10,10 +11,10 @@ namespace Reusable.Beaver
         [Fact]
         public async Task Uses_primary_action_when_enabled_otherwise_secondary()
         {
-            var t = new FeatureController(FeaturePolicy.AlwaysOff)
+            var t = new FeatureController(FeaturePolicy.Disabled)
             {
-                { "a", FeaturePolicy.AlwaysOn },
-                { "b", FeaturePolicy.AlwaysOff },
+                { "a", FeaturePolicy.Enabled },
+                { "b", FeaturePolicy.Disabled },
             };
 
             // async
@@ -38,7 +39,7 @@ namespace Reusable.Beaver
         [Fact]
         public void Uses_secondary_action_when_feature_not_found()
         {
-            var t = new FeatureController(FeaturePolicy.AlwaysOff) { { "a", FeaturePolicy.AlwaysOn } };
+            var t = new FeatureController(FeaturePolicy.Disabled) { { "a", FeaturePolicy.Enabled } };
 
             var a = t.Use("a", "x", "y");
             var b = t.Use("b", "x", "y");
@@ -50,7 +51,7 @@ namespace Reusable.Beaver
             Assert.Equal(FeatureState.Disabled, b.State);
 
             Assert.IsType<Feature>(a.Feature);
-            Assert.IsType<AlwaysOn>(a.Feature.Policy);
+            Assert.IsType<Enabled>(a.Feature.Policy);
 
             Assert.IsType<Feature.Fallback>(b.Feature);
             Assert.IsType<Lock>(b.Feature.Policy);
@@ -59,7 +60,7 @@ namespace Reusable.Beaver
         [Fact]
         public void Once_disables_feature_after_first_use()
         {
-            var t = new FeatureController(FeaturePolicy.AlwaysOff) { { "a", FeaturePolicy.Once } };
+            var t = new FeatureController(FeaturePolicy.Disabled) { { "a", FeaturePolicy.Once } };
 
             var r = new[]
             {
@@ -81,7 +82,7 @@ namespace Reusable.Beaver
         public void Lambda_uses_Func()
         {
             var q = 0;
-            var t = new FeatureController(new FeatureToggle(FeaturePolicy.AlwaysOff));
+            var t = new FeatureController(new FeatureToggle(FeaturePolicy.Disabled));
             t.Add("test", FeaturePolicy.Ask(_ => q++ < 1));
 
             var m = 0;
@@ -104,10 +105,10 @@ namespace Reusable.Beaver
         [Fact]
         public void Throws_when_modifying_locked_feature()
         {
-            var t = new FeatureToggle(FeaturePolicy.AlwaysOff);
-            t.Add("test", FeaturePolicy.AlwaysOn.Lock());
+            var t = new FeatureToggle(FeaturePolicy.Disabled);
+            t.Add("test", FeaturePolicy.Enabled.Lock());
             //t.SetOrUpdate("test", FeaturePolicy.AlwaysOff);
-            Assert.Throws<InvalidOperationException>(() => t["test"].Policy = FeaturePolicy.AlwaysOff);
+            Assert.Throws<InvalidOperationException>(() => t["test"].Policy = FeaturePolicy.Disabled);
         }
     }
 }

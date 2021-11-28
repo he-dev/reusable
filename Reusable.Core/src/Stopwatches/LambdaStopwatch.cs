@@ -26,7 +26,7 @@ namespace Reusable.Diagnostics
 
         public TimeSpan Elapsed => IsRunning ? _last = _elapsed() : _last;
 
-        public static LambdaStopwatch StartNew(Func<TimeSpan> elapsed, Action reset) => new LambdaStopwatch(elapsed, reset).Pipe(x => x.Start());
+        public static LambdaStopwatch StartNew(Func<TimeSpan> elapsed, Action reset) => new LambdaStopwatch(elapsed, reset).Also(x => x.Start());
 
         public void Start() => IsRunning = true;
 

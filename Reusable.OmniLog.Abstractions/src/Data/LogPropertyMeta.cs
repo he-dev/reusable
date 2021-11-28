@@ -22,7 +22,7 @@ namespace Reusable.OmniLog
 
         public static LogPropertyMeta From(Action<LogPropertyMetaBuilder> build)
         {
-            return Builder.Pipe(build);
+            return Builder.Also(build);
         }
 
         public class LogPropertyMetaBuilder

@@ -9,12 +9,12 @@ namespace Reusable.IO.DirectoryTree
     {
         public static WalkOptions SuppressExceptions(this WalkOptions options)
         {
-            return options.Pipe(x => x.Catch = (node, ex) => { });
+            return options.Also(x => x.Catch = (node, ex) => { });
         }
 
         public static WalkOptions Where(this WalkOptions options, Func<IDirectoryTreeNode, bool> predicate)
         {
-            return options.Pipe(x => x.Predicate = predicate);
+            return options.Also(x => x.Predicate = predicate);
         }
 
         public static WalkOptions MaxDepth(this WalkOptions options, int maxDepth)
@@ -24,7 +24,7 @@ namespace Reusable.IO.DirectoryTree
 
         public static WalkOptions OnException(this WalkOptions options, Action<IDirectoryTreeNode, Exception> onException)
         {
-            return options.Pipe(node => node.Catch = onException);
+            return options.Also(node => node.Catch = onException);
         }
     }
 }

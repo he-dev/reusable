@@ -38,7 +38,7 @@ namespace Reusable.OmniLog.Nodes
     {
         public static ILogger PushDelegate(this ILogger logger, Action<ILogEntry> action)
         {
-            return logger.Pipe(_ => InjectAnonymousAction.Push(action));
+            return logger.Also(_ => InjectAnonymousAction.Push(action));
         }
     }
 }

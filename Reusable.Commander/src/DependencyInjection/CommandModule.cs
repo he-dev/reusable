@@ -37,7 +37,7 @@ namespace Reusable.Commander.DependencyInjection
                 .RegisterType<CommandExecutor>()
                 .As<ICommandExecutor>();
 
-            var crb = new CommandRegistrationBuilder { Builder = builder }.Pipe(_build);
+            var crb = new CommandRegistrationBuilder { Builder = builder }.Also(_build);
 
             builder
                 .RegisterInstance(crb.ToList())

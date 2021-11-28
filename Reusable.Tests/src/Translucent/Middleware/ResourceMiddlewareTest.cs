@@ -43,9 +43,9 @@ namespace Reusable.Translucent.Middleware
         [Fact]
         public async Task Can_filter_controllers_by_controller_id()
         {
-            var c1 = Mock.Create<TestFileController>(Behavior.CallOriginal).Pipe(x => x.Name = "a");
-            var c2 = Mock.Create<TestFileController>(Behavior.CallOriginal).Pipe(x => x.Name = "b");
-            var c3 = Mock.Create<TestFileController>(Behavior.CallOriginal).Pipe(x => x.Name = "d");
+            var c1 = Mock.Create<TestFileController>(Behavior.CallOriginal).Let(x => x.Name = "a");
+            var c2 = Mock.Create<TestFileController>(Behavior.CallOriginal).Let(x => x.Name = "b");
+            var c3 = Mock.Create<TestFileController>(Behavior.CallOriginal).Let(x => x.Name = "d");
 
             Mock.Arrange(() => c1.ReadAsync(Arg.IsAny<FileRequest>())).OccursNever();
             Mock.Arrange(() => c2.ReadAsync(Arg.IsAny<FileRequest>())).Returns(new Response { StatusCode = ResourceStatusCode.Success }.ToTask()).OccursOnce();
@@ -53,7 +53,7 @@ namespace Reusable.Translucent.Middleware
 
             var resources = new Resource(new[] { c1, c2, c3 });
 
-            await resources.InvokeAsync(Request.Read<FileRequest>("file:///foo").Pipe(r => { r.ControllerName = "b"; }));
+            await resources.InvokeAsync(Request.Read<FileRequest>("file:///foo").Also(r => { r.ControllerName = "b"; }));
 
             c1.Assert();
             c2.Assert();
@@ -63,9 +63,9 @@ namespace Reusable.Translucent.Middleware
         [Fact]
         public async Task Can_filter_controllers_by_request()
         {
-            var c1 = Mock.Create<TestFileController>(Behavior.CallOriginal).Pipe(x => x.Name = "a");
-            var c2 = Mock.Create<TestHttpController>(Behavior.CallOriginal).Pipe(x => x.Name = "b");
-            var c3 = Mock.Create<TestFileController>(Behavior.CallOriginal).Pipe(x => x.Name = "d");
+            var c1 = Mock.Create<TestFileController>(Behavior.CallOriginal).Let(x => x.Name = "a");
+            var c2 = Mock.Create<TestHttpController>(Behavior.CallOriginal).Let(x => x.Name = "b");
+            var c3 = Mock.Create<TestFileController>(Behavior.CallOriginal).Let(x => x.Name = "d");
 
             Mock.Arrange(() => c1.ReadAsync(Arg.IsAny<FileRequest>())).OccursNever();
             Mock.Arrange(() => c2.ReadAsync(Arg.IsAny<HttpRequest>())).Returns(new Response { StatusCode = ResourceStatusCode.Success }.ToTask()).OccursOnce();
@@ -83,8 +83,8 @@ namespace Reusable.Translucent.Middleware
         [Fact]
         public async Task Can_filter_controllers_by_tag()
         {
-            var c1 = Mock.Create<TestFileController>(Behavior.CallOriginal).Pipe(x => x.Name = "a");
-            var c2 = Mock.Create<TestFileController>(Behavior.CallOriginal).Pipe(x =>
+            var c1 = Mock.Create<TestFileController>(Behavior.CallOriginal).Let(x => x.Name = "a");
+            var c2 = Mock.Create<TestFileController>(Behavior.CallOriginal).Also(x =>
             {
                 x.Name = "b";
                 x.Tags.Add("bb");
@@ -95,7 +95,7 @@ namespace Reusable.Translucent.Middleware
 
             var resources = new Resource(new[] { c1, c2 });
 
-            await resources.InvokeAsync(Request.Read<FileRequest>("file:///foo").Pipe(r => { r.ControllerTags.Add("bb"); }));
+            await resources.InvokeAsync(Request.Read<FileRequest>("file:///foo").Also(r => { r.ControllerTags.Add("bb"); }));
 
             c1.Assert();
             c2.Assert();

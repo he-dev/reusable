@@ -1,8 +1,7 @@
-namespace Reusable.Beaver
+namespace Reusable.FeatureBuzz
 {
     public enum FeatureState
     {
-        Any,
         Enabled,
         Disabled,
     }

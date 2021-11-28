@@ -1,8 +1,8 @@
 using System;
-using Reusable.Beaver.Policies;
 using Reusable.Extensions;
+using Reusable.FeatureBuzz.Policies;
 
-namespace Reusable.Beaver
+namespace Reusable.FeatureBuzz
 {
     public interface IFeaturePolicy
     {
@@ -17,9 +17,9 @@ namespace Reusable.Beaver
 
         #region Helpers
 
-        public static readonly IFeaturePolicy AlwaysOn = new AlwaysOn();
+        public static readonly IFeaturePolicy Enabled = new Enabled();
 
-        public static readonly IFeaturePolicy AlwaysOff = new AlwaysOff();
+        public static readonly IFeaturePolicy Disabled = new Disabled();
 
         public static readonly IFeaturePolicy Once = new Once();
 
@@ -30,8 +30,8 @@ namespace Reusable.Beaver
         #endregion
     }
 
-    public interface IFinalizable
+    public interface IFeaturePolicyFilter
     {
-        void Finalize(FeatureContext context, FeatureState state);
+        void OnFeatureUsed(IFeatureCollection features, string name, object? parameter);
     }
 }

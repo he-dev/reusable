@@ -7,7 +7,7 @@ namespace Reusable.OneTo1
         object? ConvertOrDefault(object value, Type toType, ConversionContext? context = default);
     }
 
-    public abstract class TypeConverter<TValue, TResult> : ITypeConverter
+    public abstract class  TypeConverter<TValue, TResult> : ITypeConverter
     {
         public virtual object? ConvertOrDefault(object value, Type toType, ConversionContext? context = default)
         {

@@ -103,7 +103,7 @@ namespace Reusable.OmniLog.Nodes
     {
         public static ILogger PushProperties(this ILogger logger, IEnumerable<object>? items)
         {
-            return logger.Pipe(_ => CreateProperty.Push(items ?? Enumerable.Empty<object>()));
+            return logger.Also(_ => CreateProperty.Push(items ?? Enumerable.Empty<object>()));
         }
     }
 

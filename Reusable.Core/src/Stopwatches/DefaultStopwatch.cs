@@ -14,7 +14,7 @@ namespace Reusable
 
         public TimeSpan Elapsed => _stopwatch.Elapsed;
 
-        public static IStopwatch StartNew() => new DefaultStopwatch().Pipe(x => x.Start());
+        public static IStopwatch StartNew() => new DefaultStopwatch().Also(x => x.Start());
 
         public void Start() => _stopwatch.Start();
 

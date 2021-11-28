@@ -1,0 +1,104 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+    <PropertyGroup>
+        <TargetFramework>net5.0</TargetFramework>
+        <RootNamespace>Reusable</RootNamespace>
+        <Nullable>enable</Nullable>
+        <LangVersion>8</LangVersion>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+        <DefineConstants>TRACE;RELEASE;JETBRAINS_ANNOTATIONS</DefineConstants>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    </PropertyGroup>
+    <ItemGroup>
+        <EmbeddedResource Include="res\Flexo\ExpressionCollection.json" />
+        <EmbeddedResource Include="res\Flexo\ExpressionUseCases.json" />
+        <EmbeddedResource Include="res\Flexo\Packages.IsPositive.json" />
+        <EmbeddedResource Include="res\Utilities\JsonNet\PrettyType0.json" />
+        <EmbeddedResource Include="res\Utilities\JsonNet\PrettyType1.json" />
+        <EmbeddedResource Include="res\Utilities\JsonNet\PrettyType2.json" />
+        <EmbeddedResource Include="sql\Translucent\Config\seed-test-data.sql" />
+        <None Remove="res\IOnymous\test.txt" />
+        <EmbeddedResource Include="res\Flexo\ExpressionObject.json" />
+        <EmbeddedResource Include="res\Translucent\Http\Mailr\HtmlTable.json" />
+        <EmbeddedResource Include="res\Translucent\test.txt" />
+        <None Remove="sql\SmartConfig\seed-test-data.sql" />
+        <None Update="hosting.json">
+          <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+        </None>
+        <None Remove="res\Beaver\Features.json" />
+        <EmbeddedResource Include="res\Beaver\Features.json" />
+        <EmbeddedResource Remove="src\Flawless\**" />
+        <None Remove="src\Flawless\**" />
+    </ItemGroup>
+    <ItemGroup>
+        <PackageReference Include="Autofac" Version="6.1.0" />
+        <PackageReference Include="JetBrains.Annotations" Version="2020.3.0" />
+        <PackageReference Include="JustMock" Version="2021.1.222.1" />
+        <PackageReference Include="Microsoft.AspNetCore" Version="2.2.0" />
+        <PackageReference Include="Microsoft.AspNetCore.Server.Kestrel" Version="2.2.0" />
+        <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="5.0.4" />
+        <PackageReference Include="Dapper" Version="2.0.78" />
+        <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.9.1" />
+        <PackageReference Include="xunit.runner.visualstudio" Version="2.4.3" />
+        <PackageReference Include="xunit" Version="2.4.1" />
+<!--        <PackageReference Include="System.Memory" Version="4.5.3" />-->
+<!--        <PackageReference Include="xunit.extensibility.execution" Version="2.4.1" />-->
+        <!--<PackageReference Include="xunit.assert" Version="2.4.1" />-->
+    </ItemGroup>
+    <ItemGroup>
+        <ProjectReference Include="..\Reusable.Beaver\Reusable.Beaver.csproj" />
+        <ProjectReference Include="..\Reusable.Commander\Reusable.Commander.csproj" />
+        <ProjectReference Include="..\Reusable.Core\Reusable.Core.csproj" />
+        <ProjectReference Include="..\Reusable.Cryptography\Reusable.Cryptography.csproj" />
+        <ProjectReference Include="..\Reusable.Deception\Reusable.Deception.csproj" />
+        <ProjectReference Include="..\Reusable.Flexo\Reusable.Flexo.csproj" />
+        <ProjectReference Include="..\Reusable.Translucent\Reusable.Translucent.csproj" />
+        <ProjectReference Include="..\Reusable.Translucent.config\Reusable.Translucent.config.csproj" />
+        <ProjectReference Include="..\Reusable.Translucent.config.AppConfig\Reusable.Translucent.config.AppConfig.csproj" />
+        <ProjectReference Include="..\Reusable.Translucent.config.Json\Reusable.Translucent.config.Json.csproj" />
+        <ProjectReference Include="..\Reusable.Translucent.config.SqlServer\Reusable.Translucent.config.SqlServer.csproj" />
+        <ProjectReference Include="..\Reusable.Translucent.file\Reusable.Translucent.file.csproj" />
+        <ProjectReference Include="..\Reusable.Translucent.http\Reusable.Translucent.http.csproj" />
+        <ProjectReference Include="..\Reusable.Translucent.mailto\Reusable.Translucent.mailto.csproj" />
+        <ProjectReference Include="..\Reusable.OmniLog\Reusable.OmniLog.csproj" />
+        <ProjectReference Include="..\Reusable.Utilities.JsonNet\Reusable.Utilities.JsonNet.csproj" />
+        <ProjectReference Include="..\Reusable.Utilities.Mailr\Reusable.Utilities.Mailr.csproj" />
+        <ProjectReference Include="..\Reusable.Utilities.XUnit\Reusable.Utilities.XUnit.csproj" />
+        <ProjectReference Include="..\Reusable.Teapot\Reusable.Teapot.csproj" />
+        <ProjectReference Include="..\Reusable.Teapot.Assert\Reusable.Teapot.Assert.csproj" />
+    </ItemGroup>
+    <ItemGroup>
+        <Reference Include="Microsoft.CSharp" />
+        <Reference Include="System.Configuration" />
+    </ItemGroup>
+    <ItemGroup>
+        <Compile Remove="src\Commander\Integration\ExceptionTest.cs" />
+        <Compile Remove="src\Commander\Integration\_Bags.cs" />
+        <Compile Remove="src\Commander\Integration\FeatureTest.cs" />
+<!--        <Compile Remove="src\Commander\FeatureTest.cs" />-->
+        <Compile Remove="src\Commander\CommandLineExtensionsTest.cs" />
+        <Compile Remove="src\Commander\CommandLineReaderTest.cs" />
+        <Compile Remove="src\Commander\CommandLineTest.cs" />
+        <Compile Remove="src\OmniLog\UseCaseTest.cs" />
+        <Compile Remove="src\Flexo\ExpressionContextTest.cs" />
+        <Compile Remove="src\Translucent\CompositeProviderTest.cs" />
+        <Compile Remove="src\Translucent\InMemoryProviderTest.cs" />
+        <Compile Remove="src\Translucent\PhysicalFileProviderTest.cs" />
+        <Compile Remove="src\Translucent\RelativeProviderTest.cs" />
+        <Compile Remove="src\Translucent\ResourceProviderTest.cs" />
+        <Compile Remove="src\Translucent\SmtpProviderTest.cs" />
+        <Compile Remove="src\Flexo\ExpressionTest.cs" />
+        <Compile Remove="src\Flexo\ExpressionSerializerTest.cs" />
+        <Compile Remove="src\OmniLog\LoggerNodeTest.cs" />
+        <Compile Remove="src\Experimental\Scheduler.cs" />
+        <Compile Remove="src\Translucent\UriStringHelperTest.cs" />
+        <Compile Remove="src\Translucent\UriStringTest.cs" />
+        <Compile Remove="src\Translucent\RequestDelegateBuilderTest.cs" />
+        <Compile Remove="src\Translucent\ComplexNameTest.cs" />
+        <Compile Remove="src\Commander\CommandLineTokenizerTest - Copy.cs" />
+        <Compile Remove="src\Flawless\**" />
+<!--        <Compile Remove="src\Commander\**" />-->
+    </ItemGroup>
+    
+</Project>

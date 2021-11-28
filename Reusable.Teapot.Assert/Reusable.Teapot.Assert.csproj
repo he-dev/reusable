@@ -1,7 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <!--<TargetFramework>net47</TargetFramework>-->
-    <TargetFrameworks>netcoreapp2.2;net47</TargetFrameworks>
+    <TargetFramework>net6.0</TargetFramework>
     <Nullable>enable</Nullable>
     <LangVersion>latest</LangVersion>
   </PropertyGroup>
@@ -20,15 +19,15 @@
     <Compile Remove="src\TeapotStartup.cs" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="JetBrains.Annotations" Version="2019.1.3" />
+    <PackageReference Include="JetBrains.Annotations" Version="2021.3.0" />
     <PackageReference Include="Microsoft.AspNetCore" Version="2.2.0" />
     <PackageReference Include="Microsoft.AspNetCore.Server.Kestrel" Version="2.2.0" />
-    <PackageReference Include="System.Collections.Immutable" Version="1.6.0" />
+    <PackageReference Include="System.Collections.Immutable" Version="6.0.0" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Reusable.Core\Reusable.Core.csproj" />
     <ProjectReference Include="..\Reusable.Translucent.http\Reusable.Translucent.http.csproj" />
     <ProjectReference Include="..\Reusable.Utilities.JsonNet\Reusable.Utilities.JsonNet.csproj" />
-    <ProjectReference Include="C:\.stuff\a\dev\reusable\Reusable.Teapot\Reusable.Teapot.csproj" />
+    <ProjectReference Include="..\Reusable.Teapot\Reusable.Teapot.csproj" />
   </ItemGroup>
 </Project>

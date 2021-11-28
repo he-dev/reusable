@@ -7,8 +7,6 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Razor;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Reusable.Apps.Server.Json;
-using Reusable.Beaver;
 using Reusable.OmniLog;
 using Reusable.OmniLog.Abstractions;
 using Reusable.OmniLog.Connectors;
@@ -80,8 +78,8 @@ namespace Reusable.Apps.Server
 
             // Add framework services.
             services
-                .AddMvc()
-                .AddJsonOptions(options => { options.SerializerSettings.Converters.Add(new JsonStringConverter()); });
+                .AddMvc();
+                //.AddJsonOptions(options => { options.JsonSerializerOptions.Converters.Add(new JsonStringConverter()); });
 
             services
                 .AddScoped<IFeatureToggle>(_ => new FeatureToggle(FeaturePolicy.AlwaysOff));

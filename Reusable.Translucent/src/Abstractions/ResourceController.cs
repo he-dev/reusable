@@ -99,12 +99,12 @@ namespace Reusable.Translucent.Abstractions
         // ReSharper disable once InconsistentNaming
         protected static Response Success<TResponse>(string resourceName, object? body = default, Action<TResponse>? configure = default) where TResponse : Response, new()
         {
-            return new TResponse { ResourceName = resourceName, StatusCode = ResourceStatusCode.Success, Body = body }.Pipe(configure);
+            return new TResponse { ResourceName = resourceName, StatusCode = ResourceStatusCode.Success, Body = body }.Also(configure);
         }
 
         protected static Response NotFound<TResponse>(string resourceName, object? body = default, Action<TResponse>? configure = default) where TResponse : Response, new()
         {
-            return new TResponse { ResourceName = resourceName, StatusCode = ResourceStatusCode.NotFound, Body = body }.Pipe(configure);
+            return new TResponse { ResourceName = resourceName, StatusCode = ResourceStatusCode.NotFound, Body = body }.Also(configure);
         }
 
         // Can be overriden when derived.

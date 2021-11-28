@@ -44,17 +44,17 @@ namespace Reusable.OmniLog.Extensions
 
         public static ILogEntry Layer(this ILogEntry log, string name)
         {
-            return log.Pipe(x => x.Push(new LogProperty(Names.Properties.Layer, name, LogPropertyMeta.Builder.ProcessWith<Echo>())));
+            return log.Also(x => x.Push(new LogProperty(Names.Properties.Layer, name, LogPropertyMeta.Builder.ProcessWith<Echo>())));
         }
 
         public static ILogEntry Category(this ILogEntry log, string name)
         {
-            return log.Pipe(x => x.Push(new LogProperty(Names.Properties.Category, name, LogPropertyMeta.Builder.ProcessWith<Echo>())));
+            return log.Also(x => x.Push(new LogProperty(Names.Properties.Category, name, LogPropertyMeta.Builder.ProcessWith<Echo>())));
         }
 
         public static ILogEntry Unit(this ILogEntry log, string name, object? value = default)
         {
-            return log.Pipe(x =>
+            return log.Also(x =>
             {
                 x.Push(new LogProperty(Names.Properties.Unit, name, LogPropertyMeta.Builder.ProcessWith<Echo>()));
                 if (value is {})
@@ -66,7 +66,7 @@ namespace Reusable.OmniLog.Extensions
 
         public static ILogEntry CallSite(this ILogEntry log, Data.CallSite? callSite)
         {
-            return log.Pipe(x =>
+            return log.Also(x =>
             {
                 if (callSite is {})
                 {

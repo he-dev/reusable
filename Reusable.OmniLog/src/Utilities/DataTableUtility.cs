@@ -31,7 +31,7 @@ namespace Reusable.OmniLog.Utilities
         // Adds data-column it if does not exists.
         public static DataColumnCollection SoftAdd(this DataColumnCollection columns, string name, Type dataType)
         {
-            return columns.Pipe(c =>
+            return columns.Also(c =>
             {
                 if (!c.Contains(name))
                 {

@@ -14,7 +14,7 @@ namespace Reusable.Extensions
             if (canAppend == null) throw new ArgumentNullException(nameof(canAppend));
             if (append == null) throw new ArgumentNullException(nameof(append));
 
-            return canAppend() ? stringBuilder.Pipe(append) : stringBuilder;
+            return canAppend() ? stringBuilder.Also(append) : stringBuilder;
         }
 
         public static StringBuilder AppendWhen([NotNull] this StringBuilder stringBuilder, bool canAppend, [NotNull] Func<string> getValue)
@@ -31,7 +31,7 @@ namespace Reusable.Extensions
             if (canAppend == null) throw new ArgumentNullException(nameof(canAppend));
 
             var value = getValue();
-            return canAppend(value) ? stringBuilder.Pipe(sb => append(sb, value)) : stringBuilder;
+            return canAppend(value) ? stringBuilder.Also(sb => append(sb, value)) : stringBuilder;
         }
         
         [NotNull]

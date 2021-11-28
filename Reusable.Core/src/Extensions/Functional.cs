@@ -11,10 +11,16 @@ namespace Reusable.Extensions
         /// Allows to pipe an action on the current object in a functional way.
         /// </summary>
         [MustUseReturnValue]
-        public static T Pipe<T>(this T obj, Action<T>? next)
+        public static T Also<T>(this T obj, Action<T>? next)
         {
             next?.Invoke(obj);
             return obj;
+        }
+        
+        [MustUseReturnValue]
+        public static TResult Let<T, TResult>(this T obj, Func<T, TResult> next)
+        {
+            return next(obj);
         }
         
         [MustUseReturnValue]

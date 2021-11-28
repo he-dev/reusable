@@ -24,7 +24,7 @@ namespace Reusable.Utilities.Mailr
                 request.ControllerName = "Mailr";
                 request.ContentType = "application/json";
                 request.HeaderActions.Add(headers => { headers.AcceptHtml(); });
-                request.Pipe(configureRequest);
+                request.Also(configureRequest);
             });
             return await response.DeserializeTextAsync();
         }

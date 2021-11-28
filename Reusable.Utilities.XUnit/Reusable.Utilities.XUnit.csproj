@@ -1,7 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <!--<TargetFramework>net47</TargetFramework>-->
-    <TargetFrameworks>netcoreapp2.2;net47</TargetFrameworks>
+    <TargetFramework>net6.0</TargetFramework>
     <AssemblyName>Reusable.Utilities.Xunit</AssemblyName>
     <RootNamespace>Reusable.Utilities.Xunit</RootNamespace>
     <LangVersion>latest</LangVersion>
@@ -17,9 +16,9 @@
   </PropertyGroup>
   
   <ItemGroup>
-    <PackageReference Include="Autofac" Version="4.9.4" />
-    <PackageReference Include="JetBrains.Annotations" Version="2019.1.3" />
-    <PackageReference Include="JustMock" Version="2019.3.910.4" />
+    <PackageReference Include="Autofac" Version="6.1.0" />
+    <PackageReference Include="JetBrains.Annotations" Version="2021.3.0" />
+    <PackageReference Include="JustMock" Version="2021.1.222.1" />
     <PackageReference Include="Microsoft.AspNetCore" Version="2.2.0" />
     <PackageReference Include="Microsoft.AspNetCore.Server.Kestrel" Version="2.2.0" />
     <PackageReference Include="xunit.extensibility.core" Version="2.4.1" />
@@ -27,9 +26,10 @@
   <ItemGroup>
     <ProjectReference Include="..\Reusable.Core\Reusable.Core.csproj" />
     <ProjectReference Include="..\Reusable.Teapot\Reusable.Teapot.csproj" />
+    <ProjectReference Include="..\Reusable.Teapot.Assert\Reusable.Teapot.Assert.csproj" />
     <ProjectReference Include="..\Reusable.Utilities.JsonNet\Reusable.Utilities.JsonNet.csproj" />
     <ProjectReference Include="..\Reusable.Utilities.Mailr\Reusable.Utilities.Mailr.csproj" />
-    <ProjectReference Include="D:\.stuff\a\dev\reusable\Reusable.Teapot.Assert\Reusable.Teapot.Assert.csproj" />
+    <ProjectReference Include="..\Reusable.Teapot.Assert\Reusable.Teapot.Assert.csproj" />
 <!--    <ProjectReference Include="..\Xunit.Assert.That\Xunit.Assert.That.csproj" />-->
   </ItemGroup>
   <ItemGroup>

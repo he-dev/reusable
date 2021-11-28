@@ -54,7 +54,7 @@ namespace Reusable.Utilities.SqlClient
             using var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled);
             using var connection = new SqlConnection(connectionString);
             connection.Open();
-            return execute(connection).Pipe(_ => scope.Complete());
+            return execute(connection).Also(_ => scope.Complete());
         }
 
         /// <summary>

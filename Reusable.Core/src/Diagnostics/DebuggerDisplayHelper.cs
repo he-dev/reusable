@@ -14,7 +14,7 @@ namespace Reusable.Diagnostics
 
             if (_toString is null)
             {
-                _toString = new DebuggerDisplayBuilder<T>().Pipe(configure).Build();
+                _toString = new DebuggerDisplayBuilder<T>().Also(configure).Build();
             }
 
             return _toString(obj);

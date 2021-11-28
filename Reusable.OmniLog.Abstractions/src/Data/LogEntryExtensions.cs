@@ -22,7 +22,7 @@ namespace Reusable.OmniLog
 
         public static ILogEntry Push(this ILogEntry entry, string name, object value, Action<LogPropertyMeta.LogPropertyMetaBuilder> buildMeta)
         {
-            return entry.Pipe(e => e.Push(new LogProperty(name, value, LogPropertyMeta.From(buildMeta))));
+            return entry.Also(e => e.Push(new LogProperty(name, value, LogPropertyMeta.From(buildMeta))));
         }
     }
 }

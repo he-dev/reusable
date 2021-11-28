@@ -9,18 +9,18 @@ namespace Reusable.OmniLog.Extensions
     {
         public static ILoggerScope WithCorrelationId(this ILoggerScope scope, object correlationId)
         {
-            return scope.Pipe(x => x.First.Node<Correlate>().CorrelationId = correlationId);
+            return scope.Also(x => x.First.Node<Correlate>().CorrelationId = correlationId);
         }
         
         public static ILoggerScope WithCorrelationHandle(this ILoggerScope scope, object correlationHandle)
         {
-            return scope.Pipe(x => x.First.Node<Correlate>().CorrelationHandle = correlationHandle);
+            return scope.Also(x => x.First.Node<Correlate>().CorrelationHandle = correlationHandle);
         }
 
         public static ILoggerScope UseBuffer(this ILoggerScope scope)
         {
             // Branch-node is properly initialized at this point.
-            return scope.Pipe(x => x.First.Node<BufferLog>().Enable());
+            return scope.Also(x => x.First.Node<BufferLog>().Enable());
         }
 
         /// <summary>
@@ -28,7 +28,7 @@ namespace Reusable.OmniLog.Extensions
         /// </summary>
         public static ILoggerScope UseInMemoryCache(this ILoggerScope scope)
         {
-            return scope.Pipe(x => x.First.Node<CacheInMemory>().Enable());
+            return scope.Also(x => x.First.Node<CacheInMemory>().Enable());
         }
 
         /// <summary>

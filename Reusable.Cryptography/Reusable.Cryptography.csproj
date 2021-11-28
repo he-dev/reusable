@@ -1,8 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <!--<TargetFramework>net47</TargetFramework>-->
-    <TargetFrameworks>netcoreapp2.2;net47</TargetFrameworks>
+    <TargetFramework>net6.0</TargetFramework>
     <AssemblyName>Reusable.Cryptography</AssemblyName>
     <RootNamespace>Reusable.Cryptography</RootNamespace>
     <Configurations>Debug;Release</Configurations>
@@ -21,7 +20,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="JetBrains.Annotations" Version="2019.1.3" />
+    <PackageReference Include="JetBrains.Annotations" Version="2021.3.0" />
   </ItemGroup>
 
   <ItemGroup>

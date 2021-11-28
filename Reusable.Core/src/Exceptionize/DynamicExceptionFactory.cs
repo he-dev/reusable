@@ -64,6 +64,7 @@ namespace Reusable.Exceptionize
 #if NETCOREAPP2_2
             var assemblyBuilder = AssemblyBuilder.DefineDynamicAssembly(assemblyName, AssemblyBuilderAccess.Run);
 #endif
+            var assemblyBuilder = AssemblyBuilder.DefineDynamicAssembly(assemblyName, AssemblyBuilderAccess.Run);
             var moduleBuilder = assemblyBuilder.DefineDynamicModule("DynamicModule");
             var typeBuilder = moduleBuilder.DefineType(name, TypeAttributes.Public);
             typeBuilder.SetParent(typeof(DynamicException));

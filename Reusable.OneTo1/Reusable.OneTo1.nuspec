@@ -2,7 +2,7 @@
 <package>
   <metadata>
     <id>Reusable.OneTo1</id>
-    <version>19.0.0</version>
+    <version>21.1.0</version>
     <title>Reusable.OneTo1</title>
     <authors>He-Dev</authors>
     <owners>He-Dev</owners>
@@ -13,9 +13,9 @@
     <copyright>Copyright 2020 He-Dev</copyright>
     <tags>Utility Extension</tags>
     <dependencies>
-      <dependency id="JetBrains.Annotations" version="2019.1.3" />
-      <dependency id="Newtonsoft.Json" version="12.0.3" />
-      <dependency id="Reusable.Core" version="19.0.0" />
+      <dependency id="JetBrains.Annotations" version="2021.3.0" />
+      <dependency id="Newtonsoft.Json" version="13.0.1" />
+      <dependency id="Reusable.Core" version="21.1.0" />
     </dependencies>
   </metadata>
   <files>

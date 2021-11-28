@@ -1,8 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-
   <PropertyGroup>
-    <!--<TargetFramework>net47</TargetFramework>-->
-    <TargetFrameworks>netcoreapp2.2;net47</TargetFrameworks>
+    <TargetFramework>net6.0</TargetFramework>
     <RootNamespace>Reusable.Translucent</RootNamespace>
     <Configurations>Debug;Release;Debug.csproj</Configurations>
     <Platforms>AnyCPU;x64</Platforms>
@@ -21,8 +19,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="JetBrains.Annotations" Version="2019.1.3" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="2.2.6" />
+    <PackageReference Include="JetBrains.Annotations" Version="2021.3.0" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="5.0.4" />
     <PackageReference Include="System.ValueTuple" Version="4.5.0" />
   </ItemGroup>
 

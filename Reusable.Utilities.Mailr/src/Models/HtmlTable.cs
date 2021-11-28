@@ -141,7 +141,7 @@ namespace Reusable.Utilities.Mailr.Models
     {
         public static HtmlTableRow AddRow(this HtmlTableSection section)
         {
-            return new HtmlTableRow(section.Columns).Pipe(section.Add);
+            return new HtmlTableRow(section.Columns).Also(section.Add);
         }
 
         public static void Add(this HtmlTableSection table, IEnumerable<object> values)

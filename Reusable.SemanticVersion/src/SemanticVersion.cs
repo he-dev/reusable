@@ -23,14 +23,14 @@ namespace Reusable
         //         .Reject(b => b.When(x => x.Major < 0))
         //         .Reject(b => b.When(x => x.Minor < 0))
         //         .Reject(b => b.When(x => x.Patch < 0));
-        
+
 
         private static readonly string Pattern;
 
         static SemanticVersion()
         {
             var versionPatterns = new[] { "major", "minor", "patch" }.Select(x => $"(?<{x}>(?!0)[0-9]+|0)");
-            Pattern = $"^v?{string.Join("[\\.]", versionPatterns)}(-(?<labels>[a-z0-9\\.-]+))?$";
+            Pattern = $"^(?<prefix>v)?{string.Join("[\\.]", versionPatterns)}(-(?<labels>[a-z0-9\\.-]+))?$";
         }
 
         public SemanticVersion(int major, int minor, int patch, IEnumerable<string> labels)
@@ -46,6 +46,10 @@ namespace Reusable
             : this(major, minor, patch, Enumerable.Empty<string>()) { }
 
         public static IComparer<SemanticVersion> Comparer { get; } = new SemanticVersionComparer();
+
+        public static SemanticVersion Zero = new(0, 0, 0);
+
+        public bool Prefix { get; set; } = true;
 
         public int Major { get; }
 
@@ -74,31 +78,36 @@ namespace Reusable
         [ContractAnnotation("value: null => false, result: null")]
         public static bool TryParse(string value, out SemanticVersion result)
         {
+            result = default;
+            
             if (string.IsNullOrEmpty(value))
             {
-                result = default;
                 return false;
             }
 
             var versionMatch = Regex.Match(value.Trim(), Pattern);
-            result =
-                versionMatch.Success
-                    ? new SemanticVersion
-                    (
-                        major: int.Parse(versionMatch.Groups["major"].Value),
-                        minor: int.Parse(versionMatch.Groups["minor"].Value),
-                        patch: int.Parse(versionMatch.Groups["patch"].Value),
-                        labels: versionMatch.Groups["labels"].Value.Split(new[] { '.' }, StringSplitOptions.RemoveEmptyEntries).ToList()
-                    )
-                    : default;
+            if (versionMatch.Success)
+            {
+                result = new SemanticVersion
+                (
+                    major: int.Parse(versionMatch.Groups["major"].Value),
+                    minor: int.Parse(versionMatch.Groups["minor"].Value),
+                    patch: int.Parse(versionMatch.Groups["patch"].Value),
+                    labels: versionMatch.Groups["labels"].Value.Split(new[] { '.' }, StringSplitOptions.RemoveEmptyEntries).ToList()
+                )
+                {
+                    Prefix = versionMatch.Groups["prefix"].Success
+                };
+            }
 
-            return !(result is null);
+            return result is not null;
         }
 
         public override string ToString()
         {
+            var prefix = Prefix ? "v" : string.Empty;
             var labels = Labels.Any() ? $"-{string.Join(".", Labels)}" : string.Empty;
-            return $"{Major}.{Minor}.{Patch}{labels}";
+            return $"{prefix}{Major}.{Minor}.{Patch}{labels}";
         }
 
         #region IEquatable

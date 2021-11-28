@@ -3,11 +3,13 @@ using System.IO;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.AspNetCore.Http;
-using Reusable.Beaver;
+using Microsoft.AspNetCore.Http.Features;
 using Reusable.Extensions;
 using Reusable.OmniLog.Abstractions;
 using Reusable.OmniLog.Extensions;
 using Reusable.OmniLog.Nodes;
+using Reusable.FeatureBuzz;
+using IFeatureCollection = Reusable.FeatureBuzz.IFeatureCollection;
 
 namespace Reusable.OmniLog.Utilities.AspNetCore
 {
@@ -31,7 +33,7 @@ namespace Reusable.OmniLog.Utilities.AspNetCore
             _logger = loggerFactory.CreateLogger<SemanticLogger>();
         }
 
-        public async Task Invoke(HttpContext context, IFeatureController featureController)
+        public async Task Invoke(HttpContext context, IFeatureCollection features)
         {
             using var scope = 
                 _logger
@@ -64,7 +66,7 @@ namespace Reusable.OmniLog.Utilities.AspNetCore
 
                     using (var reader = new StreamReader(memory.Rewind()))
                     {
-                        responseBody = await featureController.Use(Features.LogResponseBody, async () => await reader.ReadToEndAsync());
+                        responseBody = await features.Use(Features.LogResponseBody, async () => await reader.ReadToEndAsync());
 
                         if (_config.CanUpdateOriginalResponseBody(context))
                         {

@@ -18,7 +18,7 @@ namespace Reusable.Utilities.Autofac
         {
             foreach (var item in source)
             {
-                builder.RegisterInstance(item).Pipe(configure);
+                builder.RegisterInstance(item).Also(configure);
             }
         }
 
@@ -31,7 +31,7 @@ namespace Reusable.Utilities.Autofac
         {
             foreach (var item in source)
             {
-                builder.RegisterInstance(item).Pipe(configure);
+                builder.RegisterInstance(item).Also(configure);
             }
         }
     }

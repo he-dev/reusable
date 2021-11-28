@@ -27,7 +27,7 @@ namespace Reusable.Commander.DependencyInjection
 
         public IRegistrationBuilder<TCommand, ConcreteReflectionActivatorData, SingleRegistrationStyle> Register<TCommand>() where TCommand : ICommand
         {
-            var command = new CommandInfo(typeof(TCommand)).Pipe(AddCommand);
+            var command = new CommandInfo(typeof(TCommand)).Also(AddCommand);
 
             return
                 Builder
@@ -37,7 +37,7 @@ namespace Reusable.Commander.DependencyInjection
 
         public IRegistrationBuilder<Lambda<TParameter>, SimpleActivatorData, SingleRegistrationStyle> Register<TParameter>(ArgumentName name, ExecuteDelegate<TParameter> execute) where TParameter : CommandParameter, new()
         {
-            var command = new CommandInfo(typeof(Lambda<TParameter>), name).Pipe(AddCommand);
+            var command = new CommandInfo(typeof(Lambda<TParameter>), name).Also(AddCommand);
             return
                 Builder
                     .Register(ctx => new Lambda<TParameter>(command.Name, execute))

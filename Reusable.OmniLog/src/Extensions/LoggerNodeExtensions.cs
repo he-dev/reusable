@@ -7,7 +7,7 @@ namespace Reusable.OmniLog.Extensions
     {
         public static T Enable<T>(this T node) where T : ILoggerNode
         {
-            return node.Pipe(x => x.Enabled = true);
+            return node.Also(x => x.Enabled = true);
         }
     }
 }

@@ -30,7 +30,7 @@ namespace Reusable
 
         public static DecoratorScope<T> Begin() => AsyncScope<DecoratorScope<T>>.Push(new DecoratorScope<T>());
 
-        public DecoratorScope<T> Add(DecorateDelegate<T> decorator) => this.Pipe(t => t._decorators.Add(decorator));
+        public DecoratorScope<T> Add(DecorateDelegate<T> decorator) => this.Also(t => t._decorators.Add(decorator));
 
         public DecoratorScope<T> Add<TDecorator>() => Add(decoratee => (T)Activator.CreateInstance(typeof(TDecorator), decoratee));
 

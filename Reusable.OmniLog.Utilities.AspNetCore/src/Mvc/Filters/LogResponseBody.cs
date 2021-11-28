@@ -1,6 +1,6 @@
 ﻿using JetBrains.Annotations;
 using Microsoft.AspNetCore.Mvc.Filters;
-using Reusable.Beaver;
+using Reusable.FeatureBuzz;
 
 namespace Reusable.OmniLog.Utilities.AspNetCore.Mvc.Filters
 {
@@ -10,16 +10,16 @@ namespace Reusable.OmniLog.Utilities.AspNetCore.Mvc.Filters
     [UsedImplicitly]
     public class LogResponseBody : ActionFilterAttribute
     {
-        private readonly IFeatureController _featureToggle;
+        private readonly IFeatureCollection _features;
 
-        public LogResponseBody(IFeatureController featureToggle)
+        public LogResponseBody(IFeatureCollection features)
         {
-            _featureToggle = featureToggle;
+            _features = features;
         }
 
         public override void OnActionExecuting(ActionExecutingContext context)
         {
-            _featureToggle.Add(SemanticLogger.Features.LogResponseBody, FeaturePolicy.AlwaysOn);
+            _features.TryAdd(SemanticLogger.Features.LogResponseBody, FeaturePolicy.Enabled);
         }
     }
 }

@@ -42,7 +42,7 @@ namespace Reusable.Translucent.Data
                 request.ControllerName = controller;
             }
             
-            request.Pipe(configure);
+            request.Also(configure);
 
             return request;
         }
