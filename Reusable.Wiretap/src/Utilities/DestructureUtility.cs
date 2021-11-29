@@ -4,7 +4,7 @@ using System.Linq;
 using System.Reflection;
 using Reusable.Exceptionize;
 
-namespace Reusable.OmniLog.Utilities
+namespace Reusable.Wiretap.Utilities
 {
     public static class DestructureUtility
     {

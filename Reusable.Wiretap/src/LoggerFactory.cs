@@ -3,9 +3,9 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using Reusable.Collections.Generic;
-using Reusable.OmniLog.Abstractions;
+using Reusable.Wiretap.Abstractions;
 
-namespace Reusable.OmniLog
+namespace Reusable.Wiretap
 {
     public class LoggerFactory : ILoggerFactory
     {

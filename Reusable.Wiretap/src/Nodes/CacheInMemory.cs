@@ -1,8 +1,8 @@
 using System.Collections;
 using System.Collections.Generic;
-using Reusable.OmniLog.Abstractions;
+using Reusable.Wiretap.Abstractions;
 
-namespace Reusable.OmniLog.Nodes
+namespace Reusable.Wiretap.Nodes
 {
     /// <summary>
     /// This node caches logs in memory. It is disabled by default.
@@ -15,11 +15,11 @@ namespace Reusable.OmniLog.Nodes
 
         public int Capacity { get; set; } = 10_000;
 
-        public override void Invoke(ILogEntry request)
+        public override void Invoke(ILogEntry entry)
         {
             lock (_entries)
             {
-                _entries.Enqueue(request);
+                _entries.Enqueue(entry);
 
                 if (_entries.Count > Capacity)
                 {
@@ -27,7 +27,7 @@ namespace Reusable.OmniLog.Nodes
                 }
             }
 
-            InvokeNext(request);
+            InvokeNext(entry);
         }
 
         public IEnumerator<ILogEntry> GetEnumerator() => _entries.GetEnumerator();

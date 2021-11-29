@@ -8,15 +8,17 @@ using Microsoft.AspNetCore.Mvc.Razor;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Reusable.OmniLog;
-using Reusable.OmniLog.Abstractions;
-using Reusable.OmniLog.Connectors;
-using Reusable.OmniLog.Extensions;
-using Reusable.OmniLog.Nodes;
-using Reusable.OmniLog.Properties;
 using Reusable.OmniLog.Utilities.AspNetCore;
 using Reusable.Utilities.AspNetCore;
 using Reusable.Utilities.AspNetCore.Hosting;
 using Reusable.Utilities.NLog.LayoutRenderers;
+using Reusable.Wiretap;
+using Reusable.Wiretap.Abstractions;
+using Reusable.Wiretap.Connectors;
+using Reusable.Wiretap.Data;
+using Reusable.Wiretap.Extensions;
+using Reusable.Wiretap.Nodes;
+using Reusable.Wiretap.Properties;
 
 [assembly: AspMvcViewLocationFormat("/src/Views/{1}/{0}.cshtml")]
 [assembly: AspMvcViewLocationFormat("/src/Views/Shared/{0}.cshtml")]

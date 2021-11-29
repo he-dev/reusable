@@ -1,7 +1,8 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 
-namespace Reusable.OmniLog.Abstractions
+namespace Reusable.Wiretap.Abstractions
 {
     public interface ILogger : ILoggerNode
     {
@@ -16,6 +17,6 @@ namespace Reusable.OmniLog.Abstractions
     {
         ILoggerNode First { get; }
         
-        Stack<(Exception Exception, Data.CallSite CallSite)> Exceptions { get; }
+        Stack<(Exception Exception, ICaller Caller)> Exceptions { get; }
     }
 }

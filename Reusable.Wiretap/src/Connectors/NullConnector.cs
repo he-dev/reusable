@@ -1,6 +1,6 @@
-using Reusable.OmniLog.Abstractions;
+using Reusable.Wiretap.Abstractions;
 
-namespace Reusable.OmniLog.Connectors
+namespace Reusable.Wiretap.Connectors
 {
     public class NullConnector : IConnector
     {

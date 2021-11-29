@@ -1,6 +1,6 @@
 using Reusable.Collections;
 
-namespace Reusable.OmniLog.Abstractions
+namespace Reusable.Wiretap.Abstractions
 {
     public interface ILogLevel
     {

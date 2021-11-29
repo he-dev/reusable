@@ -1,4 +1,5 @@
-using Reusable.OmniLog.Abstractions;
+using Reusable.Wiretap.Abstractions;
+using Reusable.Wiretap.Data;
 
 // ReSharper disable once CheckNamespace
 namespace Reusable.OmniLog

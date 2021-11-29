@@ -1,11 +1,13 @@
 using System.Collections.Generic;
-using Reusable.OmniLog.Abstractions;
-using Reusable.OmniLog.Extensions;
-using Reusable.OmniLog.Nodes;
-using Reusable.OmniLog.Properties;
-using Reusable.OmniLog.Services;
+using Reusable.OmniLog;
+using Reusable.Wiretap.Abstractions;
+using Reusable.Wiretap.Data;
+using Reusable.Wiretap.Extensions;
+using Reusable.Wiretap.Nodes;
+using Reusable.Wiretap.Properties;
+using Reusable.Wiretap.Services;
 
-namespace Reusable.OmniLog
+namespace Reusable.Wiretap
 {
     public static class LoggerPipelines
     {
@@ -63,7 +65,7 @@ namespace Reusable.OmniLog
                 };
                 yield return new FormatAsCamelCase
                 {
-                    Identifiers =
+                    PropertyNames =
                     {
                         Names.Properties.Environment,
                         Names.Properties.Logger,

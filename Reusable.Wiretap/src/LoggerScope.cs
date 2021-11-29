@@ -5,16 +5,16 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using Reusable.Collections.Generic;
 using Reusable.Extensions;
-using Reusable.OmniLog.Abstractions;
-using Reusable.OmniLog.Extensions;
-using Reusable.OmniLog.Data;
-using Reusable.OmniLog.Nodes;
-using CallSite = Reusable.OmniLog.Data.CallSite;
-using Telemetry = Reusable.OmniLog.Extensions.Telemetry;
+using Reusable.OmniLog;
+using Reusable.Wiretap.Abstractions;
+using Reusable.Wiretap.Data;
+using Reusable.Wiretap.Extensions;
+using Reusable.Wiretap.Nodes;
+using Telemetry = Reusable.Wiretap.Extensions.Telemetry;
 
 // ReSharper disable ExplicitCallerInfoArgument
 
-namespace Reusable.OmniLog
+namespace Reusable.Wiretap
 {
     public class LoggerScope : ILoggerScope
     {
@@ -24,11 +24,11 @@ namespace Reusable.OmniLog
 
         public ILoggerNode First { get; set; } = default!;
 
-        public Stack<(Exception Exception, Data.CallSite CallSite)> Exceptions { get; } = new Stack<(Exception, Data.CallSite)>();
+        public Stack<(Exception Exception, ICaller Caller)> Exceptions { get; } = new Stack<(Exception, ICaller)>();
 
         public object? WorkItem { get; set; }
 
-        public CallSite CallSite { get; set; } = default!;
+        public Caller Caller { get; set; } = default!;
 
         // Helps to prevent enumerating nodes beyond the scope pipeline.
         private bool IsMainPipeline(ILoggerNode node)
@@ -66,7 +66,7 @@ namespace Reusable.OmniLog
                     .Status(Helpers.GetFlowStatus(exception), WorkItem)
                     .Level(Helpers.GetLogLevel(exception))
                     .Exception(exception)
-                    .Then(x => x.CallSite(CallSite).Priority(LogEntryPriority.High))
+                    .Then(x => x.CallSite(Caller).Priority(LogEntryPriority.High))
             );
 
             AsyncScope<ILoggerScope>.Current?.Dispose();
@@ -100,14 +100,14 @@ namespace Reusable.OmniLog
     {
         public static void Push
         (
-            this Stack<(Exception, Data.CallSite)> stack,
+            this Stack<(Exception, ICaller)> stack,
             Exception exception,
             [CallerMemberName] string? callerMemberName = null,
             [CallerLineNumber] int callerLineNumber = 0,
             [CallerFilePath] string? callerFilePath = null
         )
         {
-            stack.Push((exception, new Data.CallSite(callerMemberName, callerLineNumber, callerFilePath)));
+            stack.Push((exception, new Caller(callerMemberName, callerLineNumber, callerFilePath)));
         }
     }
 }

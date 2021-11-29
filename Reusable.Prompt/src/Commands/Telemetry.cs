@@ -2,8 +2,8 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using Reusable.OmniLog;
-using Reusable.OmniLog.Abstractions;
-using Reusable.OmniLog.Nodes;
+using Reusable.Wiretap.Abstractions;
+using Reusable.Wiretap.Nodes;
 
 namespace Reusable.Commander.Commands
 {

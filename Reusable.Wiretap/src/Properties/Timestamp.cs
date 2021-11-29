@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using Reusable.OmniLog.Abstractions;
+using Reusable.Wiretap.Abstractions;
 
-namespace Reusable.OmniLog.Properties
+namespace Reusable.Wiretap.Properties
 {
     public class Timestamp : PropertyService, IDisposable
     {

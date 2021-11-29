@@ -1,7 +1,7 @@
 using System;
-using Reusable.OmniLog.Abstractions;
+using Reusable.Wiretap.Abstractions;
 
-namespace Reusable.OmniLog.Nodes
+namespace Reusable.Wiretap.Nodes
 {
     /// <summary>
     /// This node filters log-entries and short-circuits the pipeline.
@@ -10,11 +10,11 @@ namespace Reusable.OmniLog.Nodes
     {
         public Func<ILogEntry, bool> CanLog { get; set; } = _ => true;
 
-        public override void Invoke(ILogEntry request)
+        public override void Invoke(ILogEntry entry)
         {
-            if (CanLog(request))
+            if (CanLog(entry))
             {
-                InvokeNext(request);
+                InvokeNext(entry);
             }
         }
     }

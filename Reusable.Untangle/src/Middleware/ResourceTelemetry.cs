@@ -4,11 +4,11 @@ using JetBrains.Annotations;
 using Reusable.Exceptionize;
 using Reusable.Extensions;
 using Reusable.OmniLog;
-using Reusable.OmniLog.Extensions;
-using Reusable.OmniLog.Abstractions;
-using Reusable.OmniLog.Nodes;
 using Reusable.Translucent.Abstractions;
-using LoggerScopeExtensions = Reusable.OmniLog.Extensions.LoggerScopeExtensions;
+using Reusable.Wiretap.Abstractions;
+using Reusable.Wiretap.Extensions;
+using Reusable.Wiretap.Nodes;
+using LoggerScopeExtensions = Reusable.Wiretap.Extensions.LoggerScopeExtensions;
 
 namespace Reusable.Translucent.Middleware
 {

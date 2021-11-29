@@ -3,10 +3,10 @@ using System.Linq;
 using JetBrains.Annotations;
 using Reusable.MarkupBuilder;
 using Reusable.MarkupBuilder.Html;
-using Reusable.OmniLog.Abstractions;
-using Reusable.OmniLog.Data;
+using Reusable.Wiretap.Abstractions;
+using Reusable.Wiretap.Data;
 
-namespace Reusable.OmniLog.Services
+namespace Reusable.Wiretap.Services
 {
     public interface IConsoleTemplateBuilder<out T>
     {

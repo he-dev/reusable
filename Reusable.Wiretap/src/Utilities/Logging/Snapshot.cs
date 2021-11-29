@@ -1,7 +1,8 @@
 using System.Collections.Generic;
-using Reusable.OmniLog.Nodes;
+using Reusable.Wiretap.Data;
+using Reusable.Wiretap.Nodes;
 
-namespace Reusable.OmniLog.Utilities.Logging
+namespace Reusable.Wiretap.Utilities.Logging
 {
     public static class Snapshot
     {

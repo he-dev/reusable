@@ -2,12 +2,14 @@ using System;
 using System.Linq;
 using System.Threading;
 using Reusable.Collections.Generic;
-using Reusable.OmniLog.Abstractions;
-using Reusable.OmniLog.Connectors;
-using Reusable.OmniLog.Extensions;
-using Reusable.OmniLog.Nodes;
-using Reusable.OmniLog.Properties;
-using Reusable.OmniLog.Utilities;
+using Reusable.Wiretap;
+using Reusable.Wiretap.Abstractions;
+using Reusable.Wiretap.Connectors;
+using Reusable.Wiretap.Data;
+using Reusable.Wiretap.Extensions;
+using Reusable.Wiretap.Nodes;
+using Reusable.Wiretap.Properties;
+using Reusable.Wiretap.Utilities;
 using Xunit;
 
 //using Reusable.Wiretap.Attachments;
@@ -38,7 +40,7 @@ namespace Reusable.OmniLog
 
             public ILoggerNode? Next { get; set; }
 
-            public void Invoke(ILogEntry request) => throw new NotImplementedException();
+            public void Invoke(ILogEntry entry) => throw new NotImplementedException();
 
             public void Dispose() => throw new NotImplementedException();
         }

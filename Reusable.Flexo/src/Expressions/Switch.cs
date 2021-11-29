@@ -6,7 +6,7 @@ using Newtonsoft.Json;
 using Reusable.Data;
 using Reusable.Exceptionize;
 using Reusable.Flexo.Abstractions;
-using Reusable.OmniLog.Abstractions;
+using Reusable.Wiretap.Abstractions;
 
 namespace Reusable.Flexo
 {

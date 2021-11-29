@@ -9,9 +9,9 @@ using JetBrains.Annotations;
 using Reusable.Commander.Annotations;
 using Reusable.Data.Annotations;
 using Reusable.Extensions;
-using Reusable.OmniLog.Abstractions;
-using Reusable.OmniLog.Data;
-using Reusable.OmniLog.Extensions;
+using Reusable.Wiretap.Abstractions;
+using Reusable.Wiretap.Data;
+using Reusable.Wiretap.Extensions;
 using t = Reusable.Commander.ConsoleTemplates;
 
 namespace Reusable.Commander.Commands

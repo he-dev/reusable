@@ -1,8 +1,9 @@
 using System.Collections.Generic;
 using System.Linq;
-using Reusable.OmniLog.Abstractions;
+using Reusable.Wiretap.Abstractions;
+using Reusable.Wiretap.Data;
 
-namespace Reusable.OmniLog.Nodes
+namespace Reusable.Wiretap.Nodes
 {
     /// <summary>
     /// This node sets default values for the specified properties when they are not set already. 
@@ -13,17 +14,17 @@ namespace Reusable.OmniLog.Nodes
 
         public Dictionary<string, object> Properties { get; set; } = new Dictionary<string, object>();
 
-        public override void Invoke(ILogEntry request)
+        public override void Invoke(ILogEntry entry)
         {
-            foreach (var (key, value) in Properties.Select(x => (x.Key, x.Value)))
+            foreach (var (key, value) in Properties)
             {
-                if (!request.TryGetProperty(key, out _))
+                if (!entry.TryGetProperty(key, out _))
                 {
-                    request.Push(key, value, m => m.ProcessWith<Echo>());
+                    entry.Push(new LoggableProperty(key, value));
                 }
             }
 
-            InvokeNext(request);
+            InvokeNext(entry);
         }
     }
 }

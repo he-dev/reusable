@@ -1,8 +1,9 @@
 using System.Collections.Generic;
 using System.Linq;
-using Reusable.OmniLog.Abstractions;
+using Reusable.Wiretap.Abstractions;
+using Reusable.Wiretap.Data;
 
-namespace Reusable.OmniLog.Nodes
+namespace Reusable.Wiretap.Nodes
 {
     /// <summary>
     /// Adds computable properties to the log.
@@ -11,19 +12,19 @@ namespace Reusable.OmniLog.Nodes
     {
         public override bool Enabled => base.Enabled && Properties.Any();
 
-        public List<IPropertyService> Properties { get; set; } = new List<IPropertyService>();
+        public List<IPropertyService> Properties { get; set; } = new();
 
-        public override void Invoke(ILogEntry request)
+        public override void Invoke(ILogEntry entry)
         {
             foreach (var computable in Properties.Where(x => x.Enabled))
             {
-                if (computable.GetValue(request) is {} value)
+                if (computable.GetValue(entry) is {} value)
                 {
-                    request.Push(computable.Name, value, LogProperty.Process.With<Echo>());
+                    entry.Push(new LoggableProperty(computable.Name, value));
                 }
             }
 
-            InvokeNext(request);
+            InvokeNext(entry);
         }
     }
 }

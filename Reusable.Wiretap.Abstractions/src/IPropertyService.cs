@@ -2,7 +2,7 @@ using System;
 using Reusable.Collections;
 using Reusable.Diagnostics;
 
-namespace Reusable.OmniLog.Abstractions
+namespace Reusable.Wiretap.Abstractions
 {
     public interface IPropertyService : IEquatable<IPropertyService>
     {

@@ -4,7 +4,8 @@ using System.Threading.Tasks;
 using Autofac;
 using Reusable.Commander.DependencyInjection;
 using Reusable.OmniLog;
-using Reusable.OmniLog.Abstractions;
+using Reusable.Wiretap;
+using Reusable.Wiretap.Abstractions;
 
 namespace Reusable.Commander.Helpers
 {

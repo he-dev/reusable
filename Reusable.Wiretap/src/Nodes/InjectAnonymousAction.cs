@@ -1,8 +1,8 @@
 using System;
 using Reusable.Extensions;
-using Reusable.OmniLog.Abstractions;
+using Reusable.Wiretap.Abstractions;
 
-namespace Reusable.OmniLog.Nodes
+namespace Reusable.Wiretap.Nodes
 {
     /// <summary>
     /// This node adds support for <c>Logger.Log(log => ..)</c> overload.
@@ -13,17 +13,17 @@ namespace Reusable.OmniLog.Nodes
 
         public static void Push(Action<ILogEntry> node) => AsyncScope<Item>.Push(new Item(node));
 
-        public override void Invoke(ILogEntry request)
+        public override void Invoke(ILogEntry entry)
         {
             while (AsyncScope<Item>.Current is {} current)
             {
                 using (current)
                 {
-                    current.Value.Action(request);
+                    current.Value.Action(entry);
                 }
             }
 
-            InvokeNext(request);
+            InvokeNext(entry);
         }
 
         private class Item

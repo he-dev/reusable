@@ -1,9 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Reusable.OmniLog.Abstractions;
+using Reusable.Wiretap.Abstractions;
 
-namespace Reusable.OmniLog.Extensions
+namespace Reusable.Wiretap.Extensions
 {
     public static class LoggerPipelineExtensions
     {

@@ -1,4 +1,4 @@
-namespace Reusable.OmniLog.Data
+namespace Reusable.Wiretap.Data
 {
     public enum FlowStatus
     {

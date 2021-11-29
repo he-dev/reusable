@@ -1,6 +1,6 @@
 ﻿using JetBrains.Annotations;
 
-namespace Reusable.OmniLog.Abstractions
+namespace Reusable.Wiretap.Abstractions
 {
     [PublicAPI]
     public interface ISerialize

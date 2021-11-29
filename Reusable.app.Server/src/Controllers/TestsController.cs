@@ -1,8 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Reusable.OmniLog;
-using Reusable.OmniLog.Extensions;
-using Reusable.OmniLog.Abstractions;
 using Reusable.OmniLog.Utilities.AspNetCore.Mvc.Filters;
+using Reusable.Wiretap.Abstractions;
+using Reusable.Wiretap.Extensions;
 
 
 namespace Reusable.Apps.Server.Controllers

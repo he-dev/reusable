@@ -2,8 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq.Custom;
 using Reusable.MarkupBuilder.Html;
-using Reusable.OmniLog.Abstractions;
-using Reusable.OmniLog.Services;
+using Reusable.Wiretap.Abstractions;
+using Reusable.Wiretap.Services;
 
 // ReSharper disable once CheckNamespace
 namespace Reusable.Commander.ConsoleTemplates

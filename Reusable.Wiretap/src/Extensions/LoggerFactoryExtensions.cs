@@ -1,4 +1,4 @@
-namespace Reusable.OmniLog.Extensions
+namespace Reusable.Wiretap.Extensions
 {
     public static class LoggerFactoryExtensions
     {

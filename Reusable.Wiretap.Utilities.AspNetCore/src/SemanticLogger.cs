@@ -5,10 +5,11 @@ using JetBrains.Annotations;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Features;
 using Reusable.Extensions;
-using Reusable.OmniLog.Abstractions;
-using Reusable.OmniLog.Extensions;
-using Reusable.OmniLog.Nodes;
 using Reusable.FeatureBuzz;
+using Reusable.Wiretap;
+using Reusable.Wiretap.Abstractions;
+using Reusable.Wiretap.Extensions;
+using Reusable.Wiretap.Nodes;
 using IFeatureCollection = Reusable.FeatureBuzz.IFeatureCollection;
 
 namespace Reusable.OmniLog.Utilities.AspNetCore

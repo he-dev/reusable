@@ -4,7 +4,7 @@ using System.ComponentModel;
 using System.Threading.Tasks;
 using Reusable.Commander.Annotations;
 using Reusable.Commander.Helpers;
-using Reusable.OmniLog.Abstractions;
+using Reusable.Wiretap.Abstractions;
 using Xunit;
 
 namespace Reusable.Commander

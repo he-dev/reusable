@@ -1,17 +1,18 @@
 using Reusable.Extensions;
-using Reusable.OmniLog.Abstractions;
-using Reusable.OmniLog.Nodes;
+using Reusable.Wiretap.Abstractions;
+using Reusable.Wiretap.Data;
+using Reusable.Wiretap.Nodes;
 
-namespace Reusable.OmniLog
+namespace Reusable.Wiretap
 {
     public class Logger : LoggerNode, ILogger
     {
         public string Name { get; set; } = "Unknown";
 
-        public override void Invoke(ILogEntry request)
+        public override void Invoke(ILogEntry entry)
         {
-            request.Push(Names.Properties.Logger, Name, LogProperty.Process.With<Echo>());
-            InvokeNext(request);
+            entry.Push(new LoggableProperty.Logger(Name));
+            InvokeNext(entry);
         }
 
         public virtual void Log(ILogEntry logEntry)

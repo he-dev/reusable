@@ -1,27 +1,27 @@
 using System.Runtime.CompilerServices;
+using Reusable.Wiretap.Abstractions;
 
-
-namespace Reusable.OmniLog.Data
+namespace Reusable.Wiretap.Data
 {
-    public class CallSite
+    public class Caller : ICaller
     {
-        public CallSite
+        public Caller
         (
             [CallerMemberName] string? callerMemberName = null,
             [CallerLineNumber] int callerLineNumber = 0,
             [CallerFilePath] string? callerFilePath = null
         )
         {
-            CallerMemberName = callerMemberName!;
-            CallerLineNumber = callerLineNumber;
-            CallerFilePath = callerFilePath!;
+            MemberName = callerMemberName!;
+            LineNumber = callerLineNumber;
+            FilePath = callerFilePath!;
         }
 
-        public string CallerMemberName { get; }
+        public string MemberName { get; }
 
-        public int CallerLineNumber { get; }
+        public int LineNumber { get; }
 
-        public string CallerFilePath { get; }
+        public string FilePath { get; }
 
 
         // public IEnumerator<LogProperty> GetEnumerator()

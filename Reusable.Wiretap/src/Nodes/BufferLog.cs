@@ -1,8 +1,10 @@
 using System.Collections.Generic;
-using Reusable.OmniLog.Abstractions;
 using Reusable.Extensions;
+using Reusable.OmniLog;
+using Reusable.Wiretap.Abstractions;
+using Reusable.Wiretap.Data;
 
-namespace Reusable.OmniLog.Nodes
+namespace Reusable.Wiretap.Nodes
 {
     /// <summary>
     /// This node temporarily stores log-entries. You need to use Flush to log empty the buffer. This node is disabled by default. 
@@ -13,15 +15,15 @@ namespace Reusable.OmniLog.Nodes
 
         public override bool Enabled { get; set; }
 
-        public override void Invoke(ILogEntry request)
+        public override void Invoke(ILogEntry entry)
         {
-            if (request.TryGetProperty(Names.Properties.Priority, out var property) && property.Value.Equals(LogEntryPriority.High))
+            if (entry.TryGetProperty(Names.Properties.Priority, out var property) && property.Value.Equals(LogEntryPriority.High))
             {
-                InvokeNext(request);
+                InvokeNext(entry);
             }
             else
             {
-                _buffer.Enqueue(request);
+                _buffer.Enqueue(entry);
                 // Don't call Next until Flush.
             }
         }

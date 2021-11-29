@@ -3,9 +3,10 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
-using Reusable.OmniLog.Abstractions;
+using Reusable.Wiretap.Abstractions;
+using Reusable.Wiretap.Data;
 
-namespace Reusable.OmniLog.Nodes
+namespace Reusable.Wiretap.Nodes
 {
     /// <summary>
     /// This node maps one object into a different one.
@@ -14,19 +15,19 @@ namespace Reusable.OmniLog.Nodes
     {
         public MappingCollection Mappings { get; set; } = new MappingCollection();
 
-        public override void Invoke(ILogEntry request)
+        public override void Invoke(ILogEntry entry)
         {
-            foreach (var property in request.Where(LogProperty.CanProcess.With<SerializeProperty>()).ToList())
+            foreach (var property in entry.Where(LogProperty.CanProcess.With<SerializeProperty>()).ToList())
             {
                 // Do we have a custom mapping for the dump?
                 if (property.Value is {} && Mappings.TryGetMapping(property.Value.GetType(), out var map))
                 {
                     var obj = map(property.Value);
-                    request.Push(property.Name, obj, LogProperty.Process.With<SerializeProperty>()); // Replace the original object.
+                    entry.Push(property.Name, obj, LogProperty.Process.With<SerializeProperty>()); // Replace the original object.
                 }
             }
 
-            InvokeNext(request);
+            InvokeNext(entry);
         }
 
         public class Mapping

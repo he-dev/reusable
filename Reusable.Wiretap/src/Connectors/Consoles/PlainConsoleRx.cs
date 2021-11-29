@@ -2,9 +2,9 @@ using System;
 using JetBrains.Annotations;
 using Reusable.Extensions;
 using Reusable.FormatProviders;
-using Reusable.OmniLog.Abstractions;
+using Reusable.Wiretap.Abstractions;
 
-namespace Reusable.OmniLog.Connectors
+namespace Reusable.Wiretap.Connectors
 {
     [PublicAPI]
     public class PlainConsoleRx : IConnector

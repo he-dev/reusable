@@ -1,9 +1,10 @@
 ﻿using System.Collections.Generic;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
-using Reusable.OmniLog.Abstractions;
-using Reusable.OmniLog.Extensions;
 using Reusable.OmniLog.Utilities.AspNetCore.Mvc.Filters;
+using Reusable.Wiretap;
+using Reusable.Wiretap.Abstractions;
+using Reusable.Wiretap.Extensions;
 
 namespace Reusable.OmniLog.Utilities.AspNetCore
 {

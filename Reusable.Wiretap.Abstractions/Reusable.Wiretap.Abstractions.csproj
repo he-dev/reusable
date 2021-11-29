@@ -7,7 +7,6 @@
     <Nullable>enable</Nullable>
     <LangVersion>latest</LangVersion>
     <DebugType>full</DebugType>
-    <RootNamespace>Reusable.OmniLog.Abstractions</RootNamespace>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">

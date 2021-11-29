@@ -1,10 +1,10 @@
 using System;
 using System.Diagnostics;
-using Reusable.OmniLog.Abstractions;
-using Reusable.OmniLog.Data;
-using Reusable.OmniLog.Utilities;
+using Reusable.Wiretap.Abstractions;
+using Reusable.Wiretap.Data;
+using Reusable.Wiretap.Utilities;
 
-namespace Reusable.OmniLog.Nodes
+namespace Reusable.Wiretap.Nodes
 {
     using static TimeSpanPrecision;
 
@@ -27,10 +27,10 @@ namespace Reusable.OmniLog.Nodes
 
         public TimeSpan Elapsed => _stopwatch.Elapsed;
 
-        public override void Invoke(ILogEntry request)
+        public override void Invoke(ILogEntry entry)
         {
-            request.Push(Names.Properties.Elapsed, (long)GetValue(Elapsed), LogProperty.Process.With<Echo>());
-            InvokeNext(request);
+            entry.Push(new LoggableProperty.Elapsed((long)GetValue(Elapsed)));
+            InvokeNext(entry);
         }
 
         public void Reset() => _stopwatch.Reset();

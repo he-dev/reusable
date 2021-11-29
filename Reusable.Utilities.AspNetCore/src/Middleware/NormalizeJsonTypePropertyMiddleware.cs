@@ -12,11 +12,11 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Reusable.Extensions;
 using Reusable.OmniLog;
-using Reusable.OmniLog.Abstractions;
-using Reusable.OmniLog.Nodes;
 using Reusable.Utilities.JsonNet;
 using Reusable.Utilities.JsonNet.Abstractions;
 using Reusable.Utilities.JsonNet.Visitors;
+using Reusable.Wiretap.Abstractions;
+using Reusable.Wiretap.Nodes;
 
 namespace Reusable.Utilities.AspNetCore.Middleware
 {

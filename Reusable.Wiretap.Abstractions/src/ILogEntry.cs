@@ -1,13 +1,13 @@
 using System.Collections.Generic;
 
-namespace Reusable.OmniLog.Abstractions
+namespace Reusable.Wiretap.Abstractions
 {
-    public interface ILogEntry : IEnumerable<LogProperty>
+    public interface ILogEntry : IEnumerable<ILogProperty>
     {
-        LogProperty this[string name] { get; }
+        ILogProperty this[string name] { get; }
 
-        void Push(LogProperty property);
+        ILogEntry Push(ILogProperty property);
 
-        bool TryGetProperty(string name, out LogProperty property);
+        bool TryGetProperty(string name, out ILogProperty? property);
     }
 }

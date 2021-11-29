@@ -3,7 +3,7 @@ using System.Linq;
 using System.Xml.Linq;
 using Reusable.MarkupBuilder.Html;
 
-namespace Reusable.OmniLog.Data
+namespace Reusable.Wiretap.Data
 {
     public interface IConsoleStyle
     {

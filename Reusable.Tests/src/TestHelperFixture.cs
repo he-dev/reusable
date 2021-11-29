@@ -2,9 +2,9 @@ using System;
 using JetBrains.Annotations;
 using Microsoft.Extensions.Caching.Memory;
 using Reusable.OmniLog;
-using Reusable.OmniLog.Abstractions;
-using Reusable.OmniLog.Connectors;
 using Reusable.Translucent;
+using Reusable.Wiretap.Abstractions;
+using Reusable.Wiretap.Connectors;
 
 namespace Reusable
 {

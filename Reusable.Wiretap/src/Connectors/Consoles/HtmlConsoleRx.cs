@@ -3,18 +3,18 @@ using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
 using Reusable.MarkupBuilder.Html;
-using Reusable.OmniLog.Abstractions;
-using Reusable.OmniLog.Data;
-using Reusable.OmniLog.Services;
+using Reusable.Wiretap.Abstractions;
+using Reusable.Wiretap.Data;
+using Reusable.Wiretap.Services;
 
-namespace Reusable.OmniLog.Connectors
+namespace Reusable.Wiretap.Connectors
 {
     [PublicAPI]
     public class HtmlConsoleRx : IConnector
     {
-        public static readonly ConsoleStyle DefaultStyle = new ConsoleStyle(ConsoleColor.Black, ConsoleColor.Gray);
+        public static readonly ConsoleStyle DefaultStyle = new(ConsoleColor.Black, ConsoleColor.Gray);
 
-        private readonly object _syncLock = new object();
+        private readonly object _syncLock = new();
 
         public IConsoleStyle Style { get; set; } = DefaultStyle;
 
@@ -27,7 +27,7 @@ namespace Reusable.OmniLog.Connectors
         {
             lock (_syncLock)
             {
-                if (entry.TryGetProperty(Names.Properties.Message, out var property) && property.Value is IHtmlConsoleTemplateBuilder builder)
+                if (entry.TryGetProperty(nameof(HtmlProperty.Message), out var property) && property is HtmlProperty && property.Value is IHtmlConsoleTemplateBuilder builder)
                 {
                     var template = builder.Build(entry);
 

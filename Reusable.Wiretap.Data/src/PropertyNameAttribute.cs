@@ -1,6 +1,6 @@
 using System;
 
-namespace Reusable.OmniLog.Abstractions
+namespace Reusable.Wiretap.Data
 {
     public class PropertyNameAttribute : Attribute
     {

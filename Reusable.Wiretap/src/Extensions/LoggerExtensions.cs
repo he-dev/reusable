@@ -8,13 +8,13 @@ using JetBrains.Annotations;
 using Reusable.Collections.Generic;
 using Reusable.Exceptionize;
 using Reusable.Extensions;
-using Reusable.OmniLog.Abstractions;
-using Reusable.OmniLog.Connectors;
-using Reusable.OmniLog.Data;
-using Reusable.OmniLog.Nodes;
-using Reusable.OmniLog.Services;
+using Reusable.OmniLog;
+using Reusable.Wiretap.Abstractions;
+using Reusable.Wiretap.Data;
+using Reusable.Wiretap.Nodes;
+using Reusable.Wiretap.Services;
 
-namespace Reusable.OmniLog.Extensions
+namespace Reusable.Wiretap.Extensions
 {
     [PublicAPI]
     public static class LoggerExtensions
@@ -104,7 +104,7 @@ namespace Reusable.OmniLog.Extensions
 
         public static void Log(this ILogger logger, params object[] items)
         {
-            logger.PushProperties(items?.Where(x => x is {}));
+            logger.PushProperties(items.Where(x => x is {}));
             logger.Log(LogEntry.Empty());
         }
 
@@ -119,9 +119,9 @@ namespace Reusable.OmniLog.Extensions
         {
             logger.PushDelegate(action.Then(log =>
             {
-                log.Push(Names.Properties.CallerMemberName, callerMemberName!, m => m.ProcessWith<Echo>());
-                log.Push(Names.Properties.CallerLineNumber, callerLineNumber!, m => m.ProcessWith<Echo>());
-                log.Push(Names.Properties.CallerFilePath, Path.GetFileName(callerFilePath!), m => m.ProcessWith<Echo>());
+                log.Push(new LoggableProperty.CallerMemberName(callerMemberName!));
+                log.Push(new LoggableProperty.CallerLineNumber(callerLineNumber!));
+                log.Push(new LoggableProperty.CallerFilePath(callerFilePath!));
             }));
             logger.Log(LogEntry.Empty());
         }
@@ -152,7 +152,8 @@ namespace Reusable.OmniLog.Extensions
 
         private static ILogEntry ConsoleTemplateBuilder(this ILogEntry logEntry, bool isParagraph, IConsoleStyle style, IEnumerable<IHtmlConsoleTemplateBuilder> builders)
         {
-            return logEntry.Push(Names.Properties.Message, new HtmlConsoleTemplateBuilder(isParagraph, style, builders), m => m.ProcessWith<Echo>().LogWith<HtmlConsoleRx>());
+            return logEntry.Also(e => e.Push(new HtmlProperty.Message(new HtmlConsoleTemplateBuilder(isParagraph, style, builders))));
+            //return logEntry.Push( Names.Properties.Message, new HtmlConsoleTemplateBuilder(isParagraph, style, builders), m => m.ProcessWith<Echo>().LogWith<HtmlConsoleRx>());
         }
 
         #endregion

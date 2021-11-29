@@ -1,6 +1,6 @@
-using Reusable.OmniLog.Abstractions;
+using Reusable.Wiretap.Abstractions;
 
-namespace Reusable.OmniLog.Properties
+namespace Reusable.Wiretap.Properties
 {
     public class Constant : PropertyService
     {

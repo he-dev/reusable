@@ -2,8 +2,9 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Reusable.OmniLog;
-using Reusable.OmniLog.Abstractions;
-using Reusable.OmniLog.Extensions;
+using Reusable.Wiretap;
+using Reusable.Wiretap.Abstractions;
+using Reusable.Wiretap.Extensions;
 
 namespace Reusable.Utilities.AspNetCore.ActionFilters
 {

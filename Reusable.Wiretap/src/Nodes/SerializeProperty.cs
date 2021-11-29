@@ -1,25 +1,28 @@
 using System.Linq;
-using Reusable.OmniLog.Abstractions;
-using Reusable.OmniLog.Services;
+using JetBrains.Annotations;
+using Reusable.Wiretap.Abstractions;
+using Reusable.Wiretap.Data;
+using Reusable.Wiretap.Extensions;
+using Reusable.Wiretap.Services;
 
-namespace Reusable.OmniLog.Nodes
+namespace Reusable.Wiretap.Nodes;
+
+/// <summary>
+/// This nodes takes care of serializable properties.
+/// </summary>
+[PublicAPI]
+public class SerializeProperty : LoggerNode
 {
-    /// <summary>
-    /// This nodes serializes properties that are targeted for this node.
-    /// </summary>
-    public class SerializeProperty : LoggerNode
+    public ISerialize Serialize { get; set; } = new SerializeToJson();
+
+    public override void Invoke(ILogEntry entry)
     {
-        public ISerialize Serialize { get; set; } = new SerializeToJson();
-
-        public override void Invoke(ILogEntry request)
+        foreach (var property in entry.Where<SerializableProperty>().ToList())
         {
-            foreach (var property in request.Where(LogProperty.CanProcess.With(this)).ToList())
-            {
-                var obj = Serialize.Invoke(property.Value);
-                request.Push(property.Name, obj, m => m.ProcessWith<Echo>());
-            }
-
-            InvokeNext(request);
+            var obj = Serialize.Invoke(property.Value);
+            entry.Push(new LoggableProperty(property.Name, obj));
         }
+
+        InvokeNext(entry);
     }
 }

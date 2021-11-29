@@ -90,6 +90,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "lib-utilities", "lib-utilit
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "lib-tools", "lib-tools", "{5CCF0451-250A-4AF3-8756-8ACEACC1826D}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reusable.Wiretap.Data", "D:\.stuff\a\projects\reusable\Reusable.Wiretap.Data\Reusable.Wiretap.Data.csproj", "{4BA0F472-D093-4902-902C-53848B67222C}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -235,6 +237,10 @@ Global
 		{06522BEB-490C-45DD-A428-A7F0EB84E147}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{06522BEB-490C-45DD-A428-A7F0EB84E147}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{06522BEB-490C-45DD-A428-A7F0EB84E147}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4BA0F472-D093-4902-902C-53848B67222C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4BA0F472-D093-4902-902C-53848B67222C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4BA0F472-D093-4902-902C-53848B67222C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4BA0F472-D093-4902-902C-53848B67222C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -275,6 +281,7 @@ Global
 		{2465FD65-5736-46BE-B129-98C57E2966C2} = {5CCF0451-250A-4AF3-8756-8ACEACC1826D}
 		{E7F840D2-A33D-4940-B68C-363323EE97EA} = {5CCF0451-250A-4AF3-8756-8ACEACC1826D}
 		{26F67C2C-88AC-4F6D-ABC8-4386586963B2} = {5CCF0451-250A-4AF3-8756-8ACEACC1826D}
+		{4BA0F472-D093-4902-902C-53848B67222C} = {0558F331-6EE1-4E74-B402-8CA44A62A37D}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {2FA54731-890C-4550-BACA-E19B564CE1E3}

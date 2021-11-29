@@ -1,7 +1,7 @@
 using Reusable.Extensions;
-using Reusable.OmniLog.Abstractions;
+using Reusable.Wiretap.Abstractions;
 
-namespace Reusable.OmniLog.Extensions
+namespace Reusable.Wiretap.Extensions
 {
     public static class LoggerNodeExtensions
     {

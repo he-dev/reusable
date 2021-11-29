@@ -1,12 +1,12 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
-using System.Linq;
 using Reusable.Extensions;
-using Reusable.OmniLog.Abstractions;
-using Reusable.OmniLog.Nodes;
+using Reusable.Wiretap.Abstractions;
+using Reusable.Wiretap.Data;
+using Reusable.Wiretap.Nodes;
 
-namespace Reusable.OmniLog.Utilities
+namespace Reusable.Wiretap.Utilities
 {
     public static class DataTableUtility
     {

@@ -1,29 +1,30 @@
 using System.Collections.Generic;
 using Reusable.Extensions;
-using Reusable.OmniLog.Abstractions;
+using Reusable.Wiretap.Abstractions;
+using Reusable.Wiretap.Data;
 
-namespace Reusable.OmniLog.Nodes
+namespace Reusable.Wiretap.Nodes
 {
     /// <summary>
-    /// This nodes formats the specified <c>Identifiers</c> as camel-case.
+    /// This node formats the values of the specified <c>PropertyNames</c> as camel-case.
     /// </summary>
     public class FormatAsCamelCase : LoggerNode
     {
         public override bool Enabled => true;
+        
+        public HashSet<string> PropertyNames { get; set; } = new(SoftString.Comparer);
 
-        public HashSet<string> Identifiers { get; set; } = new HashSet<string>(SoftString.Comparer);
-
-        public override void Invoke(ILogEntry request)
+        public override void Invoke(ILogEntry entry)
         {
-            foreach (var propertyName in Identifiers)
+            foreach (var propertyName in PropertyNames)
             {
-                if (request.TryGetProperty(propertyName, out var property) && property.Value is string value)
+                if (entry.TryGetProperty(propertyName, out var property) && property?.Value is string value)
                 {
-                    request.Push(property.Name, value.ToCamelCase(), LogProperty.Process.With<Echo>());
+                    entry.Push(new LoggableProperty(property.Name, value.ToCamelCase()));
                 }
             }
 
-            InvokeNext(request);
+            InvokeNext(entry);
         }
     }
 }

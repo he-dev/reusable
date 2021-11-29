@@ -1,16 +1,17 @@
 using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.Extensions.Caching.Memory;
 using Reusable.OmniLog;
-using Reusable.OmniLog.Abstractions;
-using Reusable.OmniLog.Extensions;
-using Reusable.OmniLog.Nodes;
-using Reusable.OmniLog.Properties;
 using Reusable.Translucent;
 using Reusable.Translucent.Abstractions;
 using Reusable.Translucent.Controllers;
 using Reusable.Translucent.Middleware;
 using Reusable.Translucent.Middleware.ResourceValidator;
 using Reusable.Translucent.Middleware.ResourceValidators;
+using Reusable.Wiretap;
+using Reusable.Wiretap.Abstractions;
+using Reusable.Wiretap.Extensions;
+using Reusable.Wiretap.Nodes;
+using Reusable.Wiretap.Properties;
 
 namespace Reusable
 {

@@ -1,31 +1,31 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Reusable.OmniLog.Abstractions;
+using Reusable.Wiretap.Abstractions;
+using Reusable.Wiretap.Data;
 
-namespace Reusable.OmniLog.Nodes
+namespace Reusable.Wiretap.Nodes;
+
+/// <summary>
+/// This node passes the received entry to the specified <c>Connectors</c>. It's usually the last node.
+/// </summary>
+public class Echo : LoggerNode
 {
-    /// <summary>
-    /// This node passes the received entry to the specified <c>Connectors</c>. It's usually the last node.
-    /// </summary>
-    public class Echo : LoggerNode
+    public override bool Enabled => Connectors?.Any() == true;
+
+    public List<IConnector> Connectors { get; set; } = new();
+
+    public Func<ILogEntry, ILogEntry> CreateLogEntryView { get; set; } = entry => new LogEntryView<LogProperty>(entry);
+
+    public override void Invoke(ILogEntry entry)
     {
-        public override bool Enabled => Connectors?.Any() == true;
+        var view = CreateLogEntryView(entry);
 
-        public List<IConnector> Connectors { get; set; } = new List<IConnector>();
-
-        public Func<ILogEntry, ILogEntry> CreateLogEntryView { get; set; } = entry => new LogEntryView<Echo>(entry);
-
-        public override void Invoke(ILogEntry request)
+        foreach (var rx in Connectors)
         {
-            var view = CreateLogEntryView(request);
-
-            foreach (var rx in Connectors)
-            {
-                rx.Log(view);
-            }
-
-            InvokeNext(request);
+            rx.Log(view);
         }
+
+        InvokeNext(entry);
     }
 }

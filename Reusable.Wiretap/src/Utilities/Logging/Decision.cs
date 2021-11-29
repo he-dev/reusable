@@ -1,10 +1,9 @@
 using System;
 using System.Collections.Generic;
-using Reusable.OmniLog.Abstractions;
-using Reusable.OmniLog.Extensions;
-using Reusable.OmniLog.Nodes;
+using Reusable.Wiretap.Abstractions;
+using Reusable.Wiretap.Extensions;
 
-namespace Reusable.OmniLog.Utilities.Logging
+namespace Reusable.Wiretap.Utilities.Logging
 {
     public static class Decision
     {

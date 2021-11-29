@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using JetBrains.Annotations;
 using Reusable.Data;
-using Reusable.OmniLog.Abstractions;
+using Reusable.Wiretap.Abstractions;
 
 namespace Reusable.Flexo.Abstractions
 {

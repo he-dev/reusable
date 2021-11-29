@@ -1,7 +1,7 @@
 using System;
-using Reusable.OmniLog.Data;
+using Reusable.Wiretap.Data;
 
-namespace Reusable.OmniLog.Utilities
+namespace Reusable.Wiretap.Utilities
 {
     public static class TimeSpanUtility
     {

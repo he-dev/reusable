@@ -1,8 +1,8 @@
 using System;
 using Autofac;
-using Reusable.OmniLog.Abstractions;
+using Reusable.Wiretap.Abstractions;
 
-namespace Reusable.OmniLog
+namespace Reusable.Wiretap
 {
     public class LoggerModule : Module
     {

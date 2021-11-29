@@ -3,19 +3,18 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using JetBrains.Annotations;
-using Reusable.OmniLog.Abstractions;
 using Reusable.Collections.Generic;
 using Reusable.Extensions;
-using Reusable.OmniLog.Data;
-using Reusable.OmniLog.Extensions;
-using CallSite = Reusable.OmniLog.Data.CallSite;
+using Reusable.Wiretap.Abstractions;
+using Reusable.Wiretap.Data;
+using Reusable.Wiretap.Extensions;
 
 // ReSharper disable ExplicitCallerInfoArgument - this is fine because it needs to be overriden
 
-namespace Reusable.OmniLog.Nodes
+namespace Reusable.Wiretap.Nodes
 {
     /// <summary>
-    /// This node turn logger-scope on or off. By default it logs BeginScope and EndScope entries for each scope.
+    /// This node turns logger-scope on or off. By default it logs BeginScope and EndScope entries for each scope.
     /// </summary>
     public class ToggleScope : LoggerNode
     {
@@ -33,7 +32,7 @@ namespace Reusable.OmniLog.Nodes
             }
         }
 
-        public ILoggerScope Push(ILogger logger, string name, object? workItem, CallSite callSite)
+        public ILoggerScope Push(ILogger logger, string name, object? workItem, Caller caller)
         {
             try
             {
@@ -42,7 +41,7 @@ namespace Reusable.OmniLog.Nodes
                     Name = name,
                     Logger = logger,
                     WorkItem = workItem,
-                    CallSite = callSite,
+                    Caller = caller,
                     First = CreatePipeline(this, CreateNodes()),
                 };
                 return AsyncScope<ILoggerScope>.Push(scope).Value;
@@ -56,10 +55,10 @@ namespace Reusable.OmniLog.Nodes
             }
         }
 
-        public override void Invoke(ILogEntry request)
+        public override void Invoke(ILogEntry entry)
         {
             // Does not call InvokeNext because it routes the request over the scope which is connected to the next node.
-            Current.First.Invoke(request);
+            Current.First.Invoke(entry);
         }
 
         private static ILoggerNode CreatePipeline(ILoggerNode main, IEnumerable<ILoggerNode> branch)
@@ -89,7 +88,7 @@ namespace Reusable.OmniLog.Nodes
             [CallerFilePath] string? callerFilePath = null
         )
         {
-            return logger.Node<ToggleScope>().Push(logger, name, workItem, new CallSite(callerMemberName, callerLineNumber, callerFilePath));
+            return logger.Node<ToggleScope>().Push(logger, name, workItem, new Caller(callerMemberName, callerLineNumber, callerFilePath));
         }
         
         [MustUseReturnValue]
@@ -102,7 +101,7 @@ namespace Reusable.OmniLog.Nodes
             [CallerFilePath] string? callerFilePath = null
         )
         {
-            return logger.Node<ToggleScope>().Push(logger, typeof(T).ToPrettyString(), workItem, new CallSite(callerMemberName, callerLineNumber, callerFilePath));
+            return logger.Node<ToggleScope>().Push(logger, typeof(T).ToPrettyString(), workItem, new Caller(callerMemberName, callerLineNumber, callerFilePath));
         }
         
         [MustUseReturnValue]
@@ -116,7 +115,7 @@ namespace Reusable.OmniLog.Nodes
             [CallerFilePath] string? callerFilePath = null
         )
         {
-            return logger.Node<ToggleScope>().Push(logger, typeof(T).ToPrettyString(), workItem, new CallSite(callerMemberName, callerLineNumber, callerFilePath));
+            return logger.Node<ToggleScope>().Push(logger, typeof(T).ToPrettyString(), workItem, new Caller(callerMemberName, callerLineNumber, callerFilePath));
         }
         
         

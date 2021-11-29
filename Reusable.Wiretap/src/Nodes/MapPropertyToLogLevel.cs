@@ -1,8 +1,10 @@
 using System;
 using System.Collections.Generic;
-using Reusable.OmniLog.Abstractions;
+using Reusable.OmniLog;
+using Reusable.Wiretap.Abstractions;
+using Reusable.Wiretap.Data;
 
-namespace Reusable.OmniLog.Nodes
+namespace Reusable.Wiretap.Nodes
 {
     /// <summary>
     /// This nodes maps properties into log-levels.
@@ -13,17 +15,17 @@ namespace Reusable.OmniLog.Nodes
 
         public IMapObjectToLogLevel Mapper { get; set; } = default!;
 
-        public override void Invoke(ILogEntry request)
+        public override void Invoke(ILogEntry entry)
         {
             if (PropertyName is null) throw new InvalidOperationException($"{nameof(PropertyName)} must be set first.");
             if (Mapper is null) throw new InvalidOperationException($"{nameof(Mapper)} must be set first.");
             
-            if (!request.TryGetProperty(Names.Properties.Level, out _) && request.TryGetProperty(PropertyName, out var property))
+            if (!entry.TryGetProperty(Names.Properties.Level, out _) && entry.TryGetProperty(PropertyName, out var property))
             {
-                request.Push(Names.Properties.Level, Mapper.Invoke(property.Value), m => m.ProcessWith<Echo>());
+                entry.Push(Names.Properties.Level, Mapper.Invoke(property.Value), m => m.ProcessWith<Echo>());
             }
 
-            InvokeNext(request);
+            InvokeNext(entry);
         }
     }
 

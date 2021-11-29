@@ -1,10 +1,10 @@
 ﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Serialization;
-using Reusable.OmniLog.Abstractions;
 using Reusable.Utilities.JsonNet.Converters;
+using Reusable.Wiretap.Abstractions;
 
-namespace Reusable.OmniLog.Services
+namespace Reusable.Wiretap.Services
 {
     public class SerializeToJson : ISerialize
     {

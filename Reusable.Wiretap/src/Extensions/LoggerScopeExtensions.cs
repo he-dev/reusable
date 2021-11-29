@@ -1,9 +1,9 @@
 using System;
 using Reusable.Extensions;
-using Reusable.OmniLog.Abstractions;
-using Reusable.OmniLog.Nodes;
+using Reusable.Wiretap.Abstractions;
+using Reusable.Wiretap.Nodes;
 
-namespace Reusable.OmniLog.Extensions
+namespace Reusable.Wiretap.Extensions
 {
     public static class LoggerScopeExtensions
     {

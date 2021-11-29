@@ -2,13 +2,13 @@ using System;
 using System.Linq;
 using Reusable.Collections.Generic;
 
-namespace Reusable.OmniLog.Abstractions
+namespace Reusable.Wiretap.Abstractions
 {
     public interface ILoggerNode : INode<ILoggerNode>, IDisposable
     {
         bool Enabled { get; set; }
 
-        void Invoke(ILogEntry request);
+        void Invoke(ILogEntry entry);
     }
 
     public abstract class LoggerNode : ILoggerNode
@@ -19,7 +19,7 @@ namespace Reusable.OmniLog.Abstractions
 
         public virtual ILoggerNode? Next { get; set; }
         
-        public abstract void Invoke(ILogEntry request);
+        public abstract void Invoke(ILogEntry entry);
 
         protected void InvokeNext(ILogEntry request)
         {

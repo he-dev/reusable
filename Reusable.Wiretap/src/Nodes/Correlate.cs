@@ -2,10 +2,11 @@ using System;
 using System.Linq;
 using Newtonsoft.Json;
 using Reusable.Collections.Generic;
-using Reusable.OmniLog.Abstractions;
-using Reusable.OmniLog.Extensions;
+using Reusable.Wiretap.Abstractions;
+using Reusable.Wiretap.Data;
+using Reusable.Wiretap.Extensions;
 
-namespace Reusable.OmniLog.Nodes
+namespace Reusable.Wiretap.Nodes
 {
     /// <summary>
     /// This nodes provides properties for log-entry correlation.
@@ -30,14 +31,14 @@ namespace Reusable.OmniLog.Nodes
         [JsonProperty]
         public object? CorrelationHandle { get; set; }
 
-        public override void Invoke(ILogEntry request)
+        public override void Invoke(ILogEntry entry)
         {
             if (Prev is { } prev)
             {
                 var correlations = prev.EnumeratePrev().OfType<ToggleScope>().Single().Current.Select(x => x.First.Node<Correlate>()).ToList();
-                request.Push(Names.Properties.Correlation, correlations, m => m.ProcessWith<SerializeProperty>());
+                entry.Push(new SerializableProperty.Correlation(correlations));
             }
-            InvokeNext(request);
+            InvokeNext(entry);
         }
     }
 }

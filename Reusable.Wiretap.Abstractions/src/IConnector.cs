@@ -1,4 +1,4 @@
-﻿namespace Reusable.OmniLog.Abstractions
+﻿namespace Reusable.Wiretap.Abstractions
 {
     public interface IConnector
     {

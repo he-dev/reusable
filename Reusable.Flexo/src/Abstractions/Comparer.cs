@@ -4,7 +4,7 @@ using System.Linq;
 using JetBrains.Annotations;
 using Newtonsoft.Json;
 using Reusable.Data;
-using Reusable.OmniLog.Abstractions;
+using Reusable.Wiretap.Abstractions;
 
 namespace Reusable.Flexo.Abstractions
 {

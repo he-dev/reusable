@@ -6,9 +6,10 @@ using Autofac;
 using JetBrains.Annotations;
 using Reusable.Flexo.Abstractions;
 using Reusable.OmniLog;
-using Reusable.OmniLog.Abstractions;
 using Reusable.Translucent;
 using Reusable.Utilities.JsonNet.DependencyInjection;
+using Reusable.Wiretap;
+using Reusable.Wiretap.Abstractions;
 
 namespace Reusable.Flexo
 {

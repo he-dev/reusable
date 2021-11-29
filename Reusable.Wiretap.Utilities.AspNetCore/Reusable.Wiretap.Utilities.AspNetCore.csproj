@@ -7,7 +7,6 @@
     <LangVersion>default</LangVersion>
     <Nullable>enable</Nullable>
     <DebugType>full</DebugType>
-    <RootNamespace>Reusable.OmniLog.Utilities.AspNetCore</RootNamespace>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">

@@ -4,14 +4,15 @@ using System.Security.Authentication;
 using Reusable.Apps;
 using Reusable.Exceptionize;
 using Reusable.OmniLog;
-using Reusable.OmniLog.Abstractions;
-using Reusable.OmniLog.Connectors;
-using Reusable.OmniLog.Nodes;
-using Reusable.OmniLog.Extensions;
-using Reusable.OmniLog.Properties;
-using Reusable.OmniLog.Utilities;
-using Reusable.OmniLog.Utilities.Logging;
 using Reusable.Utilities.NLog.LayoutRenderers;
+using Reusable.Wiretap;
+using Reusable.Wiretap.Abstractions;
+using Reusable.Wiretap.Connectors;
+using Reusable.Wiretap.Data;
+using Reusable.Wiretap.Extensions;
+using Reusable.Wiretap.Nodes;
+using Reusable.Wiretap.Properties;
+using Reusable.Wiretap.Utilities.Logging;
 
 namespace Reusable
 {

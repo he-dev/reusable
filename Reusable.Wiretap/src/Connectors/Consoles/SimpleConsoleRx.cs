@@ -1,8 +1,10 @@
 using System;
 using System.Collections.Generic;
-using Reusable.OmniLog.Abstractions;
+using Reusable.OmniLog;
+using Reusable.Wiretap.Abstractions;
+using Reusable.Wiretap.Data;
 
-namespace Reusable.OmniLog.Connectors
+namespace Reusable.Wiretap.Connectors
 {
     using static LogLevel;
 
@@ -29,7 +31,7 @@ namespace Reusable.OmniLog.Connectors
 
         private ConsoleColor GetConsoleColor(ILogEntry entry)
         {
-            if (entry.TryGetProperty(Names.Properties.Level, out var property) && property.Value is LogLevel logLevel && LogLevelColor.TryGetValue(logLevel, out var consoleColor))
+            if (entry.TryGetProperty(nameof(LoggableProperty.Level), out var property) && property?.Value is LogLevel logLevel && LogLevelColor.TryGetValue(logLevel, out var consoleColor))
             {
                 return consoleColor;
             }
