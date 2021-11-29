@@ -1,10 +1,11 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
+
   <PropertyGroup>
     <TargetFramework>net6.0</TargetFramework>
     <Configurations>Debug;Release</Configurations>
     <Platforms>AnyCPU</Platforms>
-    <Nullable>enable</Nullable>
     <LangVersion>latest</LangVersion>
+    <RootNamespace>Reusable.MarkupBuilder</RootNamespace>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
@@ -17,26 +18,20 @@
   </PropertyGroup>
   
   <ItemGroup>
-    <EmbeddedResource Include="sql\GetIdentityColumnSchemas.sql" />
-    <EmbeddedResource Include="sql\GetPrimaryKeysAsync.sql" />
+    <Compile Remove="src\Html\HtmlFormatting.cs" />
+    <Compile Remove="src\MarkupFormatter.cs" />
   </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="JetBrains.Annotations" Version="2021.3.0" />
-    <PackageReference Include="System.Data.DataSetExtensions" Version="4.5.0" />
-    <PackageReference Include="System.Data.SqlClient" Version="4.8.2" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\Reusable.Core\Reusable.Core.csproj" />
-    <ProjectReference Include="..\Reusable.Untangle.file\Reusable.Untangle.file.csproj" />
-    <ProjectReference Include="..\Reusable.Untangle\Reusable.Untangle.csproj" />
   </ItemGroup>
 
   <ItemGroup>
-    <Reference Include="System.ComponentModel.DataAnnotations" />
-    <Reference Include="System.Data.DataSetExtensions" />
-    <Reference Include="System.Transactions" />
+    <Reference Include="System.Web" />
   </ItemGroup>
 
 </Project>

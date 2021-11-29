@@ -10,7 +10,7 @@ using Reusable.OmniLog.Properties;
 using Reusable.OmniLog.Utilities;
 using Xunit;
 
-//using Reusable.OmniLog.Attachments;
+//using Reusable.Wiretap.Attachments;
 
 // ReSharper disable once CheckNamespace
 namespace Reusable.OmniLog

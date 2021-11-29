@@ -1,0 +1,30 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package>
+  <metadata>
+    <id>Reusable.Untangle.config.SqlServer</id>
+    <version>21.1.0</version>
+    <title>Reusable.Untangle.config.SqlServer</title>
+    <authors>He-Dev</authors>
+    <owners>He-Dev</owners>
+    <license type="expression">MIT</license>
+    <projectUrl>https://github.com/he-dev/Reusable</projectUrl>
+    <requireLicenseAcceptance>true</requireLicenseAcceptance>
+    <description>This package provides resource controllers for configurations stored in the SQL server.</description>
+    <copyright>Copyright 2020 He-Dev</copyright>
+    <tags>Utility Extension</tags>
+    <dependencies>
+      <dependency id="JetBrains.Annotations" version="2021.3.0" />
+      <dependency id="Microsoft.EntityFrameworkCore.SqlServer" version="5.0.4" />
+      <dependency id="System.ValueTuple" version="4.5.0" />
+      <dependency id="Reusable.Core" version="21.1.0" />
+      <dependency id="Reusable.Untangle" version="21.1.0" />
+      <dependency id="Reusable.Untangle.config" version="21.1.0" />
+    </dependencies>
+  </metadata>
+  <files>
+    <file src="bin\Release\net47\Reusable.Untangle.config.SqlServer.dll" target="lib\net47" />
+    <file src="bin\Release\net47\Reusable.Untangle.config.SqlServer.pdb" target="lib\net47" />
+    <file src="bin\Release\netcoreapp2.2\Reusable.Untangle.config.SqlServer.dll" target="lib\netcoreapp2.2" />
+    <file src="bin\Release\netcoreapp2.2\Reusable.Untangle.config.SqlServer.pdb" target="lib\netcoreapp2.2" />
+  </files>
+</package>

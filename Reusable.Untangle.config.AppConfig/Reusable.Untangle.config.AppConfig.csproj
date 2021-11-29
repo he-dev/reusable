@@ -3,8 +3,10 @@
     <TargetFramework>net6.0</TargetFramework>
     <Configurations>Debug;Release</Configurations>
     <Platforms>AnyCPU</Platforms>
+    <RootNamespace>Reusable.Translucent</RootNamespace>
     <Nullable>enable</Nullable>
     <LangVersion>latest</LangVersion>
+    <DebugType>full</DebugType>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
@@ -17,26 +19,22 @@
   </PropertyGroup>
   
   <ItemGroup>
-    <EmbeddedResource Include="sql\GetIdentityColumnSchemas.sql" />
-    <EmbeddedResource Include="sql\GetPrimaryKeysAsync.sql" />
-  </ItemGroup>
-
-  <ItemGroup>
     <PackageReference Include="JetBrains.Annotations" Version="2021.3.0" />
-    <PackageReference Include="System.Data.DataSetExtensions" Version="4.5.0" />
-    <PackageReference Include="System.Data.SqlClient" Version="4.8.2" />
+    <PackageReference Include="System.Memory" Version="4.5.4" />
+    <PackageReference Include="System.ValueTuple" Version="4.5.0" />
   </ItemGroup>
-
   <ItemGroup>
     <ProjectReference Include="..\Reusable.Core\Reusable.Core.csproj" />
-    <ProjectReference Include="..\Reusable.Untangle.file\Reusable.Untangle.file.csproj" />
     <ProjectReference Include="..\Reusable.Untangle\Reusable.Untangle.csproj" />
+    <ProjectReference Include="..\Reusable.Untangle.config\Reusable.Untangle.config.csproj" />
+    <ProjectReference Include="..\Reusable.Convert\Reusable.Convert.csproj" />
+    <ProjectReference Include="..\Reusable.Data\Reusable.Data.csproj" />
   </ItemGroup>
-
   <ItemGroup>
     <Reference Include="System.ComponentModel.DataAnnotations" />
-    <Reference Include="System.Data.DataSetExtensions" />
-    <Reference Include="System.Transactions" />
+    <Reference Include="System.Configuration" />
   </ItemGroup>
-
+  <ItemGroup>
+    <Compile Remove="src\Controllers\ConnectionStringProvider.cs" />
+  </ItemGroup>
 </Project>

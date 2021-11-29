@@ -1,12 +1,10 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
+
   <PropertyGroup>
     <TargetFramework>net6.0</TargetFramework>
-    <Configurations>Debug;Release</Configurations>
-    <Platforms>AnyCPU</Platforms>
     <Nullable>enable</Nullable>
-    <RunAnalyzersDuringBuild>true</RunAnalyzersDuringBuild>
-    <RunAnalyzersDuringLiveAnalysis>true</RunAnalyzersDuringLiveAnalysis>
     <LangVersion>latest</LangVersion>
+    <RootNamespace>Reusable.Commander</RootNamespace>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
@@ -17,26 +15,31 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
     <DefineConstants>TRACE;RELEASE</DefineConstants>
   </PropertyGroup>
-  
+
   <ItemGroup>
     <PackageReference Include="Autofac" Version="6.1.0" />
     <PackageReference Include="JetBrains.Annotations" Version="2021.3.0" />
+    <PackageReference Include="System.Threading.Tasks.Dataflow" Version="5.0.0" />
+    <PackageReference Include="System.Collections.Immutable" Version="6.0.0" />
   </ItemGroup>
+
   <ItemGroup>
-    <ProjectReference Include="..\Reusable.Core\Reusable.Core.csproj" />
-    <ProjectReference Include="..\Reusable.Data\Reusable.Data.csproj" />
+    <ProjectReference Include="..\Reusable.Untangle\Reusable.Untangle.csproj" />
     <ProjectReference Include="..\Reusable.Wiretap.Abstractions\Reusable.Wiretap.Abstractions.csproj" />
-    <ProjectReference Include="..\Reusable.NameIt\Reusable.NameIt.csproj" />
-    <ProjectReference Include="..\Reusable.Utilities.JsonNet\Reusable.Utilities.JsonNet.csproj" />
+    <ProjectReference Include="..\Reusable.Convert\Reusable.Convert.csproj" />
+    <ProjectReference Include="..\Reusable.Core\Reusable.Core.csproj" />
+    <ProjectReference Include="..\Reusable.Htmlize\Reusable.Htmlize.csproj" />
+    <ProjectReference Include="..\Reusable.Wiretap\Reusable.Wiretap.csproj" />
   </ItemGroup>
+
   <ItemGroup>
     <Reference Include="System.ComponentModel.DataAnnotations" />
+    <Reference Include="System.Linq" />
   </ItemGroup>
+
   <ItemGroup>
-    <Compile Remove="src\EnumerableExtensions.cs" />
-    <Compile Remove="src\Expressions\Update.cs" />
-    <Compile Remove="src\ExpressionInvoker.cs" />
-    <Compile Remove="src\ExpressionScope.cs" />
-    <Compile Remove="src\ExpressionScopeExtensions.cs" />
+    <Compile Remove="src\CommandFactory.cs" />
+    <Compile Remove="src\CommandLineTokenizer - Copy.cs" />
   </ItemGroup>
+
 </Project>

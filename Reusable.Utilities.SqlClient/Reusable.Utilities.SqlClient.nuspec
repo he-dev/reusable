@@ -17,8 +17,8 @@
       <dependency id="System.Data.DataSetExtensions" version="4.5.0" />
       <dependency id="System.Data.SqlClient" version="4.8.2" />
       <dependency id="Reusable.Core" version="21.1.0" />
-      <dependency id="Reusable.Translucent.file" version="21.1.0" />
-      <dependency id="Reusable.Translucent" version="21.1.0" />
+      <dependency id="Reusable.Untangle.file" version="21.1.0" />
+      <dependency id="Reusable.Untangle" version="21.1.0" />
     </dependencies>
   </metadata>
   <files>

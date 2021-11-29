@@ -1,10 +1,12 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
+
   <PropertyGroup>
     <TargetFramework>net6.0</TargetFramework>
     <Configurations>Debug;Release</Configurations>
     <Platforms>AnyCPU</Platforms>
-    <Nullable>enable</Nullable>
     <LangVersion>latest</LangVersion>
+    <Nullable>enable</Nullable>
+    <RootNamespace>Reusable.OmniLog</RootNamespace>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
@@ -17,26 +19,35 @@
   </PropertyGroup>
   
   <ItemGroup>
-    <EmbeddedResource Include="sql\GetIdentityColumnSchemas.sql" />
-    <EmbeddedResource Include="sql\GetPrimaryKeysAsync.sql" />
+    <Compile Remove="cfg\**" />
+    <Compile Remove="src\Nodes\BuilderNode.cs" />
+    <Compile Remove="src\Nodes\CollectFlowTelemetry.cs" />
+    <Compile Remove="src\Extensions\ExecutionCategories-obsolete.cs" />
+    <Compile Remove="src\ExecutionContext.cs" />
   </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="JetBrains.Annotations" Version="2021.3.0" />
     <PackageReference Include="System.Data.DataSetExtensions" Version="4.5.0" />
-    <PackageReference Include="System.Data.SqlClient" Version="4.8.2" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\Reusable.Core\Reusable.Core.csproj" />
-    <ProjectReference Include="..\Reusable.Untangle.file\Reusable.Untangle.file.csproj" />
-    <ProjectReference Include="..\Reusable.Untangle\Reusable.Untangle.csproj" />
+    <ProjectReference Include="..\Reusable.Htmlize\Reusable.Htmlize.csproj" />
+    <ProjectReference Include="..\Reusable.Wiretap.Abstractions\Reusable.Wiretap.Abstractions.csproj" />
+    <ProjectReference Include="..\Reusable.Utilities.JsonNet\Reusable.Utilities.JsonNet.csproj" />
   </ItemGroup>
 
   <ItemGroup>
-    <Reference Include="System.ComponentModel.DataAnnotations" />
-    <Reference Include="System.Data.DataSetExtensions" />
-    <Reference Include="System.Transactions" />
+    <Reference Include="System.Configuration" />
+  </ItemGroup>
+  
+  <ItemGroup>
+    <EmbeddedResource Remove="cfg\**" />
+  </ItemGroup>
+  
+  <ItemGroup>
+    <None Remove="cfg\**" />
   </ItemGroup>
 
 </Project>

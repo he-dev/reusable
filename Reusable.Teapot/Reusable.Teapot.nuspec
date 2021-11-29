@@ -3,7 +3,7 @@
   <metadata>
     <id>Reusable.Teapot</id>
     <version>21.1.0</version>
-    <title>Reusable.Quickey</title>
+    <title>Reusable.NameIt</title>
     <authors>He-Dev</authors>
     <owners>He-Dev</owners>
     <license type="expression">MIT</license>
@@ -18,7 +18,7 @@
       <dependency id="Microsoft.AspNetCore.Server.Kestrel" version="2.2.0" />
       <dependency id="System.Collections.Immutable" version="6.0.0" />
       <dependency id="Reusable.Core" version="21.1.0" />
-      <dependency id="Reusable.Translucent.http" version="21.1.0" />
+      <dependency id="Reusable.Untangle.http" version="21.1.0" />
       <dependency id="Reusable.Utilities.JsonNet" version="21.1.0" />
     </dependencies>
   </metadata>

@@ -21,8 +21,8 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Reusable.Core\Reusable.Core.csproj" />
-    <ProjectReference Include="..\Reusable.OneTo1\Reusable.OneTo1.csproj" />
-    <ProjectReference Include="..\Reusable.Quickey\Reusable.Quickey.csproj" />
+    <ProjectReference Include="..\Reusable.Convert\Reusable.Convert.csproj" />
+    <ProjectReference Include="..\Reusable.NameIt\Reusable.NameIt.csproj" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="System.ComponentModel.DataAnnotations" />

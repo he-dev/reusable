@@ -53,9 +53,9 @@
     <DotNetCliToolReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Tools" Version="1.0.1" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Reusable.OmniLog.Connectors.NLog\Reusable.OmniLog.Connectors.NLog.csproj" />
-    <ProjectReference Include="..\Reusable.OmniLog\Reusable.OmniLog.csproj" />
-    <ProjectReference Include="..\Reusable.OmniLog.Utilities.AspNetCore\Reusable.OmniLog.Utilities.AspNetCore.csproj" />
+    <ProjectReference Include="..\Reusable.Wiretap.Connectors.NLog\Reusable.Wiretap.Connectors.NLog.csproj" />
+    <ProjectReference Include="..\Reusable.Wiretap\Reusable.Wiretap.csproj" />
+    <ProjectReference Include="..\Reusable.Wiretap.Utilities.AspNetCore\Reusable.Wiretap.Utilities.AspNetCore.csproj" />
     <ProjectReference Include="..\Reusable.Utilities.AspNetCore\Reusable.Utilities.AspNetCore.csproj" />
     <ProjectReference Include="..\Reusable.Utilities.NLog\Reusable.Utilities.NLog.csproj" />
     <ProjectReference Include="..\Reusable.Utilities.SqlClient\Reusable.Utilities.SqlClient.csproj" />

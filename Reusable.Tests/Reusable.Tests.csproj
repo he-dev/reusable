@@ -47,22 +47,22 @@
         <!--<PackageReference Include="xunit.assert" Version="2.4.1" />-->
     </ItemGroup>
     <ItemGroup>
-        <ProjectReference Include="..\Reusable.Commander\Reusable.Commander.csproj" />
+        <ProjectReference Include="..\Reusable.Prompt\Reusable.Prompt.csproj" />
         <ProjectReference Include="..\Reusable.Core\Reusable.Core.csproj" />
-        <ProjectReference Include="..\Reusable.Cryptography\Reusable.Cryptography.csproj" />
-        <ProjectReference Include="..\Reusable.Deception\Reusable.Deception.csproj" />
-        <ProjectReference Include="..\Reusable.FeatureBuzz\Reusable.FeatureBuzz.csproj" />
+        <ProjectReference Include="..\Reusable.Secure\Reusable.Secure.csproj" />
+        <ProjectReference Include="..\Reusable.Deceive\Reusable.Deceive.csproj" />
+        <ProjectReference Include="..\Reusable.Toggle\Reusable.Toggle.csproj" />
         <ProjectReference Include="..\Reusable.Flexo\Reusable.Flexo.csproj" />
-        <ProjectReference Include="..\Reusable.SemanticVersion\Reusable.SemanticVersion.csproj" />
-        <ProjectReference Include="..\Reusable.Translucent\Reusable.Translucent.csproj" />
-        <ProjectReference Include="..\Reusable.Translucent.config\Reusable.Translucent.config.csproj" />
-        <ProjectReference Include="..\Reusable.Translucent.config.AppConfig\Reusable.Translucent.config.AppConfig.csproj" />
-        <ProjectReference Include="..\Reusable.Translucent.config.Json\Reusable.Translucent.config.Json.csproj" />
-        <ProjectReference Include="..\Reusable.Translucent.config.SqlServer\Reusable.Translucent.config.SqlServer.csproj" />
-        <ProjectReference Include="..\Reusable.Translucent.file\Reusable.Translucent.file.csproj" />
-        <ProjectReference Include="..\Reusable.Translucent.http\Reusable.Translucent.http.csproj" />
-        <ProjectReference Include="..\Reusable.Translucent.mailto\Reusable.Translucent.mailto.csproj" />
-        <ProjectReference Include="..\Reusable.OmniLog\Reusable.OmniLog.csproj" />
+        <ProjectReference Include="..\Reusable.Version\Reusable.Version.csproj" />
+        <ProjectReference Include="..\Reusable.Untangle\Reusable.Untangle.csproj" />
+        <ProjectReference Include="..\Reusable.Untangle.config\Reusable.Untangle.config.csproj" />
+        <ProjectReference Include="..\Reusable.Untangle.config.AppConfig\Reusable.Untangle.config.AppConfig.csproj" />
+        <ProjectReference Include="..\Reusable.Untangle.config.Json\Reusable.Untangle.config.Json.csproj" />
+        <ProjectReference Include="..\Reusable.Untangle.config.SqlServer\Reusable.Untangle.config.SqlServer.csproj" />
+        <ProjectReference Include="..\Reusable.Untangle.file\Reusable.Untangle.file.csproj" />
+        <ProjectReference Include="..\Reusable.Untangle.http\Reusable.Untangle.http.csproj" />
+        <ProjectReference Include="..\Reusable.Untangle.mailto\Reusable.Untangle.mailto.csproj" />
+        <ProjectReference Include="..\Reusable.Wiretap\Reusable.Wiretap.csproj" />
         <ProjectReference Include="..\Reusable.Utilities.JsonNet\Reusable.Utilities.JsonNet.csproj" />
         <ProjectReference Include="..\Reusable.Utilities.Mailr\Reusable.Utilities.Mailr.csproj" />
         <ProjectReference Include="..\Reusable.Utilities.XUnit\Reusable.Utilities.XUnit.csproj" />
