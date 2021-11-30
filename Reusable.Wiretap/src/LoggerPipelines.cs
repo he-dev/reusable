@@ -22,20 +22,39 @@ namespace Reusable.Wiretap
                 {
                     Properties = { new Timestamp<DateTimeUtc>() }
                 };
-                yield return new InjectAnonymousAction();
-                yield return new CreateProperty();
+                //yield return new InjectAnonymousAction();
+                //yield return new CreateProperty();
+                yield return new InvokeEntryAction();
+                yield return new GuessProperties
+                {
+                    Factories =
+                    {
+                        new TryGuessProperty(),
+                        new TryGuessProperties(),
+                        new TryGuessEntryAction(),
+                        new TryGuessEntryActions(),
+                        new TryGuessEnum(),
+                        new TryGuessException(),
+                    }
+                };
                 yield return new Destructure();
                 yield return new MapObject();
                 yield return new Filter();
-                yield return new MapPropertyToLogLevel
+                yield return new MapToLogLevel
                 {
-                    PropertyName = Names.Properties.Layer,
-                    Mapper = new MapStringToLogLevel
+                    Mappers =
                     {
-                        [nameof(TelemetryLayers.Dependency)] = LogLevel.Trace,
-                        [nameof(TelemetryLayers.Application)] = LogLevel.Trace,
-                        [nameof(TelemetryLayers.Business)] = LogLevel.Information,
-                        [nameof(TelemetryLayers.Presentation)] = LogLevel.Trace,
+                        new MapPropertyToLogLevel
+                        {
+                            PropertyName = Names.Properties.Layer,
+                            Mappings =
+                            {
+                                [nameof(TelemetryLayers.Dependency)] = LogLevel.Trace,
+                                [nameof(TelemetryLayers.Application)] = LogLevel.Trace,
+                                [nameof(TelemetryLayers.Business)] = LogLevel.Information,
+                                [nameof(TelemetryLayers.Presentation)] = LogLevel.Trace
+                            }
+                        }
                     }
                 };
                 yield return new Fallback
@@ -78,7 +97,7 @@ namespace Reusable.Wiretap
                 yield return new Echo();
             }
         }
-        
+
         /// <summary>
         /// Gets a pipeline that contains only popular features like timestamp and message.
         /// </summary>
@@ -96,7 +115,7 @@ namespace Reusable.Wiretap
                 yield return new Echo();
             }
         }
-        
+
         /// <summary>
         /// Gets a pipeline that does not contain any features but property creation and echo.
         /// </summary>

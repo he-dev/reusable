@@ -12,7 +12,7 @@ namespace Reusable.Wiretap.Nodes
     {
         public override bool Enabled => base.Enabled && Properties.Any();
 
-        public Dictionary<string, object> Properties { get; set; } = new Dictionary<string, object>();
+        public Dictionary<string, object> Properties { get; set; } = new();
 
         public override void Invoke(ILogEntry entry)
         {

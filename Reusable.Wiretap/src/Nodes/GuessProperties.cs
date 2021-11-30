@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using Reusable.Exceptionize;
@@ -12,127 +13,117 @@ namespace Reusable.Wiretap.Nodes;
 /// <summary>
 /// This node creates properties using factories specified in <c>TryCreateProperties</c>.
 /// </summary>
-public class CreateProperty : LoggerNode
+public class GuessProperties : LoggerNode
 {
-    private static AsyncScope<Stack<object>>? Scope => AsyncScope<Stack<object>>.Current;
-
-    public override bool Enabled => AsyncScope<Stack<object>>.Any;
-
-    public List<ITryCreateProperties> TryCreateProperties { get; set; } = new()
-    {
-        new TryCreatePropertiesFromEnum(),
-        new TryCreatePropertiesFromException()
-    };
-
-    public static void Push(IEnumerable<object> items) => AsyncScope<Stack<object>>.Push(new Stack<object>(items));
+    public List<ITryGuessProperty> Factories { get; set; } = new();
 
     public override void Invoke(ILogEntry entry)
     {
-        if (Scope is {} current)
+        if (entry.TryGetProperty(nameof(GuessableProperty.Unknown), out var unknown) && unknown?.Value is IEnumerable<object> items)
         {
-            foreach (var item in current.Value.Consume())
+            var funcs =
+                from item in items
+                where item is { }
+                from tryGuessProperty in Factories
+                from func in tryGuessProperty.Invoke(item)
+                select func;
+
+            foreach (var func in funcs)
             {
-                var nodes = item switch
-                {
-                    Action<ILogEntry> action => new[] { action },
-                    IEnumerable<Action<ILogEntry>> actions => actions,
-                    _ => default
-                };
-
-                if (nodes is {})
-                {
-                    foreach (var node in nodes)
-                    {
-                        node(entry);
-                    }
-                }
-                else
-                {
-                    foreach (var property in CreateProperties(item))
-                    {
-                        entry.Push(property);
-                    }
-                }
+                func(entry);
             }
-
-            current.Dispose();
         }
 
+        //    throw DynamicException.Create("UnsupportedObject", $"Could not create properties from '{obj.GetType().ToPrettyString()}'.");
         InvokeNext(entry);
     }
-
-    private IEnumerable<LogProperty> CreateProperties(object? obj)
-    {
-        if (obj is null)
-        {
-            yield break;
-        }
-
-        if (obj is LogProperty property)
-        {
-            yield return property;
-            yield break;
-        }
-
-        if (obj is IEnumerable<LogProperty> properties)
-        {
-            foreach (var item in properties)
-            {
-                yield return item;
-            }
-
-            yield break;
-        }
-
-        foreach (var tryCreateProperties in TryCreateProperties)
-        {
-            var any = false;
-            foreach (var p in tryCreateProperties.Invoke(obj))
-            {
-                yield return p;
-                any = true;
-            }
-
-            if (any) yield break;
-        }
-
-        throw DynamicException.Create("UnsupportedObject", $"Could not create properties from '{obj.GetType().ToPrettyString()}'.");
-    }
 }
 
-public static class PropertyFactoryNodeHelper
+public interface ITryGuessProperty
 {
-    public static ILogger PushProperties(this ILogger logger, IEnumerable<object>? items)
-    {
-        return logger.Also(_ => CreateProperty.Push(items ?? Enumerable.Empty<object>()));
-    }
+    IEnumerable<Func<ILogEntry, ILogEntry>> Invoke(object obj);
 }
 
-public interface ITryCreateProperties
+public class TryGuessEnum : ITryGuessProperty
 {
-    IEnumerable<LogProperty> Invoke(object obj);
-}
-
-public class TryCreatePropertiesFromEnum : ITryCreateProperties
-{
-    public IEnumerable<LogProperty> Invoke(object obj)
+    public IEnumerable<Func<ILogEntry, ILogEntry>> Invoke(object obj)
     {
-        if (obj.GetType() is {IsEnum: true} type)
+        if (obj.GetType() is { IsEnum: true } type)
         {
             // Don't ToString the value because it will break the log-level.
             var name = type.GetCustomAttribute<PropertyNameAttribute>()?.ToString() ?? type.Name;
-            yield return new LogProperty(name, obj, LogPropertyMeta.Builder.ProcessWith<Echo>());
+            yield return entry => entry.Push(new LoggableProperty(name, obj));
         }
     }
 }
 
-public class TryCreatePropertiesFromException : ITryCreateProperties
+public class TryGuessException : ITryGuessProperty
 {
-    public IEnumerable<LogProperty> Invoke(object obj)
+    public IEnumerable<Func<ILogEntry, ILogEntry>> Invoke(object obj)
     {
         if (obj is Exception exception)
         {
-            yield return new LogProperty(Names.Properties.Exception, exception, LogPropertyMeta.Builder.ProcessWith<Echo>());
+            yield return entry => entry.Push(new LoggableProperty.Exception(exception));
+        }
+    }
+}
+
+public class TryGuessEntryAction : ITryGuessProperty
+{
+    public IEnumerable<Func<ILogEntry, ILogEntry>> Invoke(object obj)
+    {
+        if (obj is Action<ILogEntry> action)
+        {
+            yield return entry => entry.Also(action);
+        }
+    }
+}
+
+public class TryGuessEntryActions : ITryGuessProperty
+{
+    public IEnumerable<Func<ILogEntry, ILogEntry>> Invoke(object obj)
+    {
+        if (obj is IEnumerable<Action<ILogEntry>> actions)
+        {
+            yield return entry =>
+            {
+                foreach (var action in actions)
+                {
+                    entry.Also(action);
+                }
+
+                return entry;
+            };
+        }
+    }
+}
+
+public class TryGuessProperty : ITryGuessProperty
+{
+    public IEnumerable<Func<ILogEntry, ILogEntry>> Invoke(object obj)
+    {
+        if (obj is ILogProperty property)
+        {
+            yield return entry => entry.Push(property);
+        }
+    }
+}
+
+public class TryGuessProperties : ITryGuessProperty
+{
+    public IEnumerable<Func<ILogEntry, ILogEntry>> Invoke(object obj)
+    {
+        if (obj is IEnumerable<ILogProperty> properties)
+        {
+            yield return entry =>
+            {
+                foreach (var property in properties)
+                {
+                    entry.Push(property);
+                }
+
+                return entry;
+            };
         }
     }
 }

@@ -8,7 +8,6 @@ namespace Reusable.Wiretap.Data
 {
     public abstract record LogProperty(string Name, object Value) : ILogProperty
     {
-        
         public static class Names
         {
             public const string Timestamp = nameof(Timestamp);
@@ -33,34 +32,52 @@ namespace Reusable.Wiretap.Data
     public record LoggableProperty(string Name, object Value) : LogProperty(Name, Value)
     {
         public record Timestamp(object Value) : LoggableProperty(nameof(Timestamp), Value);
+
         public record Logger(object Value) : LoggableProperty(nameof(Logger), Value);
+
         public record Level(object Value) : LoggableProperty(nameof(Level), Value);
+
         public record Message(object Value) : LoggableProperty(nameof(Message), Value);
+
         public record Exception(object Value) : LoggableProperty(nameof(Exception), Value);
+
         public record Elapsed(object Value) : LoggableProperty(nameof(Elapsed), Value);
-        
+
         public record CallerMemberName(object Value) : LoggableProperty(nameof(CallerMemberName), Value);
+
         public record CallerLineNumber(object Value) : LoggableProperty(nameof(CallerLineNumber), Value);
+
         public record CallerFilePath(object Value) : LoggableProperty(nameof(CallerFilePath), Value);
     }
 
     public record SerializableProperty(string Name, object Value) : LogProperty(Name, Value)
     {
-        public record Correlation(object Value) : LoggableProperty(nameof(Correlation), Value);
-        
+        public record Correlation(object Value) : SerializableProperty(nameof(Correlation), Value);
     }
 
-    public record GuessableProperty(string Name, object Value) : LogProperty(Name, Value)
+    public abstract record GuessableProperty(string Name, object Value) : LogProperty(Name, Value)
     {
-        public record Unknown(object Value) : LoggableProperty(nameof(Unknown), Value);
-        
+        public record Unknown(object Value) : GuessableProperty(nameof(Unknown), Value);
     }
 
-    public record DestructibleProperty(string Name, object Value) : LogProperty(Name, Value);
-
-    public record HtmlProperty(string Name, object Value) : LogProperty(Name, Value)
+    public abstract record CallableProperty(string Name, object Value) : LogProperty(Name, Value)
     {
-        public record Message(object Value) : LoggableProperty(nameof(Message), Value);
+        public record EntryAction(object Value) : CallableProperty(nameof(EntryAction), Value);
+    }
+
+    public abstract record DestructibleProperty(string Name, object Value) : LogProperty(Name, Value)
+    {
+        public record Object(object Value) : DestructibleProperty(nameof(Object), Value);
+    }
+
+    public abstract record RenderableProperty(string Name, object Value) : LogProperty(Name, Value)
+    {
+        public record Html(object Value) : RenderableProperty(nameof(Html), Value);
+    }
+    
+    public abstract record MarkerProperty(string Name, object Value) : LogProperty(Name, Value)
+    {
+        public record OverrideBuffer() : RenderableProperty(nameof(OverrideBuffer), default);
     }
 
     public abstract class Names

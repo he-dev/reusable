@@ -29,7 +29,7 @@ namespace Reusable.Wiretap.Extensions
 
         public static ILogEntry Exception(this ILogEntry logEntry, Exception? value, LogLevel level = LogLevel.Error)
         {
-            if (value is {})
+            if (value is { })
             {
                 logEntry.Push(new LoggableProperty.Exception(value));
                 logEntry.Push(new LoggableProperty.Level(value));
@@ -41,7 +41,7 @@ namespace Reusable.Wiretap.Extensions
         public static ILogEntry Message(this ILogEntry logEntry, string? value)
         {
             return
-                value is {}
+                value is { }
                     ? logEntry.Push(new LoggableProperty.Message(value))
                     : logEntry;
         }
@@ -61,7 +61,7 @@ namespace Reusable.Wiretap.Extensions
             return log.Also(x =>
             {
                 x.Push(new LogProperty(Names.Properties.Unit, name, LogPropertyMeta.Builder.ProcessWith<Echo>()));
-                if (value is {})
+                if (value is { })
                 {
                     x.Push(new LogProperty(Names.Properties.Snapshot, value, LogPropertyMeta.Builder.ProcessWith<SerializeProperty>()));
                 }
@@ -72,7 +72,7 @@ namespace Reusable.Wiretap.Extensions
         {
             return log.Also(x =>
             {
-                if (callSite is {})
+                if (callSite is { })
                 {
                     x.Push(new LogProperty(Names.Properties.CallerMemberName, callSite.MemberName, LogPropertyMeta.Builder.ProcessWith<Echo>()));
                     x.Push(new LogProperty(Names.Properties.CallerLineNumber, callSite.LineNumber, LogPropertyMeta.Builder.ProcessWith<Echo>()));
@@ -81,13 +81,16 @@ namespace Reusable.Wiretap.Extensions
             });
         }
         
-        public static ILogEntry Priority(this ILogEntry logEntry, LogEntryPriority priority) => logEntry.Push(Names.Properties.Priority, priority, m => m.ProcessWith<Echo>());
-        
-        public static ILogEntry Important(this ILogEntry logEntry) => logEntry.Priority(LogEntryPriority.High);
+        public static ILogEntry OverrideBuffer(this ILogEntry logEntry) => logEntry.Push(new MarkerProperty.OverrideBuffer());
 
         public static IEnumerable<ILogProperty> Where<T>(this ILogEntry entry) where T : ILogProperty
         {
             return entry.Where(property => property is T);
+        }
+
+        public static bool TryGetProperty<T>(this ILogEntry entry, out ILogProperty? property) where T : ILogProperty
+        {
+            return entry.TryGetProperty(typeof(T).Name, out property);
         }
     }
 }

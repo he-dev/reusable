@@ -23,6 +23,8 @@
     <Compile Remove="src\Nodes\CollectFlowTelemetry.cs" />
     <Compile Remove="src\Extensions\ExecutionCategories-obsolete.cs" />
     <Compile Remove="src\ExecutionContext.cs" />
+    <Compile Remove="src\Nodes\CreateProperty.cs" />
+    <Compile Remove="src\Nodes\InjectAnonymousAction.cs" />
   </ItemGroup>
 
   <ItemGroup>

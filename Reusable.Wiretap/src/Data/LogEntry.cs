@@ -9,7 +9,7 @@ using Reusable.Extensions;
 using Reusable.Wiretap.Abstractions;
 using Reusable.Wiretap.Data;
 
-// ReSharper disable once CheckNamespace
+
 namespace Reusable.OmniLog
 {
     [PublicAPI]
@@ -28,7 +28,7 @@ namespace Reusable.OmniLog
             _properties = new Dictionary<string, IImmutableStack<ILogProperty>>(other._properties, SoftString.Comparer);
         }
 
-        public static LogEntry Empty() => new LogEntry();
+        public static LogEntry Empty() => new();
 
         public ILogProperty this[string name] => 
             TryGetProperty(name, out var property)
