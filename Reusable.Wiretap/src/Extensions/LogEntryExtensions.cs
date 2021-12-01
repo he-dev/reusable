@@ -48,49 +48,88 @@ namespace Reusable.Wiretap.Extensions
 
         public static ILogEntry Layer(this ILogEntry log, string name)
         {
-            return log.Also(x => x.Push(new LogProperty(Names.Properties.Layer, name, LogPropertyMeta.Builder.ProcessWith<Echo>())));
+            return log.Also(x => x.Push(new LoggableProperty.Layer(name)));
         }
 
         public static ILogEntry Category(this ILogEntry log, string name)
         {
-            return log.Also(x => x.Push(new LogProperty(Names.Properties.Category, name, LogPropertyMeta.Builder.ProcessWith<Echo>())));
+            return log.Also(x => x.Push(new LoggableProperty.Category(name)));
         }
 
         public static ILogEntry Unit(this ILogEntry log, string name, object? value = default)
         {
             return log.Also(x =>
             {
-                x.Push(new LogProperty(Names.Properties.Unit, name, LogPropertyMeta.Builder.ProcessWith<Echo>()));
+                x.Push(new LoggableProperty.Unit(name));
                 if (value is { })
                 {
-                    x.Push(new LogProperty(Names.Properties.Snapshot, value, LogPropertyMeta.Builder.ProcessWith<SerializeProperty>()));
+                    x.Push(new SerializableProperty.Snapshot(value));
                 }
             });
         }
 
-        public static ILogEntry CallSite(this ILogEntry log, Caller? callSite)
+        public static ILogEntry Caller(this ILogEntry log, Caller? caller)
         {
             return log.Also(x =>
             {
-                if (callSite is { })
+                if (caller is { })
                 {
-                    x.Push(new LogProperty(Names.Properties.CallerMemberName, callSite.MemberName, LogPropertyMeta.Builder.ProcessWith<Echo>()));
-                    x.Push(new LogProperty(Names.Properties.CallerLineNumber, callSite.LineNumber, LogPropertyMeta.Builder.ProcessWith<Echo>()));
-                    x.Push(new LogProperty(Names.Properties.CallerFilePath, callSite.FilePath, LogPropertyMeta.Builder.ProcessWith<Echo>()));
+                    x.Push(new LoggableProperty.CallerMemberName(caller.MemberName));
+                    x.Push(new LoggableProperty.CallerLineNumber(caller.LineNumber));
+                    x.Push(new LoggableProperty.CallerFilePath(caller.FilePath));
                 }
             });
         }
         
-        public static ILogEntry OverrideBuffer(this ILogEntry logEntry) => logEntry.Push(new MarkerProperty.OverrideBuffer());
+        public static ILogEntry OverrideBuffer(this ILogEntry logEntry) => logEntry.Push(new MetaProperty.OverrideBuffer());
 
         public static IEnumerable<ILogProperty> Where<T>(this ILogEntry entry) where T : ILogProperty
         {
             return entry.Where(property => property is T);
         }
+        
+        public static bool TryGetProperty<T>(this ILogEntry entry, string name, out T result) where T : ILogProperty
+        {
+            if (entry.TryGetProperty(name, out var property) && property is T casted)
+            {
+                result = casted;
+                return true;
+            }
+            else
+            {
+                result = default!;
+                return false;
+            }
+        }
 
-        public static bool TryGetProperty<T>(this ILogEntry entry, out ILogProperty? property) where T : ILogProperty
+        public static bool TryGetProperty<T>(this ILogEntry entry, out ILogProperty property) where T : ILogProperty
         {
             return entry.TryGetProperty(typeof(T).Name, out property);
+        }
+        
+        public static bool TryGetProperty<TProperty, TValue>(this ILogEntry entry, out TValue result) where TProperty : ILogProperty
+        {
+            if(entry.TryGetProperty(typeof(TProperty).Name, out var property))
+            {
+                if (property?.Value is TValue value)
+                {
+                    result = value;
+                    return true;
+                }
+            }
+
+            result = default!;
+            return false;
+        }
+
+        public static ILogEntry Merge(this ILogEntry entry, ILogEntry other)
+        {
+            foreach (var property in other)
+            {
+                entry.Push(property);
+            }
+
+            return entry;
         }
     }
 }

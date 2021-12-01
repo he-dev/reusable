@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Reusable.Wiretap.Abstractions;
 using Reusable.Wiretap.Data;
+using Reusable.Wiretap.Extensions;
 
 namespace Reusable.Wiretap.Nodes
 {
@@ -16,9 +17,9 @@ namespace Reusable.Wiretap.Nodes
         {
             foreach (var (key, newName) in Mappings.Select(x => (x.Key, x.Value)))
             {
-                if (entry.TryGetProperty(key, out var property) && property is LoggableProperty loggableProperty)
+                if (entry.TryGetProperty<LoggableProperty>(key, out var property))
                 {
-                    entry.Push(new LoggableProperty(newName, loggableProperty.Value));
+                    entry.Push(new LoggableProperty(newName, property.Value));
                 }
             }
 

@@ -35,7 +35,7 @@ namespace Reusable.Wiretap.Extensions
         
         public static IEnumerable<ILoggerNode> Exclude<T>(this IEnumerable<ILoggerNode> nodes) where T : ILoggerNode
         {
-            return nodes.Where(node => !(node is T));
+            return nodes.Where(node => node is not T);
         }
 
         // public static ILoggerNodeConfiguration<T> Configure<T>(this IEnumerable<ILoggerNode> nodes) where T : ILoggerNode

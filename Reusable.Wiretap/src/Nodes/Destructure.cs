@@ -23,7 +23,7 @@ public class Destructure : LoggerNode
         {
             //request.Push<Destructure>(property.Name, dictionary); //, LogProperty.Process.With<SerializeProperty>());
             //request.Push<SerializeProperty>(property.Name, dictionary); //, LogProperty.Process.With<SerializeProperty>());
-            entry.Push(new SerializableProperty(property.Name, dictionaries));
+            entry.Push(new SerializableProperty(property.Name, dictionary));
         }
 
         InvokeNext(entry);

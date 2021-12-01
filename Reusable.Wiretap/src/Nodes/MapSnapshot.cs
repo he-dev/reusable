@@ -12,26 +12,22 @@ namespace Reusable.Wiretap.Nodes;
 /// <summary>
 /// This node maps one object into a different one.
 /// </summary>
-public class MapObject : LoggerNode
+public class MapSnapshot : LoggerNode
 {
     public MappingCollection Mappings { get; set; } = new();
 
     public override void Invoke(ILogEntry entry)
     {
-        // Entry cannot be modified while in foreach so use a helper entry for the results.
-        var temp = LogEntry.Empty();
-        foreach (var property in entry.Where<SerializableProperty.Snapshot>())
+        if (entry.TryGetProperty<SerializableProperty.Snapshot>(out var snapshot))
         {
             // Do we have a custom mapping for the dump?
-            if (Mappings.TryGetMapping(property.Value.GetType(), out var map))
+            if (Mappings.TryGetMapping(snapshot.Value.GetType(), out var map))
             {
-                var obj = map(property.Value);
-                temp.Push(property.Name, obj, LogProperty.Process.With<SerializeProperty>()); // Replace the original object.
+                var obj = map(snapshot.Value);
+                entry.Push(new SerializableProperty.Snapshot(obj)); // Replace the original object.
             }
         }
-
-        entry.Merge(temp);
-
+        
         InvokeNext(entry);
     }
 
@@ -73,7 +69,7 @@ public class MapObject : LoggerNode
 
         public void Add(Mapping mapping) => _mappings.Add(mapping.Type, mapping.Map);
 
-        public void AddFor<T>(Func<T, object> map) => Mapping.For(map);
+        public void Add<T>(Func<T, object> map) => Add(Mapping.For(map));
 
         public void AddRange(IEnumerable<Mapping> mappings)
         {

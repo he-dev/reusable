@@ -241,11 +241,12 @@ namespace Reusable.OmniLog
                     },
                     new InjectAnonymousAction(),
                     new Destructure(),
-                    new MapObject
+                    new MapSnapshot
                     {
                         Mappings =
                         {
-                            MapObject.Mapping.For<Person>(p => new { FullName = p.LastName + ", " + p.FirstName })
+                            //MapSnapshot.Mapping.For<Person>(p => new { FullName = p.LastName + ", " + p.FirstName })
+                            (Person p) => new { FullName = p.LastName + ", " + p.FirstName }
                         }
                     },
                     new Echo

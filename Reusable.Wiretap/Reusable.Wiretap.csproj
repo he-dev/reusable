@@ -25,6 +25,7 @@
     <Compile Remove="src\ExecutionContext.cs" />
     <Compile Remove="src\Nodes\CreateProperty.cs" />
     <Compile Remove="src\Nodes\InjectAnonymousAction.cs" />
+    <Compile Remove="src\Nodes\MapObject.cs" />
   </ItemGroup>
 
   <ItemGroup>

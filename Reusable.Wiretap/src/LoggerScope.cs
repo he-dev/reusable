@@ -66,7 +66,7 @@ namespace Reusable.Wiretap
                     .Status(Helpers.GetFlowStatus(exception), WorkItem)
                     .Level(Helpers.GetLogLevel(exception))
                     .Exception(exception)
-                    .Then(x => x.CallSite(Caller).Priority(LogEntryPriority.High))
+                    .Then(x => x.Caller(Caller).Priority(LogEntryPriority.High))
             );
 
             AsyncScope<ILoggerScope>.Current?.Dispose();

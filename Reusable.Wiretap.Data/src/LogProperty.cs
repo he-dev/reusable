@@ -42,6 +42,12 @@ namespace Reusable.Wiretap.Data
         public record Exception(object Value) : LoggableProperty(nameof(Exception), Value);
 
         public record Elapsed(object Value) : LoggableProperty(nameof(Elapsed), Value);
+        
+        public record Unit(object Value) : LoggableProperty(nameof(Unit), Value);
+        
+        public record Category(object Value) : LoggableProperty(nameof(Category), Value);
+        
+        public record Layer(object Value) : LoggableProperty(nameof(Layer), Value);
 
         public record CallerMemberName(object Value) : LoggableProperty(nameof(CallerMemberName), Value);
 
@@ -53,6 +59,8 @@ namespace Reusable.Wiretap.Data
     public record SerializableProperty(string Name, object Value) : LogProperty(Name, Value)
     {
         public record Correlation(object Value) : SerializableProperty(nameof(Correlation), Value);
+
+        public record Snapshot(object Value) : SerializableProperty(nameof(Snapshot), Value);
     }
 
     public abstract record GuessableProperty(string Name, object Value) : LogProperty(Name, Value)
@@ -74,10 +82,12 @@ namespace Reusable.Wiretap.Data
     {
         public record Html(object Value) : RenderableProperty(nameof(Html), Value);
     }
-    
-    public abstract record MarkerProperty(string Name, object Value) : LogProperty(Name, Value)
+
+    public abstract record MetaProperty(string Name, object Value) : LogProperty(Name, Value)
     {
         public record OverrideBuffer() : RenderableProperty(nameof(OverrideBuffer), default);
+
+        public record Scope(object Value) : RenderableProperty(nameof(Scope), Value);
     }
 
     public abstract class Names

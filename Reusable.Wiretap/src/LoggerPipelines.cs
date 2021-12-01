@@ -38,7 +38,7 @@ namespace Reusable.Wiretap
                     }
                 };
                 yield return new Destructure();
-                yield return new MapObject();
+                yield return new MapSnapshot();
                 yield return new Filter();
                 yield return new MapToLogLevel
                 {
@@ -70,12 +70,12 @@ namespace Reusable.Wiretap
                 };
                 yield return new ToggleScope
                 {
-                    CreateNodes = () => new ILoggerNode[]
+                    ScopeFactories =
                     {
-                        new Correlate(),
-                        new MeasureElapsedTime(),
-                        new BufferLog(),
-                        new CacheInMemory(),
+                        () => new Correlate(),
+                        () => new MeasureElapsedTime(),
+                        () => new BufferLog(),
+                        () => new CacheInMemory(),
                     }
                 };
                 yield return new SerializeProperty
@@ -94,6 +94,7 @@ namespace Reusable.Wiretap
                     }
                 };
                 yield return new RenameProperty();
+                yield return new Debug();
                 yield return new Echo();
             }
         }

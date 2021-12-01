@@ -6,39 +6,41 @@ using Reusable.Wiretap.Abstractions;
 using Reusable.Wiretap.Data;
 using Reusable.Wiretap.Extensions;
 
-namespace Reusable.Wiretap.Nodes
+namespace Reusable.Wiretap.Nodes;
+
+/// <summary>
+/// This nodes provides properties for log-entry correlation.
+/// </summary>
+[JsonObject(MemberSerialization.OptIn)]
+public class Correlate : LoggerNode
 {
+    private object? _correlationId;
+
     /// <summary>
-    /// This nodes provides properties for log-entry correlation.
+    /// Gets or sets the factory for the correlation-id. Uses a continuous GUID by default.
     /// </summary>
-    [JsonObject(MemberSerialization.OptIn)]
-    public class Correlate : LoggerNode
+    public Func<object> NewCorrelationId { get; set; } = () => Guid.NewGuid().ToString("N");
+
+    [JsonProperty]
+    public object CorrelationId
     {
-        private object? _correlationId;
+        get => _correlationId ??= NewCorrelationId();
+        set => _correlationId = value;
+    }
 
-        /// <summary>
-        /// Gets or sets the factory for the correlation-id. Uses a continuous GUID by default.
-        /// </summary>
-        public Func<object> NewCorrelationId { get; set; } = () => Guid.NewGuid().ToString("N");
+    [JsonProperty]
+    public object? CorrelationHandle { get; set; }
 
-        [JsonProperty]
-        public object CorrelationId
+    public override void Invoke(ILogEntry entry)
+    {
+        //if (Prev is { } prev)
+        if (entry.TryGetProperty<MetaProperty.Scope, ILoggerScope>(out var scope))
         {
-            get => _correlationId ??= NewCorrelationId();
-            set => _correlationId = value;
+            //var correlations = prev.EnumeratePrev().OfType<ToggleScope>().Single().Current.Select(x => x.First.Node<Correlate>()).ToList();
+            var correlations = scope.Select(x => x.First.Node<Correlate>()).ToList();
+            entry.Push(new SerializableProperty.Correlation(correlations));
         }
 
-        [JsonProperty]
-        public object? CorrelationHandle { get; set; }
-
-        public override void Invoke(ILogEntry entry)
-        {
-            if (Prev is { } prev)
-            {
-                var correlations = prev.EnumeratePrev().OfType<ToggleScope>().Single().Current.Select(x => x.First.Node<Correlate>()).ToList();
-                entry.Push(new SerializableProperty.Correlation(correlations));
-            }
-            InvokeNext(entry);
-        }
+        InvokeNext(entry);
     }
 }

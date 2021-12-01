@@ -18,7 +18,7 @@ public class BufferLog : LoggerNode
 
     public override void Invoke(ILogEntry entry)
     {
-        if (entry.TryGetProperty<MarkerProperty.OverrideBuffer>(out _))
+        if (entry.TryGetProperty<MetaProperty.OverrideBuffer>(out _))
         {
             InvokeNext(entry);
         }

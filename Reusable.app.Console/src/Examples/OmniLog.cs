@@ -30,7 +30,13 @@ namespace Reusable
                         node.Properties.Add(new Constant("Environment", "Demo"));
                         node.Properties.Add(new Constant("Product", "Reusable.app.Console"));
                     })
-                    .Configure<MapObject>(node => { node.Mappings.Add(MapObject.Mapping.For<Person>(x => new { FullName = $"{x.LastName}, {x.FirstName}".ToUpper() })); })
+                    .Configure<MapSnapshot>(node =>
+                    {
+                        node.Mappings.Add<Person>(x => new
+                        {
+                            FullName = $"{x.LastName}, {x.FirstName}".ToUpper()
+                        });
+                    })
                     .Configure<RenameProperty>(node =>
                     {
                         node.Mappings.Add(Names.Properties.Correlation, "Scope");
@@ -46,7 +52,7 @@ namespace Reusable
                         });
                     })
                     .ToLoggerFactory();
-            ;
+
             var logger = loggerFactory.CreateLogger("Demo");
 
             logger.Trace("Hallo Trace!");
