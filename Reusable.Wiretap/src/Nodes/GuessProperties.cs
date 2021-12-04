@@ -51,8 +51,8 @@ public class TryGuessEnum : ITryGuessProperty
         if (obj.GetType() is { IsEnum: true } type)
         {
             // Don't ToString the value because it will break the log-level.
-            var name = type.GetCustomAttribute<PropertyNameAttribute>()?.ToString() ?? type.Name;
-            yield return entry => entry.Push(new LoggableProperty(name, obj));
+            //var name = type.GetCustomAttribute<PropertyNameAttribute>()?.ToString() ?? type.Name;
+            yield return entry => entry.Push(new LoggableProperty(type.Name, obj));
         }
     }
 }

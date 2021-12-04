@@ -1,7 +1,6 @@
 using System;
 using System.Runtime.CompilerServices;
 using Reusable.Extensions;
-using Reusable.OmniLog;
 using Reusable.Wiretap.Abstractions;
 using Reusable.Wiretap.Data;
 

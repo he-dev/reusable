@@ -1,6 +1,6 @@
 namespace Reusable.Wiretap.Abstractions;
 
-public interface ICaller
+public interface ILogCaller
 {
     string MemberName { get; }
 

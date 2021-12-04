@@ -1,6 +1,7 @@
 ﻿using JetBrains.Annotations;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Reusable.FeatureBuzz;
+using Reusable.Wiretap.Utilities.AspNetCore;
 
 namespace Reusable.OmniLog.Utilities.AspNetCore.Mvc.Filters
 {

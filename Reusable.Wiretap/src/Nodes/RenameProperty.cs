@@ -4,26 +4,25 @@ using Reusable.Wiretap.Abstractions;
 using Reusable.Wiretap.Data;
 using Reusable.Wiretap.Extensions;
 
-namespace Reusable.Wiretap.Nodes
+namespace Reusable.Wiretap.Nodes;
+
+/// <summary>
+/// This node renames log properties.
+/// </summary>
+public class RenameProperty : LoggerNode
 {
-    /// <summary>
-    /// This node renames log properties.
-    /// </summary>
-    public class RenameProperty : LoggerNode
+    public Dictionary<string, string> Mappings { get; set; } = new();
+
+    public override void Invoke(ILogEntry entry)
     {
-        public Dictionary<string, string> Mappings { get; set; } = new();
-
-        public override void Invoke(ILogEntry entry)
+        foreach (var (key, newName) in Mappings.Select(x => (x.Key, x.Value)))
         {
-            foreach (var (key, newName) in Mappings.Select(x => (x.Key, x.Value)))
+            if (entry.TryGetProperty<LoggableProperty>(key, out var property))
             {
-                if (entry.TryGetProperty<LoggableProperty>(key, out var property))
-                {
-                    entry.Push(new LoggableProperty(newName, property.Value));
-                }
+                entry.Push(new LoggableProperty(newName, property.Value));
             }
-
-            InvokeNext(entry);
         }
+
+        InvokeNext(entry);
     }
 }

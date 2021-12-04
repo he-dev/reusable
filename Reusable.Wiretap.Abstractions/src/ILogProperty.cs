@@ -8,3 +8,5 @@ public interface ILogProperty
 
     object Value { get; }
 }
+
+public interface ILoggableProperty : ILogProperty { }

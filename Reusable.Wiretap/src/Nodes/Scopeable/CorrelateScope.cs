@@ -1,18 +1,17 @@
 using System;
 using System.Linq;
 using Newtonsoft.Json;
-using Reusable.Collections.Generic;
 using Reusable.Wiretap.Abstractions;
 using Reusable.Wiretap.Data;
 using Reusable.Wiretap.Extensions;
 
-namespace Reusable.Wiretap.Nodes;
+namespace Reusable.Wiretap.Nodes.Scopeable;
 
 /// <summary>
 /// This nodes provides properties for log-entry correlation.
 /// </summary>
 [JsonObject(MemberSerialization.OptIn)]
-public class Correlate : LoggerNode
+public class CorrelateScope : LoggerNode
 {
     private object? _correlationId;
 
@@ -37,7 +36,7 @@ public class Correlate : LoggerNode
         if (entry.TryGetProperty<MetaProperty.Scope, ILoggerScope>(out var scope))
         {
             //var correlations = prev.EnumeratePrev().OfType<ToggleScope>().Single().Current.Select(x => x.First.Node<Correlate>()).ToList();
-            var correlations = scope.Select(x => x.First.Node<Correlate>()).ToList();
+            var correlations = scope.Select(x => x.First.Node<CorrelateScope>()).ToList();
             entry.Push(new SerializableProperty.Correlation(correlations));
         }
 

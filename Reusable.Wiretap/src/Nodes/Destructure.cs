@@ -1,4 +1,6 @@
+using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using Reusable.Wiretap.Abstractions;
 using Reusable.Wiretap.Data;
 using Reusable.Wiretap.Extensions;
@@ -13,19 +15,17 @@ public class Destructure : LoggerNode
 {
     public override void Invoke(ILogEntry entry)
     {
+        var properties = LogEntry.Empty();
         var dictionaries =
-            //from property in request.Where(LogProperty.CanProcess.With(this))
-            //from property in entry.Where(LogProperty2.Is<DestructibleProperty>())
             from property in entry.Where<DestructibleProperty>()
-            select (property, property.Value.ToDictionary());
+            select (property, property.Value.EnumerateProperties().ToDictionary());
 
-        foreach (var (property, dictionary) in dictionaries.ToList())
+        foreach (var (property, dictionary) in dictionaries)
         {
-            //request.Push<Destructure>(property.Name, dictionary); //, LogProperty.Process.With<SerializeProperty>());
-            //request.Push<SerializeProperty>(property.Name, dictionary); //, LogProperty.Process.With<SerializeProperty>());
-            entry.Push(new SerializableProperty(property.Name, dictionary));
+            properties.Push(new SerializableProperty(property.Name, dictionary));
         }
-
+        
+        entry.Merge(properties);
         InvokeNext(entry);
     }
 }

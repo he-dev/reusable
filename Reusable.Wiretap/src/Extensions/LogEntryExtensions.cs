@@ -1,11 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using Reusable.Extensions;
-using Reusable.OmniLog;
 using Reusable.Wiretap.Abstractions;
 using Reusable.Wiretap.Data;
 using Reusable.Wiretap.Nodes;
+using Reusable.Wiretap.Utilities;
 
 namespace Reusable.Wiretap.Extensions
 {
@@ -16,16 +17,8 @@ namespace Reusable.Wiretap.Extensions
         public static ILogEntry Timestamp(this ILogEntry logEntry, DateTime value) => logEntry.Push(new LoggableProperty.Timestamp(value));
 
         public static ILogEntry Level(this ILogEntry logEntry, LogLevel value) => logEntry.Push(new LoggableProperty.Level(value));
-
-        public static ILogEntry Snapshot(this ILogEntry logEntry, object value, Action<LogPropertyMeta.LogPropertyMetaBuilder> buildMeta)
-        {
-            return logEntry.Push(Names.Properties.Snapshot, value, buildMeta);
-        }
-
-        public static ILogEntry Snapshot(this ILogEntry logEntry, object value)
-        {
-            return logEntry.Push(Names.Properties.Snapshot, value, m => m.ProcessWith<SerializeProperty>());
-        }
+        
+        public static ILogEntry Snapshot(this ILogEntry logEntry, object value) => logEntry.Push(new SerializableProperty.Snapshot(value));
 
         public static ILogEntry Exception(this ILogEntry logEntry, Exception? value, LogLevel level = LogLevel.Error)
         {
@@ -68,7 +61,7 @@ namespace Reusable.Wiretap.Extensions
             });
         }
 
-        public static ILogEntry Caller(this ILogEntry log, Caller? caller)
+        public static ILogEntry Caller(this ILogEntry log, LogCaller? caller)
         {
             return log.Also(x =>
             {
@@ -130,6 +123,36 @@ namespace Reusable.Wiretap.Extensions
             }
 
             return entry;
+        }
+
+        public static DataTable ToDataTable(this IEnumerable<ILogEntry> entries, Action<DataRow>? dataRowAction = default)
+        {
+            var dataTable = new DataTable();
+            foreach (var entry in entries)
+            {
+                var dataRow = dataTable.NewRow();
+                foreach (var item in entry.Where<LoggableProperty>())
+                {
+                    Add(dataTable.Columns, item.Name, item.Value.GetType());
+                    dataRow[item.Name] = item.Value;
+                }
+
+                dataTable.Rows.Add(dataRow.Also(dataRowAction));
+            }
+
+            return dataTable;
+        }
+        
+        // Adds data-column it if does not exists.
+        private static DataColumnCollection Add(this DataColumnCollection columns, string name, Type dataType)
+        {
+            return columns.Also(c =>
+            {
+                if (!c.Contains(name))
+                {
+                    c.Add(name, dataType);
+                }
+            });
         }
     }
 }

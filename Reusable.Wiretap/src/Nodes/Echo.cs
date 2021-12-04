@@ -14,12 +14,10 @@ public class Echo : LoggerNode
     public override bool Enabled => Connectors?.Any() == true;
 
     public List<IConnector> Connectors { get; set; } = new();
-
-    public Func<ILogEntry, ILogEntry> CreateLogEntryView { get; set; } = entry => new LogEntryView<LogProperty>(entry);
-
+    
     public override void Invoke(ILogEntry entry)
     {
-        var view = CreateLogEntryView(entry);
+        var view = new LogEntryView<ILoggableProperty>(entry);
 
         foreach (var rx in Connectors)
         {

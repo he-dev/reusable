@@ -1,9 +1,9 @@
 using System;
 using Reusable.Wiretap.Data;
 
-namespace Reusable.Wiretap.Utilities
+namespace Reusable.Wiretap.Extensions
 {
-    public static class TimeSpanUtility
+    public static class TimeSpanExtensions
     {
         public static double ToDouble(this TimeSpan timeSpan, TimeSpanPrecision precision)
         {
@@ -14,7 +14,7 @@ namespace Reusable.Wiretap.Utilities
                 TimeSpanPrecision.Minutes => timeSpan.TotalMinutes,
                 TimeSpanPrecision.Hours => timeSpan.TotalHours,
                 TimeSpanPrecision.Days => timeSpan.TotalDays,
-                _ => timeSpan.ToDouble(TimeSpanPrecision.Milliseconds)
+                _ => timeSpan.TotalMilliseconds
             };
         }
     }

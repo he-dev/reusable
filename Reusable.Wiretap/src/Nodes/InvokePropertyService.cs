@@ -8,15 +8,15 @@ namespace Reusable.Wiretap.Nodes;
 /// <summary>
 /// Adds computable properties to the log.
 /// </summary>
-public class AttachProperty : LoggerNode
+public class InvokePropertyService : LoggerNode
 {
-    public override bool Enabled => base.Enabled && Properties.Any();
+    public override bool Enabled => Services.Any();
 
-    public List<IPropertyService> Properties { get; set; } = new();
+    public List<IPropertyService> Services { get; set; } = new();
 
     public override void Invoke(ILogEntry entry)
     {
-        foreach (var computable in Properties.Where(x => x.Enabled))
+        foreach (var computable in Services.Where(x => x.Enabled))
         {
             if (computable.GetValue(entry) is {} value)
             {

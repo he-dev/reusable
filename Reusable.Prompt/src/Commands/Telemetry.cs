@@ -1,7 +1,6 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
-using Reusable.OmniLog;
 using Reusable.Wiretap.Abstractions;
 using Reusable.Wiretap.Nodes;
 

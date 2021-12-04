@@ -18,7 +18,8 @@ using Reusable.Wiretap.Connectors;
 using Reusable.Wiretap.Data;
 using Reusable.Wiretap.Extensions;
 using Reusable.Wiretap.Nodes;
-using Reusable.Wiretap.Properties;
+using Reusable.Wiretap.Services.Properties;
+using Reusable.Wiretap.Utilities.AspNetCore;
 
 [assembly: AspMvcViewLocationFormat("/src/Views/{1}/{0}.cshtml")]
 [assembly: AspMvcViewLocationFormat("/src/Views/Shared/{0}.cshtml")]
@@ -52,14 +53,14 @@ namespace Reusable.Apps.Server
         {
             SmartPropertiesLayoutRenderer.Register();
 
-            services.AddOmniLog
+            services.AddWiretap
             (
                 LoggerPipelines
                     .Complete
-                    .Configure<AttachProperty>(node =>
+                    .Configure<InvokePropertyService>(node =>
                     {
-                        node.Properties.Add(new Constant("Environment", _hostingEnvironment.EnvironmentName));
-                        node.Properties.Add(new Constant("Product", "Reusable.app.Server"));
+                        node.Services.Add(new Constant("Environment", _hostingEnvironment.EnvironmentName));
+                        node.Services.Add(new Constant("Product", "Reusable.app.Server"));
                     })
                     .Configure<RenameProperty>(node =>
                     {
@@ -115,7 +116,7 @@ namespace Reusable.Apps.Server
             //loggerFactory.AddDebug();      
 
 
-            app.UseOmniLog();
+            app.UseWiretap();
 
             //app.UseWhen(
             //    httpContext => !httpContext.Request.Method.In(new[] { "GET" }, StringComparer.OrdinalIgnoreCase),

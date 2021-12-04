@@ -5,6 +5,7 @@ using JetBrains.Annotations;
 using Microsoft.AspNetCore.Http;
 using Reusable.OmniLog.Utilities.AspNetCore.Extensions;
 using Reusable.OmniLog.Utilities.AspNetCore.Helpers;
+using Reusable.Wiretap.Data;
 
 namespace Reusable.OmniLog.Utilities.AspNetCore
 {

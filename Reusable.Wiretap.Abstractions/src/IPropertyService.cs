@@ -2,38 +2,37 @@ using System;
 using Reusable.Collections;
 using Reusable.Diagnostics;
 
-namespace Reusable.Wiretap.Abstractions
+namespace Reusable.Wiretap.Abstractions;
+
+public interface IPropertyService : IEquatable<IPropertyService>
 {
-    public interface IPropertyService : IEquatable<IPropertyService>
-    {
-        bool Enabled { get; }
+    bool Enabled { get; }
 
-        [AutoEqualityProperty(StringComparison.OrdinalIgnoreCase)]
-        string Name { get; }
+    [AutoEqualityProperty(StringComparison.OrdinalIgnoreCase)]
+    string Name { get; }
 
-        object? GetValue(ILogEntry logEntry);
-    }
+    object? GetValue(ILogEntry logEntry);
+}
 
-    public abstract class PropertyService : IPropertyService
-    {
-        protected PropertyService(string name) => Name = name;
+public abstract class PropertyService : IPropertyService
+{
+    protected PropertyService(string name) => Name = name;
 
-        private string DebuggerDisplay() => this.ToDebuggerDisplayString(b => { b.DisplaySingle(x => x.Name).DisplaySingle(x => x.Enabled); });
+    private string DebuggerDisplay() => this.ToDebuggerDisplayString(b => { b.DisplaySingle(x => x.Name).DisplaySingle(x => x.Enabled); });
 
-        public bool Enabled { get; set; } = true;
+    public bool Enabled { get; set; } = true;
 
-        public string Name { get; }
+    public string Name { get; }
 
-        public abstract object? GetValue(ILogEntry logEntry);
+    public abstract object? GetValue(ILogEntry logEntry);
 
-        #region IEquatable
+    #region IEquatable
 
-        public bool Equals(IPropertyService? other) => AutoEquality<IPropertyService?>.Comparer.Equals(this, other);
+    public bool Equals(IPropertyService? other) => AutoEquality<IPropertyService?>.Comparer.Equals(this, other);
 
-        public override bool Equals(object? obj) => Equals(obj as IPropertyService);
+    public override bool Equals(object? obj) => Equals(obj as IPropertyService);
 
-        public override int GetHashCode() => AutoEquality<IPropertyService?>.Comparer.GetHashCode(this);
+    public override int GetHashCode() => AutoEquality<IPropertyService?>.Comparer.GetHashCode(this);
 
-        #endregion
-    }
+    #endregion
 }

@@ -1,16 +1,15 @@
 using System.Collections.Generic;
 using Reusable.Extensions;
-using Reusable.OmniLog;
 using Reusable.Wiretap.Abstractions;
 using Reusable.Wiretap.Data;
 using Reusable.Wiretap.Extensions;
 
-namespace Reusable.Wiretap.Nodes;
+namespace Reusable.Wiretap.Nodes.Scopeable;
 
 /// <summary>
 /// This node temporarily stores log-entries. You need to use Flush to log empty the buffer. This node is disabled by default. 
 /// </summary>
-public class BufferLog : LoggerNode
+public class BufferScope : LoggerNode
 {
     private readonly Queue<ILogEntry> _buffer = new();
 

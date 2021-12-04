@@ -40,7 +40,7 @@ public class LogEntry : ILogEntry
         return this;
     }
 
-    public bool TryGetProperty(string name, out ILogProperty? property)
+    public bool TryGetProperty(string name, out ILogProperty property)
     {
         if (_properties.TryGetValue(name, out var versions))
         {
@@ -49,7 +49,7 @@ public class LogEntry : ILogEntry
         }
         else
         {
-            property = default;
+            property = default!;
             return false;
         }
     }

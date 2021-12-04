@@ -27,7 +27,7 @@ namespace Reusable.Wiretap.Connectors
         {
             lock (_syncLock)
             {
-                if (entry.TryGetProperty(nameof(RenderableProperty.Message), out var property) && property is RenderableProperty && property.Value is IHtmlConsoleTemplateBuilder builder)
+                if (entry.TryGetProperty(nameof(RenderableProperty.Html), out var property) && property is RenderableProperty && property.Value is IHtmlConsoleTemplateBuilder builder)
                 {
                     var template = builder.Build(entry);
 

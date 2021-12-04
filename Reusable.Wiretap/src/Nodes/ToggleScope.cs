@@ -24,7 +24,7 @@ public class ToggleScope : LoggerNode
 
     public ILoggerScope Current => AsyncScope<ILoggerScope>.Current?.Value ?? throw new InvalidOperationException($"Cannot use {nameof(Current)} when {nameof(ToggleScope)} is disabled. Create one with Logger.BeginScope() first.");
 
-    public ILoggerScope Push(ILogger logger, string name, object? workItem, Caller caller)
+    public ILoggerScope Push(ILogger logger, string name, object? workItem, LogCaller logCaller)
     {
         try
         {
@@ -33,7 +33,7 @@ public class ToggleScope : LoggerNode
                 Name = name,
                 Logger = logger,
                 WorkItem = workItem,
-                Caller = caller,
+                LogCaller = logCaller,
                 First = CreatePipeline(this, ScopeFactories),
             };
             return AsyncScope<ILoggerScope>.Push(scope).Value;
@@ -80,7 +80,7 @@ public static class ToggleScopeHelper
         [CallerFilePath] string? callerFilePath = null
     )
     {
-        return logger.Node<ToggleScope>().Push(logger, name, workItem, new Caller(callerMemberName, callerLineNumber, callerFilePath));
+        return logger.Node<ToggleScope>().Push(logger, name, workItem, new LogCaller(callerMemberName, callerLineNumber, callerFilePath));
     }
         
     [MustUseReturnValue]
@@ -93,7 +93,7 @@ public static class ToggleScopeHelper
         [CallerFilePath] string? callerFilePath = null
     )
     {
-        return logger.Node<ToggleScope>().Push(logger, typeof(T).ToPrettyString(), workItem, new Caller(callerMemberName, callerLineNumber, callerFilePath));
+        return logger.Node<ToggleScope>().Push(logger, typeof(T).ToPrettyString(), workItem, new LogCaller(callerMemberName, callerLineNumber, callerFilePath));
     }
         
     [MustUseReturnValue]
@@ -107,7 +107,7 @@ public static class ToggleScopeHelper
         [CallerFilePath] string? callerFilePath = null
     )
     {
-        return logger.Node<ToggleScope>().Push(logger, typeof(T).ToPrettyString(), workItem, new Caller(callerMemberName, callerLineNumber, callerFilePath));
+        return logger.Node<ToggleScope>().Push(logger, typeof(T).ToPrettyString(), workItem, new LogCaller(callerMemberName, callerLineNumber, callerFilePath));
     }
         
         

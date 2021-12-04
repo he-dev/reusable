@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Internal;
 using Reusable.Extensions;
+using Reusable.Wiretap.Data;
 
 namespace Reusable.OmniLog.Utilities.AspNetCore.Helpers
 {

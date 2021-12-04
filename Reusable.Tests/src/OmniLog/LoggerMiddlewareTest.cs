@@ -8,7 +8,8 @@ using Reusable.Wiretap.Connectors;
 using Reusable.Wiretap.Data;
 using Reusable.Wiretap.Extensions;
 using Reusable.Wiretap.Nodes;
-using Reusable.Wiretap.Properties;
+using Reusable.Wiretap.Nodes.Scopeable;
+using Reusable.Wiretap.Services.Properties;
 using Reusable.Wiretap.Utilities;
 using Xunit;
 
@@ -53,8 +54,8 @@ namespace Reusable.OmniLog
             {
                 CreateNodes = () => new ILoggerNode[]
                 {
-                    new MeasureElapsedTime(),
-                    new AttachProperty(),
+                    new MeasureScope(),
+                    new InvokePropertyService(),
                     new InjectAnonymousAction(),
                     new ToggleScope(),
                     new SerializeProperty(),
@@ -82,8 +83,8 @@ namespace Reusable.OmniLog
             {
                 CreateNodes = () => new ILoggerNode[]
                 {
-                    new MeasureElapsedTime(),
-                    new AttachProperty(),
+                    new MeasureScope(),
+                    new InvokePropertyService(),
                     new InjectAnonymousAction(),
                     new ToggleScope(),
                     new SerializeProperty(),
@@ -130,8 +131,8 @@ namespace Reusable.OmniLog
             {
                 CreateNodes = () => new ILoggerNode[]
                 {
-                    new MeasureElapsedTime(),
-                    new AttachProperty(),
+                    new MeasureScope(),
+                    new InvokePropertyService(),
                     new InjectAnonymousAction(),
                     new ToggleScope(),
                     new Destructure(),
@@ -167,9 +168,9 @@ namespace Reusable.OmniLog
             {
                 CreateNodes = () => new ILoggerNode[]
                 {
-                    new AttachProperty
+                    new InvokePropertyService
                     {
-                        Properties =
+                        Services =
                         {
                             new Timestamp(new[] { timestamp })
                         }
@@ -202,7 +203,7 @@ namespace Reusable.OmniLog
             {
                 CreateNodes = () => new ILoggerNode[]
                 {
-                    new AttachProperty { Properties = { new Timestamp(new[] { timestamp }) } },
+                    new InvokePropertyService { Services = { new Timestamp(new[] { timestamp }) } },
                     new InjectAnonymousAction(),
                     new Destructure(),
                     new Echo { Connectors = { rx }, CreateLogEntryView = e => e }
@@ -232,9 +233,9 @@ namespace Reusable.OmniLog
             {
                 CreateNodes = () => new ILoggerNode[]
                 {
-                    new AttachProperty
+                    new InvokePropertyService
                     {
-                        Properties =
+                        Services =
                         {
                             new Timestamp(new[] { timestamp })
                         }

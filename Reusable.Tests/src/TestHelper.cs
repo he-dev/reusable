@@ -11,7 +11,7 @@ using Reusable.Wiretap;
 using Reusable.Wiretap.Abstractions;
 using Reusable.Wiretap.Extensions;
 using Reusable.Wiretap.Nodes;
-using Reusable.Wiretap.Properties;
+using Reusable.Wiretap.Services.Properties;
 
 namespace Reusable
 {
@@ -28,11 +28,11 @@ namespace Reusable
             return
                 LoggerPipelines
                     .Complete
-                    .Configure<AttachProperty>(node =>
+                    .Configure<InvokePropertyService>(node =>
                     {
-                        node.Properties.Add(new Constant("Environment", "Test"));
-                        node.Properties.Add(new Constant("Product", "Reusable.Tests"));
-                        node.Properties.Add(new Timestamp<DateTimeUtc>());
+                        node.Services.Add(new Constant("Environment", "Test"));
+                        node.Services.Add(new Constant("Product", "Reusable.Tests"));
+                        node.Services.Add(new Timestamp<DateTimeUtc>());
                     })
                     .Configure<Echo>(node => node.Connectors.AddRange(logRx))
                     .ToLoggerFactory();

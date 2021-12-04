@@ -31,4 +31,8 @@
     <Compile Remove="src\ILogEntryBuilder.cs" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="src" />
+  </ItemGroup>
+
 </Project>

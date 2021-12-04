@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Reusable.Extensions;
-using Reusable.OmniLog;
 using Reusable.Wiretap.Abstractions;
 using Reusable.Wiretap.Nodes;
 

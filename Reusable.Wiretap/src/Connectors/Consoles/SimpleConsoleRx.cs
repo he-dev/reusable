@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using Reusable.OmniLog;
 using Reusable.Wiretap.Abstractions;
 using Reusable.Wiretap.Data;
 

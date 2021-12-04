@@ -29,8 +29,10 @@ namespace Reusable.Wiretap.Data
         }
     }
 
-    public record LoggableProperty(string Name, object Value) : LogProperty(Name, Value)
+    public record LoggableProperty(string Name, object Value) : LogProperty(Name, Value), ILoggableProperty
     {
+        public record Environment(object Value) : LoggableProperty(nameof(Environment), Value);
+        
         public record Timestamp(object Value) : LoggableProperty(nameof(Timestamp), Value);
 
         public record Logger(object Value) : LoggableProperty(nameof(Logger), Value);

@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Security.Authentication;
 using Reusable.Apps;
 using Reusable.Exceptionize;
-using Reusable.OmniLog;
 using Reusable.Utilities.NLog.LayoutRenderers;
 using Reusable.Wiretap;
 using Reusable.Wiretap.Abstractions;
@@ -11,7 +10,7 @@ using Reusable.Wiretap.Connectors;
 using Reusable.Wiretap.Data;
 using Reusable.Wiretap.Extensions;
 using Reusable.Wiretap.Nodes;
-using Reusable.Wiretap.Properties;
+using Reusable.Wiretap.Services.Properties;
 using Reusable.Wiretap.Utilities.Logging;
 
 namespace Reusable
@@ -25,10 +24,10 @@ namespace Reusable
             using var loggerFactory =
                 LoggerPipelines
                     .Complete
-                    .Configure<AttachProperty>(node =>
+                    .Configure<InvokePropertyService>(node =>
                     {
-                        node.Properties.Add(new Constant("Environment", "Demo"));
-                        node.Properties.Add(new Constant("Product", "Reusable.app.Console"));
+                        node.Services.Add(new Constant("Environment", "Demo"));
+                        node.Services.Add(new Constant("Product", "Reusable.app.Console"));
                     })
                     .Configure<MapSnapshot>(node =>
                     {

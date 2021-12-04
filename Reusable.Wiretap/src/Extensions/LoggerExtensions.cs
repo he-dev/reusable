@@ -8,7 +8,6 @@ using JetBrains.Annotations;
 using Reusable.Collections.Generic;
 using Reusable.Exceptionize;
 using Reusable.Extensions;
-using Reusable.OmniLog;
 using Reusable.Wiretap.Abstractions;
 using Reusable.Wiretap.Data;
 using Reusable.Wiretap.Nodes;
@@ -116,12 +115,6 @@ public static class LoggerExtensions
         [CallerFilePath] string? callerFilePath = null
     )
     {
-        // logger.PushDelegate(action.Then(log =>
-        // {
-        //     log.Push(new LoggableProperty.CallerMemberName(callerMemberName!));
-        //     log.Push(new LoggableProperty.CallerLineNumber(callerLineNumber!));
-        //     log.Push(new LoggableProperty.CallerFilePath(callerFilePath!));
-        // }));
         logger.Log(
             LogEntry
                 .Empty()
