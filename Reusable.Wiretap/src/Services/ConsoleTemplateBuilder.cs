@@ -1,8 +1,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
-using Reusable.MarkupBuilder;
-using Reusable.MarkupBuilder.Html;
+using Reusable.Htmlize;
+using Reusable.Htmlize.Html;
 using Reusable.Wiretap.Abstractions;
 using Reusable.Wiretap.Data;
 

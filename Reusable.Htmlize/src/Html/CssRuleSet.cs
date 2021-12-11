@@ -1,6 +1,6 @@
 ﻿using JetBrains.Annotations;
 
-namespace Reusable.MarkupBuilder.Html
+namespace Reusable.Htmlize.Html
 {
     [PublicAPI]
     public class CssRuleSet

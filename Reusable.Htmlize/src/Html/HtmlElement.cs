@@ -2,22 +2,20 @@ using System;
 using System.Collections.Generic;
 using JetBrains.Annotations;
 
-namespace Reusable.MarkupBuilder.Html
+namespace Reusable.Htmlize.Html;
+
+// Marker interface for HtmlElement extensions.
+public interface IHtmlElement : IMarkupElement { }
+
+public class HtmlElement : MarkupElement, IHtmlElement
 {
-    // Marker interface for HtmlElement extensions.
-    public interface IHtmlElement : IMarkupElement { }
+    public HtmlElement([NotNull] string name) : base(name, StringComparer.OrdinalIgnoreCase) { }
 
-    public class HtmlElement : MarkupElement, IHtmlElement
-    {
-        public HtmlElement([NotNull] string name) : base(name, StringComparer.OrdinalIgnoreCase) { }
+    public HtmlElement(string name, IList<object> content) : base(name, content) { }
 
-        public HtmlElement(string name, IList<object> content) : base(name, content) { }
+    public static HtmlElement? Builder => default;
 
-        [CanBeNull]
-        public static HtmlElement Builder => default;
+    public static IMarkupElement Create(string name) => new HtmlElement(name);
 
-        public static IMarkupElement Create(string name) => new HtmlElement(name);
-
-        public static implicit operator string(HtmlElement htmlElement) => htmlElement.ToHtml();
-    }
+    public static implicit operator string(HtmlElement htmlElement) => htmlElement.ToHtml();
 }

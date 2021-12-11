@@ -1,12 +1,12 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Linq;
 using System.Linq.Expressions;
-using JetBrains.Annotations;
 using Reusable.Exceptionize;
 using Reusable.Extensions;
 
-namespace Reusable.MarkupBuilder
+namespace Reusable.Htmlize
 {
     public static class MarkupElementExtensions
     {
@@ -40,29 +40,27 @@ namespace Reusable.MarkupBuilder
             return create(name);
         }
 
-        [NotNull]
-        public static T Element<T>([CanBeNull] this T @this, string name, Action<T> elementAction) where T : class, IMarkupElement
+        public static T Element<T>(this T? parent, string name, Action<T> elementAction) where T : class, IMarkupElement
         {
-            return @this.Element<T, object>(name, null, (element, local) => elementAction(element));
+            return parent.Element<T, object>(name, null, (element, local) => elementAction(element));
         }
 
-        // Create a new element allows to perfom action on it with the specified local data. Useful for adding nested elements like in the console-template.
-        [NotNull]
-        public static T Element<T, TLocal>([CanBeNull] this T @this, string name, TLocal local, Action<T, TLocal> body) where T : class, IMarkupElement
+        // Create a new element allows to perform action on it with the specified local data. Useful for adding nested elements like in the console-template.
+        public static T Element<T, TLocal>(this T? parent, string name, TLocal local, Action<T, TLocal> body) where T : class, IMarkupElement
         {
             var element = CreateElement<T>(name);
 
             body.Invoke(element, local);
 
-            // @this can be null if it's a builder so return the new element instead.
-            if (@this is null)
+            // parent can be null if it's a builder so return the new element instead.
+            if (parent is null)
             {
                 return element;
             }
             else
             {
-                @this.Add(element);
-                return @this;
+                parent.Add(element);
+                return parent;
             }
         }
 
@@ -95,18 +93,18 @@ namespace Reusable.MarkupBuilder
             return @this;
         }
 
-        public static T Append<T>(this T @this, IEnumerable<object> content) where T : class, IMarkupElement
+        public static T Append<T>(this T parent, IEnumerable<object> content) where T : class, IMarkupElement
         {
             foreach (var item in content)
             {
-                @this.Add(item);
+                parent.Add(item);
             }
-            return @this;
+            return parent;
         }
 
-        public static T Append<T>(this T @this, params object[] content) where T : class, IMarkupElement
+        public static T Append<T>(this T parent, params object[] content) where T : class, IMarkupElement
         {
-            return @this.Append((IEnumerable<object>)content);
+            return parent.Append(content.AsEnumerable());
         }
 
         public static T Attribute<T>(this T @this, string name, string value) where T : class, IMarkupElement

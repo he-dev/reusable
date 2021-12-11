@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace Reusable.Wiretap.Abstractions;
 
-public interface ILoggerScope : IDisposable, IEnumerable<ILoggerScope>
+public interface ILogScope : IDisposable, IEnumerable<ILogScope>
 {
     ILoggerNode First { get; }
 

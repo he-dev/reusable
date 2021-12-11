@@ -1,6 +1,6 @@
 using System;
 
-namespace Reusable.MarkupBuilder
+namespace Reusable.Htmlize
 {
     [Flags]
     public enum MarkupFormattingOptions

@@ -1,7 +1,7 @@
 using System;
 using JetBrains.Annotations;
 
-namespace Reusable.MarkupBuilder.Xml
+namespace Reusable.Htmlize.Xml
 {
     
     // Marker interface for XmlElement extensions.

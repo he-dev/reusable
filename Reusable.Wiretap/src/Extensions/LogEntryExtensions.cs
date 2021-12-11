@@ -6,7 +6,6 @@ using Reusable.Extensions;
 using Reusable.Wiretap.Abstractions;
 using Reusable.Wiretap.Data;
 using Reusable.Wiretap.Nodes;
-using Reusable.Wiretap.Utilities;
 
 namespace Reusable.Wiretap.Extensions
 {

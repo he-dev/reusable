@@ -1,0 +1,54 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <Configurations>Debug;Release</Configurations>
+    <Platforms>AnyCPU</Platforms>
+    <LangVersion>latest</LangVersion>
+    <Nullable>enable</Nullable>
+    <RootNamespace>Reusable.Wiretap.Connectors</RootNamespace>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <DebugSymbols>true</DebugSymbols>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <DefineConstants>TRACE;RELEASE</DefineConstants>
+  </PropertyGroup>
+  
+  <ItemGroup>
+    <Compile Remove="cfg\**" />
+    <Compile Remove="src\Nodes\BuilderNode.cs" />
+    <Compile Remove="src\Nodes\CollectFlowTelemetry.cs" />
+    <Compile Remove="src\Extensions\ExecutionCategories-obsolete.cs" />
+    <Compile Remove="src\ExecutionContext.cs" />
+    <Compile Remove="src\Nodes\CreateProperty.cs" />
+    <Compile Remove="src\Nodes\InjectAnonymousAction.cs" />
+    <Compile Remove="src\Nodes\MapObject.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="JetBrains.Annotations" Version="2021.3.0" />
+    <PackageReference Include="System.Data.DataSetExtensions" Version="4.5.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Reusable.Core\Reusable.Core.csproj" />
+    <ProjectReference Include="..\Reusable.Wiretap\Reusable.Wiretap.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="System.Configuration" />
+  </ItemGroup>
+  
+  <ItemGroup>
+    <EmbeddedResource Remove="cfg\**" />
+  </ItemGroup>
+  
+  <ItemGroup>
+    <None Remove="cfg\**" />
+  </ItemGroup>
+
+</Project>

@@ -5,7 +5,7 @@ using System.Linq;
 using JetBrains.Annotations;
 using Reusable.Extensions;
 
-namespace Reusable.MarkupBuilder
+namespace Reusable.Htmlize
 {
     public interface IMarkupFormatting : IDictionary<string, MarkupFormattingOptions>
     {

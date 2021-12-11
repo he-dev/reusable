@@ -5,7 +5,7 @@
     <Configurations>Debug;Release</Configurations>
     <Platforms>AnyCPU</Platforms>
     <LangVersion>latest</LangVersion>
-    <RootNamespace>Reusable.MarkupBuilder</RootNamespace>
+    <Nullable>enable</Nullable>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">

@@ -1,0 +1,25 @@
+{
+    "LoggerFilter": {
+        "$t": "Any",
+        "Expressions": [
+            {
+                "$t": "NameMatches",
+                "Pattern": "abc"
+            },
+            {
+                "$t": "NameMatches",
+                "Pattern": "abc"
+            }
+        ]
+    },
+    "LogFilter": {
+        "$t": "Any",
+        "Expressions": [
+            {
+                "$t": "PropertyMatches",
+                "Name": "Message",
+                "Pattern": "abc"
+            }
+        ]
+    }
+}

@@ -11,6 +11,7 @@ using JetBrains.Annotations;
 using Reusable.Exceptionize;
 using Reusable.Extensions;
 using Reusable.Wiretap.Abstractions;
+using Reusable.Wiretap.Conventions;
 using Reusable.Wiretap.Extensions;
 
 namespace Reusable.Commander

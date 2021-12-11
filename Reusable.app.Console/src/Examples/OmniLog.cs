@@ -7,11 +7,11 @@ using Reusable.Utilities.NLog.LayoutRenderers;
 using Reusable.Wiretap;
 using Reusable.Wiretap.Abstractions;
 using Reusable.Wiretap.Connectors;
+using Reusable.Wiretap.Conventions;
 using Reusable.Wiretap.Data;
 using Reusable.Wiretap.Extensions;
 using Reusable.Wiretap.Nodes;
 using Reusable.Wiretap.Services.Properties;
-using Reusable.Wiretap.Utilities.Logging;
 
 namespace Reusable
 {

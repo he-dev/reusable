@@ -1,10 +1,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using Reusable.Extensions;
 using Reusable.Wiretap.Abstractions;
 using Reusable.Wiretap.Data;
 using Reusable.Wiretap.Extensions;
-using Reusable.Wiretap.Utilities;
 
 namespace Reusable.Wiretap.Nodes;
 
@@ -18,7 +18,7 @@ public class Destructure : LoggerNode
         var properties = LogEntry.Empty();
         var dictionaries =
             from property in entry.Where<DestructibleProperty>()
-            select (property, property.Value.EnumerateProperties().ToDictionary());
+            select (property, property.Value.GetProperties().ToDictionary(x => x.Name, x => x.Value));
 
         foreach (var (property, dictionary) in dictionaries)
         {

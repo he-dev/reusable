@@ -6,26 +6,25 @@ using System.Runtime.CompilerServices;
 using Reusable.Collections.Generic;
 using Reusable.Extensions;
 using Reusable.Wiretap.Abstractions;
-using Reusable.Wiretap.Data;
+using Reusable.Wiretap.Conventions;
 using Reusable.Wiretap.Extensions;
 using Reusable.Wiretap.Nodes;
 
+namespace Reusable.Wiretap.Data;
 
-namespace Reusable.Wiretap;
-
-public class LoggerScope : ILoggerScope
+public class LogScope : ILogScope
 {
-    public string Name { get; set; } = default!;
+    public string Name { get; init; } = default!;
 
-    public ILogger Logger { get; set; } = default!;
+    public ILogger Logger { get; init; } = default!;
 
-    public ILoggerNode First { get; set; } = default!;
+    public ILoggerNode First { get; init; } = default!;
 
     public Stack<(Exception Exception, ILogCaller Caller)> Exceptions { get; } = new();
 
-    public object? WorkItem { get; set; }
+    public object? WorkItem { get; init; }
 
-    public LogCaller LogCaller { get; set; } = default!;
+    public LogCaller LogCaller { get; init; } = default!;
 
     // Helps to prevent enumerating nodes beyond the scope pipeline.
     private bool IsMainPipeline(ILoggerNode node)
@@ -33,9 +32,9 @@ public class LoggerScope : ILoggerScope
         return !ReferenceEquals(node, First) && node.Prev is ToggleScope;
     }
 
-    public IEnumerator<ILoggerScope> GetEnumerator()
+    public IEnumerator<ILogScope> GetEnumerator()
     {
-        return AsyncScope<ILoggerScope>.Current.Enumerate().Select(s => s.Value).GetEnumerator();
+        return AsyncScope<ILogScope>.Current.Enumerate().Select(s => s.Value).GetEnumerator();
     }
 
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
@@ -66,7 +65,7 @@ public class LoggerScope : ILoggerScope
                 .Then(x => x.Caller(LogCaller).Push(new MetaProperty.OverrideBuffer()))
         );
 
-        AsyncScope<ILoggerScope>.Current?.Dispose();
+        AsyncScope<ILogScope>.Current?.Dispose();
     }
 
     private static class Helpers

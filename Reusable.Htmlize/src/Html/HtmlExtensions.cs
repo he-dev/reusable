@@ -1,7 +1,7 @@
 using System.Linq;
 using System.Linq.Custom;
 
-namespace Reusable.MarkupBuilder.Html
+namespace Reusable.Htmlize.Html
 {
     public static class HtmlExtensions
     {

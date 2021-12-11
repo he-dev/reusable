@@ -5,7 +5,7 @@ using System.Text.RegularExpressions;
 using JetBrains.Annotations;
 using Reusable.Extensions;
 
-namespace Reusable.MarkupBuilder
+namespace Reusable.Htmlize
 {
     // Maybe another time...
     //public interface IMarkupFormattingTemplateParser

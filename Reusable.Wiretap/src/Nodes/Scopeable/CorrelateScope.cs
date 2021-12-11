@@ -33,7 +33,7 @@ public class CorrelateScope : LoggerNode
     public override void Invoke(ILogEntry entry)
     {
         //if (Prev is { } prev)
-        if (entry.TryGetProperty<MetaProperty.Scope, ILoggerScope>(out var scope))
+        if (entry.TryGetProperty<MetaProperty.Scope, ILogScope>(out var scope))
         {
             //var correlations = prev.EnumeratePrev().OfType<ToggleScope>().Single().Current.Select(x => x.First.Node<Correlate>()).ToList();
             var correlations = scope.Select(x => x.First.Node<CorrelateScope>()).ToList();

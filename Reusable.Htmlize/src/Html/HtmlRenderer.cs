@@ -2,7 +2,7 @@
 using System.Globalization;
 using JetBrains.Annotations;
 
-namespace Reusable.MarkupBuilder.Html
+namespace Reusable.Htmlize.Html
 {
     public class HtmlRenderer : MarkupRenderer
     {

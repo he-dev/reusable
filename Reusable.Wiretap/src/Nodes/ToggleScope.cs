@@ -18,17 +18,17 @@ namespace Reusable.Wiretap.Nodes;
 /// </summary>
 public class ToggleScope : LoggerNode
 {
-    public override bool Enabled => AsyncScope<ILoggerScope>.Any;
+    public override bool Enabled => AsyncScope<ILogScope>.Any;
 
     public List<Func<ILoggerNode>> ScopeFactories { get; set; } = new();
 
-    public ILoggerScope Current => AsyncScope<ILoggerScope>.Current?.Value ?? throw new InvalidOperationException($"Cannot use {nameof(Current)} when {nameof(ToggleScope)} is disabled. Create one with Logger.BeginScope() first.");
+    public ILogScope Current => AsyncScope<ILogScope>.Current?.Value ?? throw new InvalidOperationException($"Cannot use {nameof(Current)} when {nameof(ToggleScope)} is disabled. Create one with Logger.BeginScope() first.");
 
-    public ILoggerScope Push(ILogger logger, string name, object? workItem, LogCaller logCaller)
+    public ILogScope Push(ILogger logger, string name, object? workItem, LogCaller logCaller)
     {
         try
         {
-            var scope = new LoggerScope
+            var scope = new LogScope
             {
                 Name = name,
                 Logger = logger,
@@ -36,7 +36,7 @@ public class ToggleScope : LoggerNode
                 LogCaller = logCaller,
                 First = CreatePipeline(this, ScopeFactories),
             };
-            return AsyncScope<ILoggerScope>.Push(scope).Value;
+            return AsyncScope<ILogScope>.Push(scope).Value;
         }
         finally
         {
@@ -70,7 +70,7 @@ public static class ToggleScopeHelper
     /// Creates a new scope that is open until disposed.
     /// </summary>
     [MustUseReturnValue]
-    public static ILoggerScope BeginScope
+    public static ILogScope BeginScope
     (
         this ILogger logger,
         string name,
@@ -84,7 +84,7 @@ public static class ToggleScopeHelper
     }
         
     [MustUseReturnValue]
-    public static ILoggerScope BeginScope<T>
+    public static ILogScope BeginScope<T>
     (
         this ILogger logger,
         object? workItem = default,
@@ -97,7 +97,7 @@ public static class ToggleScopeHelper
     }
         
     [MustUseReturnValue]
-    public static ILoggerScope BeginScope<T>
+    public static ILogScope BeginScope<T>
     (
         this ILogger logger,
         T instance,
@@ -115,7 +115,7 @@ public static class ToggleScopeHelper
     /// <summary>
     /// Gets the current scope.
     /// </summary>
-    public static ILoggerScope Scope(this ILogger logger)
+    public static ILogScope Scope(this ILogger logger)
     {
         return logger.Node<ToggleScope>().Current;
     }

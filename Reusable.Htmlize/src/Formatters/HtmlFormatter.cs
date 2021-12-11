@@ -1,6 +1,6 @@
 using System;
 
-namespace Reusable.MarkupBuilder.Formatters
+namespace Reusable.Htmlize.Formatters
 {
     public class HtmlFormatProvider : CustomFormatProvider
     {

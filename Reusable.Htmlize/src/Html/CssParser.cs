@@ -5,7 +5,7 @@ using System.Text.RegularExpressions;
 using JetBrains.Annotations;
 using Reusable.Extensions;
 
-namespace Reusable.MarkupBuilder.Html
+namespace Reusable.Htmlize.Html
 {
     public interface ICssParser
     {

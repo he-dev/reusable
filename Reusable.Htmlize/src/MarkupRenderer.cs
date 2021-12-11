@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using Reusable.Extensions;
 
-namespace Reusable.MarkupBuilder
+namespace Reusable.Htmlize
 {
     public interface IMarkupRenderer
     {

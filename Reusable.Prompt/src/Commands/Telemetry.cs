@@ -3,31 +3,32 @@ using System.Threading;
 using System.Threading.Tasks;
 using Reusable.Wiretap.Abstractions;
 using Reusable.Wiretap.Nodes;
+using Reusable.Wiretap;
+using Reusable.Wiretap.Data;
 
-namespace Reusable.Commander.Commands
+namespace Reusable.Commander.Commands;
+
+public class Telemetry : CommandDecorator
 {
-    public class Telemetry : CommandDecorator
+    private readonly ILogger<Telemetry> _logger;
+
+    public Telemetry(ILogger<Telemetry> logger, ICommand command) : base(command)
     {
-        private readonly ILogger<Telemetry> _logger;
+        _logger = logger;
+    }
 
-        public Telemetry(ILogger<Telemetry> logger, ICommand command) : base(command)
+    public override async Task ExecuteAsync(object? parameter, CancellationToken cancellationToken)
+    {
+        using (_logger.BeginScope("ExecuteCommand", new { commandName = Decoratee.Name.Primary }))
         {
-            _logger = logger;
-        }
-
-        public override async Task ExecuteAsync(object? parameter, CancellationToken cancellationToken)
-        {
-            using (_logger.BeginScope("ExecuteCommand", new { commandName = Decoratee.Name.Primary }))
+            try
             {
-                try
-                {
-                    await Decoratee.ExecuteAsync(parameter, cancellationToken);
-                }
-                catch (Exception ex)
-                {
-                    _logger.Scope().Exceptions.Push(ex);
-                    throw;
-                }
+                await Decoratee.ExecuteAsync(parameter, cancellationToken);
+            }
+            catch (Exception ex)
+            {
+                _logger.Scope().Exceptions.Push(ex);
+                throw;
             }
         }
     }

@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Reusable.Wiretap;
 using Reusable.Wiretap.Abstractions;
+using Reusable.Wiretap.Conventions;
 using Reusable.Wiretap.Extensions;
 
 namespace Reusable.Utilities.AspNetCore.ActionFilters

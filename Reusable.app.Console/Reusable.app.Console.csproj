@@ -32,8 +32,8 @@
     <ProjectReference Include="..\Reusable.Core\Reusable.Core.csproj" />
     <ProjectReference Include="..\Reusable.Secure\Reusable.Secure.csproj" />
     <ProjectReference Include="..\Reusable.Htmlize\Reusable.Htmlize.csproj" />
-    <ProjectReference Include="..\Reusable.Wiretap.Abstractions\Reusable.Wiretap.Abstractions.csproj" />
     <ProjectReference Include="..\Reusable.Wiretap\Reusable.Wiretap.csproj" />
+    <ProjectReference Include="..\Reusable.Wiretap.Extensions.Telemetry\Reusable.Wiretap.Extensions.Telemetry.csproj" />
     <ProjectReference Include="..\Reusable.NameIt\Reusable.NameIt.csproj" />
     <ProjectReference Include="..\Reusable.Version\Reusable.Version.csproj" />
     <ProjectReference Include="..\Reusable.Utilities.JsonNet\Reusable.Utilities.JsonNet.csproj" />

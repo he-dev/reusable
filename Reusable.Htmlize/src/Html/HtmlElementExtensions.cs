@@ -3,11 +3,11 @@ using System.Linq;
 using System.Linq.Custom;
 using JetBrains.Annotations;
 using Reusable.Extensions;
-using Reusable.MarkupBuilder.Formatters;
+using Reusable.Htmlize.Formatters;
 
 // ReSharper disable InconsistentNaming - lower-case method names are intentional because it's how the look in html
 
-namespace Reusable.MarkupBuilder.Html
+namespace Reusable.Htmlize.Html
 {
     public static class HtmlElementExtensions
     {
@@ -23,11 +23,11 @@ namespace Reusable.MarkupBuilder.Html
 
         #region Html tags
 
-        public static T p<T>(this T element, params Func<T, object>[] content) where T : class, IHtmlElement
+        public static T p<T>(this T? parent, params Func<T, object>[] content) where T : class, IHtmlElement
         {
             //return element.Element("p");
             
-            return element.Element
+            return parent.Element
             (
                 name: "p",
                 local: new
@@ -46,9 +46,9 @@ namespace Reusable.MarkupBuilder.Html
             );
         }
 
-        public static T span<T>(this T element, params Func<T, object>[] content) where T : class, IHtmlElement
+        public static T span<T>(this T? parent, params Func<T, object>[] content) where T : class, IHtmlElement
         {
-            return element.Element
+            return parent.Element
             (
                 name: "span",
                 local: new
@@ -69,9 +69,9 @@ namespace Reusable.MarkupBuilder.Html
 
         #endregion
 
-        public static T text<T>(this T template, string text) where T : class, IHtmlElement
+        public static T text<T>(this T parent, string text) where T : class, IHtmlElement
         {
-            return template.Append(text);
+            return parent.Append(text);
         }
 
         //public static string ToHtml(this IMarkupElement element, [NotNull] IMarkupFormatting formatting, [NotNull, ItemNotNull] IEnumerable<IMarkupModifier> visitors)
