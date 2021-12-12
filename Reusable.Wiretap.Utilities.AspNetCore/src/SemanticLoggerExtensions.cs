@@ -24,7 +24,8 @@ public static class SemanticLoggerExtensions
         
     public static IServiceCollection AddWiretap(this IServiceCollection services, IEnumerable<ILoggerNode> nodes)
     {
-        return services.AddWiretap(nodes.ToLoggerFactory());
+        //return services.AddWiretap(nodes.ToLoggerFactory());
+        return default;
     }
         
     /// <summary>

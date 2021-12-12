@@ -37,7 +37,7 @@ public interface IDecision { }
 
 public static class Telemetry
 {
-    public static Link<ITelemetry?> Collect => (log, _) => { };
+    public static Link<ITelemetry?> Collect => (_, _) => { };
 }
 
 public static class TelemetryLayers
@@ -99,5 +99,5 @@ public static class TelemetryLevels
     public static Action<ILogEntry> Error(this Action<ILogEntry> node) => node.Level();
     public static Action<ILogEntry> Fatal(this Action<ILogEntry> node) => node.Level();
 
-    private static Action<ILogEntry> Level(this Action<ILogEntry> node, [CallerMemberName] string? name = null) => node.Level((LogLevel)Enum.Parse(typeof(LogLevel), name));
+    private static Action<ILogEntry> Level(this Action<ILogEntry> node, [CallerMemberName] string? name = null) => node.Level((LogLevel)Enum.Parse(typeof(LogLevel), name!));
 }

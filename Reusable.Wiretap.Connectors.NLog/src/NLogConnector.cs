@@ -3,6 +3,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using Reusable.Wiretap.Abstractions;
+using Reusable.Wiretap.Extensions;
 
 namespace Reusable.Wiretap.Connectors;
 
@@ -39,7 +40,7 @@ public class NLogConnector : IConnector
             TimeStamp = logEntry.GetValueOrDefault("Timestamp", DateTime.UtcNow),
         };
 
-        foreach (var property in logEntry)
+        foreach (var property in logEntry.Where<ILoggableProperty>())
         {
             logEventInfo.Properties.Add(property.Name, property.Value);
         }

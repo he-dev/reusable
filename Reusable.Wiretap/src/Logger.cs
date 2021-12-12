@@ -7,17 +7,19 @@ namespace Reusable.Wiretap;
 
 public class Logger : LoggerNode, ILogger
 {
-    public string Name { get; set; } = "Unknown";
+    public string Name { get; init; } = "Unknown";
 
     public override void Invoke(ILogEntry entry) => InvokeNext(entry.Push(new LoggableProperty.Logger(Name)));
 
     public virtual void Log(ILogEntry logEntry) => Invoke(logEntry);
 }
 
+// This decorator supports DI.
 public class Logger<T> : Logger, ILogger<T>
 {
     private readonly ILogger _logger;
 
+    // This constructor makes it easier to create a typed logger with DI.
     public Logger(ILoggerFactory loggerFactory)
     {
         _logger = loggerFactory.CreateLogger(typeof(T).ToPrettyString());

@@ -1,9 +1,10 @@
 using System;
+using System.Collections.Generic;
 
-namespace Reusable.Wiretap.Abstractions
+namespace Reusable.Wiretap.Abstractions;
+
+public interface ILoggerFactory : IDisposable
 {
-    public interface ILoggerFactory : IDisposable
-    {
-        ILogger CreateLogger(string name);
-    }
+    ILogger CreateLogger(string name);
 }
+

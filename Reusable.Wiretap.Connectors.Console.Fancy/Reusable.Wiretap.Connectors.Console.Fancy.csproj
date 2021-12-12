@@ -41,7 +41,6 @@
     <ProjectReference Include="..\Reusable.Htmlize\Reusable.Htmlize.csproj" />
     <ProjectReference Include="..\Reusable.Wiretap\Reusable.Wiretap.csproj" />
     <ProjectReference Include="..\Reusable.Wiretap.Connectors.Console\Reusable.Wiretap.Connectors.Console.csproj" />
-    <ProjectReference Include="..\Reusable.Wiretap.Extensions.Telemetry\Reusable.Wiretap.Extensions.Telemetry.csproj" />
   </ItemGroup>
 
   <ItemGroup>
@@ -54,11 +53,6 @@
   
   <ItemGroup>
     <None Remove="cfg\**" />
-  </ItemGroup>
-  
-  <ItemGroup>
-    <Folder Include="src\Extensions" />
-    <Folder Include="src\Services" />
   </ItemGroup>
 
 </Project>

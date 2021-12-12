@@ -17,11 +17,11 @@ public class Echo : LoggerNode
     
     public override void Invoke(ILogEntry entry)
     {
-        var view = new LogEntryView<ILoggableProperty>(entry);
+        //var view = new LogEntryView<ILoggableProperty>(entry);
 
         foreach (var rx in Connectors)
         {
-            rx.Log(view);
+            rx.Log(entry);
         }
 
         InvokeNext(entry);

@@ -3,35 +3,37 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using Reusable.Collections.Generic;
+using Reusable.Extensions;
 using Reusable.Wiretap.Abstractions;
+using Reusable.Wiretap.Pipelines;
 
 namespace Reusable.Wiretap;
 
+public delegate IEnumerable<ILoggerNode> PipelineConfiguration(IEnumerable<ILoggerNode> nodes);
+
 public class LoggerFactory : ILoggerFactory
 {
-    private readonly ConcurrentDictionary<SoftString, ILogger> _loggers = new();
+    private ConcurrentDictionary<SoftString, ILogger> Loggers { get; } = new();
 
-    public LoggerFactory(IEnumerable<ILoggerNode> nodes) => CreateNodes = () => nodes;
+    public LoggerPipeline Pipeline { get; set; } = new EmptyPipeline();
 
-    public LoggerFactory() : this(Enumerable.Empty<ILoggerNode>()) { }
+    public PipelineConfiguration PipelineConfiguration { get; set; } = nodes => nodes;
 
-    public Func<IEnumerable<ILoggerNode>> CreateNodes { get; set; }
-
-    public static ILoggerFactory Empty() => new LoggerFactory(Enumerable.Empty<ILoggerNode>());
+    public static LoggerFactory CreateWith<T>() where T : LoggerPipeline, new() => new() { Pipeline = new T() };
 
     #region ILoggerFactory
 
-    public ILogger CreateLogger(string name) => _loggers.GetOrAdd(name, CreatePipeline(name));
+    public ILogger CreateLogger(string name) => Loggers.GetOrAdd(name, CreatePipeline(name));
 
     private ILogger CreatePipeline(string loggerName)
     {
         // Prepend does not work with .net-framework.
-        return (ILogger)new ILoggerNode[] { new Logger { Name = loggerName } }.Concat(CreateNodes()).Join().First();
+        return (ILogger)new ILoggerNode[] { new Logger { Name = loggerName } }.Concat(Pipeline).Join().First();
     }
 
     public void Dispose()
     {
-        foreach (var logger in _loggers)
+        foreach (var logger in Loggers)
         {
             foreach (var node in ((ILoggerNode)logger.Value).EnumerateNext())
             {
@@ -39,13 +41,8 @@ public class LoggerFactory : ILoggerFactory
             }
         }
 
-        _loggers.Clear();
+        Loggers.Clear();
     }
 
     #endregion
-}
-
-public static class LoggerFactoryExtensions
-{
-    public static ILogger<T> CreateLogger<T>(this ILoggerFactory loggerFactory) => new Logger<T>(loggerFactory);
 }

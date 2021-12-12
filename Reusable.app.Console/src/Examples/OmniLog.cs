@@ -11,6 +11,7 @@ using Reusable.Wiretap.Conventions;
 using Reusable.Wiretap.Data;
 using Reusable.Wiretap.Extensions;
 using Reusable.Wiretap.Nodes;
+using Reusable.Wiretap.Pipelines;
 using Reusable.Wiretap.Services.Properties;
 
 namespace Reusable
@@ -22,13 +23,10 @@ namespace Reusable
             SmartPropertiesLayoutRenderer.Register();
 
             using var loggerFactory =
-                LoggerPipelines
-                    .Complete
-                    .Configure<InvokePropertyService>(node =>
-                    {
-                        node.Services.Add(new Constant("Environment", "Demo"));
-                        node.Services.Add(new Constant("Product", "Reusable.app.Console"));
-                    })
+                LoggerFactory
+                    .CreateWith<CompletePipeline>()
+                    .Environment("Demo")
+                    .Product("Reusable.app.Console")
                     .Configure<MapSnapshot>(node =>
                     {
                         node.Mappings.Add<Person>(x => new
@@ -38,19 +36,16 @@ namespace Reusable
                     })
                     .Configure<RenameProperty>(node =>
                     {
-                        node.Mappings.Add(Names.Properties.Correlation, "Scope");
-                        node.Mappings.Add(Names.Properties.Unit, "Identifier");
+                        //node.Mappings.Add(Names.Properties.Correlation, "Scope");
+                        //node.Mappings.Add(Names.Properties.Unit, "Identifier");
                     })
-                    .Configure<Echo>(node =>
+                    .Echo<NLogConnector>()
+                    .Echo<ConsoleConnectorDynamic>(c =>
                     {
-                        node.Connectors.Add(new NLogConnector());
-                        node.Connectors.Add(new SimpleConsoleRx
-                        {
-                            // Render output with this template. This is the default.
-                            Template = @"[{Timestamp:HH:mm:ss:fff}] [{Level}] {Layer} | {Category} | {Identifier}: {Snapshot} {Elapsed}ms | {Message} {Exception}"
-                        });
-                    })
-                    .ToLoggerFactory();
+                        // Render output with this template. This is the default.
+                        c.Template = new ConstantTemplate(@"[{Timestamp:HH:mm:ss:fff}] [{Level}] {Layer} | {Category} | {Identifier}: {Snapshot} {Elapsed}ms | {Message} {Exception}")
+                    });
+
 
             var logger = loggerFactory.CreateLogger("Demo");
 

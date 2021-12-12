@@ -10,7 +10,6 @@ using Reusable.Wiretap.Extensions;
 using Reusable.Wiretap.Nodes;
 using Reusable.Wiretap.Nodes.Scopeable;
 using Reusable.Wiretap.Services.Properties;
-using Reusable.Wiretap.Utilities;
 using Xunit;
 
 //using Reusable.Wiretap.Attachments;

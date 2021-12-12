@@ -4,7 +4,7 @@ namespace Reusable.Wiretap.Abstractions;
 
 public interface ILogger : ILoggerNode
 {
-    string Name { get; set; }
+    string Name { get; init; }
     
     void Log(ILogEntry logEntry);
 }

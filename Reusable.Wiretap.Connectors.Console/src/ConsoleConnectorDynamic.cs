@@ -33,7 +33,7 @@ public abstract class ConsoleConnector<T> : IConnector
 
 public class ConsoleConnectorDynamic : ConsoleConnector<string>
 {
-    protected ConsoleConnectorDynamic()
+    public ConsoleConnectorDynamic()
     {
         Template = new ConstantTemplate(@"[{Timestamp:HH:mm:ss:fff}] [{Level}] {Logger}: {Message}");
         Style = new LogLevelStyle();
