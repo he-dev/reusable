@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Security.Authentication;
+using System.Text.RegularExpressions;
 using Reusable.Apps;
 using Reusable.Exceptionize;
 using Reusable.Utilities.NLog.LayoutRenderers;
@@ -34,16 +35,45 @@ namespace Reusable
                             FullName = $"{x.LastName}, {x.FirstName}".ToUpper()
                         });
                     })
+                    .Configure<MapToLogLevel>(node =>
+                    {
+                        node.Mappers.Add(new MapPropertyToLogLevel<FlowStatus>
+                        {
+                            PropertyName = "Status",
+                            Mappings =
+                            {
+                                [FlowStatus.Undefined] = LogLevel.Warning,
+                                [FlowStatus.Begin] = LogLevel.Debug,
+                                [FlowStatus.Completed] = LogLevel.Information,
+                                [FlowStatus.Canceled] = LogLevel.Warning,
+                                [FlowStatus.Faulted] = LogLevel.Error,
+                            }
+                        });
+                    })
                     .Configure<RenameProperty>(node =>
                     {
                         //node.Mappings.Add(Names.Properties.Correlation, "Scope");
                         //node.Mappings.Add(Names.Properties.Unit, "Identifier");
+                        node.Renames = new List<IRename>
+                        {
+                            new Replace
+                            {
+                                Replacements =
+                                {
+                                    ["Correlation"] = "Scope"
+                                }
+                            },
+                            new Remove
+                            {
+                                Pattern = new Regex("Layer$", RegexOptions.IgnoreCase)
+                            }
+                        };
                     })
                     .Echo<NLogConnector>()
                     .Echo<ConsoleConnectorDynamic>(c =>
                     {
                         // Render output with this template. This is the default.
-                        c.Template = new ConstantTemplate(@"[{Timestamp:HH:mm:ss:fff}] [{Level}] {Layer} | {Category} | {Identifier}: {Snapshot} {Elapsed}ms | {Message} {Exception}")
+                        c.Template = new ConstantTemplate(@"[{Timestamp:HH:mm:ss:fff}] [{Level}] {Layer} | {Category} | {Identifier}: {Snapshot} {Elapsed}ms | {Message} {Exception}");
                     });
 
 
@@ -68,13 +98,10 @@ namespace Reusable
                 logger.Log(Telemetry.Collect.Application().Metric("Performance", "excellent"));
                 logger.Log(Telemetry.Collect.Business().Metadata("meta", new { m = "m" }));
                 logger.Log(Telemetry.Collect.Presentation().Metadata("meta", new { m = "m" }));
-                logger.Log(Telemetry.Collect.Dependency().File().Metadata("meta", new { m = "m" }));
-                logger.Log(Telemetry.Collect.Dependency().Database().Metadata("storage", new { meta = "data" }));
-                logger.Log(Telemetry.Collect.Dependency().Http().Metadata("www", new { meta = "data" }));
-                logger.Log(Telemetry.Collect.Dependency().Network().Metadata("ip", new { meta = "data" }));
-                logger.Log(Telemetry.Collect.Dependency().Resource().Metadata("image", new { meta = "data" }));
-                logger.Log(Telemetry.Collect.Dependency().File().Metadata("note", new { meta = "data" }));
-
+                logger.Log(Telemetry.Collect.Application().Metadata("meta", new { m = "m" }));
+                logger.Log(Telemetry.Collect.Persistence().Database().Snapshot("storage", new { meta = "data" }));
+                logger.Log(Telemetry.Collect.Persistence().Cloud().Snapshot("www", new { meta = "data" }));
+                
                 logger.Scope().Exceptions.Push(new Exception());
 
                 // Opening inner-scope.
@@ -92,8 +119,10 @@ namespace Reusable
                     };
                     logger.Log(Telemetry.Collect.Business().Metadata("customer", customer));
 
-                    logger.Log(Telemetry.Collect.Application().Logic().Decision("Don't do this.").Because("Disabled."));
-                    logger.Log(Layer.Service, Decision.Make("Don't do this either.", because: "It's disabled as well."));
+                    //logger.Log(Telemetry.Collect.Application().Decision().Decision("Don't do this.").Because("Disabled."));
+                    logger.Log(Telemetry.Collect.Application().Decision("Don't do this.", "Disabled."));
+                    
+                    logger.Log(Telemetry.Collect.Application().Decision("Don't do this either.", because: "It's disabled as well."));
 
                     logger.Scope().Exceptions.Push(new InvalidCredentialException());
                 }

@@ -37,15 +37,15 @@ public class CompletePipeline : LoggerPipeline
         {
             Mappers =
             {
-                new MapPropertyToLogLevel
+                new MapPropertyToLogLevel<string>(SoftString.Comparer)
                 {
                     PropertyName = nameof(LoggableProperty.Layer),
                     Mappings =
                     {
-                        [nameof(TelemetryLayers.Dependency)] = LogLevel.Trace,
-                        [nameof(TelemetryLayers.Application)] = LogLevel.Trace,
+                        [nameof(TelemetryLayers.Presentation)] = LogLevel.Trace,
+                        [nameof(TelemetryLayers.Application)] = LogLevel.Debug,
                         [nameof(TelemetryLayers.Business)] = LogLevel.Information,
-                        [nameof(TelemetryLayers.Presentation)] = LogLevel.Trace
+                        [nameof(TelemetryLayers.Persistence)] = LogLevel.Trace,
                     }
                 }
             }
@@ -57,7 +57,7 @@ public class CompletePipeline : LoggerPipeline
                 [nameof(LoggableProperty.Level)] = LogLevel.Information,
                 [nameof(LoggableProperty.Layer)] = "None",
                 [nameof(LoggableProperty.Category)] = "None",
-                [nameof(LoggableProperty.Unit)] = "None",
+                [nameof(LoggableProperty.Member)] = "None",
                 [nameof(SerializableProperty.Snapshot)] = "None"
             }
         };
@@ -82,15 +82,21 @@ public class CompletePipeline : LoggerPipeline
                 nameof(LoggableProperty.Environment),
                 nameof(LoggableProperty.Layer),
                 nameof(LoggableProperty.Category),
-                nameof(LoggableProperty.Unit),
+                nameof(LoggableProperty.Member),
                 nameof(SerializableProperty.Snapshot),
             }
         };
         yield return new RenameProperty
         {
-            Mappings =
+            Renames =
             {
-                [nameof(LogLevel)] = "Level"
+                new Replace
+                {
+                    Replacements =
+                    {
+                        [nameof(LogLevel)] = "Level"
+                    }
+                }
             }
         };
         yield return new Debug();

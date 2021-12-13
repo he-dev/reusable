@@ -28,11 +28,16 @@ public interface IMapToLogLevel
     void Invoke(ILogEntry entry);
 }
 
-public class MapPropertyToLogLevel : IMapToLogLevel
+public class MapPropertyToLogLevel<T> : IMapToLogLevel where T : notnull
 {
+    public MapPropertyToLogLevel(IEqualityComparer<T>? equalityComparer = default)
+    {
+        Mappings = new(equalityComparer ?? EqualityComparer<T>.Default);
+        
+    }
     public string PropertyName { get; set; } = default!;
 
-    public Dictionary<string, LogLevel> Mappings { get; set; } = new(SoftString.Comparer);
+    public Dictionary<T, LogLevel> Mappings { get; set; }
 
     public void Invoke(ILogEntry entry)
     {
@@ -40,7 +45,7 @@ public class MapPropertyToLogLevel : IMapToLogLevel
         var canMap =
             entry.TryGetProperty(nameof(LoggableProperty.Level), out _) == false &&
             entry.TryGetProperty(PropertyName, out var property) &&
-            property?.Value is string value &&
+            property.Value is T value &&
             Mappings.TryGetValue(value, out level);
 
         if (canMap)

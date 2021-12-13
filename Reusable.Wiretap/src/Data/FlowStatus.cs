@@ -1,11 +1,10 @@
-namespace Reusable.Wiretap.Data
+namespace Reusable.Wiretap.Data;
+
+public enum FlowStatus
 {
-    public enum FlowStatus
-    {
-        Undefined,
-        Begin,
-        Completed,
-        Canceled,
-        Faulted
-    }
+    Undefined,
+    Begin,
+    Completed,
+    Canceled,
+    Faulted
 }

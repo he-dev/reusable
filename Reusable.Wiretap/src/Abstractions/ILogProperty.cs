@@ -10,3 +10,5 @@ public interface ILogProperty
 }
 
 public interface ILoggableProperty : ILogProperty { }
+
+public interface IKnownProperty : ILogProperty { }

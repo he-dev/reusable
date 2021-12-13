@@ -59,7 +59,7 @@ public class LogScope : ILogScope
                 .Collect
                 .Application()
                 .Task(Name)
-                .Status(Helpers.GetFlowStatus(exception), WorkItem)
+                .Status(Helpers.GetFlowStatus(exception)) // todo: WorkItem was used here.
                 .Level(Helpers.GetLogLevel(exception))
                 .Exception(exception)
                 .Then(x => x.Caller(LogCaller).Push(new MetaProperty.OverrideBuffer()))

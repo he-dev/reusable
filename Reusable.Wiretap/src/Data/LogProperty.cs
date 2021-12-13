@@ -45,10 +45,10 @@ public record LoggableProperty(string Name, object Value) : LogProperty(Name, Va
 
     public record Elapsed(object Value) : LoggableProperty(nameof(Elapsed), Value);
         
-    public record Unit(object Value) : LoggableProperty(nameof(Unit), Value);
+    public record Member(object Value) : LoggableProperty(nameof(Member), Value);
         
     public record Category(object Value) : LoggableProperty(nameof(Category), Value);
-        
+    
     public record Layer(object Value) : LoggableProperty(nameof(Layer), Value);
 
     public record CallerMemberName(object Value) : LoggableProperty(nameof(CallerMemberName), Value);

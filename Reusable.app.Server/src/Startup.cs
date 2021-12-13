@@ -18,6 +18,7 @@ using Reusable.Wiretap.Connectors;
 using Reusable.Wiretap.Data;
 using Reusable.Wiretap.Extensions;
 using Reusable.Wiretap.Nodes;
+using Reusable.Wiretap.Pipelines;
 using Reusable.Wiretap.Services.Properties;
 using Reusable.Wiretap.Utilities.AspNetCore;
 
@@ -53,14 +54,38 @@ namespace Reusable.Apps.Server
         {
             SmartPropertiesLayoutRenderer.Register();
 
+            var loggerFactory =
+                LoggerFactory
+                    .CreateWith<CompletePipeline>()
+                    .Configure<MapSnapshot>(node =>
+                    {
+                        node.Mappings.Add<HttpRequest>(request => new
+                        {
+                            Path = request.Path.Value,
+                            Host = request.Host.Value,
+                            request.ContentLength,
+                            request.ContentType,
+                            request.Cookies,
+                            request.Headers,
+                            request.IsHttps,
+                            request.Method,
+                            request.Protocol,
+                            request.QueryString,
+                        });
+                    })
+                    .Product("Reusable.app.Server")
+                    .Environment(_hostingEnvironment.EnvironmentName)
+                    .Echo<ConsoleConnectorDynamic>()
+                    .Echo<NLogConnector>();
+
             services.AddWiretap
             (
                 LoggerPipelines
                     .Complete
                     .Configure<InvokePropertyService>(node =>
                     {
-                        node.Services.Add(new Constant("Environment", _hostingEnvironment.EnvironmentName));
-                        node.Services.Add(new Constant("Product", "Reusable.app.Server"));
+                        node.Services.Add(new Constant("Environment", ));
+                        node.Services.Add(new Constant("Product", ));
                     })
                     .Configure<RenameProperty>(node =>
                     {

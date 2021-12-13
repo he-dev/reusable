@@ -51,7 +51,7 @@ public class SemanticLogger
             Telemetry
                 .Collect
                 .Application()
-                .Metadata(nameof(HttpRequest), _config.TakeRequestSnapshot(context))
+                .Metadata(nameof(HttpRequest), context.Request)
                 .Message(requestBody));
 
         try
