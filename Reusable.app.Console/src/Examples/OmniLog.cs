@@ -37,18 +37,18 @@ namespace Reusable
                     })
                     .Configure<MapToLogLevel>(node =>
                     {
-                        node.Mappers.Add(new MapPropertyToLogLevel<FlowStatus>
-                        {
-                            PropertyName = "Status",
-                            Mappings =
-                            {
-                                [FlowStatus.Undefined] = LogLevel.Warning,
-                                [FlowStatus.Begin] = LogLevel.Debug,
-                                [FlowStatus.Completed] = LogLevel.Information,
-                                [FlowStatus.Canceled] = LogLevel.Warning,
-                                [FlowStatus.Faulted] = LogLevel.Error,
-                            }
-                        });
+                        // node.Mappers.Add(new MapPropertyToLogLevel<FlowStatus>
+                        // {
+                        //     PropertyName = "Status",
+                        //     Mappings =
+                        //     {
+                        //         [FlowStatus.Undefined] = LogLevel.Warning,
+                        //         [FlowStatus.Begin] = LogLevel.Debug,
+                        //         [FlowStatus.Completed] = LogLevel.Information,
+                        //         [FlowStatus.Canceled] = LogLevel.Warning,
+                        //         [FlowStatus.Faulted] = LogLevel.Error,
+                        //     }
+                        // });
                     })
                     .Configure<RenameProperty>(node =>
                     {
@@ -102,10 +102,10 @@ namespace Reusable
                 logger.Log(Telemetry.Collect.Persistence().Database().Snapshot("storage", new { meta = "data" }));
                 logger.Log(Telemetry.Collect.Persistence().Cloud().Snapshot("www", new { meta = "data" }));
                 
-                logger.Scope().Exceptions.Push(new Exception());
+                //logger.Scope().Exceptions.Push(new Exception());
 
                 // Opening inner-scope.
-                using (logger.BeginScope("inner", new { fileName = "note.txt" }).WithCorrelationHandle("inner"))
+                using (logger.BeginScope("inner").WorkItem(new { fileName = "note.txt" }).WithCorrelationHandle("inner"))
                 {
                     // Logging an entire object in a single line.
                     var customer = new Person
@@ -124,10 +124,10 @@ namespace Reusable
                     
                     logger.Log(Telemetry.Collect.Application().Decision("Don't do this either.", because: "It's disabled as well."));
 
-                    logger.Scope().Exceptions.Push(new InvalidCredentialException());
+                    //logger.Scope().Exceptions.Push(new InvalidCredentialException());
                 }
 
-                logger.Scope().Exceptions.Push(new DivideByZeroException());
+                //logger.Scope().Exceptions.Push(new DivideByZeroException());
                 logger.Log(Telemetry.Collect.Application().Metadata("Goodbye", "Bye bye scopes!"));
             }
 

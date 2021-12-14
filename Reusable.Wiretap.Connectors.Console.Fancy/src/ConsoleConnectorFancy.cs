@@ -5,9 +5,9 @@ using JetBrains.Annotations;
 using Reusable.Extensions;
 using Reusable.Htmlize.Html;
 using Reusable.Wiretap.Abstractions;
-using Reusable.Wiretap.Extensions;
 using Reusable.Wiretap.Connectors.Data;
 using Reusable.Wiretap.Connectors.Extensions;
+using Reusable.Wiretap.Extensions;
 
 namespace Reusable.Wiretap.Connectors;
 

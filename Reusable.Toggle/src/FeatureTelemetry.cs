@@ -7,7 +7,9 @@ using Reusable.Extensions;
 using Reusable.Wiretap.Abstractions;
 using Reusable.Wiretap.Nodes;
 using Reusable.Wiretap;
+using Reusable.Wiretap.Conventions;
 using Reusable.Wiretap.Data;
+using Reusable.Wiretap.Extensions;
 
 namespace Reusable.FeatureBuzz
 {
@@ -35,15 +37,20 @@ namespace Reusable.FeatureBuzz
         {
             var feature = this[Feature.Telemetry.CreateName(name)];
 
-            using (_logger.BeginScope("UseFeature", new { feature = feature.Name, policy = feature.Policy.GetType().ToPrettyString(), tags = feature.Tags }))
+            using (_logger.BeginScope("UseFeature"))
             {
+                _logger.Log(Telemetry.Collect.Application().Execution().Started(new { feature = feature.Name, policy = feature.Policy.GetType().ToPrettyString(), tags = feature.Tags }));
                 try
                 {
                     return await _features.Use(name, onEnabled, onDisabled, parameter);
                 }
                 catch (Exception ex)
                 {
-                    _logger.Scope().Exceptions.Push(ex);
+                    _logger.Scope().Exception(ex);
+                }
+                finally
+                {
+                    _logger.Log(Telemetry.Collect.Application().Execution().Auto());
                 }
             }
 

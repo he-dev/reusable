@@ -38,7 +38,7 @@ public interface ITelemetryPersistence { }
 
 // Other
 
-public interface ITelemetryDecision { }
+public interface ITelemetryExecution { }
 
 // Extensions
 
@@ -56,7 +56,7 @@ public static class TelemetryLayers
     public static Link<ITelemetryPersistence> Persistence(this Link<ITelemetry> telemetry) => entry => telemetry(entry.Layer(nameof(Persistence)));
 }
 
-public static class TelemetryPersistences
+public static class TelemetryPersistence
 {
     /// <summary>
     /// Direct Attached Storage like HDD, SSD, CD, DVD, Flash.
@@ -83,26 +83,30 @@ public static class TelemetryCategories
         return entry => layer(entry.Category(nameof(Decision)).Message(description).MessageAppend($"{because}"));
     }
 
-    public static Action<ILogEntry> Metric(this Link<ITelemetryLayer> layer, string name, double value) => log => layer(log.Category(nameof(Metric)).Snapshot(name, value));
+    public static Action<ILogEntry> Metric(this Link<ITelemetryLayer> layer, string name, double value) => entry => layer(entry.Category(nameof(Metric)).Snapshot(name, value));
 
-    public static Action<ILogEntry> Metric(this Link<ITelemetryLayer> layer, string name, string value) => log => layer(log.Category(nameof(Metric)).Snapshot(name, value));
+    public static Action<ILogEntry> Metric(this Link<ITelemetryLayer> layer, string name, string value) => entry => layer(entry.Category(nameof(Metric)).Snapshot(name, value));
 
     public static Link<ITelemetryCategory> Routine(this Link<ITelemetryLayer?> layer, string name) => entry => layer(entry.Category(nameof(Routine)).Member(name));
-}
 
-public static class TelemetryMembers
-{
+    
+    
+    public static Link<ITelemetryExecution> Execution(this Link<ITelemetryLayer> layer) => entry => layer(entry.Category(nameof(Execution)));
+    
+    public static Action<ILogEntry> Started(this Link<ITelemetryExecution> layer, object? value = default) => entry => layer(entry.Snapshot(nameof(Started), value));
+    public static Action<ILogEntry> Completed(this Link<ITelemetryExecution> layer) => entry => layer(entry.Member(nameof(Completed)));
+    public static Action<ILogEntry> Cancelled(this Link<ITelemetryExecution> layer) => entry => layer(entry.Member(nameof(Cancelled)));
+    public static Action<ILogEntry> Faulted(this Link<ITelemetryExecution> layer, Exception? exception = default) => entry => layer(entry.Member(nameof(Faulted)).Exception(exception));
+    public static Action<ILogEntry> Auto(this Link<ITelemetryExecution> layer) => entry => layer(entry.Push(new MetaProperty.PopulateExecution()));
+    
+    
     public static Action<ILogEntry> Snapshot(this Link<ITelemetryCategory> layer, string name, object value) => entry => layer(entry.Snapshot(name, value));
     public static Action<ILogEntry> Argument(this Link<ITelemetryLayer> layer, string name, object value) => entry => layer(entry.Category(nameof(Argument)).Snapshot(name, value));
     public static Action<ILogEntry> Variable(this Link<ITelemetryLayer> layer, string name, object value) => entry => layer(entry.Category(nameof(Variable)).Snapshot(name, value));
     public static Action<ILogEntry> Property(this Link<ITelemetryLayer> layer, string name, object value) => entry => layer(entry.Category(nameof(Property)).Snapshot(name, value));
     public static Action<ILogEntry> Metadata(this Link<ITelemetryLayer> layer, string name, object value) => entry => layer(entry.Category(nameof(Metadata)).Snapshot(name, value));
+    public static Action<ILogEntry> Metadata<T>(this Link<ITelemetryLayer> layer, T value) => entry => layer(entry.Category(nameof(Metadata)).Snapshot(typeof(T).ToPrettyString(), value));
     public static Action<ILogEntry> WorkItem(this Link<ITelemetryLayer> layer, string name, object value) => entry => layer(entry.Category(nameof(WorkItem)).Snapshot(name, value));
-}
-
-public static class TelemetryUnits
-{
-    public static Action<ILogEntry> Status(this Link<ITelemetryCategoryProcess> category, FlowStatus status) => log => category(log.Snapshot(nameof(Status), status));
 }
 
 public static class TelemetryPopular

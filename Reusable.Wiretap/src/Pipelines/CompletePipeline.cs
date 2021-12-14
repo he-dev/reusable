@@ -71,6 +71,7 @@ public class CompletePipeline : LoggerPipeline
                 () => new CacheScope(),
             }
         };
+        yield return new PopulateExecution();
         yield return new SerializeProperty
         {
             Serialize = new SerializeToJson()

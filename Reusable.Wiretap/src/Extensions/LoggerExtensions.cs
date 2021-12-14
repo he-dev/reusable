@@ -16,7 +16,7 @@ using Reusable.Wiretap.Services;
 namespace Reusable.Wiretap.Extensions;
 
 [PublicAPI]
-public static class LoggerExtensions
+public static partial class LoggerExtensions
 {
     #region By log-evel
 

@@ -38,7 +38,7 @@ public class SemanticLogger
     {
         using var scope = 
             _logger
-                .BeginScope("LogRequest")
+                .BeginScope(nameof(HttpRequest))
                 .WithCorrelationId(_config.GetCorrelationId(context))
                 .WithCorrelationHandle(_config.GetCorrelationHandle(context));
             
@@ -59,7 +59,7 @@ public class SemanticLogger
             var responseBody = default(string);
             var responseBodyOriginal = context.Response.Body;
 
-            using (var memory = new MemoryStream())
+            await using (var memory = new MemoryStream())
             {
                 context.Response.Body = memory;
 
@@ -90,7 +90,7 @@ public class SemanticLogger
         }
         catch (Exception inner)
         {
-            _logger.Scope().Exceptions.Push(inner);
+            _logger.Log(Telemetry.Collect.Application().Execution().Faulted(inner));
             throw;
         }
     }

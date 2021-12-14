@@ -8,7 +8,6 @@ using Reusable.Wiretap.Abstractions;
 using Reusable.Wiretap.Conventions;
 using Reusable.Wiretap.Extensions;
 using Reusable.Wiretap.Nodes;
-using LoggerScopeExtensions = Reusable.Wiretap.Extensions.LoggerScopeExtensions;
 
 namespace Reusable.Translucent.Middleware
 {

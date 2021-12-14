@@ -87,9 +87,11 @@ public abstract record RenderableProperty(string Name, object Value) : LogProper
 
 public abstract record MetaProperty(string Name, object Value) : LogProperty(Name, Value)
 {
-    public record OverrideBuffer() : RenderableProperty(nameof(OverrideBuffer), default);
+    public record OverrideBuffer() : MetaProperty(nameof(OverrideBuffer), default);
 
-    public record Scope(object Value) : RenderableProperty(nameof(Scope), Value);
+    public record Scope(object Value) : MetaProperty(nameof(Scope), Value);
+    
+    public record PopulateExecution() : MetaProperty(nameof(PopulateExecution), default);
 }
 
 public abstract class Names
