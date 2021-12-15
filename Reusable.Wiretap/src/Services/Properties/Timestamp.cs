@@ -1,30 +1,30 @@
 ﻿using System;
 using System.Collections.Generic;
 using Reusable.Wiretap.Abstractions;
+using Reusable.Wiretap.Data;
 
 namespace Reusable.Wiretap.Services.Properties;
 
 public class Timestamp : PropertyService, IDisposable
 {
-    private int _timestampCount;
+    public Timestamp(IEnumerable<DateTime> timestamps) => Timestamps = timestamps.GetEnumerator();
 
-    private readonly IEnumerator<DateTime> _timestamps;
-    
-    public Timestamp(IEnumerable<DateTime> timestamps) : base(nameof(Timestamp))
-    {
-        _timestamps = timestamps.GetEnumerator();
-    }
+    private IEnumerator<DateTime> Timestamps { get; }
 
-    public override object? GetValue(ILogEntry logEntry)
+    private int TimestampCount { get; set; }
+
+    public override void Invoke(ILogEntry entry)
     {
-        if (_timestamps.MoveNext())
+        if (Timestamps.MoveNext())
         {
-            _timestampCount++;
-            return _timestamps.Current;
+            TimestampCount++;
+            entry.Push(new LoggableProperty(nameof(Timestamp), Timestamps.Current));
         }
-
-        throw new InvalidOperationException($"You provided only {_timestampCount} timestamps but more were required.");
+        else
+        {
+            throw new InvalidOperationException($"You provided only {TimestampCount} timestamps but more were required.");
+        }
     }
 
-    public void Dispose() => _timestamps.Dispose();
+    public void Dispose() => Timestamps.Dispose();
 }

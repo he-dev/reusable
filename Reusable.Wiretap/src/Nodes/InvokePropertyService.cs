@@ -16,12 +16,9 @@ public class InvokePropertyService : LoggerNode
 
     public override void Invoke(ILogEntry entry)
     {
-        foreach (var computable in Services.Where(x => x.Enabled))
+        foreach (var propertyService in Services.Where(x => x.Enabled))
         {
-            if (computable.GetValue(entry) is {} value)
-            {
-                entry.Push(new LoggableProperty(computable.Name, value));
-            }
+            propertyService.Invoke(entry);
         }
 
         InvokeNext(entry);

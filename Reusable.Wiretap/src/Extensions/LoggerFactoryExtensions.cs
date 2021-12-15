@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using Reusable.Extensions;
 using Reusable.Wiretap.Abstractions;
+using Reusable.Wiretap.Data;
 using Reusable.Wiretap.Nodes;
 using Reusable.Wiretap.Services.Properties;
 
@@ -13,7 +14,8 @@ public static class LoggerFactoryExtensions
 
     public static LoggerFactory Configure<T>(this LoggerFactory loggerFactory, Action<T> configure) where T : ILoggerNode
     {
-        loggerFactory.PipelineConfiguration = nodes => nodes.AddConfiguration(configure);
+        var previousConfiguration = loggerFactory.PipelineConfiguration;
+        loggerFactory.PipelineConfiguration = nodes => previousConfiguration(nodes).AddConfiguration(configure);
         return loggerFactory;
     }
 
@@ -32,33 +34,21 @@ public static class LoggerFactoryExtensions
 
     public static LoggerFactory Environment(this LoggerFactory loggerFactory, string name)
     {
-        return loggerFactory.Configure<InvokePropertyService>(node =>
-        {
-            node.Services.Add(new Constant(nameof(Environment), name));
-        });
+        return loggerFactory.Configure<InvokePropertyService>(node => { node.Services.Add(new Constant(new LoggableProperty.Environment(name))); });
     }
-    
+
     public static LoggerFactory Product(this LoggerFactory loggerFactory, string name)
     {
-        return loggerFactory.Configure<InvokePropertyService>(node =>
-        {
-            node.Services.Add(new Constant(nameof(Product), name));
-        });
+        return loggerFactory.Configure<InvokePropertyService>(node => { node.Services.Add(new Constant(new LoggableProperty.Product(name))); });
     }
-    
+
     public static LoggerFactory Echo(this LoggerFactory loggerFactory, IConnector connector)
     {
-        return loggerFactory.Configure<Echo>(node =>
-        {
-            node.Connectors.Add(connector);
-        });
+        return loggerFactory.Configure<Echo>(node => { node.Connectors.Add(connector); });
     }
-    
+
     public static LoggerFactory Echo<T>(this LoggerFactory loggerFactory, Action<T>? configure = default) where T : IConnector, new()
     {
-        return loggerFactory.Configure<Echo>(node =>
-        {
-            node.Connectors.Add(new T().Also(configure));
-        });
+        return loggerFactory.Configure<Echo>(node => { node.Connectors.Add(new T().Also(configure)); });
     }
 }

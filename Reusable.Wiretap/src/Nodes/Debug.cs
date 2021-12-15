@@ -10,6 +10,7 @@ public class Debug : LoggerNode
     
     public override void Invoke(ILogEntry entry)
     {
-        InvokeNext(entry.Also(Action));
+        entry.Also(Action);
+        InvokeNext(entry);
     }
 }

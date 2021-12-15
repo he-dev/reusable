@@ -6,32 +6,13 @@ using Reusable.Wiretap.Abstractions;
 
 namespace Reusable.Wiretap.Data;
 
-public abstract record LogProperty(string Name, object Value) : ILogProperty
-{
-    public static class Names
-    {
-        public const string Timestamp = nameof(Timestamp);
-        public const string Environment = nameof(Environment);
-        public const string Correlation = nameof(Correlation);
-        public const string Layer = nameof(Layer);
-        public const string Logger = nameof(Logger);
-        public const string Level = nameof(Level);
-        public const string Category = nameof(Category);
-        public const string Unit = nameof(Unit);
-        public const string Snapshot = nameof(Snapshot);
-        public const string Elapsed = nameof(Elapsed);
-        public const string Message = nameof(Message);
-        public const string Exception = nameof(Exception);
-        public const string CallerMemberName = nameof(CallerMemberName);
-        public const string CallerLineNumber = nameof(CallerLineNumber);
-        public const string CallerFilePath = nameof(CallerFilePath);
-        public const string Priority = nameof(Priority);
-    }
-}
+public abstract record LogProperty(string Name, object Value) : ILogProperty;
 
 public record LoggableProperty(string Name, object Value) : LogProperty(Name, Value), ILoggableProperty
 {
     public record Environment(object Value) : LoggableProperty(nameof(Environment), Value);
+    
+    public record Product(object Value) : LoggableProperty(nameof(Product), Value);
         
     public record Timestamp(object Value) : LoggableProperty(nameof(Timestamp), Value);
 
@@ -94,21 +75,6 @@ public abstract record MetaProperty(string Name, object Value) : LogProperty(Nam
     public record PopulateExecution() : MetaProperty(nameof(PopulateExecution), default);
 }
 
-public abstract class Names
-{
-    public abstract class Categories
-    {
-        public const string Variable = nameof(Variable);
-        public const string Property = nameof(Property);
-        public const string Argument = nameof(Argument);
-        public const string Meta = nameof(Meta);
-        public const string Flow = nameof(Flow);
-        public const string Step = nameof(Step);
-        public const string Counter = nameof(Counter);
-        public const string WorkItem = nameof(WorkItem);
-        public const string Routine = nameof(Routine);
-    }
-}
 
 public static class LogPropertyExtensions
 {

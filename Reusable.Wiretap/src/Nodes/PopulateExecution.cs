@@ -22,15 +22,22 @@ public class PopulateExecution : LoggerNode
         {
             if (scope.Items.TryGetValue("Exception", out var e) && e is Exception exception)
             {
-                entry.Push(new LoggableProperty.Member("Faulted"));
+                entry.Push(new LoggableProperty.Member(nameof(TelemetryCategories.Faulted)));
                 entry.Push(new LoggableProperty.Exception(exception));
             }
             else
             {
-                entry.Push(new LoggableProperty.Member("Completed"));
+                if (scope.Items.TryGetValue("Execution", out var exe) && exe is string value)
+                {
+                    entry.Push(new LoggableProperty.Member(value));
+                }
+                else
+                {
+                    entry.Push(new LoggableProperty.Member(nameof(TelemetryCategories.Completed)));
+                }
             }
         }
-        
+
         InvokeNext(entry);
     }
 }

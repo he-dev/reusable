@@ -5,12 +5,9 @@ namespace Reusable.Wiretap.Services.Properties;
 
 public class Lambda : PropertyService
 {
-    private readonly Func<ILogEntry, object> getValue;
+    public Lambda(Action<ILogEntry> propertyAction) => PropertyAction = propertyAction;
 
-    public Lambda(string name, Func<ILogEntry, object> getValue) : base(name)
-    {
-        this.getValue = getValue;
-    }
+    private Action<ILogEntry> PropertyAction { get; }
 
-    public override object? GetValue(ILogEntry logEntry) => getValue(logEntry);
+    public override void Invoke(ILogEntry entry) => PropertyAction(entry);
 }

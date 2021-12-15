@@ -11,7 +11,7 @@ namespace Reusable.Wiretap.Nodes;
 /// </summary>
 public class Echo : LoggerNode
 {
-    public override bool Enabled => Connectors?.Any() == true;
+    public override bool Enabled => Connectors.Any();
 
     public List<IConnector> Connectors { get; set; } = new();
     

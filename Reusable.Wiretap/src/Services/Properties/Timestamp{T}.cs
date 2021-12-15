@@ -1,19 +1,13 @@
 ﻿using Reusable.Wiretap.Abstractions;
+using Reusable.Wiretap.Data;
 
 namespace Reusable.Wiretap.Services.Properties;
 
 public class Timestamp<T> : PropertyService where T : IDateTime, new()
 {
-    private readonly IDateTime _dateTime;
+    public Timestamp() => DateTime = new T();
 
-    // There is no pretty way to get the name without `1
-    public Timestamp() : base(nameof(Timestamp))
-    {
-        _dateTime = new T();
-    }
+    private IDateTime DateTime { get; }
 
-    public override object? GetValue(ILogEntry logEntry)
-    {
-        return _dateTime.Now();
-    }
+    public override void Invoke(ILogEntry entry) => entry.Push(new LoggableProperty(nameof(Timestamp), DateTime.Now()));
 }

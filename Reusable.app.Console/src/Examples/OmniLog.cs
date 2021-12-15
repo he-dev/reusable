@@ -14,6 +14,7 @@ using Reusable.Wiretap.Extensions;
 using Reusable.Wiretap.Nodes;
 using Reusable.Wiretap.Pipelines;
 using Reusable.Wiretap.Services.Properties;
+using Microsoft.Data.Sqlite;
 
 namespace Reusable
 {

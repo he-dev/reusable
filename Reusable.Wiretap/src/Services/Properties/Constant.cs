@@ -1,15 +1,16 @@
+using Reusable.Data;
 using Reusable.Wiretap.Abstractions;
+using Reusable.Wiretap.Data;
 
 namespace Reusable.Wiretap.Services.Properties;
 
 public class Constant : PropertyService
 {
-    private readonly object value;
+    public Constant(string name, object value) => Property = new LoggableProperty(name, value);
+    
+    public Constant(ILogProperty property) => Property = property;
 
-    public Constant(string name, object value) : base(name)
-    {
-        this.value = value;
-    }
+    private ILogProperty Property { get; }
 
-    public override object? GetValue(ILogEntry logEntry) => value;
+    public override void Invoke(ILogEntry entry) => entry.Push(Property);
 }

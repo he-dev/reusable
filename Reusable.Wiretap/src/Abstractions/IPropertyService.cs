@@ -8,23 +8,16 @@ public interface IPropertyService : IEquatable<IPropertyService>
 {
     bool Enabled { get; }
 
-    [AutoEqualityProperty(StringComparison.OrdinalIgnoreCase)]
-    string Name { get; }
-
-    object? GetValue(ILogEntry logEntry);
+    void Invoke(ILogEntry entry);
 }
 
 public abstract class PropertyService : IPropertyService
 {
-    protected PropertyService(string name) => Name = name;
-
-    private string DebuggerDisplay() => this.ToDebuggerDisplayString(b => { b.DisplaySingle(x => x.Name).DisplaySingle(x => x.Enabled); });
+    //private string DebuggerDisplay() => this.ToDebuggerDisplayString(b => { b.DisplaySingle(x => x.Name).DisplaySingle(x => x.Enabled); });
 
     public bool Enabled { get; set; } = true;
 
-    public string Name { get; }
-
-    public abstract object? GetValue(ILogEntry logEntry);
+    public abstract void Invoke(ILogEntry entry);
 
     #region IEquatable
 

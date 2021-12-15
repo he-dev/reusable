@@ -27,8 +27,9 @@ public class LoggerFactory : ILoggerFactory
 
     private ILogger CreatePipeline(string loggerName)
     {
+        var configuredPipeline = PipelineConfiguration(Pipeline);
         // Prepend does not work with .net-framework.
-        return (ILogger)new ILoggerNode[] { new Logger { Name = loggerName } }.Concat(Pipeline).Join().First();
+        return (ILogger)new ILoggerNode[] { new Logger { Name = loggerName } }.Concat(configuredPipeline).Join().First();
     }
 
     public void Dispose()

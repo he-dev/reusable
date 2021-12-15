@@ -20,6 +20,7 @@
   <ItemGroup>
     <PackageReference Include="JetBrains.Annotations" Version="2021.3.0" />
     <PackageReference Include="System.Reactive" Version="5.0.0" />
+    <PackageReference Include="Microsoft.Data.Sqlite" Version="6.0.1" />
   </ItemGroup>
 
   <ItemGroup>
@@ -64,58 +65,30 @@
 <!--  </ItemGroup>-->
 
   <ItemGroup>
-    <None Update="NLog.config">
-      <DesignTime>True</DesignTime>
-      <AutoGen>True</AutoGen>
-      <DependentUpon>NLog.tt</DependentUpon>
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="NLog.tt">
+    <None Update="NLog.SqlServer\NLog.tt">
       <Generator>TextTemplatingFileGenerator</Generator>
       <LastGenOutput>NLog.config</LastGenOutput>
     </None>
   </ItemGroup>
 
-  <ItemGroup>
-    <_UnmanagedRegistrationCache Remove="obj\Reusable.app.Console.csproj.UnmanagedRegistration.cache" />
-    <_UnmanagedRegistrationCache Remove="obj\Reusable.app.Console.csproj.UnmanagedRegistration.cache" />
-  </ItemGroup>
 
   <ItemGroup>
-    <_ResolveComReferenceCache Remove="obj\Debug\netcoreapp2.2\Reusable.app.Console.csproj.ResolveComReference.cache" />
-    <_ResolveComReferenceCache Remove="obj\Debug\netcoreapp2.2\Reusable.app.Console.csproj.ResolveComReference.cache" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <IntermediateAssembly Remove="obj\Debug\netcoreapp2.2\Reusable.app.Console.dll" />
-    <IntermediateAssembly Remove="obj\Debug\netcoreapp2.2\Reusable.app.Console.dll" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <_DebugSymbolsIntermediatePath Remove="obj\Debug\netcoreapp2.2\Reusable.app.Console.pdb" />
-    <_DebugSymbolsIntermediatePath Remove="obj\Debug\netcoreapp2.2\Reusable.app.Console.pdb" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <_DeploymentManifestEntryPoint Remove="obj\Debug\netcoreapp2.2\Reusable.app.Console.dll" />
-    <_DeploymentManifestEntryPoint Remove="obj\Debug\netcoreapp2.2\Reusable.app.Console.dll" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <ApplicationManifest Remove="obj\Debug\netcoreapp2.2\Reusable.app.Console.dll.manifest" />
-    <ApplicationManifest Remove="obj\Debug\netcoreapp2.2\Reusable.app.Console.dll.manifest" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <DeployManifest Remove="obj\Debug\netcoreapp2.2\Reusable.app.Console.application" />
-    <DeployManifest Remove="obj\Debug\netcoreapp2.2\Reusable.app.Console.application" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Clean Remove="obj\Debug\netcoreapp2.2\\TempCA\Reusable.app.Console.pdb" />
-    <Clean Remove="obj\Debug\netcoreapp2.2\\TempCA\Reusable.app.Console.dll" />
-    <Clean Remove="obj\Debug\netcoreapp2.2\\TempCA\Reusable.app.Console.pdb" />
-    <Clean Remove="obj\Debug\netcoreapp2.2\\TempCA\Reusable.app.Console.dll" />
+    <None Include="NLog.config">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>NLog.tt</DependentUpon>
+    </None>
+    <Content Include="NLog.SqlServer\NLog.config">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>NLog.tt</DependentUpon>
+    </Content>
   </ItemGroup>
   
 <!--  <ItemGroup>-->
