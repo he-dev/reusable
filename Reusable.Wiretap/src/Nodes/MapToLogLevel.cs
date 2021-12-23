@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using Reusable.Wiretap.Abstractions;
 using Reusable.Wiretap.Data;

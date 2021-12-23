@@ -4,9 +4,9 @@ using System.Linq;
 using System.Linq.Custom;
 using System.Text.RegularExpressions;
 using System.Xml.Linq;
-using Reusable.Collections;
-using Reusable.Exceptionize;
-using Reusable.Extensions;
+using Reusable.Essentials;
+using Reusable.Essentials.Collections;
+using Reusable.Essentials.Extensions;
 
 namespace Reusable.Apps
 {

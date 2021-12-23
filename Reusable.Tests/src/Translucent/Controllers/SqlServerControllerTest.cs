@@ -9,7 +9,7 @@ using Reusable.Data;
 using Reusable.Data.Repositories;
 using Reusable.Exceptionize;
 using Reusable.Quickey;
-using Reusable.Translucent.Middleware;
+using Reusable.Translucent.Nodes;
 using Xunit;
 
 namespace Reusable.Translucent.Controllers

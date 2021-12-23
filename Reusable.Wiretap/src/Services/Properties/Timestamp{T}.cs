@@ -1,4 +1,5 @@
-﻿using Reusable.Wiretap.Abstractions;
+﻿using Reusable.Essentials;
+using Reusable.Wiretap.Abstractions;
 using Reusable.Wiretap.Data;
 
 namespace Reusable.Wiretap.Services.Properties;

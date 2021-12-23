@@ -2,14 +2,22 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
+using Reusable.Essentials.Extensions;
 using Reusable.Translucent.Extensions;
+using Reusable.Translucent.Nodes;
 using Xunit;
 
 namespace Reusable.Translucent.Controllers
 {
     public class PhysicalFileControllerTest // : IClassFixture<TestHelperFixture>
     {
-        private static readonly IResource Resource = new Resource(new[] { new PhysicalFileResourceController() });
+        private static readonly IResource Resource = new Resource.Builder
+        {
+            new ProcessRequest
+            {
+                Controllers = { new PhysicalFileController() }
+            }
+        }.Build();
 
         // public PhysicalFileControllerTest(TestHelperFixture testHelper)
         // {
@@ -30,7 +38,7 @@ namespace Reusable.Translucent.Controllers
             using (var file = await Resource.GetFileAsync(tempFileName))
             {
                 Assert.True(file.Exists());
-                var value = await file.DeserializeTextAsync();
+                var value = await ((Stream)file.Body).ReadTextAsync();
                 Assert.Equal("Hi!", value);
             }
 

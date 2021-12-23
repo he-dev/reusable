@@ -1,33 +1,48 @@
+using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Linq.Custom;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
-using Reusable.Collections.Generic;
+using Reusable.Essentials;
+using Reusable.Essentials.Extensions;
 using Reusable.Translucent.Abstractions;
 using Reusable.Translucent.Data;
-using Reusable.Translucent.Middleware;
+using Reusable.Translucent.Nodes;
 
-namespace Reusable.Translucent
+namespace Reusable.Translucent;
+
+[PublicAPI]
+public interface IResource
 {
-    [PublicAPI]
-    public interface IResource
+    Task<Response> InvokeAsync(Request request);
+}
+
+[PublicAPI]
+public class Resource : IResource
+{
+    internal IResourceNode First { get; init; } = null!;
+
+    public async Task<Response> InvokeAsync(Request request)
     {
-        Task<Response> InvokeAsync(Request request);
+        if (request.ResourceName.Any() == false) throw new ArgumentOutOfRangeException(nameof(request), $"Resource name must not be null nor empty.");
+        if (request.Method == RequestMethod.None) throw new ArgumentOutOfRangeException(nameof(request), $"Request method must not be '{nameof(RequestMethod.None)}'.");
+
+        var log = new List<string> { "Start." };
+
+        var context = new ResourceContext { Request = request }.Also(c =>
+        {
+            // Use the same instance for both so we don't have to merge it later.
+            c.Request.Items["Log"] = log;
+            c.Response.Items["Log"] = log;
+        });
+
+        await First.InvokeAsync(context);
+        return context.Response;
     }
 
-    [PublicAPI]
-    public class Resource : IResource
+    public class Builder : List<IResourceNode>
     {
-        private readonly IResourceMiddleware _middleware;
-
-        public Resource(IEnumerable<IResourceMiddleware> middleware) => _middleware = middleware.Join().First();
-
-        public Resource(IEnumerable<IResourceController> controllers) : this(new IResourceMiddleware[] { new ResourceSearch(controllers) }) { }
-
-        public async Task<Response> InvokeAsync(Request request)
-        {
-            var context = new ResourceContext { Request = request };
-            await _middleware.InvokeAsync(context);
-            return context.Response!;
-        }
+        public IResource Build() => new Resource { First = this.Join().First() };
     }
 }

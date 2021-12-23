@@ -1,7 +1,6 @@
 using System;
 using System.Linq;
 using System.Xml.Linq;
-using Reusable.Htmlize.Html;
 
 namespace Reusable.Wiretap.Data
 {

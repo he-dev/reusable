@@ -2,33 +2,34 @@ using System;
 using System.Collections.Generic;
 using System.Net.Http.Headers;
 
-namespace Reusable.Translucent.Data
+namespace Reusable.Translucent.Data;
+
+public abstract class HttpRequest : Request
 {
-    public class HttpRequest : Request
+    public ProductInfoHeaderValue? UserAgent { get; set; }
+
+    public List<Action<HttpRequestHeaders>> HeaderActions { get; } = new();
+
+    //public MediaTypeFormatter? RequestFormatter { get; set; }
+
+    public string ContentType { get; set; } = default!;
+
+    public class Json : HttpRequest
     {
-        public ProductInfoHeaderValue? UserAgent { get; set; }
-
-        public List<Action<HttpRequestHeaders>> HeaderActions { get; } = new List<Action<HttpRequestHeaders>>();
-
-        //public MediaTypeFormatter? RequestFormatter { get; set; }
-
-        public string ContentType { get; set; } = default!;
-
-        public class Json : HttpRequest
+        public Json()
         {
-            public Json()
-            {
-                HeaderActions.Add(headers => headers.AcceptJson());
-                ContentType = "application/json";
-            }
+            HeaderActions.Add(headers => headers.AcceptJson());
+            ContentType = "application/json";
         }
     }
 
-    public static class HttpRequestExtensions
+    public class Stream : HttpRequest { }
+}
+
+public static class HttpRequestExtensions
+{
+    public static void CorrelationId(this HttpRequest request, string correlationId)
     {
-        public static void CorrelationId(this HttpRequest request, string correlationId)
-        {
-            request.HeaderActions.Add(headers => headers.Add("X-Correlation-ID", correlationId));
-        }
+        request.HeaderActions.Add(headers => headers.Add("X-Correlation-ID", correlationId));
     }
 }

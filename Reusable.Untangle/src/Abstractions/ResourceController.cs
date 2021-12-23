@@ -4,110 +4,111 @@ using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
-using Reusable.Diagnostics;
-using Reusable.Extensions;
+using Reusable.Essentials;
+using Reusable.Essentials.Diagnostics;
+using Reusable.Essentials.Extensions;
 using Reusable.Translucent.Data;
 
-namespace Reusable.Translucent.Abstractions
+namespace Reusable.Translucent.Abstractions;
+
+using static RequestMethod;
+
+[PublicAPI]
+public interface IResourceController : IDisposable
 {
-    [PublicAPI]
-    public interface IResourceController : IDisposable
+    string Name { get; }
+
+    ISet<string> Tags { get; }
+
+    string? ResourceNameRoot { get; }
+
+    Type RequestType { get; }
+
+    Task<Response> InvokeAsync(Request request);
+
+    Task<Response> CreateAsync(Request request);
+
+    Task<Response> ReadAsync(Request request);
+
+    Task<Response> UpdateAsync(Request request);
+
+    Task<Response> DeleteAsync(Request request);
+}
+
+[DebuggerDisplay(DebuggerDisplayString.DefaultNoQuotes)]
+public abstract class ResourceController<TRequest> : IResourceController where TRequest : Request
+{
+    private string DebuggerDisplay => this.ToDebuggerDisplayString(builder =>
     {
-        SoftString? Name { get; }
+        builder.DisplaySingle(c => c.Name);
+        builder.DisplayEnumerable(c => c.Tags);
+        builder.DisplaySingle(c => c.ResourceNameRoot);
+        builder.DisplaySingle(c => c.RequestType, t => t.ToPrettyString());
+    });
 
-        ISet<SoftString> Tags { get; }
+    public string Name { get; set; } = default!;
 
-        string? BaseUri { get; }
+    public ISet<string> Tags { get; } = new SortedSet<string>(SoftString.Comparer);
 
-        Type RequestType { get; }
+    public virtual string? ResourceNameRoot { get; set; }
 
-        Task<Response> InvokeAsync(Request request);
+    public Type RequestType => typeof(TRequest);
 
-        Task<Response> CreateAsync(Request request);
-
-        Task<Response> ReadAsync(Request request);
-
-        Task<Response> UpdateAsync(Request request);
-
-        Task<Response> DeleteAsync(Request request);
+    public Task<Response> InvokeAsync(Request request)
+    {
+        if (request is TRequest r)
+        {
+            return request.Method switch
+            {
+                Create => CreateAsync(r),
+                Read => ReadAsync(r),
+                Update => UpdateAsync(r),
+                Delete => DeleteAsync(r),
+                None => throw new InvalidOperationException("You must specify a request method."),
+                _ => throw new NotSupportedException($"Request method '{request.Method}' is not supported.")
+            };
+        }
+        else
+        {
+            throw new ArgumentException
+            (
+                $"{GetType().ToPrettyString()} cannot process the request '{request.ResourceName}' " +
+                $"because it must by of type '{typeof(TRequest).ToPrettyString()}' but was '{request.GetType().ToPrettyString()}'."
+            );
+        }
     }
 
-    [DebuggerDisplay(DebuggerDisplayString.DefaultNoQuotes)]
-    public abstract class ResourceController<T> : IResourceController where T : Request
+    Task<Response> IResourceController.CreateAsync(Request request) => InvokeAsync(request);
+
+    Task<Response> IResourceController.ReadAsync(Request request) => InvokeAsync(request);
+
+    Task<Response> IResourceController.UpdateAsync(Request request) => InvokeAsync(request);
+
+    Task<Response> IResourceController.DeleteAsync(Request request) => InvokeAsync(request);
+
+    public virtual Task<Response> CreateAsync(TRequest request) => throw NotSupportedException();
+
+    public virtual Task<Response> ReadAsync(TRequest request) => throw NotSupportedException();
+
+    public virtual Task<Response> UpdateAsync(TRequest request) => throw NotSupportedException();
+
+    public virtual Task<Response> DeleteAsync(TRequest request) => throw NotSupportedException();
+
+    protected Exception NotSupportedException([CallerMemberName] string? name = default)
     {
-        private string DebuggerDisplay => this.ToDebuggerDisplayString(builder =>
-        {
-            builder.DisplaySingle(c => c.Name);
-            builder.DisplayEnumerable(c => c.Tags);
-            builder.DisplaySingle(c => c.BaseUri);
-            builder.DisplaySingle(c => c.RequestType, t => t.ToPrettyString());
-        });
-
-        public SoftString? Name { get; set; }
-
-        public ISet<SoftString> Tags { get; } = new SortedSet<SoftString>();
-
-        public virtual string? BaseUri { get; }
-
-        public Type RequestType => typeof(T);
-
-        public Task<Response> InvokeAsync(Request request)
-        {
-            if (request is T r)
-            {
-                return request.Method switch
-                {
-                    ResourceMethod.Create => CreateAsync(r),
-                    ResourceMethod.Read => ReadAsync(r),
-                    ResourceMethod.Update => UpdateAsync(r),
-                    ResourceMethod.Delete => DeleteAsync(r),
-                    ResourceMethod.None => throw new InvalidOperationException("You must specify a request method."),
-                    _ => throw new NotSupportedException($"Request method '{request.Method}' is not supported.")
-                };
-            }
-            else
-            {
-                throw new ArgumentException
-                (
-                    $"{GetType().ToPrettyString()} cannot process the request '{request.ResourceName}' " +
-                    $"because it must by of type '{typeof(T).ToPrettyString()}' but was '{request.GetType().ToPrettyString()}'."
-                );
-            }
-        }
-
-        Task<Response> IResourceController.CreateAsync(Request request) => InvokeAsync(request);
-
-        Task<Response> IResourceController.ReadAsync(Request request) => InvokeAsync(request);
-
-        Task<Response> IResourceController.UpdateAsync(Request request) => InvokeAsync(request);
-
-        Task<Response> IResourceController.DeleteAsync(Request request) => InvokeAsync(request);
-
-        public virtual Task<Response> CreateAsync(T request) => throw NotSupportedException();
-
-        public virtual Task<Response> ReadAsync(T request) => throw NotSupportedException();
-
-        public virtual Task<Response> UpdateAsync(T request) => throw NotSupportedException();
-
-        public virtual Task<Response> DeleteAsync(T request) => throw NotSupportedException();
-
-        protected Exception NotSupportedException([CallerMemberName] string? name = default)
-        {
-            throw new NotSupportedException($"{GetType().ToPrettyString()} ({Name}) does not support '{name!.ToUpper()}'.");
-        }
-
-        // ReSharper disable once InconsistentNaming
-        protected static Response Success<TResponse>(string resourceName, object? body = default, Action<TResponse>? configure = default) where TResponse : Response, new()
-        {
-            return new TResponse { ResourceName = resourceName, StatusCode = ResourceStatusCode.Success, Body = body }.Also(configure);
-        }
-
-        protected static Response NotFound<TResponse>(string resourceName, object? body = default, Action<TResponse>? configure = default) where TResponse : Response, new()
-        {
-            return new TResponse { ResourceName = resourceName, StatusCode = ResourceStatusCode.NotFound, Body = body }.Also(configure);
-        }
-
-        // Can be overriden when derived.
-        public virtual void Dispose() { }
+        throw new NotSupportedException($"{GetType().ToPrettyString()} ({Name}) does not support '{name!.ToUpper()}'.");
     }
+
+    protected static Response Success<TResponse>(Stack<string> resourceName, object? body = default, Action<TResponse>? configure = default) where TResponse : Response, new()
+    {
+        return new TResponse { ResourceName = resourceName.Peek(), StatusCode = ResourceStatusCode.Success, Body = { body } }.Also(configure);
+    }
+
+    protected static Response NotFound<TResponse>(Stack<string> resourceName, object? body = default, Action<TResponse>? configure = default) where TResponse : Response, new()
+    {
+        return new TResponse { ResourceName = resourceName.Peek(), StatusCode = ResourceStatusCode.NotFound, Body = { body } }.Also(configure);
+    }
+
+    // Can be overriden when derived.
+    public virtual void Dispose() { }
 }

@@ -1,6 +1,5 @@
 using System;
-using Reusable.Collections;
-using Reusable.Diagnostics;
+using Reusable.Essentials.Collections;
 
 namespace Reusable.Wiretap.Abstractions;
 

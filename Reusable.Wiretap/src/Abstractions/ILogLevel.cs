@@ -1,4 +1,5 @@
-using Reusable.Collections;
+using Reusable.Essentials;
+using Reusable.Essentials.Collections;
 
 namespace Reusable.Wiretap.Abstractions
 {

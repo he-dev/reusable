@@ -3,14 +3,14 @@ using System.IO;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.AspNetCore.Http;
-using Reusable.Extensions;
+using Reusable.Essentials.Extensions;
+using Reusable.Jumble;
 using Reusable.OmniLog.Utilities.AspNetCore;
 using Reusable.Wiretap.Abstractions;
 using Reusable.Wiretap.Conventions;
 using Reusable.Wiretap.Data;
 using Reusable.Wiretap.Extensions;
 using Reusable.Wiretap.Nodes;
-using IFeatureCollection = Reusable.FeatureBuzz.IFeatureCollection;
 
 namespace Reusable.Wiretap.Utilities.AspNetCore;
 
@@ -34,7 +34,7 @@ public class SemanticLogger
         _logger = loggerFactory.CreateLogger<SemanticLogger>();
     }
 
-    public async Task Invoke(HttpContext context, IFeatureCollection features)
+    public async Task Invoke(HttpContext context, IFeatureService features)
     {
         using var scope = 
             _logger

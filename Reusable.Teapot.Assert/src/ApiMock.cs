@@ -1,8 +1,6 @@
 using System;
 using System.Net.Http;
-using Reusable.Data;
-using Reusable.Exceptionize;
-using Reusable.Translucent;
+using Reusable.Essentials;
 using HttpRequest = Microsoft.AspNetCore.Http.HttpRequest;
 
 namespace Reusable.Teapot

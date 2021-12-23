@@ -3,7 +3,7 @@
         <TargetFramework>net6.0</TargetFramework>
         <RootNamespace>Reusable</RootNamespace>
         <Nullable>enable</Nullable>
-        <LangVersion>8</LangVersion>
+        <LangVersion>default</LangVersion>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
         <DefineConstants>TRACE;RELEASE;JETBRAINS_ANNOTATIONS</DefineConstants>
@@ -47,13 +47,12 @@
         <!--<PackageReference Include="xunit.assert" Version="2.4.1" />-->
     </ItemGroup>
     <ItemGroup>
-        <ProjectReference Include="..\Reusable.Prompt\Reusable.Prompt.csproj" />
-        <ProjectReference Include="..\Reusable.Core\Reusable.Core.csproj" />
+        <ProjectReference Include="..\Reusable.Essentials\Reusable.Essentials.csproj" />
+        <ProjectReference Include="..\Reusable.DoubleDash\Reusable.DoubleDash.csproj" />
         <ProjectReference Include="..\Reusable.Secure\Reusable.Secure.csproj" />
-        <ProjectReference Include="..\Reusable.Deceive\Reusable.Deceive.csproj" />
-        <ProjectReference Include="..\Reusable.Toggle\Reusable.Toggle.csproj" />
+        <ProjectReference Include="..\Reusable.Deception\Reusable.Deception.csproj" />
+        <ProjectReference Include="..\Reusable.Jumble\Reusable.Jumble.csproj" />
         <ProjectReference Include="..\Reusable.Flexo\Reusable.Flexo.csproj" />
-        <ProjectReference Include="..\Reusable.Version\Reusable.Version.csproj" />
         <ProjectReference Include="..\Reusable.Untangle\Reusable.Untangle.csproj" />
         <ProjectReference Include="..\Reusable.Untangle.config\Reusable.Untangle.config.csproj" />
         <ProjectReference Include="..\Reusable.Untangle.config.AppConfig\Reusable.Untangle.config.AppConfig.csproj" />

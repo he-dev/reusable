@@ -1,77 +1,54 @@
-﻿using System;
-using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
-using System.Linq.Expressions;
-using System.Threading;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore;
-using Newtonsoft.Json.Converters;
-using Reusable.OneTo1;
-using Reusable.OneTo1.Converters;
+using Reusable.Essentials;
+using Reusable.Essentials.Extensions;
 using Reusable.Translucent.Data;
-using Reusable.Utilities.JsonNet.Converters;
 
-namespace Reusable.Translucent.Controllers
+namespace Reusable.Translucent.Controllers;
+
+[PublicAPI]
+public class SqlServerController<TSetting> : ConfigController where TSetting : class, ISetting
 {
-    [PublicAPI]
-    public class SqlServerController<TSetting> : ConfigController where TSetting : class, ISetting
+    public SqlServerController(ISettingRepository<TSetting> settingRepository)
     {
-        private readonly ISettingRepository<TSetting> _settingRepository;
+        SettingRepository = settingRepository;
+    }
 
-        public SqlServerController(ISettingRepository<TSetting> settingRepository)
+    public SqlServerController(string connectionString, WhereDelegate<TSetting>? where = default)
+        : this(new SettingRepository<TSetting>(connectionString).Also(r =>
         {
-            _settingRepository = settingRepository;
-            Converter = new TypeConverterStack
+            if (where is { })
             {
-                new ObjectToJson
-                {
-                    Settings =
-                    {
-                        Converters =
-                        {
-                            new StringEnumConverter(),
-                            new ColorConverter(),
-                            new SoftStringConverter()
-                        }
-                    }
-                },
-                new JsonToObject
-                {
-                    Settings =
-                    {
-                        Converters =
-                        {
-                            new StringEnumConverter(),
-                            new ColorConverter(),
-                            new SoftStringConverter()
-                        }
-                    }
-                }
-            };
-        }
-
-        public SqlServerController(string connectionString, WhereDelegate<TSetting> where)
-            : this(new SettingRepository<TSetting>(connectionString) { Where = where }) { }
-
-        public override async Task<Response> ReadAsync(ConfigRequest request)
-        {
-            if (await _settingRepository.ReadSetting(request.ResourceName, request.CancellationToken) is {} setting)
-            {
-                var value = Converter.ConvertOrThrow(setting.Value, request.SettingType);
-                return Success<ConfigResponse>(request.ResourceName, value);
+                r.Where = where;
             }
-            else
-            {
-                return NotFound<ConfigResponse>(request.ResourceName);
-            }
-        }
+        })) { }
 
-        public override async Task<Response> CreateAsync(ConfigRequest request)
+    private ISettingRepository<TSetting> SettingRepository { get; }
+
+    public override async Task<Response> ReadAsync(ConfigRequest request)
+    {
+        if (await SettingRepository.ReadSetting(request.ResourceName.Peek(), request.CancellationToken) is { } value)
         {
-            var value = Converter.ConvertOrThrow<string>(request.Body!);
-            await _settingRepository.CreateOrUpdateSetting(request.ResourceName, value, request.CancellationToken);
+            //var value = Converter.ConvertOrThrow(setting.Value, request.SettingType);
+            return Success<ConfigResponse>(request.ResourceName, value);
+        }
+        else
+        {
+            return NotFound<ConfigResponse>(request.ResourceName);
+        }
+    }
+
+    public override async Task<Response> CreateAsync(ConfigRequest request)
+    {
+        if (request.Body.Peek() is string json)
+        {
+            //var value = Converter.ConvertOrThrow<string>(request.Body!);
+            await SettingRepository.CreateOrUpdateSetting(request.ResourceName.Peek(), json, request.CancellationToken);
             return Success<ConfigResponse>(request.ResourceName);
+        }
+        else
+        {
+            throw DynamicException.Create("InvalidRequest", $"Expected string body but got '{request.Body.Peek().GetType().ToPrettyString()}'.");
         }
     }
 }

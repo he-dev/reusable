@@ -24,7 +24,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Reusable.Core\Reusable.Core.csproj" />
     <ProjectReference Include="..\Reusable.Untangle\Reusable.Untangle.csproj" />
   </ItemGroup>
 
@@ -34,6 +33,10 @@
 
   <ItemGroup>
     <Compile Remove="src\HttpProviderExtensions.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="src\Nodes" />
   </ItemGroup>
 
 </Project>

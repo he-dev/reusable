@@ -1,10 +1,9 @@
 using System;
 using System.Collections.Generic;
 
-namespace Reusable.Utilities.JsonNet.Abstractions
+namespace Reusable.Utilities.JsonNet.Abstractions;
+
+public interface IGetJsonTypes
 {
-    public interface IGetJsonTypes
-    {
-        IEnumerable<Type> Execute();
-    }
+    IEnumerable<Type> Execute();
 }

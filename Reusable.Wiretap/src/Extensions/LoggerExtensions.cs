@@ -1,17 +1,12 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Linq.Custom;
 using System.Runtime.CompilerServices;
 using JetBrains.Annotations;
-using Reusable.Collections.Generic;
-using Reusable.Exceptionize;
-using Reusable.Extensions;
+using Reusable.Essentials;
+using Reusable.Essentials.Extensions;
 using Reusable.Wiretap.Abstractions;
 using Reusable.Wiretap.Data;
-using Reusable.Wiretap.Nodes;
-using Reusable.Wiretap.Services;
 
 namespace Reusable.Wiretap.Extensions;
 
@@ -123,38 +118,6 @@ public static partial class LoggerExtensions
                 .Push(new LoggableProperty.CallerLineNumber(callerLineNumber!))
                 .Push(new LoggableProperty.CallerFilePath(callerFilePath!)));
     }
-
-    #region HtmlConsole
-
-    /// <summary>
-    /// Writes to console without line breaks.
-    /// </summary>
-    /// <param name="console">The logger to log.</param>
-    /// <param name="style">Overrides the default console style.</param>
-    /// <param name="builders">Console template builders used to render the output.</param>
-    public static void Write(this ILogger console, IConsoleStyle style, params IHtmlConsoleTemplateBuilder[] builders)
-    {
-        console.Log(log => log.ConsoleTemplateBuilder(false, style, builders));
-    }
-
-    /// <summary>
-    /// Writes to console line breaks.
-    /// </summary>
-    /// <param name="console">The logger to log.</param>
-    /// <param name="style">Overrides the default console style.</param>
-    /// <param name="builders">Console template builders used to render the output.</param>
-    public static void WriteLine(this ILogger console, IConsoleStyle style, params IHtmlConsoleTemplateBuilder[] builders)
-    {
-        console.Log(log => log.ConsoleTemplateBuilder(true, style, builders));
-    }
-
-    private static ILogEntry ConsoleTemplateBuilder(this ILogEntry logEntry, bool isParagraph, IConsoleStyle style, IEnumerable<IHtmlConsoleTemplateBuilder> builders)
-    {
-        return logEntry.Also(e => e.Push(new RenderableProperty.Html(new HtmlConsoleTemplateBuilder(isParagraph, style, builders))));
-        //return logEntry.Push( Names.Properties.Message, new HtmlConsoleTemplateBuilder(isParagraph, style, builders), m => m.ProcessWith<Echo>().LogWith<HtmlConsoleRx>());
-    }
-
-    #endregion
 
     public static T Node<T>(this ILoggerNode node) where T : ILoggerNode
     {

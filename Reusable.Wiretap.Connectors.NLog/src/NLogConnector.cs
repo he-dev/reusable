@@ -2,6 +2,7 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using Reusable.Essentials;
 using Reusable.Wiretap.Abstractions;
 using Reusable.Wiretap.Extensions;
 

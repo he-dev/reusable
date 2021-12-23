@@ -1,4 +1,3 @@
-namespace Reusable.Translucent.Data
-{
-    public class FileResponse : Response { }
-}
+namespace Reusable.Translucent.Data;
+
+public class FileResponse : Response { }

@@ -1,5 +1,3 @@
-using System.Collections;
-
 namespace Reusable.Wiretap.Abstractions;
 
 public interface ILogger : ILoggerNode

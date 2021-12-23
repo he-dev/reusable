@@ -10,6 +10,7 @@ using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using Reusable.Essentials;
 
 // Unreachable code detected - this is for testing so we don't care about it.
 #pragma warning disable CS0162 

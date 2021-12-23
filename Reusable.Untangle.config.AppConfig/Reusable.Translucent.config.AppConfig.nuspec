@@ -19,7 +19,7 @@
       <dependency id="Reusable.Core" version="21.1.0" />
       <dependency id="Reusable.Untangle" version="21.1.0" />
       <dependency id="Reusable.Untangle.config" version="21.1.0" />
-      <dependency id="Reusable.Convert" version="21.1.0" />
+      <dependency id="Reusable.Snowball" version="21.1.0" />
       <dependency id="Reusable.Data" version="21.1.0" />
     </dependencies>
   </metadata>

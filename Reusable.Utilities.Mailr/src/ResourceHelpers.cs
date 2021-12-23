@@ -1,32 +1,34 @@
 using System;
-using System.Collections.Generic;
+using System.IO;
 using System.Threading.Tasks;
-using Reusable.Extensions;
+using Reusable.Essentials;
+using Reusable.Essentials.Extensions;
 using Reusable.Utilities.Mailr.Models;
 using Reusable.Translucent;
 using Reusable.Translucent.Data;
 using Reusable.Translucent.Extensions;
 
-namespace Reusable.Utilities.Mailr
+namespace Reusable.Utilities.Mailr;
+
+public static class ResourceHelpers
 {
-    public static class ResourceHelpers
+    public static async Task<string> SendEmailAsync(this IResource resource, string name, Email email, Action<HttpRequest>? configure = default)
     {
-        public static async Task<string> SendEmailAsync
-        (
-            this IResource resource,
-            string uri,
-            Email email,
-            Action<HttpRequest>? configureRequest = default
-        )
+        using var response = await resource.CreateAsync<HttpRequest.Stream>(name, email, request =>
         {
-            using var response = await resource.CreateAsync<HttpRequest>(uri, email, request =>
-            {
-                request.ControllerName = "Mailr";
-                request.ContentType = "application/json";
-                request.HeaderActions.Add(headers => { headers.AcceptHtml(); });
-                request.Also(configureRequest);
-            });
-            return await response.DeserializeTextAsync();
+            request.ControllerName = "Mailr";
+            request.ContentType = "application/json";
+            request.HeaderActions.Add(headers => { headers.AcceptHtml(); });
+            request.Also(configure);
+        });
+
+        if (response.Body is Stream stream)
+        {
+            return await stream.ReadTextAsync();
+        }
+        else
+        {
+            throw new ArgumentException(paramName: nameof(response), message: $"Cannot deserialize resource '{response.ResourceName}' because it's not a stream.");
         }
     }
 }

@@ -15,15 +15,13 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Reusable.Utilities.NLog", "
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Reusable.Utilities.SqlClient", "Reusable.Utilities.SqlClient\Reusable.Utilities.SqlClient.csproj", "{D1F32907-120A-43CB-9770-291835E9717C}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Reusable.Prompt", "Reusable.Prompt\Reusable.Prompt.csproj", "{89968832-E668-48AE-BAEF-19F4C689613B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Reusable.DoubleDash", "Reusable.DoubleDash\Reusable.DoubleDash.csproj", "{89968832-E668-48AE-BAEF-19F4C689613B}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Reusable.Convert", "Reusable.Convert\Reusable.Convert.csproj", "{25A53836-CA06-4F6A-A321-199F004005D8}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Reusable.Snowball", "Reusable.Snowball\Reusable.Snowball.csproj", "{25A53836-CA06-4F6A-A321-199F004005D8}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Reusable.Core", "Reusable.Core\Reusable.Core.csproj", "{BB5232B3-D85B-480A-B301-4EEDF35FF151}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Reusable.Htmlize", "Reusable.Htmlize\Reusable.Htmlize.csproj", "{B5E55F99-59EB-4763-B650-6CEB546DBC55}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Reusable.Version", "Reusable.Version\Reusable.Version.csproj", "{E7F840D2-A33D-4940-B68C-363323EE97EA}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Reusable.Fluorite", "Reusable.Fluorite\Reusable.Fluorite.csproj", "{B5E55F99-59EB-4763-B650-6CEB546DBC55}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Reusable.app.Console", "Reusable.app.Console\Reusable.app.Console.csproj", "{BA4F622C-AB9B-4C1C-9CBE-02490532D037}"
 EndProject
@@ -39,7 +37,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "app", "app", "{80CC1CE4-FFE
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "lib", "lib", "{E50273AB-3639-4A78-8DE1-D46E402EA3EF}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Reusable.Deceive", "Reusable.Deceive\Reusable.Deceive.csproj", "{8C6AEC88-BB70-4D46-A0A8-39C38E4FB0DB}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Reusable.Deception", "Reusable.Deception\Reusable.Deception.csproj", "{8C6AEC88-BB70-4D46-A0A8-39C38E4FB0DB}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Reusable.Flexo", "Reusable.Flexo\Reusable.Flexo.csproj", "{5EA18FC2-C680-4094-AC2A-34122EDA1CC2}"
 EndProject
@@ -54,9 +52,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Reusable.Tests", "Reusable.
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Reusable.Teapot", "Reusable.Teapot\Reusable.Teapot.csproj", "{AA718846-0C3E-4B92-9E68-2052DCFBFD12}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Reusable.Toggle", "Reusable.Toggle\Reusable.Toggle.csproj", "{DFCA5D89-A31B-4B74-9946-06FCDB297891}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Reusable.Jumble", "Reusable.Jumble\Reusable.Jumble.csproj", "{DFCA5D89-A31B-4B74-9946-06FCDB297891}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Reusable.NameIt", "Reusable.NameIt\Reusable.NameIt.csproj", "{A8018E4A-E8F3-4466-8FAB-D691B169BF2F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Reusable.ReMember", "Reusable.ReMember\Reusable.ReMember.csproj", "{A8018E4A-E8F3-4466-8FAB-D691B169BF2F}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Reusable.Data", "Reusable.Data\Reusable.Data.csproj", "{E53B8A18-230A-4CC1-B135-775E5A219E96}"
 EndProject
@@ -91,6 +89,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reusable.Wiretap.Connectors.Console", "D:\.stuff\a\projects\reusable\Reusable.Wiretap.Connectors.Console\Reusable.Wiretap.Connectors.Console.csproj", "{F7D80E2C-1315-4D87-BB06-D5E5CBECECC1}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reusable.Wiretap.Connectors.Console.Fancy", "D:\.stuff\a\projects\reusable\Reusable.Wiretap.Connectors.Console.Fancy\Reusable.Wiretap.Connectors.Console.Fancy.csproj", "{929C914F-5F63-4101-A3B3-6F42AB147B3A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reusable.Essentials", "D:\.stuff\a\projects\reusable\Reusable.Essentials\Reusable.Essentials.csproj", "{5713F33F-3C5B-4B2D-8A0A-67D75CF1F4CF}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -138,10 +138,6 @@ Global
 		{B5E55F99-59EB-4763-B650-6CEB546DBC55}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B5E55F99-59EB-4763-B650-6CEB546DBC55}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B5E55F99-59EB-4763-B650-6CEB546DBC55}.Release|Any CPU.Build.0 = Release|Any CPU
-		{E7F840D2-A33D-4940-B68C-363323EE97EA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{E7F840D2-A33D-4940-B68C-363323EE97EA}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{E7F840D2-A33D-4940-B68C-363323EE97EA}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{E7F840D2-A33D-4940-B68C-363323EE97EA}.Release|Any CPU.Build.0 = Release|Any CPU
 		{BA4F622C-AB9B-4C1C-9CBE-02490532D037}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{BA4F622C-AB9B-4C1C-9CBE-02490532D037}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{BA4F622C-AB9B-4C1C-9CBE-02490532D037}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -241,6 +237,10 @@ Global
 		{929C914F-5F63-4101-A3B3-6F42AB147B3A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{929C914F-5F63-4101-A3B3-6F42AB147B3A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{929C914F-5F63-4101-A3B3-6F42AB147B3A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5713F33F-3C5B-4B2D-8A0A-67D75CF1F4CF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5713F33F-3C5B-4B2D-8A0A-67D75CF1F4CF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5713F33F-3C5B-4B2D-8A0A-67D75CF1F4CF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5713F33F-3C5B-4B2D-8A0A-67D75CF1F4CF}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -278,10 +278,10 @@ Global
 		{06522BEB-490C-45DD-A428-A7F0EB84E147} = {F5FFA438-A4D4-48AB-AA5D-73BAE8CA90F4}
 		{AA718846-0C3E-4B92-9E68-2052DCFBFD12} = {5CCF0451-250A-4AF3-8756-8ACEACC1826D}
 		{2465FD65-5736-46BE-B129-98C57E2966C2} = {5CCF0451-250A-4AF3-8756-8ACEACC1826D}
-		{E7F840D2-A33D-4940-B68C-363323EE97EA} = {5CCF0451-250A-4AF3-8756-8ACEACC1826D}
 		{26F67C2C-88AC-4F6D-ABC8-4386586963B2} = {5CCF0451-250A-4AF3-8756-8ACEACC1826D}
 		{F7D80E2C-1315-4D87-BB06-D5E5CBECECC1} = {0558F331-6EE1-4E74-B402-8CA44A62A37D}
 		{929C914F-5F63-4101-A3B3-6F42AB147B3A} = {0558F331-6EE1-4E74-B402-8CA44A62A37D}
+		{5713F33F-3C5B-4B2D-8A0A-67D75CF1F4CF} = {E50273AB-3639-4A78-8DE1-D46E402EA3EF}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {2FA54731-890C-4550-BACA-E19B564CE1E3}

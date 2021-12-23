@@ -1,7 +1,6 @@
-namespace Reusable.Utilities.JsonNet.Abstractions
+namespace Reusable.Utilities.JsonNet.Abstractions;
+
+public interface INormalizeTypeName
 {
-    public interface INormalizeTypeName
-    {
-        string Format(string name);
-    }
+    string Format(string name);
 }

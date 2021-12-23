@@ -15,8 +15,8 @@
     <dependencies>
       <dependency id="JetBrains.Annotations" version="2021.3.0" />
       <dependency id="Reusable.Core" version="21.1.0" />
-      <dependency id="Reusable.Convert" version="21.1.0" />
-      <dependency id="Reusable.NameIt" version="21.1.0" />
+      <dependency id="Reusable.Snowball" version="21.1.0" />
+      <dependency id="Reusable.ReMember" version="21.1.0" />
     </dependencies>
   </metadata>
   <files>

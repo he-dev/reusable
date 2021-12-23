@@ -1,4 +1,4 @@
-using Reusable.Extensions;
+using Reusable.Essentials;
 using Reusable.Wiretap.Abstractions;
 
 namespace Reusable.Wiretap.Extensions

@@ -40,7 +40,7 @@ namespace Reusable.Quickey
         public void Can_format_namespace_type_member_plain()
         {
             var selector = From<NamespaceTypeMemberPlain>.Select(x => x.P1).ToString();
-            Assert.Equal("Reusable.NameIt+NamespaceTypeMemberPlain.P1", selector);
+            Assert.Equal("Reusable.ReMember+NamespaceTypeMemberPlain.P1", selector);
         }
 
         [Fact]

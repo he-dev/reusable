@@ -3,7 +3,7 @@ using System.IO;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Internal;
-using Reusable.Extensions;
+using Reusable.Essentials.Extensions;
 using Reusable.Wiretap.Data;
 
 namespace Reusable.OmniLog.Utilities.AspNetCore.Helpers

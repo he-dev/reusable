@@ -1,5 +1,5 @@
 using System;
-using Reusable.Extensions;
+using Reusable.Essentials;
 using Reusable.Wiretap.Abstractions;
 using Reusable.Wiretap.Data;
 using Reusable.Wiretap.Extensions;

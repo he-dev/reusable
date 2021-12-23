@@ -4,9 +4,8 @@ using Reusable.OmniLog;
 using Reusable.Translucent;
 using Reusable.Translucent.Abstractions;
 using Reusable.Translucent.Controllers;
-using Reusable.Translucent.Middleware;
-using Reusable.Translucent.Middleware.ResourceValidator;
-using Reusable.Translucent.Middleware.ResourceValidators;
+using Reusable.Translucent.Nodes;
+using Reusable.Translucent.ResourceValidations;
 using Reusable.Wiretap;
 using Reusable.Wiretap.Abstractions;
 using Reusable.Wiretap.Extensions;
@@ -42,17 +41,17 @@ namespace Reusable
         {
             var assembly = typeof(TestHelper).Assembly;
 
-            return new Resource(new IResourceMiddleware[]
+            return new Resource(new IResourceNode[]
             {
-                new ResourceMemoryCache(memoryCache ?? new MemoryCache(new MemoryCacheOptions())),
-                new ResourceValidation(new CompositeResourceValidator
+                new CacheInMemory(memoryCache ?? new MemoryCache(new MemoryCacheOptions())),
+                new ValidateRequiredResource(new CompositeResourceValidator
                 {
                     new RequestMethodNotNone(),
                     new ResourceNameNotNullOrEmpty(),
                     new RequiredResourceExists(),
-                    new SettingAttributeValidator()
+                    new ValidateSetting()
                 }),
-                new ResourceSearch(new IResourceController[]
+                new ProcessRequest(new IResourceController[]
                 {
                     new EmbeddedFileController(@"Reusable/res/Beaver", assembly),
                     new EmbeddedFileController(@"Reusable/res/Translucent", assembly),

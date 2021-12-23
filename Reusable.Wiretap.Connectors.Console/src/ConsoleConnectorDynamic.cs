@@ -1,9 +1,9 @@
 using System;
 using System.Collections.Generic;
 using JetBrains.Annotations;
-using Reusable.Data;
-using Reusable.Extensions;
-using Reusable.FormatProviders;
+using Reusable.Essentials;
+using Reusable.Essentials.Extensions;
+using Reusable.Essentials.FormatProviders;
 using Reusable.Wiretap;
 using Reusable.Wiretap.Abstractions;
 using Reusable.Wiretap.Connectors.Extensions;

@@ -1,62 +1,83 @@
 ﻿using System.IO;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
+using Reusable.Exceptionize;
 using Reusable.Extensions;
 using Reusable.Translucent.Abstractions;
 using Reusable.Translucent.Data;
 using Reusable.Translucent.Extensions;
 
-namespace Reusable.Translucent.Controllers
+namespace Reusable.Translucent.Controllers;
+
+[PublicAPI]
+public class PhysicalFileController : ResourceController<FileRequest>
 {
-    [PublicAPI]
-    public class PhysicalFileResourceController : ResourceController<FileRequest>
+    public override async Task<Response> ReadAsync(FileRequest request)
     {
-        public PhysicalFileResourceController(string? baseUri = default)
+        ResolvePath(request);
+
+        if (File.Exists(request.ResourceName.Peek()))
         {
-            BaseUri = baseUri;
+            if (request is FileRequest.Text)
+            {
+                return Success<FileResponse>(request.ResourceName, await File.ReadAllTextAsync(request.ResourceName.Peek()));
+            }
+
+            if (request is FileRequest.Stream)
+            {
+                return Success<FileResponse>(request.ResourceName, File.OpenRead(request.ResourceName.Peek()));
+            }
+
+            throw DynamicException.Create("UnsupportedFileRequest", $"File request type: {request.GetType().ToPrettyString()}");
+        }
+        else
+        {
+            return NotFound<FileResponse>(request.ResourceName);
+        }
+    }
+
+    public override async Task<Response> CreateAsync(FileRequest request)
+    {
+        ResolvePath(request);
+
+        if (request is FileRequest.Text && request.Body.Peek() is string text)
+        {
+            await File.WriteAllTextAsync(request.ResourceName.Peek(), text);
+
+            return Success<FileResponse>(request.ResourceName);
         }
 
-        public override string? BaseUri { get; }
-
-        public override Task<Response> ReadAsync(FileRequest request)
+        if (request is FileRequest.Stream && request.Body.Peek() is Stream stream)
         {
-            var path = CreatePath(request.ResourceName);
-
-            return
-                File.Exists(path)
-                    ? Success<FileResponse>(request.ResourceName, File.OpenRead(path)).ToTask()
-                    : NotFound<FileResponse>(request.ResourceName).ToTask();
-        }
-
-        public override async Task<Response> CreateAsync(FileRequest request)
-        {
-            var path = CreatePath(request.ResourceName);
-
-            using var fileStream = new FileStream(path, FileMode.CreateNew, FileAccess.Write);
-            using var body = await request.CreateBodyStreamAsync();
-            await body.Rewind().CopyToAsync(fileStream);
+            await using var fileStream = new FileStream(request.ResourceName.Peek(), FileMode.CreateNew, FileAccess.Write);
+            //await using var body = await request.CreateBodyStreamAsync();
+            await stream.Rewind().CopyToAsync(fileStream);
             await fileStream.FlushAsync();
 
             return Success<FileResponse>(request.ResourceName);
         }
 
-        public override Task<Response> DeleteAsync(FileRequest request)
-        {
-            var path = CreatePath(request.ResourceName);
-            File.Delete(path);
-            return Success<FileResponse>(request.ResourceName).ToTask<Response>();
-        }
+        throw DynamicException.Create("UnsupportedFileRequest", $"File request type: {request.GetType().ToPrettyString()}");
+    }
 
-        private string CreatePath(string path)
-        {
-            //var path = uri.ToUnc();
+    public override Task<Response> DeleteAsync(FileRequest request)
+    {
+        ResolvePath(request);
+        File.Delete(request.ResourceName.Peek());
+        return Success<FileResponse>(request.ResourceName).ToTask();
+    }
 
-            return
-                Path.IsPathRooted(path)
-                    ? path
-                    : BaseUri is {} basePath
-                        ? Path.Combine(basePath, path)
-                        : path;
-        }
+    private void ResolvePath(FileRequest request)
+    {
+        var currentName = request.ResourceName.Peek();
+
+        var fullName =
+            Path.IsPathRooted(currentName)
+                ? currentName
+                : ResourceNameRoot is { }
+                    ? Path.Combine(ResourceNameRoot, currentName)
+                    : currentName;
+        
+        request.ResourceName.Push(fullName);
     }
 }

@@ -6,7 +6,8 @@ using System.Linq;
 using System.Linq.Custom;
 using JetBrains.Annotations;
 using Reusable.Collections;
-using Reusable.Extensions;
+using Reusable.Essentials;
+using Reusable.Essentials.Extensions;
 
 namespace Reusable.Utilities.SqlClient
 {

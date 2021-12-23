@@ -18,7 +18,7 @@
       <dependency id="Reusable.Core" version="21.1.0" />
       <dependency id="Reusable.Data" version="21.1.0" />
       <dependency id="Reusable.Wiretap.Abstractions" version="21.1.0" />
-      <dependency id="Reusable.NameIt" version="21.1.0" />
+      <dependency id="Reusable.ReMember" version="21.1.0" />
       <dependency id="Reusable.Utilities.JsonNet" version="21.1.0" />
     </dependencies>
   </metadata>

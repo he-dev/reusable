@@ -1,4 +1,3 @@
-using Reusable.Data;
 using Reusable.Wiretap.Abstractions;
 using Reusable.Wiretap.Data;
 

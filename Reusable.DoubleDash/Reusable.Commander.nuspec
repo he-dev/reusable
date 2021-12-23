@@ -1,0 +1,34 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package>
+  <metadata>
+    <id>Reusable.DoubleDash</id>
+    <version>21.1.0</version>
+    <title>Reusable.DoubleDash</title>
+    <authors>He-Dev</authors>
+    <owners>He-Dev</owners>
+    <license type="expression">MIT</license>
+    <projectUrl>https://github.com/he-dev/Reusable</projectUrl>
+    <requireLicenseAcceptance>true</requireLicenseAcceptance>
+    <description>This package provides an easy to use command-line framework.</description>
+    <copyright>Copyright 2020 He-Dev</copyright>
+    <tags>Utility Extension</tags>
+    <dependencies>
+      <dependency id="Autofac" version="6.1.0" />
+      <dependency id="JetBrains.Annotations" version="2021.3.0" />
+      <dependency id="System.Threading.Tasks.Dataflow" version="5.0.0" />
+      <dependency id="System.Collections.Immutable" version="6.0.0" />
+      <dependency id="Reusable.Untangle" version="21.1.0" />
+      <dependency id="Reusable.Wiretap.Abstractions" version="21.1.0" />
+      <dependency id="Reusable.Snowball" version="21.1.0" />
+      <dependency id="Reusable.Core" version="21.1.0" />
+      <dependency id="Reusable.Fluorite" version="21.1.0" />
+      <dependency id="Reusable.Wiretap" version="21.1.0" />
+    </dependencies>
+  </metadata>
+  <files>
+    <file src="bin\Release\net47\Reusable.DoubleDash.dll" target="lib\net47" />
+    <file src="bin\Release\net47\Reusable.DoubleDash.pdb" target="lib\net47" />
+    <file src="bin\Release\netcoreapp2.2\Reusable.DoubleDash.dll" target="lib\netcoreapp2.2" />
+    <file src="bin\Release\netcoreapp2.2\Reusable.DoubleDash.pdb" target="lib\netcoreapp2.2" />
+  </files>
+</package>

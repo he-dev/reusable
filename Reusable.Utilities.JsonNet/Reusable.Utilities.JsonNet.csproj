@@ -23,13 +23,14 @@
   </ItemGroup>
   
   <ItemGroup>
-    <ProjectReference Include="..\Reusable.Core\Reusable.Core.csproj" />
+    <ProjectReference Include="..\Reusable.Essentials\Reusable.Essentials.csproj" />
   </ItemGroup>
   
   <ItemGroup>
     <Compile Remove="src\PrettyTypeReader.cs" />
     <Compile Remove="src\PrettyJsonSerializer.cs" />
     <Compile Remove="src\Services\ResolveType.cs" />
+    <Compile Remove="src\Converters\PrimitiveJsonConverter.cs" />
   </ItemGroup>
 
 </Project>

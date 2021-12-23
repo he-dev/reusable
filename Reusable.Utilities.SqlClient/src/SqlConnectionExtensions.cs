@@ -5,6 +5,7 @@ using System.Data.SqlClient;
 using System.Linq;
 using System.Linq.Custom;
 using JetBrains.Annotations;
+using Reusable.Essentials.Extensions;
 
 namespace Reusable.Utilities.SqlClient
 {

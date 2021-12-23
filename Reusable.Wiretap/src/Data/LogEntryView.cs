@@ -1,7 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using Reusable.Exceptionize;
 using Reusable.Wiretap.Abstractions;
 
 namespace Reusable.Wiretap.Data

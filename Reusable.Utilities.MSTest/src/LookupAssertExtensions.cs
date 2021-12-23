@@ -1,6 +1,6 @@
 ﻿using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Reusable.Extensions;
+using Reusable.Essentials.Extensions;
 
 namespace Reusable.Utilities.MSTest
 {

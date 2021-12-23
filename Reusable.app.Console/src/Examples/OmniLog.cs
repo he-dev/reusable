@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Security.Authentication;
 using System.Text.RegularExpressions;
 using Reusable.Apps;
-using Reusable.Exceptionize;
 using Reusable.Utilities.NLog.LayoutRenderers;
 using Reusable.Wiretap;
 using Reusable.Wiretap.Abstractions;

@@ -1,7 +1,5 @@
-using System;
-using Reusable.Extensions;
+using Reusable.Essentials;
 using Reusable.Wiretap.Abstractions;
-using Reusable.Wiretap.Nodes;
 using Reusable.Wiretap.Nodes.Scopeable;
 
 namespace Reusable.Wiretap.Extensions;

@@ -1,34 +1,29 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
+using Reusable.Essentials;
+using Reusable.Essentials.Extensions;
 
-namespace Reusable.Translucent.Data
+namespace Reusable.Translucent.Data;
+
+public class Response : IDisposable, IItems
 {
-    public class Response : IDisposable
+    public string ResourceName { get; set; } = default!;
+
+    public ResourceStatusCode StatusCode { get; set; } = ResourceStatusCode.Unknown;
+
+    public Stack<object> Body { get; } = new();
+
+    public IDictionary<string, object> Items { get; } = new Dictionary<string, object>(SoftString.Comparer);
+
+    public static Response Success() => new() { StatusCode = ResourceStatusCode.Success };
+        
+    public static Response NotFound(string resourceName) => new() { ResourceName = resourceName, StatusCode = ResourceStatusCode.NotFound };
+
+    public void Dispose()
     {
-        public string ResourceName { get; set; } = default!;
-        
-        public ResourceStatusCode StatusCode { get; set; }
-
-        public object? Body { get; set; }
-
-        public bool ExternallyOwned { get; set; }
-
-        public IDictionary<string, object> Items { get; } = new Dictionary<string, object>(SoftString.Comparer);
-
-        public List<string> Log { get; set; } = default!;
-
-        // ReSharper disable once InconsistentNaming
-        public static Response Success() => new Response { StatusCode = ResourceStatusCode.Success };
-        
-        public static Response NotFound(string resourceName) => new Response { ResourceName = resourceName, StatusCode = ResourceStatusCode.NotFound };
-
-        public void Dispose()
+        foreach (var item in Body.Consume())
         {
-            if (Body is Stream stream && !ExternallyOwned)
-            {
-                stream.Dispose();
-            }
+            (item as IDisposable)?.Dispose();
         }
     }
 }

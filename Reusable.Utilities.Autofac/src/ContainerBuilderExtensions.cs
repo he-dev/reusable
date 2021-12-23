@@ -2,8 +2,7 @@ using System;
 using System.Collections.Generic;
 using Autofac;
 using Autofac.Builder;
-using JetBrains.Annotations;
-using Reusable.Extensions;
+using Reusable.Essentials;
 
 namespace Reusable.Utilities.Autofac
 {

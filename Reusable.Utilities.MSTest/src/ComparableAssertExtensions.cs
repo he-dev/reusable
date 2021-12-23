@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Reusable.Extensions;
+using Reusable.Essentials.Extensions;
 
 namespace Reusable.Utilities.MSTest
 {

@@ -11,10 +11,10 @@ namespace Reusable.Translucent.Controllers
         public async Task Can_get_embedded_file()
         {
             var c = new EmbeddedFileController("Reusable", typeof(EmbeddedFileControllerTest).Assembly);
-            using var file = await c.ReadAsync(Request.Read<FileRequest>(@"res\translucent\test.txt"));
+            using var file = await c.ReadAsync(Request.Read<FileRequest.Text>(@"res\translucent\test.txt"));
 
             Assert.True(file.Exists());
-            Assert.Equal("Hallo!", await file.DeserializeTextAsync());
+            Assert.Equal("Hallo!", file.Body.Peek());
         }
 
 //        [Fact]

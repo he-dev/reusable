@@ -1,5 +1,6 @@
 using System.IO;
 using System.Threading.Tasks;
+using Reusable.Essentials.Extensions;
 using Reusable.Translucent.Abstractions;
 using Reusable.Translucent.Data;
 
@@ -9,7 +10,7 @@ namespace Reusable.Translucent.Controllers
     {
         protected static async Task<string> ReadBodyAsync(Stream value, MailRequest request)
         {
-            using var bodyReader = new StreamReader(value, request.Encoding);
+            using var bodyReader = new StreamReader(value.Rewind(), request.Encoding);
             return await bodyReader.ReadToEndAsync();
         }
     }

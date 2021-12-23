@@ -1,5 +1,5 @@
 ﻿using System.Diagnostics;
-using Reusable.Extensions;
+using Reusable.Essentials.Extensions;
 using Reusable.Wiretap.Abstractions;
 
 namespace Reusable.Wiretap.Connectors;

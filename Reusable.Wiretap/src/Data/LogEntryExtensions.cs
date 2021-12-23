@@ -1,4 +1,2 @@
-﻿using Reusable.Wiretap.Abstractions;
-
-namespace Reusable.Wiretap.Data;
+﻿namespace Reusable.Wiretap.Data;
 

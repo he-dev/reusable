@@ -1,6 +1,5 @@
 using Autofac;
-using Reusable.Exceptionize;
-using Reusable.Extensions;
+using Reusable.Essentials;
 
 namespace Reusable.Utilities.Autofac
 {

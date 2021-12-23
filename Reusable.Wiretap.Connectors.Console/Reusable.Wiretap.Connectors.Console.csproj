@@ -24,20 +24,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Reusable.Core\Reusable.Core.csproj" />
     <ProjectReference Include="..\Reusable.Wiretap\Reusable.Wiretap.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Reference Include="System.Configuration" />
-  </ItemGroup>
-  
-  <ItemGroup>
-    <EmbeddedResource Remove="cfg\**" />
-  </ItemGroup>
-  
-  <ItemGroup>
-    <None Remove="cfg\**" />
+    <ProjectReference Include="C:\.stuff\a\projects\reusable\Reusable.Wiretap\Reusable.Wiretap.csproj" />
   </ItemGroup>
 
 </Project>

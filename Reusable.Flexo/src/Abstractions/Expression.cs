@@ -170,7 +170,7 @@ namespace Reusable.Flexo.Abstractions
             }
         }
 
-        private Node<IExpression> CreateInvokeLog() => Node.Create<IExpression>(this);
+        private TreeNode<IExpression> CreateInvokeLog() => Node.Create<IExpression>(this);
 
         protected abstract IConstant ComputeConstant(IImmutableContainer context);
     }

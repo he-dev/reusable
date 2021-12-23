@@ -24,21 +24,18 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Reusable.Prompt\Reusable.Prompt.csproj" />
-    <ProjectReference Include="..\Reusable.Data\Reusable.Data.csproj" />
-    <ProjectReference Include="..\Reusable.Toggle\Reusable.Toggle.csproj" />
-    <ProjectReference Include="..\Reusable.Flexo\Reusable.Flexo.csproj" />
-    <ProjectReference Include="..\Reusable.Convert\Reusable.Convert.csproj" />
-    <ProjectReference Include="..\Reusable.Core\Reusable.Core.csproj" />
+    <ProjectReference Include="..\Reusable.Essentials\Reusable.Essentials.csproj" />
+    <ProjectReference Include="..\Reusable.DoubleDash\Reusable.DoubleDash.csproj" />
+    <ProjectReference Include="..\Reusable.Jumble\Reusable.Jumble.csproj" />
+    <ProjectReference Include="..\Reusable.Snowball\Reusable.Snowball.csproj" />
     <ProjectReference Include="..\Reusable.Secure\Reusable.Secure.csproj" />
-    <ProjectReference Include="..\Reusable.Htmlize\Reusable.Htmlize.csproj" />
+    <ProjectReference Include="..\Reusable.Fluorite\Reusable.Fluorite.csproj" />
     <ProjectReference Include="..\Reusable.Wiretap\Reusable.Wiretap.csproj" />
     <ProjectReference Include="..\Reusable.Wiretap.Extensions.Telemetry\Reusable.Wiretap.Extensions.Telemetry.csproj" />
     <ProjectReference Include="..\Reusable.Wiretap.Connectors.Console\Reusable.Wiretap.Connectors.Console.csproj" />
     <ProjectReference Include="..\Reusable.Wiretap.Connectors.Console.Fancy\Reusable.Wiretap.Connectors.Console.Fancy.csproj" />
     <ProjectReference Include="..\Reusable.Wiretap.Connectors.NLog\Reusable.Wiretap.Connectors.NLog.csproj" />
-    <ProjectReference Include="..\Reusable.NameIt\Reusable.NameIt.csproj" />
-    <ProjectReference Include="..\Reusable.Version\Reusable.Version.csproj" />
+    <ProjectReference Include="..\Reusable.ReMember\Reusable.ReMember.csproj" />
     <ProjectReference Include="..\Reusable.Utilities.JsonNet\Reusable.Utilities.JsonNet.csproj" />
     <ProjectReference Include="..\Reusable.Utilities.Mailr\Reusable.Utilities.Mailr.csproj" />
     <ProjectReference Include="..\Reusable.Utilities.NLog\Reusable.Utilities.NLog.csproj" />

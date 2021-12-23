@@ -7,6 +7,7 @@ using JetBrains.Annotations;
 using NLog;
 using NLog.Config;
 using NLog.LayoutRenderers;
+using Reusable.Essentials;
 
 namespace Reusable.Utilities.NLog.LayoutRenderers
 {

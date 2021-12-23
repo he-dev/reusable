@@ -1,8 +1,8 @@
-namespace Reusable.Translucent
+namespace Reusable.Translucent;
+
+public enum ResourceStatusCode
 {
-    public enum ResourceStatusCode
-    {
-        Success,
-        NotFound
-    }
+    Unknown,
+    Success,
+    NotFound
 }

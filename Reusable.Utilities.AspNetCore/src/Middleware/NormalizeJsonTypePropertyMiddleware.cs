@@ -10,12 +10,13 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.WebUtilities;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using Reusable.Extensions;
+using Reusable.Essentials.Extensions;
 using Reusable.Utilities.JsonNet;
 using Reusable.Utilities.JsonNet.Abstractions;
 using Reusable.Utilities.JsonNet.Visitors;
 using Reusable.Wiretap.Abstractions;
 using Reusable.Wiretap;
+using Reusable.Wiretap.Conventions;
 using Reusable.Wiretap.Data;
 using Reusable.Wiretap.Nodes;
 using Reusable.Wiretap.Extensions;
@@ -70,7 +71,11 @@ public class NormalizeJsonTypePropertyMiddleware
             }
             catch (Exception e)
             {
-                _logger.Scope().Exceptions.Push(e);
+                _logger.Scope().Exception(e);
+            }
+            finally
+            {
+                _logger.Log(Telemetry.Collect.Application().Execution().Auto());
             }
         }
 

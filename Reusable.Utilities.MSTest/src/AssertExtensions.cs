@@ -4,8 +4,9 @@ using System.Linq.Custom;
 using System.Text.RegularExpressions;
 using JetBrains.Annotations;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Reusable.Extensions;
-using Reusable.FormatProviders;
+using Reusable.Essentials;
+using Reusable.Essentials.Extensions;
+using Reusable.Essentials.FormatProviders;
 
 namespace Reusable.Utilities.MSTest
 {

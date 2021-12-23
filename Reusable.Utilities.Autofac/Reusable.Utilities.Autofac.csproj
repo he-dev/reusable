@@ -23,11 +23,12 @@
   </ItemGroup>
   
   <ItemGroup>
-    <ProjectReference Include="..\Reusable.Core\Reusable.Core.csproj" />
+    <ProjectReference Include="..\Reusable.Essentials\Reusable.Essentials.csproj" />
   </ItemGroup>
   
   <ItemGroup>
     <Compile Remove="src\PrettyTypeReader.cs" />
+    <Compile Remove="src\MiddlewareBuilderWithAutofac.cs" />
   </ItemGroup>
   
   <ItemGroup>

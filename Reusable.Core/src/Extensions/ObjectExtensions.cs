@@ -48,7 +48,7 @@ public static class ObjectExtensions
 //            }
 //        }
 
-    public static Task<T> ToTask<T>(this T obj) => Task.FromResult<T>(obj);
+    public static Task<T> ToTask<T>(this T obj) => Task.FromResult(obj);
 
     [Pure]
     [MustUseReturnValue]

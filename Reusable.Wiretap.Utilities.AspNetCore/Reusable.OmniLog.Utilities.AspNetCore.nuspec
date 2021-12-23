@@ -20,7 +20,7 @@
       <dependency id="Microsoft.Extensions.Logging.Abstractions" version="5.0.0" />
       <dependency id="System.ValueTuple" version="4.5.0" />
       <dependency id="Microsoft.AspNetCore.Http.Abstractions" version="2.2.0" />
-      <dependency id="Reusable.Toggle" version="21.1.0" />
+      <dependency id="Reusable.Jumble" version="21.1.0" />
       <dependency id="Reusable.Wiretap" version="21.1.0" />
     </dependencies>
   </metadata>

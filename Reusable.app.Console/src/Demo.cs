@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using Reusable.Diagnostics;
+using Reusable.Essentials.Diagnostics;
 using Reusable.OneTo1;
 using Reusable.OneTo1.Converters;
 using Reusable.Utilities.NLog.LayoutRenderers;

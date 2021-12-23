@@ -12,7 +12,7 @@ namespace Reusable.Utilities.JsonNet.Converters
         public override bool CanConvert(Type objectType)
         {
             var primitiveType = GetPrimitiveType(objectType);
-            return primitiveType != null && MakePrimitiveType(primitiveType).IsAssignableFrom(objectType);
+            return primitiveType is { } && MakePrimitiveType(primitiveType).IsAssignableFrom(objectType);
         }
 
         public override void WriteJson(JsonWriter writer, object? value, JsonSerializer serializer)
@@ -39,10 +39,10 @@ namespace Reusable.Utilities.JsonNet.Converters
                     .Invoke(new[] { Convert.ChangeType(reader.Value, primitiveType) });
         }
 
-        private static Type GetPrimitiveType(Type objectType)
+        private static Type? GetPrimitiveType(Type objectType)
         {
             // ReSharper disable once PossibleNullReferenceException - I doubt BaseType is ever null.
-            return objectType.BaseType.GetGenericArguments().FirstOrDefault();
+            return objectType.BaseType?.GetGenericArguments().FirstOrDefault();
         }
 
         private static Type MakePrimitiveType(Type primitiveType)

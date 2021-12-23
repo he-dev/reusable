@@ -4,7 +4,8 @@ using System.Linq;
 using System.Security.Policy;
 using System.Text;
 using Reusable.Experiments;
-using Reusable.Htmlize.Html;
+using Reusable.Fluorite;
+using Reusable.Fluorite.Html;
 
 namespace Reusable
 {

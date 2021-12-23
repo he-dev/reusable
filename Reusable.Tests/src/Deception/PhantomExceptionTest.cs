@@ -16,7 +16,7 @@ namespace Reusable.Deception
         {
             var phantomException = new PhantomException
             {
-                new CountPattern(Sequence.Constant(2))
+                new NumberOfTimes(Sequence.Constant(2))
             };
 
             var counts = new List<int>();
@@ -40,7 +40,7 @@ namespace Reusable.Deception
         {
             var phantomException = new PhantomException
             {
-                new IntervalPattern(Sequence.Constant(TimeSpan.FromSeconds(2)))
+                new Delay(Sequence.Constant(TimeSpan.FromSeconds(2)))
                 {
                     //Predicate = // not using here
                 }

@@ -1,4 +1,5 @@
 using System;
+using Reusable.Essentials;
 
 namespace Reusable.Wiretap.Connectors.Extensions;
 

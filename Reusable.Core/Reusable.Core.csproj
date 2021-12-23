@@ -44,8 +44,4 @@
     <Compile Remove="src\Data\ConsoleStyle.cs" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="src\Services" />
-  </ItemGroup>
-
 </Project>

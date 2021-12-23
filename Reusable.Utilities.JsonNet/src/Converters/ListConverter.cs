@@ -6,64 +6,63 @@ using System.Linq;
 using System.Linq.Custom;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using Reusable.Exceptionize;
-using Reusable.Extensions;
-using Reusable.Reflection;
+using Reusable.Essentials;
+using Reusable.Essentials.Extensions;
+using Reusable.Essentials.Reflection;
 
-namespace Reusable.Utilities.JsonNet.Converters
+namespace Reusable.Utilities.JsonNet.Converters;
+
+public class ListConverter<T> : JsonConverter
 {
-    public class ListConverter<T> : JsonConverter
+    public ListConverter(string typePropertyName = "$t")
     {
-        public ListConverter(string typePropertyName = "$t")
-        {
-            TypePropertyName = typePropertyName;
-            Types = TypeHelper.GetTypesAssignableFrom<T>().ToImmutableDictionary(t => t.ToPrettyString());
-        }
+        TypePropertyName = typePropertyName;
+        Types = Reflect<T>.GetTypesAssignableFrom().ToImmutableDictionary(t => t.ToPrettyString());
+    }
         
-        public string TypePropertyName { get; }
+    public string TypePropertyName { get; }
 
-        public IImmutableDictionary<string, Type> Types { get; set; }
+    public IImmutableDictionary<string, Type> Types { get; set; }
 
-        public override bool CanConvert(Type objectType)
+    public override bool CanConvert(Type objectType)
+    {
+        return
+            objectType.IsGenericType &&
+            objectType.GetInterfaces().Any(i => i == typeof(IList<T>));
+    }
+
+    public override object ReadJson(JsonReader reader, Type objectType, object? existingValue, JsonSerializer serializer)
+    {
+        var valueType = objectType.GetGenericArguments()[0];
+        var collectionType = typeof(List<>).MakeGenericType(valueType);
+        var collection = (IList)Activator.CreateInstance(collectionType);
+
+        // Save depth to know when to stop.
+        var arrayDepth = reader.Depth;
+        while (reader.Read())
         {
-            return
-                objectType.IsGenericType &&
-                objectType.GetInterfaces().Any(i => i == typeof(IList<T>));
-        }
-
-        public override object ReadJson(JsonReader reader, Type objectType, object? existingValue, JsonSerializer serializer)
-        {
-            var valueType = objectType.GetGenericArguments()[0];
-            var collectionType = typeof(List<>).MakeGenericType(valueType);
-            var collection = (IList)Activator.CreateInstance(collectionType);
-
-            // Save depth to know when to stop.
-            var arrayDepth = reader.Depth;
-            while (reader.Read())
+            switch (reader.TokenType)
             {
-                switch (reader.TokenType)
+                case JsonToken.StartObject:
                 {
-                    case JsonToken.StartObject:
-                    {
-                        var typeToken = JToken.ReadFrom(reader);
-                        var typeName = typeToken.SelectToken($"$.{TypePropertyName}")?.Value<string>() ?? throw DynamicException.Create("TypeNameNotFound", $"Type name is missing at '{reader.Path}'.");
-                        var obj = serializer.Deserialize(typeToken.CreateReader(), Types[typeName]);
-                        collection.Add(obj);
-                    }
-                        break;
-
-                    case JsonToken.EndArray when reader.Depth == arrayDepth:
-                        // We've reached the end of the array.
-                        return collection;
+                    var typeToken = JToken.ReadFrom(reader);
+                    var typeName = typeToken.SelectToken($"$.{TypePropertyName}")?.Value<string>() ?? throw DynamicException.Create("TypeNameNotFound", $"Type name is missing at '{reader.Path}'.");
+                    var obj = serializer.Deserialize(typeToken.CreateReader(), Types[typeName]);
+                    collection.Add(obj);
                 }
+                    break;
+
+                case JsonToken.EndArray when reader.Depth == arrayDepth:
+                    // We've reached the end of the array.
+                    return collection;
             }
-
-            return collection;
         }
 
-        public override void WriteJson(JsonWriter writer, object? value, JsonSerializer serializer)
-        {
-            throw new NotSupportedException("Not required in this scenario because it's only for reading.");
-        }
+        return collection;
+    }
+
+    public override void WriteJson(JsonWriter writer, object? value, JsonSerializer serializer)
+    {
+        throw new NotSupportedException("Not required in this scenario because it's only for reading.");
     }
 }

@@ -5,57 +5,56 @@ using System.Reflection;
 using JetBrains.Annotations;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using Reusable.Exceptionize;
-using Reusable.Extensions;
+using Reusable.Essentials;
+using Reusable.Essentials.Extensions;
 using Reusable.Utilities.JsonNet.Annotations;
 
-namespace Reusable.Utilities.JsonNet.Converters
+namespace Reusable.Utilities.JsonNet.Converters;
+
+[PublicAPI]
+public class JsonStringConverter : JsonConverter
 {
-    [PublicAPI]
-    public class JsonStringConverter : JsonConverter
+    private readonly IImmutableSet<Type> _stringTypes;
+
+    public JsonStringConverter(params Type[] stringTypes)
     {
-        private readonly IImmutableSet<Type> _stringTypes;
+        _stringTypes = stringTypes.ToImmutableHashSet();
+    }
 
-        public JsonStringConverter(params Type[] stringTypes)
+    public override bool CanConvert(Type objectType)
+    {
+        return objectType.GetCustomAttributes<JsonStringAttribute>().Any() || _stringTypes.Contains(objectType);
+    }
+
+    public override object ReadJson(JsonReader reader, Type objectType, object? existingValue, JsonSerializer serializer)
+    {
+        var jToken = JToken.Load(reader);
+        var value = jToken.Value<string>();
+
+        if (value is null)
         {
-            _stringTypes = stringTypes.ToImmutableHashSet();
+            return default!;
         }
 
-        public override bool CanConvert(Type objectType)
+        if (objectType.GetConstructor(new[] { typeof(string) }) is var constructor && !(constructor is null))
         {
-            return objectType.GetCustomAttributes<JsonStringAttribute>().Any() || _stringTypes.Contains(objectType);
+            return constructor.Invoke(new object[] { value });
         }
 
-        public override object ReadJson(JsonReader reader, Type objectType, object? existingValue, JsonSerializer serializer)
+        if (objectType.GetMethod("Parse", BindingFlags.Public | BindingFlags.Static) is var parse && !(parse is null))
         {
-            var jToken = JToken.Load(reader);
-            var value = jToken.Value<string>();
-
-            if (value is null)
-            {
-                return default!;
-            }
-
-            if (objectType.GetConstructor(new[] { typeof(string) }) is var constructor && !(constructor is null))
-            {
-                return constructor.Invoke(new object[] { value });
-            }
-
-            if (objectType.GetMethod("Parse", BindingFlags.Public | BindingFlags.Static) is var parse && !(parse is null))
-            {
-                return parse.Invoke(null, new object[] { value });
-            }
-
-            throw DynamicException.Create
-            (
-                "CannotCreateObject",
-                $"{objectType.ToPrettyString()} is decorated with the {nameof(JsonStringAttribute)} so it must either have a constructor with a string parameter or a static Parse method."
-            );
+            return parse.Invoke(null, new object[] { value });
         }
 
-        public override void WriteJson(JsonWriter writer, object? value, JsonSerializer serializer)
-        {
-            writer.WriteValue(value?.ToString());
-        }
+        throw DynamicException.Create
+        (
+            "CannotCreateObject",
+            $"{objectType.ToPrettyString()} is decorated with the {nameof(JsonStringAttribute)} so it must either have a constructor with a string parameter or a static Parse method."
+        );
+    }
+
+    public override void WriteJson(JsonWriter writer, object? value, JsonSerializer serializer)
+    {
+        writer.WriteValue(value?.ToString());
     }
 }

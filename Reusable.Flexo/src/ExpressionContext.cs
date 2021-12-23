@@ -49,7 +49,7 @@ namespace Reusable.Flexo
 
         public static readonly Selector<IContainer<string, Package>> Packages = This.Select(() => Packages);
 
-        public static readonly Selector<Node<IExpression>> InvokeLog = This.Select(() => InvokeLog);
+        public static readonly Selector<TreeNode<IExpression>> InvokeLog = This.Select(() => InvokeLog);
 
         public static readonly Selector<CancellationToken> CancellationToken = This.Select(() => CancellationToken);
 

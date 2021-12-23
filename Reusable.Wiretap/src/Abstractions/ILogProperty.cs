@@ -1,5 +1,3 @@
-using System.Collections.Generic;
-
 namespace Reusable.Wiretap.Abstractions;
 
 public interface ILogProperty

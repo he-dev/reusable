@@ -37,9 +37,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Reusable.Core\Reusable.Core.csproj" />
-    <ProjectReference Include="..\Reusable.Htmlize\Reusable.Htmlize.csproj" />
-    <ProjectReference Include="..\Reusable.Wiretap\Reusable.Wiretap.csproj" />
+    <ProjectReference Include="..\Reusable.Fluorite\Reusable.Fluorite.csproj" />
     <ProjectReference Include="..\Reusable.Wiretap.Connectors.Console\Reusable.Wiretap.Connectors.Console.csproj" />
   </ItemGroup>
 

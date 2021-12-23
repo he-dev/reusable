@@ -1,10 +1,11 @@
 using System;
 using System.Linq;
-using Reusable.Collections.Generic;
+using Reusable.Essentials;
+using Reusable.Essentials.Extensions;
 
 namespace Reusable.Wiretap.Abstractions;
 
-public interface ILoggerNode : INode<ILoggerNode>, IDisposable
+public interface ILoggerNode : IListNode<ILoggerNode>, IDisposable
 {
     bool Enabled { get; set; }
 
