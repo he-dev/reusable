@@ -2,13 +2,10 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using Reusable.Wiretap.Abstractions;
-using Reusable.Wiretap.Nodes;
-using Reusable.Wiretap;
 using Reusable.Wiretap.Conventions;
-using Reusable.Wiretap.Data;
 using Reusable.Wiretap.Extensions;
 
-namespace Reusable.Commander.Commands;
+namespace Reusable.DoubleDash.Commands;
 
 public class CommandTelemetry : CommandDecorator
 {

@@ -28,7 +28,6 @@
     <ProjectReference Include="..\Reusable.Teapot\Reusable.Teapot.csproj" />
     <ProjectReference Include="..\Reusable.Teapot.Assert\Reusable.Teapot.Assert.csproj" />
     <ProjectReference Include="..\Reusable.Utilities.JsonNet\Reusable.Utilities.JsonNet.csproj" />
-    <ProjectReference Include="..\Reusable.Utilities.Mailr\Reusable.Utilities.Mailr.csproj" />
     <ProjectReference Include="..\Reusable.Teapot.Assert\Reusable.Teapot.Assert.csproj" />
 <!--    <ProjectReference Include="..\Xunit.Assert.That\Xunit.Assert.That.csproj" />-->
   </ItemGroup>

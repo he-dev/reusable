@@ -37,7 +37,7 @@ public class HtmlElement : Collection<object>, IHtmlElement
 
     private string DebuggerDisplay => $"<{Name} attribute-count=\"{Attributes?.Count ?? 0}\" children-count=\"{Count}\">";
 
-    public static HtmlElement? Builder => default;
+    //public static IHtmlElement Builder(string name) => new HtmlElement(name);
     
     #region IHtmlElement
 

@@ -13,7 +13,7 @@ using System.Threading.Tasks;
 using Reusable.Essentials;
 
 // Unreachable code detected - this is for testing so we don't care about it.
-#pragma warning disable CS0162 
+#pragma warning disable CS0162
 
 namespace Reusable
 {
@@ -563,6 +563,7 @@ namespace blub
                 // If the ending separator isn't empty yet and the current substring doesn't end with it,
                 // continue the loop.
                 while (!(endingSeparator.Length == 0 || substring.EndsWith(endingSeparator)));
+
                 // At this time, the ending separator will be an initial part of the specified separator,
                 // which is a 'suffix' of the current substring.
                 // Push the length of the suffix on the stack, so I'll avoid to call the Length getter accessor multiple times.
@@ -584,6 +585,34 @@ namespace blub
 
             return text.ToString();
         }
+    }
+}
+
+public static class FileExtensions
+{
+    public static async Task MoveFileAsync(this string sourceFileName, string targetFileName)
+    {
+        await sourceFileName
+            .CopyFileAsync(targetFileName)
+            .ContinueWith(
+                async _ => await sourceFileName.DeleteFileAsync(),
+                TaskContinuationOptions.OnlyOnRanToCompletion);
+    }
+
+    public static async Task CopyFileAsync(this string sourceFileName, string targetFileName)
+    {
+        if (!File.Exists(sourceFileName)) throw new FileNotFoundException($"There is no such file as '{sourceFileName}'.");
+        
+        await using var sourceStream = File.Open(sourceFileName, FileMode.Open);
+        await using var targetStream = File.Create(targetFileName);
+        await sourceStream.CopyToAsync(targetStream);
+    }
+
+    public static Task DeleteFileAsync(this string sourceFileName)
+    {
+        if (!File.Exists(sourceFileName)) throw new FileNotFoundException($"There is no such file as '{sourceFileName}'.");
+
+        return Task.Run(() => File.Delete(sourceFileName));
     }
 }
 

@@ -1,5 +1,5 @@
 using System;
-using Reusable.Extensions;
+using Reusable.Essentials.Extensions;
 
 namespace Reusable.Data
 {

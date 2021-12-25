@@ -33,7 +33,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Reusable.Jumble\Reusable.Jumble.csproj" />
+    <ProjectReference Include="..\Reusable.Toggle\Reusable.Toggle.csproj" />
     <ProjectReference Include="..\Reusable.Wiretap\Reusable.Wiretap.csproj" />
   </ItemGroup>
 

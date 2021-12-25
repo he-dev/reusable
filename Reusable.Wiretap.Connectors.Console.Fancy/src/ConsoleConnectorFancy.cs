@@ -1,12 +1,13 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using JetBrains.Annotations;
-using Reusable.Essentials;
 using Reusable.Fluorite;
 using Reusable.Fluorite.Html;
 using Reusable.Wiretap.Abstractions;
-using Reusable.Wiretap.Connectors.Extensions;
+using Reusable.Wiretap.Data;
 using Reusable.Wiretap.Extensions;
 
 namespace Reusable.Wiretap.Connectors;
@@ -14,26 +15,25 @@ namespace Reusable.Wiretap.Connectors;
 [PublicAPI]
 public class ConsoleConnectorFancy : ConsoleConnector<IHtmlElement>
 {
-    private readonly object _syncLock = new();
+    private object SyncLock { get; } = new();
+
+    public ConsoleConnectorFancy() => Template = new HtmlMessageBuilder();
 
     /// <summary>
     /// Renders the Html to the console. This method is thread-safe.
     /// </summary>
     public override void Log(ILogEntry entry)
     {
-        lock (_syncLock)
+        lock (SyncLock)
         {
-            var template =
-                entry.TryGetProperty<RenderableProperty.Html, IBuilder<IHtmlElement>>(out var templateOverride)
+            var rootElement =
+                entry.TryGetProperty<ConsoleProperty.Template, IHtmlElement>(out var templateOverride)
                     ? templateOverride
-                    : Template;
+                    : Template.Build(entry);
 
-
-            var rootElement = template.Build(entry);
-
-            using (rootElement.ParseConsoleStyleOrDefault(ConsoleStyle.Current).Apply())
+            using (Styles[rootElement.Name, entry].Apply())
             {
-                Render(rootElement.AsEnumerable());
+                Render(rootElement.AsEnumerable(), entry);
             }
 
             if (rootElement.Name.Equals("p"))
@@ -43,118 +43,77 @@ public class ConsoleConnectorFancy : ConsoleConnector<IHtmlElement>
         }
     }
 
-    private static void Render(IEnumerable<object> values)
+    private void Render(IEnumerable<object> items, ILogEntry entry)
     {
-        foreach (var value in values)
+        foreach (var item in items)
         {
-            if (value is IHtmlElement htmlElement)
+            if (item is IHtmlElement element)
             {
-                RenderSingle(htmlElement);
+                Render(element, entry);
             }
-
-            if (value is string text)
+            else
             {
-                Render(text);
+                Render(item);
             }
         }
     }
 
-    private static void RenderSingle(IHtmlElement htmlElement)
+    private void Render(IHtmlElement element, ILogEntry entry)
     {
-        using (htmlElement.ParseConsoleStyleOrDefault(ConsoleStyle.Current).Apply())
+        using (Styles[element.Name, entry].Apply())
         {
-            Render(htmlElement.AsEnumerable());
+            Render(element.AsEnumerable());
         }
     }
 
-    private static void Render(string text)
+    private static void Render(object text)
     {
         Console.Write(text);
     }
 }
 
-internal static class HtmlElementExtensions
+public class HtmlMessageBuilder : IConsoleMessageBuilder<IHtmlElement>
 {
-    public static IHtmlElement SetStyle(this IHtmlElement element, ConsoleStyle? style)
+    public Action<Action<ILogEntry>> Composition { get; set; } = previous =>
     {
-        return
-            style.HasValue
-                ? element
-                    .backgroundColor(style.Value.BackgroundColor)
-                    .color(style.Value.ForegroundColor)
-                : element;
-    }
+        previous
+            .Property<LoggableProperty.Timestamp>(DateTime.UtcNow)
+            .Separator()
+            .Property<LoggableProperty.Level>(LogLevel.Information).Style<ConsoleStyle.LogLevel>()
+            .Separator()
+            .Property<LoggableProperty.Logger>("Unknown")
+            .Separator()
+            .Property<LoggableProperty.Message>("None");
+    };
 
-    public static ConsoleStyle ParseConsoleStyleOrDefault(this IHtmlElement element, ConsoleStyle fallback)
+    public IHtmlElement Build(ILogEntry entry)
     {
-        if (!element.Attributes.TryGetValue("style", out var style))
-        {
-            return fallback;
-        }
-
-        var declarations = style.ToDeclarations().ToDictionary(x => x.property, x => x.value);
-
-        declarations.TryGetValue("color", out var foregroundColor);
-        declarations.TryGetValue("background-color", out var backgroundColor);
-
-        return new ConsoleStyle
-        (
-            Enum.TryParse(backgroundColor, true, out ConsoleColor consoleBackgroundColor) ? consoleBackgroundColor : Console.BackgroundColor,
-            Enum.TryParse(foregroundColor, true, out ConsoleColor consoleForegroundColor) ? consoleForegroundColor : Console.ForegroundColor
-        );
+        Composition(ConsoleTemplate.ComposeLine());
+        return entry.GetValueOrDefault<ConsoleProperty.Template, IHtmlElement>(default!);
     }
 }
 
-internal abstract record RenderableProperty(string Name, object Value) : ILogProperty
+public abstract record ConsoleProperty(string Name, object Value) : MetaProperty(Name, Value)
 {
-    public record Html(object Value) : RenderableProperty(nameof(Html), Value);
+    // Carries console template.
+    public record Template(object Value) : ConsoleProperty(nameof(Template), Value);
 }
 
-// Extensions
-
-public static class Template
-{
-    public static Action<ILogEntry> Compose(ConsoleStyle? style = default)
-    {
-        return entry => entry.Push(new RenderableProperty.Html(HtmlElement.Builder.span().SetStyle(style)));
-    }
-
-    public static Action<ILogEntry> ComposeLine(ConsoleStyle? style = default)
-    {
-        return entry => entry.Push(new RenderableProperty.Html(HtmlElement.Builder.p().SetStyle(style)));
-    }
-}
-
-public record Quote(char Left, char Right)
+public readonly record struct Quote(char Left, char Right)
 {
     public static Quote Empty { get; } = new(default, default);
 
-    public record Single() : Quote('\'', '\'');
+    public static Quote Single { get; } = new('\'', '\'');
 
-    public record Double() : Quote('"', '"');
+    public static Quote Double { get; } = new('"', '"');
 
-    public record Square() : Quote('[', ']');
+    public static Quote Square { get; } = new('[', ']');
 
-    public record Round() : Quote('(', ')');
+    public static Quote Round { get; } = new('(', ')');
 
-    public record Curly() : Quote('{', '}');
+    public static Quote Curly { get; } = new('{', '}');
 
-    public record Angle() : Quote('<', '>');
+    public static Quote Angle { get; } = new('<', '>');
 
     public string Format(string value) => this == Empty ? value : $"{Left}{value}{Right}";
-}
-
-public static class TemplateModules
-{
-    public static Action<ILogEntry> Whitespace(this Action<ILogEntry> previous, int length, int depth = 1, ConsoleStyle? style = default)
-    {
-        return previous.Then(entry => entry.Html().text(new string(' ', length * depth)).SetStyle(style));
-    }
-
-    public static Action<ILogEntry> Text(this Action<ILogEntry> previous, string text, Quote? quote = default, ConsoleStyle? style = default)
-    {
-        return previous.Then(entry => entry.Html().text((quote ?? Quote.Empty).Format(text)).SetStyle(style));
-    }
-
-    public static IHtmlElement Html(this ILogEntry entry) => (IHtmlElement)entry[nameof(RenderableProperty.Html)].Value;
 }

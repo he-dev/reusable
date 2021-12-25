@@ -6,7 +6,6 @@
         <Platforms>AnyCPU</Platforms>
         <Nullable>enable</Nullable>
         <LangVersion>latest</LangVersion>
-        <RootNamespace>Reusable.OneTo1</RootNamespace>
     </PropertyGroup>
 
     <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
@@ -24,7 +23,7 @@
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\Reusable.Core\Reusable.Core.csproj" />
+        <ProjectReference Include="..\Reusable.Essentials\Reusable.Essentials.csproj" />
     </ItemGroup>
 
 </Project>

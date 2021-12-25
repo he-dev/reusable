@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 using System.Linq.Custom;
-using Reusable.Exceptionize;
+using Reusable.Essentials;
 using Xunit;
 
 namespace Reusable.Extensions

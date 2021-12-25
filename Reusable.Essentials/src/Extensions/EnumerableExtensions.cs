@@ -1,6 +1,8 @@
 ﻿using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Text.RegularExpressions;
 using JetBrains.Annotations;
+using Microsoft.VisualBasic;
 using Reusable;
 using Reusable.Essentials;
 using Reusable.Essentials.Collections;
@@ -29,7 +31,7 @@ public static class enumerable
     (
         this IEnumerable<TFirst> first,
         IEnumerable<TSecond> second,
-        Func<TFirst, TSecond, TResult> resultSelector = default
+        Func<TFirst, TSecond?, TResult?> resultSelector
     )
     {
         using var x = first.GetEnumerator();
@@ -250,7 +252,7 @@ public static class enumerable
     {
         return source.Take(1).ToList() switch
         {
-            {} items when items.Any() => items.Single(),
+            { } items when items.Any() => items.Single(),
             _ => throw DynamicException.Create(onEmpty.Exception ?? "Empty", onEmpty.Message ?? $"{source.GetType().ToPrettyString()} does not contain any elements.")
         };
     }
@@ -272,18 +274,15 @@ public static class enumerable
 //            }
 //        }
 
-    public static int CalcHashCode<T>([ItemCanBeNull] this IEnumerable<T> values)
+    public static int CalcHashCode<T>(this IEnumerable<T?> values)
     {
-        if (values == null) throw new ArgumentNullException(nameof(values));
-
         unchecked
         {
             return values.Aggregate(0, (current, next) => (current * 397) ^ next?.GetHashCode() ?? 0);
         }
     }
 
-    [ItemCanBeNull]
-    public static IEnumerable<T> Repeat<T>(T item)
+    public static IEnumerable<T?> Repeat<T>(T item)
     {
         while (true)
         {
@@ -372,7 +371,7 @@ public static class enumerable
         return second.IsSubsetOf(first, comparer);
     }
 
-    public static ImmutableDictionary<TKey, TValue> AddWhen<TKey, TValue>(this ImmutableDictionary<TKey, TValue> dictionary, bool condition, TKey key, TValue value)
+    public static ImmutableDictionary<TKey, TValue> AddWhen<TKey, TValue>(this ImmutableDictionary<TKey, TValue> dictionary, bool condition, TKey key, TValue value) where TKey : notnull
     {
         return
             condition
@@ -418,7 +417,7 @@ public static class enumerable
             group x by selectKey(x) into g
             select merge(g);
     }
-        
+
     public static IEnumerable<T> MergeFirst<T, TKey>
     (
         this IEnumerable<T> first,
@@ -428,7 +427,7 @@ public static class enumerable
     {
         return first.Merge(second, selectKey, Enumerable.First);
     }
-        
+
     public static IEnumerable<T> MergeLast<T, TKey>
     (
         this IEnumerable<T> first,
@@ -438,8 +437,6 @@ public static class enumerable
     {
         return first.Merge(second, selectKey, Enumerable.Last);
     }
-
-
 
 
     //        public static IEnumerable<T> Take<T>(this IEnumerable<T> source, int count)
@@ -487,6 +484,56 @@ public static class enumerable
 //                }
 //            }
 //        }
+
+
+    public static IEnumerable<Match> Match(this IEnumerable<string> source, string pattern, RegexOptions options = RegexOptions.None)
+    {
+        options = RegexOptions.ExplicitCapture | options;
+
+        foreach (var item in source)
+        {
+            if (Regex.Match(item, pattern, options) is { Success: true } match)
+            {
+                yield return match;
+            }
+        }
+    }
+
+    public static IEnumerable<T> Parse<T>(this IEnumerable<Match> source, Func<string, Type, object>? convert = default)
+    {
+        convert ??= (x, t) =>
+        {
+            if (t == typeof(int)) return int.Parse(x);
+            if (t.IsEnum) return Enum.Parse(t, x);
+            return x;
+        };
+
+        // It's for records so don't expect any fancy constructors.
+        var ctor = typeof(T).GetConstructors().Single();
+        var parameters = ctor.GetParameters();
+
+        foreach (var item in source)
+        {
+            var values =
+                from p in parameters
+                let g = item.Groups[p.Name!]
+                let v = g.Success ? g.Value : throw DynamicException.Create("PropertyNotFound", $"{typeof(T).ToPrettyString()}'s property '{p.Name}' not found.")
+                select convert(v, p.ParameterType);
+
+            yield return (T)ctor.Invoke(values.ToArray());
+        }
+    }
+
+    public static IEnumerable<string> Pad(this IEnumerable<string> values, IEnumerable<int> widths, char padding = ' ')
+    {
+        foreach (var (value, width) in values.Zip(widths, (x, w) => (Value: x, Width: w)))
+        {
+            yield return
+                width < 0
+                    ? value.PadLeft(-width, padding)
+                    : value.PadRight(width, padding);
+        }
+    }
 }
 
 public class CollectionDiff<T>

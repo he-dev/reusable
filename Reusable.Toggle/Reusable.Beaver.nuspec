@@ -1,0 +1,27 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package>
+  <metadata>
+    <id>Reusable.Toggle</id>
+    <version>19.0.0</version>
+    <title>Reusable.Toggle</title>
+    <authors>He-Dev</authors>
+    <owners>He-Dev</owners>
+    <license type="expression">MIT</license>
+    <projectUrl>https://github.com/he-dev/Reusable</projectUrl>
+    <requireLicenseAcceptance>true</requireLicenseAcceptance>
+    <description>This package provides a framework for managing program features.</description>
+    <copyright>Copyright 2020 He-Dev</copyright>
+    <tags>Utility Extension</tags>
+    <dependencies>
+      <dependency id="JetBrains.Annotations" version="2020.3.0" />
+      <dependency id="Reusable.Core" version="19.0.0" />
+      <dependency id="Reusable.Wiretap" version="19.0.0" />
+    </dependencies>
+  </metadata>
+  <files>
+    <file src="bin\Release\net47\Reusable.Toggle.dll" target="lib\net47" />
+    <file src="bin\Release\net47\Reusable.Toggle.pdb" target="lib\net47" />
+    <file src="bin\Release\netcoreapp2.2\Reusable.Toggle.dll" target="lib\netcoreapp2.2" />
+    <file src="bin\Release\netcoreapp2.2\Reusable.Toggle.pdb" target="lib\netcoreapp2.2" />
+  </files>
+</package>

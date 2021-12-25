@@ -20,7 +20,7 @@ internal static class ComparerFactory<T, TValue>
             _isGreaterThan = (x, y) => Comparer<TValue>.Default.Compare(x, y) > 0;
         }
 
-        public int Compare(T x, T y)
+        public int Compare(T? x, T? y)
         {
             if (ReferenceEquals(x, y)) return 0;
             if (ReferenceEquals(x, null)) return -1;

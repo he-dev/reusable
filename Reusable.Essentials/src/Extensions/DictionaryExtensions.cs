@@ -69,7 +69,7 @@ public static class DictionaryExtensions
 
     public static Dictionary<TKey, TSource> ToDictionarySafely<TSource, TKey>(
         this IEnumerable<TSource> source,
-        Func<TSource, TKey> keySelector)
+        Func<TSource, TKey> keySelector) where TKey : notnull
     {
         return source.ToDictionarySafely(keySelector, x => x, EqualityComparer<TKey>.Default);
     }
@@ -78,7 +78,7 @@ public static class DictionaryExtensions
         this IEnumerable<TSource> source,
         Func<TSource, TKey> keySelector,
         IEqualityComparer<TKey> comparer
-    )
+    ) where TKey : notnull
     {
         return source.ToDictionarySafely(keySelector, x => x, comparer);
     }
@@ -87,7 +87,7 @@ public static class DictionaryExtensions
         this IEnumerable<TSource> source,
         Func<TSource, TKey> keySelector,
         Func<TSource, TElement> elementSelector
-    )
+    ) where TKey : notnull
     {
         return source.ToDictionarySafely(keySelector, elementSelector, EqualityComparer<TKey>.Default);
     }
@@ -97,7 +97,7 @@ public static class DictionaryExtensions
         Func<TSource, TKey> keySelector,
         Func<TSource, TElement> elementSelector,
         IEqualityComparer<TKey> comparer
-    )
+    ) where TKey : notnull
     {
         var dictionary = new Dictionary<TKey, TElement>(comparer);
 

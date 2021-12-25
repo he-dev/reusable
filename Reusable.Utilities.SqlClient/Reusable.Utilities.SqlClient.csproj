@@ -29,8 +29,8 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Reusable.Essentials\Reusable.Essentials.csproj" />
-    <ProjectReference Include="..\Reusable.Untangle.file\Reusable.Untangle.file.csproj" />
-    <ProjectReference Include="..\Reusable.Untangle\Reusable.Untangle.csproj" />
+    <ProjectReference Include="..\Reusable.Octopus.file\Reusable.Octopus.file.csproj" />
+    <ProjectReference Include="..\Reusable.Octopus\Reusable.Octopus.csproj" />
   </ItemGroup>
 
   <ItemGroup>

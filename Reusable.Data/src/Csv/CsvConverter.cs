@@ -4,7 +4,8 @@ using System.Data;
 using System.Linq;
 using JetBrains.Annotations;
 using Reusable.Data;
-using Reusable.OneTo1;
+using Reusable.Essentials;
+using Reusable.Snowball;
 
 namespace Reusable.Csv
 {

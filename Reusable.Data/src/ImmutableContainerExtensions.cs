@@ -5,7 +5,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using JetBrains.Annotations;
-using Reusable.Exceptionize;
+using Reusable.Essentials;
 using Reusable.Quickey;
 
 namespace Reusable.Data

@@ -1,9 +1,8 @@
 ﻿using JetBrains.Annotations;
 using Microsoft.AspNetCore.Mvc.Filters;
-using Reusable.Jumble;
-using Reusable.Wiretap.Utilities.AspNetCore;
+using Reusable.Toggle;
 
-namespace Reusable.OmniLog.Utilities.AspNetCore.Mvc.Filters
+namespace Reusable.Wiretap.Utilities.AspNetCore.Mvc.Filters
 {
     /// <summary>
     /// Enables logging of the response body by the Semantic Logger Middleware.
@@ -20,7 +19,7 @@ namespace Reusable.OmniLog.Utilities.AspNetCore.Mvc.Filters
 
         public override void OnActionExecuting(ActionExecutingContext context)
         {
-            _features.TryAdd(SemanticLogger.Features.LogResponseBody, FeaturePolicy.AlwaysEnabled);
+            _features.TryAdd(new Feature(WiretapMiddleware.Features.LogResponseBody, FeaturePolicy.AlwaysEnabled));
         }
     }
 }

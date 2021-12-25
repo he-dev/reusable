@@ -5,57 +5,57 @@ using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Reflection;
 using System.Text.RegularExpressions;
-using Reusable.Commander.Annotations;
-using Reusable.Extensions;
+using Reusable.DoubleDash.Annotations;
+using Reusable.Essentials.Annotations;
+using Reusable.Essentials.Extensions;
 
-namespace Reusable.Commander
+namespace Reusable.DoubleDash;
+
+public interface ICommandNameResolver
 {
-    public interface ICommandNameResolver
+    ArgumentName ResolveCommandName<T>() where T : ICommand;
+}
+
+public static class CommandHelper
+{
+    private static readonly ConcurrentDictionary<MemberInfo, ArgumentName> NameCache = new ConcurrentDictionary<MemberInfo, ArgumentName>();
+
+    public static ArgumentName GetArgumentName(this MemberInfo member)
     {
-        ArgumentName ResolveCommandName<T>() where T : ICommand;
+        return NameCache.GetOrAdd(member, t => new ArgumentName(GetDefaultMemberName(t), t.GetCustomAttribute<AliasAttribute?>() ?? Enumerable.Empty<string>()));
+    }
+        
+    private static string GetDefaultMemberName(MemberInfo commandType)
+    {
+        return Regex.Replace(commandType.Name, "C(omman|m)d$", string.Empty, RegexOptions.IgnoreCase);
     }
 
-    public static class CommandHelper
+    public static Type GetCommandParameterType(this Type commandType)
     {
-        private static readonly ConcurrentDictionary<MemberInfo, ArgumentName> NameCache = new ConcurrentDictionary<MemberInfo, ArgumentName>();
+        if (commandType.IsAssignableFrom(typeof(ICommand))) throw new ArgumentException($"'{nameof(commandType)}' must by of type '{typeof(ICommand).ToPrettyString()}'.");
 
-        public static ArgumentName GetArgumentName(this MemberInfo member)
+        do
         {
-            return NameCache.GetOrAdd(member, t => new ArgumentName(GetDefaultMemberName(t), t.GetCustomAttribute<AliasAttribute?>() ?? Enumerable.Empty<string>()));
-        }
-        
-        private static string GetDefaultMemberName(MemberInfo commandType)
-        {
-            return Regex.Replace(commandType.Name, "C(omman|m)d$", string.Empty, RegexOptions.IgnoreCase);
-        }
-
-        public static Type GetCommandParameterType(this Type commandType)
-        {
-            if (commandType.IsAssignableFrom(typeof(ICommand))) throw new ArgumentException($"'{nameof(commandType)}' must by of type '{typeof(ICommand).ToPrettyString()}'.");
-
-            do
+            if (commandType.IsGenericType && commandType.GetGenericTypeDefinition() == typeof(Command<>))
             {
-                if (commandType.IsGenericType && commandType.GetGenericTypeDefinition() == typeof(Command<>))
-                {
-                    return commandType.GetGenericArguments().Single();
-                }
-                else
-                {
-                    commandType = commandType.BaseType;
-                }
-            } while (commandType is {});
+                return commandType.GetGenericArguments().Single();
+            }
+            else
+            {
+                commandType = commandType.BaseType;
+            }
+        } while (commandType is {});
 
-            return typeof(object);
-        }
+        return typeof(object);
+    }
 
-        //public static Type ParameterType(this ICommand command) => command.GetType().GetCommandParameterType();
+    //public static Type ParameterType(this ICommand command) => command.GetType().GetCommandParameterType();
 
-        public static IEnumerable<PropertyInfo> GetParameterProperties(this Type parameterType)
-        {
-            return
-                from p in parameterType.GetProperties(BindingFlags.Public | BindingFlags.Instance)
-                where !p.IsDefined(typeof(NotMappedAttribute)) && !p.IsDefined(typeof(ServiceAttribute))
-                select p;
-        }
+    public static IEnumerable<PropertyInfo> GetParameterProperties(this Type parameterType)
+    {
+        return
+            from p in parameterType.GetProperties(BindingFlags.Public | BindingFlags.Instance)
+            where !p.IsDefined(typeof(NotMappedAttribute)) && !p.IsDefined(typeof(ServiceAttribute))
+            select p;
     }
 }

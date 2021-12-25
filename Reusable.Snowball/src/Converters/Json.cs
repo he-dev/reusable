@@ -5,9 +5,9 @@ using System.Drawing;
 using System.Globalization;
 using JetBrains.Annotations;
 using Newtonsoft.Json;
-using Reusable.Extensions;
+using Reusable.Essentials;
 
-namespace Reusable.OneTo1.Converters;
+namespace Reusable.Snowball.Converters;
 
 [PublicAPI]
 public abstract class JsonConverter : ITypeConverter
@@ -68,7 +68,7 @@ public class ObjectToJson : JsonConverter
     {
         return
             toType == typeof(string)
-                ? JsonConvert.SerializeObject(value, Settings).Map<string, string>(json => json.Trim('"'))
+                ? JsonConvert.SerializeObject(value, Settings).Map(json => json.Trim('"'))
                 : default(object);
     }
 }

@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Diagnostics;
 using JetBrains.Annotations;
-using Reusable.Exceptionize;
-using Reusable.Extensions;
+using Reusable.Essentials;
+using Reusable.Essentials.Extensions;
 
-namespace Reusable.OneTo1;
+namespace Reusable.Snowball;
 
 [PublicAPI]
 public static class TypeConverterExtensions

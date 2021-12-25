@@ -26,7 +26,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Reusable.Essentials\Reusable.Essentials.csproj" />
-    <ProjectReference Include="..\Reusable.Untangle.http\Reusable.Untangle.http.csproj" />
+    <ProjectReference Include="..\Reusable.Octopus.http\Reusable.Octopus.http.csproj" />
     <ProjectReference Include="..\Reusable.Utilities.JsonNet\Reusable.Utilities.JsonNet.csproj" />
   </ItemGroup>
 </Project>

@@ -1,8 +1,7 @@
 using System;
 using JetBrains.Annotations;
 using Microsoft.Extensions.Caching.Memory;
-using Reusable.OmniLog;
-using Reusable.Translucent;
+using Reusable.Octopus;
 using Reusable.Wiretap.Abstractions;
 using Reusable.Wiretap.Connectors;
 

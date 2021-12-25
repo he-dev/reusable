@@ -1,35 +1,34 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using Reusable.Reflection;
+using Reusable.Essentials.Extensions;
 
-namespace Reusable.OneTo1.Converters.Collections.Generic
+namespace Reusable.Snowball.Converters.Collections.Generic;
+
+public class DictionaryToDictionary : ITypeConverter
 {
-    public class DictionaryToDictionary : ITypeConverter
+    public object? ConvertOrDefault(object value, Type toType, ConversionContext? context = default)
     {
-        public object? ConvertOrDefault(object value, Type toType, ConversionContext? context = default)
-        {
-            if (!value.GetType().IsDictionary() || !toType.IsDictionary()) return default;
+        if (!value.GetType().IsDictionary() || !toType.IsDictionary()) return default;
 
-            context ??= new ConversionContext();
+        context ??= new ConversionContext();
             
-            var keyType = toType.GetGenericArguments()[0];
-            var valueType = toType.GetGenericArguments()[1];
+        var keyType = toType.GetGenericArguments()[0];
+        var valueType = toType.GetGenericArguments()[1];
 
-            var dictionaryType = typeof(Dictionary<,>).MakeGenericType(keyType, valueType);
-            var result = (IDictionary)Activator.CreateInstance(dictionaryType);
+        var dictionaryType = typeof(Dictionary<,>).MakeGenericType(keyType, valueType);
+        var result = (IDictionary)Activator.CreateInstance(dictionaryType);
 
-            var dictionary = (IDictionary)value;
-            foreach (var key in dictionary.Keys)
-            {
-                result.Add
-                (
-                    context.Converter.ConvertOrThrow(key, keyType),
-                    context.Converter.ConvertOrThrow(dictionary[key], valueType)
-                );
-            }
-
-            return result;
+        var dictionary = (IDictionary)value;
+        foreach (var key in dictionary.Keys)
+        {
+            result.Add
+            (
+                context.Converter.ConvertOrThrow(key, keyType),
+                context.Converter.ConvertOrThrow(dictionary[key], valueType)
+            );
         }
+
+        return result;
     }
 }

@@ -6,164 +6,145 @@ using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
-using Reusable.Commander.Annotations;
-using Reusable.Extensions;
+using Reusable.DoubleDash.Annotations;
+using Reusable.Essentials;
+using Reusable.Essentials.Annotations;
+using Reusable.Wiretap;
 using Reusable.Wiretap.Abstractions;
-using Reusable.Wiretap.Data;
+using Reusable.Wiretap.Connectors;
 using Reusable.Wiretap.Extensions;
-using t = Reusable.Commander.ConsoleTemplates;
 
-namespace Reusable.Commander.Commands
+namespace Reusable.DoubleDash.Commands;
+
+[Alias("v")]
+[Description("Display version.")]
+public class Version : Command<CommandParameter>
 {
-    [Alias("v")]
-    [Description("Display version.")]
-    public class Version : Command<CommandParameter>
-    {
-        private readonly ILogger<Version> _logger;
-        private readonly string _version;
+    private readonly ILogger<Version> _logger;
+    private readonly string _version;
 
-        public Version(ILogger<Version> logger, string version)
+    public Version(ILogger<Version> logger, string version)
+    {
+        _logger = logger;
+        _version = version;
+    }
+
+    protected override Task ExecuteAsync(CommandParameter parameter, CancellationToken cancellationToken)
+    {
+        _logger.Log(ConsoleTemplate.ComposeLine().Indent(1).Text(_version));
+
+        return Task.CompletedTask;
+    }
+}
+
+[PublicAPI]
+[UsedImplicitly]
+[Alias("h", "?")]
+[Description("Display help.")]
+public class Help : Command<Help.Parameter>
+{
+    private static readonly int IndentWidth = 4;
+
+    private static readonly int[] ColumnWidths = { 27, 50 };
+
+    public Help(ILogger<Help> logger) => Logger = logger;
+
+    private ILogger Logger { get; }
+
+    protected override Task ExecuteAsync(Parameter parameter, CancellationToken cancellationToken)
+    {
+        if (parameter.Command.IsNullOrEmpty())
         {
-            _logger = logger;
-            _version = version;
+            RenderCommandList(parameter);
+        }
+        else
+        {
+            RenderParameterList(parameter);
         }
 
-        public ConsoleStyle Style { get; set; }
+        return Task.CompletedTask;
+    }
 
-        protected override Task ExecuteAsync(CommandParameter parameter, CancellationToken cancellationToken)
+    protected virtual void RenderCommandList(Parameter parameter)
+    {
+        // Print headers,
+        var captions = new[] { "Command", "Description" }; //.Pad(ColumnWidths);
+        //Logger.WriteLine(Style, new Indent(1), new TableRow { Cells = captions });
+        Logger.Log(ConsoleTemplate.ComposeLine().Indent(1).Record(captions, ColumnWidths));
+
+        // Underline headers. Each one is as wide as its text.
+        var separators = captions.Select(c => new string('-', c.Trim().Length)); //.Pad(ColumnWidths);
+        //Logger.WriteLine(Style, new Indent(1), new TableRow { Cells = separators });
+        Logger.Log(ConsoleTemplate.ComposeLine().Indent(1).Record(separators, ColumnWidths));
+
+        // Commands
+        var userExecutableCommands =
+            from command in parameter.Commands
+            where !command.CommandType.IsDefined(typeof(InternalAttribute))
+            orderby command.Name.Primary
+            select command;
+
+        foreach (var command in userExecutableCommands)
         {
-            _logger.WriteLine(Style, new t.Indent(1), new t.Info { Text = _version });
+            var defaultId = command.Name.Primary;
+            var aliases = string.Join("|", command.Name.Secondary.Select(x => x.ToString()));
+            var description = command.CommandType.GetCustomAttribute<DescriptionAttribute>()?.Description ?? "N/A";
+            var row = new[] { $"{defaultId} ({(aliases.Length > 0 ? aliases : "-")})", description }.Pad(ColumnWidths);
+            //Logger.WriteLine(Style, new Indent(1), new TableRow { Cells = row });
+            //Logger.Log(ConsoleTemplate.ComposeLine().Indent(1).Record());
+        }
+    }
 
-            return Task.CompletedTask;
+    protected virtual void RenderParameterList(Parameter parameter)
+    {
+        var command =
+            parameter
+                .Commands
+                .Where(c => c.Name.Contains(parameter.Command, SoftString.Comparer))
+                .SingleOrThrow(onEmpty: ($"CommandNotFound", $"Could not find a command with the name '{parameter.Command}'"));
+
+        // Headers
+        var captions = new[] { "Option", "Description" }.Pad(ColumnWidths).ToList();
+        //Logger.WriteLine(Style, new Indent(1), new TableRow { Cells = captions });
+
+        // Separators
+        var separators = captions.Select(c => new string('-', c.Trim().Length)).Pad(ColumnWidths);
+        //Logger.WriteLine(Style, new Indent(1), new TableRow { Cells = separators });
+
+        var commandParameterProperties =
+            from commandArgument in command.ParameterType.GetParameterProperties()
+            orderby commandArgument.Name.First()
+            select commandArgument;
+
+        foreach (var commandParameterProperty in commandParameterProperties)
+        {
+            var name = commandParameterProperty.GetArgumentName();
+            var defaultId = name.First();
+            var aliases = name.Skip(1).OrderByDescending(a => a.Length).Join("|");
+            var description = commandParameterProperty.GetCustomAttribute<DescriptionAttribute>()?.Description ?? "N/A";
+            var row = new[] { $"{defaultId} ({(aliases.Length > 0 ? aliases : "-")})", description }.Pad(ColumnWidths);
+            //Logger.WriteLine(Style, new Indent(1), new TableRow { Cells = row });
         }
     }
 
     [PublicAPI]
-    [UsedImplicitly]
-    [Alias("h", "?")]
-    [Description("Display help.")]
-    public class Help : Command<Help.Parameter>
+    public class Parameter : CommandParameter
     {
-        private static readonly int IndentWidth = 4;
+        [Description("Display command usage.")]
+        [Alias("cmd")]
+        [Position(1)]
+        public string? Command { get; set; }
 
-        private static readonly int[] ColumnWidths = { 27, 50 };
-
-        public Help(ILogger<Help> logger) => Logger = logger;
-
-        private ILogger Logger { get; }
-
-        public ConsoleStyle Style { get; set; }
-
-        protected override Task ExecuteAsync(Parameter parameter, CancellationToken cancellationToken)
-        {
-            if (parameter.Command.IsNullOrEmpty())
-            {
-                RenderCommandList(parameter);
-            }
-            else
-            {
-                RenderParameterList(parameter);
-            }
-
-            return Task.CompletedTask;
-        }
-
-        protected virtual void RenderCommandList(Parameter parameter)
-        {
-            // Headers
-            var captions = new[] { "Command", "Description" }.Pad(ColumnWidths);
-            Logger.WriteLine(Style, new t.Indent(1), new t.Help.TableRow { Cells = captions });
-
-            // Separators
-            var separators = captions.Select(c => new string('-', c.Trim().Length)).Pad(ColumnWidths);
-            Logger.WriteLine(Style, new t.Indent(1), new t.Help.TableRow { Cells = separators });
-
-            // Commands
-            var userExecutableCommands =
-                from command in parameter.Commands
-                where !command.CommandType.IsDefined(typeof(InternalAttribute))
-                orderby command.Name.Primary
-                select command;
-
-            foreach (var command in userExecutableCommands)
-            {
-                var defaultId = command.Name.Primary;
-                var aliases = string.Join("|", command.Name.Secondary.Select(x => x.ToString()));
-                var description = command.CommandType.GetCustomAttribute<DescriptionAttribute>()?.Description ?? "N/A";
-                var row = new[] { $"{defaultId} ({(aliases.Length > 0 ? aliases : "-")})", description }.Pad(ColumnWidths);
-                Logger.WriteLine(Style, new t.Indent(1), new t.Help.TableRow { Cells = row });
-            }
-        }
-
-        protected virtual void RenderParameterList(Parameter parameter)
-        {
-            var command =
-                parameter
-                    .Commands
-                    .Where(c => c.Name.Contains(parameter.Command, SoftString.Comparer))
-                    .SingleOrThrow(onEmpty: ($"CommandNotFound", $"Could not find a command with the name '{parameter.Command}'"));
-
-            // Headers
-            var captions = new[] { "Option", "Description" }.Pad(ColumnWidths).ToList();
-            Logger.WriteLine(Style, new t.Indent(1), new t.Help.TableRow { Cells = captions });
-
-            // Separators
-            var separators = captions.Select(c => new string('-', c.Trim().Length)).Pad(ColumnWidths);
-            Logger.WriteLine(Style, new t.Indent(1), new t.Help.TableRow { Cells = separators });
-
-            var commandParameterProperties =
-                from commandArgument in command.ParameterType.GetParameterProperties()
-                orderby commandArgument.Name.First()
-                select commandArgument;
-
-            foreach (var commandParameterProperty in commandParameterProperties)
-            {
-                var name = commandParameterProperty.GetArgumentName();
-                var defaultId = name.First();
-                var aliases = name.Skip(1).OrderByDescending(a => a.Length).Join("|");
-                var description = commandParameterProperty.GetCustomAttribute<DescriptionAttribute>()?.Description ?? "N/A";
-                var row = new[] { $"{defaultId} ({(aliases.Length > 0 ? aliases : "-")})", description }.Pad(ColumnWidths);
-                Logger.WriteLine(Style, new t.Indent(1), new t.Help.TableRow { Cells = row });
-            }
-        }
-
-        [PublicAPI]
-        public class Parameter : CommandParameter
-        {
-            [Description("Display command usage.")]
-            [Alias("cmd")]
-            [Position(1)]
-            public string? Command { get; set; }
-
-            //[Service]
-            //public TypeList<ICommand> Commands { get; set; }
-            [Service]
-            public IEnumerable<CommandInfo> Commands { get; set; }
-        }
+        [Service]
+        public IEnumerable<CommandInfo> Commands { get; set; }
     }
+}
 
-    internal static class HelpExtensions
-    {
-        public static IEnumerable<string> Pad(this IEnumerable<string> values, IEnumerable<int> columnWidths)
-        {
-            foreach (var (value, width) in values.Zip(columnWidths, (x, w) => (Value: x, Width: w)))
-            {
-                yield return Pad(value, width);
-            }
+internal static class HelpExtensions
+{
+    public static string Required(this string value) => $"<{value}>";
 
-            string Pad(string value, int width)
-            {
-                return
-                    width < 0
-                        ? value.PadLeft(-width, ' ')
-                        : value.PadRight(width, ' ');
-            }
-        }
-
-        public static string Required(this string value) => $"<{value}>";
-
-        public static string Optional(this string value) => $"[{value}]";
-    }
+    public static string Optional(this string value) => $"[{value}]";
 }
 
 /*

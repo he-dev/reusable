@@ -18,7 +18,6 @@ public static class Composition
         return obj;
     }
         
-    [MustUseReturnValue]
     public static TResult Let<T, TResult>(this T obj, Func<T, TResult> next)
     {
         return next(obj);
@@ -30,6 +29,11 @@ public static class Composition
         await (next ?? (_ => Task.CompletedTask)).Invoke(obj);
         return obj;
     }
+    
+    /// <summary>
+    /// Allows to pipe an action on the current object in a functional way and return a different object.
+    /// </summary>
+    public static TOut Map<TIn, TOut>(this TIn input, Func<TIn, TOut> map) => map(input);
 
     [MustUseReturnValue]
     public static IEnumerable<T> ForEach<T>(this IEnumerable<T> source, Action<T> action)

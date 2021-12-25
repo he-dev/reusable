@@ -9,10 +9,10 @@ public class CaseFormatProvider : CustomFormatProvider
 
     private class CaseFormatter : ICustomFormatter
     {
-        public string Format(string format, object arg, IFormatProvider formatProvider)
+        public string Format(string? format, object? arg, IFormatProvider? formatProvider)
         {
-            if (arg is null) { return null; }
-            if (format is null) { return null; }
+            if (arg is null) { return string.Empty; }
+            if (format is null) { return string.Empty; }
 
             if (arg is string str)
             {
@@ -27,7 +27,7 @@ public class CaseFormatProvider : CustomFormatProvider
                 }
             }
 
-            return null;
+            return string.Empty;
         }
     }
 }

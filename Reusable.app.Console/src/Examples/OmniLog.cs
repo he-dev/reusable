@@ -73,7 +73,7 @@ namespace Reusable
                     .Echo<ConsoleConnectorDynamic>(c =>
                     {
                         // Render output with this template. This is the default.
-                        c.Template = new ConstantTemplate(@"[{Timestamp:HH:mm:ss:fff}] [{Level}] {Layer} | {Category} | {Identifier}: {Snapshot} {Elapsed}ms | {Message} {Exception}");
+                        c.Template = new TextMessageBuilder(@"[{Timestamp:HH:mm:ss:fff}] [{Level}] {Layer} | {Category} | {Identifier}: {Snapshot} {Elapsed}ms | {Message} {Exception}");
                     });
 
 

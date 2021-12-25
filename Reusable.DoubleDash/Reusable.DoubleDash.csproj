@@ -4,7 +4,6 @@
     <TargetFramework>net6.0</TargetFramework>
     <Nullable>enable</Nullable>
     <LangVersion>latest</LangVersion>
-    <RootNamespace>Reusable.Commander</RootNamespace>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
@@ -25,7 +24,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Reusable.Essentials\Reusable.Essentials.csproj" />
-    <ProjectReference Include="..\Reusable.Wiretap\Reusable.Wiretap.csproj" />
+    <ProjectReference Include="..\Reusable.Wiretap.Connectors.Console.Fancy\Reusable.Wiretap.Connectors.Console.Fancy.csproj" />
     <ProjectReference Include="..\Reusable.Fluorite\Reusable.Fluorite.csproj" />
     <ProjectReference Include="..\Reusable.Snowball\Reusable.Snowball.csproj" />
   </ItemGroup>

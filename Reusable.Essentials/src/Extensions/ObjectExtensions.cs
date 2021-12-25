@@ -55,4 +55,10 @@ public static class ObjectExtensions
     {
         return createDecorator(decorable);
     }
+    
+    // AsEnumerable is already taken and generates chars.
+    public static IEnumerable<T> ToEnumerable<T>(this T source)
+    {
+        yield return source;
+    }
 }

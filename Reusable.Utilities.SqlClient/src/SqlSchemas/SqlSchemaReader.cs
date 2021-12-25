@@ -4,7 +4,9 @@ using System.Data;
 using System.Data.SqlClient;
 using System.Linq;
 using JetBrains.Annotations;
-using Reusable.Extensions;
+using Reusable.Essentials;
+using Reusable.Essentials.Extensions;
+using Reusable.Octopus;
 using Reusable.Translucent;
 using Reusable.Translucent.Controllers;
 

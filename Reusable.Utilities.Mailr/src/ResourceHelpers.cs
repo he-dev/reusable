@@ -3,10 +3,10 @@ using System.IO;
 using System.Threading.Tasks;
 using Reusable.Essentials;
 using Reusable.Essentials.Extensions;
+using Reusable.Octopus;
 using Reusable.Utilities.Mailr.Models;
 using Reusable.Translucent;
 using Reusable.Translucent.Data;
-using Reusable.Translucent.Extensions;
 
 namespace Reusable.Utilities.Mailr;
 

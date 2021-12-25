@@ -1,5 +1,6 @@
 ﻿using System.Linq;
 using System.Linq.Custom;
+using Reusable.DoubleDash;
 using Xunit;
 
 namespace Reusable.Commander

@@ -5,9 +5,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Transactions;
 using JetBrains.Annotations;
-using Reusable.Data;
-using Reusable.Data.Repositories;
-using Reusable.Extensions;
+using Reusable.Essentials;
 
 namespace Reusable.Utilities.SqlClient
 {

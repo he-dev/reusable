@@ -1,9 +1,8 @@
-﻿using Reusable.OneTo1.Converters.Specialized;
+﻿using Reusable.Snowball.Converters.Specialized;
 
-namespace Reusable.OneTo1
+namespace Reusable.Snowball;
+
+public class ConversionContext
 {
-    public class ConversionContext
-    {
-        public ITypeConverter Converter { get; set; } = new Never();
-    }
+    public ITypeConverter Converter { get; set; } = new Never();
 }

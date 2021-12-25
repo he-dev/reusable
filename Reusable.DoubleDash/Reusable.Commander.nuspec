@@ -17,7 +17,7 @@
       <dependency id="JetBrains.Annotations" version="2021.3.0" />
       <dependency id="System.Threading.Tasks.Dataflow" version="5.0.0" />
       <dependency id="System.Collections.Immutable" version="6.0.0" />
-      <dependency id="Reusable.Untangle" version="21.1.0" />
+      <dependency id="Reusable.Octopus" version="21.1.0" />
       <dependency id="Reusable.Wiretap.Abstractions" version="21.1.0" />
       <dependency id="Reusable.Snowball" version="21.1.0" />
       <dependency id="Reusable.Core" version="21.1.0" />

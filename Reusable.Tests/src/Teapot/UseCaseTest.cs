@@ -1,11 +1,11 @@
 ﻿using System;
 using System.Net.Http;
 using System.Threading.Tasks;
+using Reusable.Octopus;
+using Reusable.Octopus.Extensions;
 using Reusable.Translucent;
 using Reusable.Translucent.Controllers;
 using Reusable.Translucent.Data;
-using Reusable.Translucent.Extensions;
-using Reusable.Utilities.XUnit.Fixtures;
 using Xunit;
 
 namespace Reusable.Teapot

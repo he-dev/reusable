@@ -31,4 +31,9 @@
     <ProjectReference Include="..\Reusable.Essentials\Reusable.Essentials.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Compile Remove="src\FingerprintBuilder.cs" />
+    <Compile Remove="src\FingerprintBuilderExtensions.cs" />
+  </ItemGroup>
+
 </Project>

@@ -1,4 +1,5 @@
-using Reusable.Extensions;
+using Reusable.Essentials;
+using Reusable.Essentials.Data;
 using Xunit;
 
 namespace Reusable

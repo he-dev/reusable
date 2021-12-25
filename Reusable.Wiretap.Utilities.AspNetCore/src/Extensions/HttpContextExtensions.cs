@@ -1,7 +1,7 @@
 using System.Linq;
 using Microsoft.AspNetCore.Http;
 
-namespace Reusable.OmniLog.Utilities.AspNetCore.Extensions
+namespace Reusable.Wiretap.Utilities.AspNetCore.Extensions
 {
     public static class HttpContextExtensions
     {

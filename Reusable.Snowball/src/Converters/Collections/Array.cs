@@ -1,31 +1,29 @@
 using System;
 using System.Collections;
 using System.Linq;
-using Reusable.Exceptionize;
-using Reusable.Extensions;
-using Reusable.Reflection;
+using Reusable.Essentials;
+using Reusable.Essentials.Extensions;
 
-namespace Reusable.OneTo1.Converters.Collections
+namespace Reusable.Snowball.Converters.Collections;
+
+public class EnumerableToArray : ITypeConverter
 {
-    public class EnumerableToArray : ITypeConverter
+    public object? ConvertOrDefault(object value, Type toType, ConversionContext? context = default)
     {
-        public object? ConvertOrDefault(object value, Type toType, ConversionContext? context = default)
-        {
-            if (!value.GetType().IsEnumerable(except: typeof(string)) || !toType.IsArray) return default;
+        if (!value.GetType().IsEnumerable(except: typeof(string)) || !toType.IsArray) return default;
 
-            context ??= new ConversionContext();
+        context ??= new ConversionContext();
             
-            var elements = ((IEnumerable)value).Cast<object>().ToArray();
-            var elementType = toType.GetElementType() ?? throw DynamicException.Factory.CreateDynamicException($"ElementTypeNotFound{nameof(Exception)}", $"Could not determine the element type of {toType.ToPrettyString()}.", null);
-            var array = Array.CreateInstance(elementType, elements.Length);
+        var elements = ((IEnumerable)value).Cast<object>().ToArray();
+        var elementType = toType.GetElementType() ?? throw DynamicException.Factory.CreateDynamicException($"ElementTypeNotFound{nameof(Exception)}", $"Could not determine the element type of {toType.ToPrettyString()}.", null);
+        var array = Array.CreateInstance(elementType, elements.Length);
 
-            for (var i = 0; i < elements.Length; i++)
-            {
-                var item = context.Converter.ConvertOrThrow(elements[i], elementType);
-                array.SetValue(item, i);
-            }
-
-            return array;
+        for (var i = 0; i < elements.Length; i++)
+        {
+            var item = context.Converter.ConvertOrThrow(elements[i], elementType);
+            array.SetValue(item, i);
         }
+
+        return array;
     }
 }

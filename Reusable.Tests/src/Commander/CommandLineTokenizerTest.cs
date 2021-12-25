@@ -1,4 +1,5 @@
 ﻿using System.Linq;
+using Reusable.DoubleDash;
 using Reusable.Exceptionize;
 using Reusable.Lexing;
 using Xunit;

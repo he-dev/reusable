@@ -1,4 +1,5 @@
 ﻿using System;
+using Reusable.Essentials.Collections;
 using Xunit;
 
 // ReSharper disable once CheckNamespace

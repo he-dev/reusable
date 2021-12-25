@@ -24,7 +24,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Reusable.Untangle.http\Reusable.Untangle.http.csproj" />
+    <ProjectReference Include="..\Reusable.Octopus.http\Reusable.Octopus.http.csproj" />
   </ItemGroup>
 
   <ItemGroup>

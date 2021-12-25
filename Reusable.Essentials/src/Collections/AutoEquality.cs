@@ -95,7 +95,7 @@ public class AutoEquality<T> : IEqualityComparer<T>
         return new AutoEquality<T>(equalsFunc, getHashCodeFunc);
     }
 
-    public bool Equals(T left, T right)
+    public bool Equals(T? left, T? right)
     {
         if (ReferenceEquals(left, right)) return true;
         if (ReferenceEquals(left, null)) return false;

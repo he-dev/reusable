@@ -18,6 +18,66 @@ public static class LogEntryExtensions
                 : entry;
     }
 
+    public static ILogProperty GetPropertyOrDefault(this ILogEntry entry, string name, ILogProperty defaultProperty)
+    {
+        return entry.TryGetProperty(name, out var property) ? property : defaultProperty;
+    }
+    
+    public static ILogProperty? GetPropertyOrDefault<T>(this ILogEntry entry) where T : ILogProperty
+    {
+        return entry.TryGetProperty(typeof(T).Name, out var property) ? property : default;
+    }
+    
+    
+
+    public static T GetValueOrDefault<T>(this ILogEntry entry, string name, T defaultValue)
+    {
+        return
+            entry.TryGetProperty(name, out var property) && property.Value is T result
+                ? result
+                : defaultValue;
+    }
+    
+    public static bool TryGetProperty<T>(this ILogEntry entry, string name, out T result) where T : ILogProperty
+    {
+        if (entry.TryGetProperty(name, out var property) && property is T casted)
+        {
+            result = casted;
+            return true;
+        }
+        else
+        {
+            result = default!;
+            return false;
+        }
+    }
+
+    public static bool TryGetProperty<T>(this ILogEntry entry, out ILogProperty property) where T : ILogProperty
+    {
+        return entry.TryGetProperty(typeof(T).Name, out property);
+    }
+
+    public static bool TryGetProperty<TProperty, TValue>(this ILogEntry entry, out TValue result) where TProperty : ILogProperty
+    {
+        if (entry.TryGetProperty(typeof(TProperty).Name, out var property))
+        {
+            if (property.Value is TValue value)
+            {
+                result = value;
+                return true;
+            }
+        }
+
+        result = default!;
+        return false;
+    }
+
+    public static TValue GetValueOrDefault<TProperty, TValue>(this ILogEntry entry, TValue fallback) where TProperty : ILogProperty
+    {
+        return entry.TryGetProperty<TProperty, TValue>(out var value) ? value : fallback;
+    }
+
+
     public static ILogEntry Logger(this ILogEntry logEntry, string value) => logEntry.Push(new LoggableProperty.Logger(value));
 
     public static ILogEntry Timestamp(this ILogEntry logEntry, DateTime value) => logEntry.Push(new LoggableProperty.Timestamp(value));
@@ -53,7 +113,7 @@ public static class LogEntryExtensions
     {
         return log.Also(x => x.Push(new LoggableProperty.Category(name)));
     }
-    
+
     public static ILogEntry Member(this ILogEntry log, string name)
     {
         return log.Also(x => x.Push(new LoggableProperty.Member(name)));
@@ -88,39 +148,7 @@ public static class LogEntryExtensions
         return entry.Where(property => property is T);
     }
 
-    public static bool TryGetProperty<T>(this ILogEntry entry, string name, out T result) where T : ILogProperty
-    {
-        if (entry.TryGetProperty(name, out var property) && property is T casted)
-        {
-            result = casted;
-            return true;
-        }
-        else
-        {
-            result = default!;
-            return false;
-        }
-    }
-
-    public static bool TryGetProperty<T>(this ILogEntry entry, out ILogProperty property) where T : ILogProperty
-    {
-        return entry.TryGetProperty(typeof(T).Name, out property);
-    }
-
-    public static bool TryGetProperty<TProperty, TValue>(this ILogEntry entry, out TValue result) where TProperty : ILogProperty
-    {
-        if (entry.TryGetProperty(typeof(TProperty).Name, out var property))
-        {
-            if (property?.Value is TValue value)
-            {
-                result = value;
-                return true;
-            }
-        }
-
-        result = default!;
-        return false;
-    }
+    
 
     public static ILogEntry Merge(this ILogEntry entry, ILogEntry other)
     {

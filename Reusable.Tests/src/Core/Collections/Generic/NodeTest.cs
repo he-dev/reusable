@@ -1,5 +1,6 @@
 using System.Linq;
-using Reusable.Collections.Generic;
+using System.Linq.Custom;
+using Reusable.Essentials;
 using Xunit;
 
 namespace Reusable.Core.Collections.Generic
@@ -17,7 +18,7 @@ namespace Reusable.Core.Collections.Generic
         }
     }
 
-    internal class TestNode : INode<TestNode>
+    internal class TestNode : IListNode<TestNode>
     {
         public TestNode Prev { get; set; }
         public TestNode Next { get; set; }

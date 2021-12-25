@@ -2,65 +2,14 @@
 using System.Linq;
 using System.Linq.Custom;
 using Reusable.Essentials;
+using Reusable.Fluorite.Html;
 
 // ReSharper disable InconsistentNaming - lower-case method names are intentional because it's how the look in html
 
-namespace Reusable.Fluorite.Html;
+namespace Reusable.Fluorite;
 
 public static class HtmlElementExtensions
 {
-    #region Html tags
-
-    public static T p<T>(this T? parent, params Func<T, object>[] content) where T : class, IHtmlElement
-    {
-        //return element.Element("p");
-
-        return parent.Element
-        (
-            name: "p",
-            local: new
-            {
-                content
-            },
-            body: (span, local) =>
-            {
-                // Exclude console template because they have already been added.
-                var items = local.content.Select(factory => factory(span)).Skip(item => item is IHtmlElement);
-                foreach (var item in items)
-                {
-                    span.Add(item);
-                }
-            }
-        );
-    }
-
-    public static T span<T>(this T? parent, params Func<T, object>[] content) where T : class, IHtmlElement
-    {
-        return parent.Element
-        (
-            name: "span",
-            local: new
-            {
-                content
-            },
-            body: (span, local) =>
-            {
-                // Exclude console template because they have already been added.
-                var items = local.content.Select(factory => factory(span)).Skip(item => item is IHtmlElement);
-                foreach (var item in items)
-                {
-                    span.Add(item);
-                }
-            }
-        );
-    }
-
-    #endregion
-
-    public static T text<T>(this T parent, string text) where T : class, IHtmlElement
-    {
-        return parent.Append(text);
-    }
 
     //public static string ToHtml(this IMarkupElement element, [NotNull] IMarkupFormatting formatting, [NotNull, ItemNotNull] IEnumerable<IMarkupModifier> visitors)
     //{
@@ -69,19 +18,24 @@ public static class HtmlElementExtensions
 
     #region Attributes
 
-    public static T @class<T>(this T element, params string[] names) where T : IHtmlElement
+    public static IHtmlElement attr(this IHtmlElement parent, string name, string value)
     {
-        return element.Also(e => e.Attributes["class"] = string.Join(" ", names));
+        return parent.Also(e => e.Attributes[name] = value);
     }
 
-    public static T id<T>(this T element, string id) where T : IHtmlElement
+    public static IHtmlElement @class(this IHtmlElement parent, params string[] names)
     {
-        return element.Also(e => e.Attributes["id"] = id);
+        return parent.attr("class", names.Join(" "));
     }
 
-    public static T data<T>(this T element, string name, string value) where T : IHtmlElement
+    public static IHtmlElement id(this IHtmlElement element, string id)
     {
-        return element.Also(e => e.Attributes[$"data-{name}"] = value);
+        return element.attr("id", id);
+    }
+
+    public static IHtmlElement data(this IHtmlElement element, string name, string value)
+    {
+        return element.attr($"data-{name}", value);
     }
 
     #endregion

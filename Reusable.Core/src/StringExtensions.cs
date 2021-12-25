@@ -44,9 +44,6 @@ namespace Reusable
 
         private static IDictionary<int, object> Parse(this string input, string pattern, RegexOptions options)
         {
-            if (string.IsNullOrEmpty(input)) throw new ArgumentException($"{nameof(input)} must not be null or empty.");
-            if (string.IsNullOrEmpty(pattern)) throw new ArgumentException($"{nameof(pattern)} must not be null or empty.");
-
             var inputMatch = Regex.Match(input, pattern, RegexOptions.ExplicitCapture | options);
 
             var result =

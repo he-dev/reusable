@@ -29,6 +29,7 @@
     <Compile Remove="src\Nodes\MapObject.cs" />
     <Compile Remove="src\Services\ConsoleTemplateBuilder.cs" />
     <Compile Remove="src\Extensions\LoggerExtensions.cs" />
+    <Compile Remove="src\ConsoleStyle.cs" />
   </ItemGroup>
 
   <ItemGroup>

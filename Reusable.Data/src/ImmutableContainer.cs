@@ -5,7 +5,8 @@ using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Linq;
 using JetBrains.Annotations;
-using Reusable.Diagnostics;
+using Reusable.Essentials;
+using Reusable.Essentials.Diagnostics;
 
 namespace Reusable.Data
 {

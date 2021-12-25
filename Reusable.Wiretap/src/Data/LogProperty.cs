@@ -57,25 +57,12 @@ public abstract record DestructibleProperty(string Name, object Value) : LogProp
     public record Object(object Value) : DestructibleProperty(nameof(Object), Value);
 }
 
-public abstract record RenderableProperty(string Name, object Value) : LogProperty(Name, Value)
-{
-    public record Html(object Value) : RenderableProperty(nameof(Html), Value);
-}
-
 public abstract record MetaProperty(string Name, object Value) : LogProperty(Name, Value)
 {
     public record OverrideBuffer() : MetaProperty(nameof(OverrideBuffer), default);
 
+    // Used to carry the scope.
     public record Scope(object Value) : MetaProperty(nameof(Scope), Value);
     
     public record PopulateExecution() : MetaProperty(nameof(PopulateExecution), default);
-}
-
-
-public static class LogPropertyExtensions
-{
-    public static T? ValueOrDefault<T>(this ILogProperty? property, T? defaultValue = default)
-    {
-        return property?.Value switch { T t => t, _ => defaultValue };
-    }
 }

@@ -20,8 +20,8 @@
         <EmbeddedResource Include="sql\Translucent\Config\seed-test-data.sql" />
         <None Remove="res\IOnymous\test.txt" />
         <EmbeddedResource Include="res\Flexo\ExpressionObject.json" />
-        <EmbeddedResource Include="res\Translucent\Http\Mailr\HtmlTable.json" />
-        <EmbeddedResource Include="res\Translucent\test.txt" />
+        <EmbeddedResource Include="res\octopus\Http\Mailr\HtmlTable.json" />
+        <EmbeddedResource Include="res\octopus\test.txt" />
         <None Remove="sql\SmartConfig\seed-test-data.sql" />
         <None Update="hosting.json">
           <CopyToOutputDirectory>Always</CopyToOutputDirectory>
@@ -30,6 +30,12 @@
         <EmbeddedResource Include="res\Beaver\Features.json" />
         <EmbeddedResource Remove="src\Flawless\**" />
         <None Remove="src\Flawless\**" />
+        <EmbeddedResource Remove="src\Flexo\**" />
+        <None Remove="src\Flexo\**" />
+        <EmbeddedResource Remove="src\Commander\**" />
+        <None Remove="src\Commander\**" />
+        <EmbeddedResource Remove="src\Fluorite\Html\**" />
+        <None Remove="src\Fluorite\Html\**" />
     </ItemGroup>
     <ItemGroup>
         <PackageReference Include="Autofac" Version="6.1.0" />
@@ -49,21 +55,18 @@
     <ItemGroup>
         <ProjectReference Include="..\Reusable.Essentials\Reusable.Essentials.csproj" />
         <ProjectReference Include="..\Reusable.DoubleDash\Reusable.DoubleDash.csproj" />
-        <ProjectReference Include="..\Reusable.Secure\Reusable.Secure.csproj" />
         <ProjectReference Include="..\Reusable.Deception\Reusable.Deception.csproj" />
-        <ProjectReference Include="..\Reusable.Jumble\Reusable.Jumble.csproj" />
-        <ProjectReference Include="..\Reusable.Flexo\Reusable.Flexo.csproj" />
-        <ProjectReference Include="..\Reusable.Untangle\Reusable.Untangle.csproj" />
-        <ProjectReference Include="..\Reusable.Untangle.config\Reusable.Untangle.config.csproj" />
-        <ProjectReference Include="..\Reusable.Untangle.config.AppConfig\Reusable.Untangle.config.AppConfig.csproj" />
-        <ProjectReference Include="..\Reusable.Untangle.config.Json\Reusable.Untangle.config.Json.csproj" />
-        <ProjectReference Include="..\Reusable.Untangle.config.SqlServer\Reusable.Untangle.config.SqlServer.csproj" />
-        <ProjectReference Include="..\Reusable.Untangle.file\Reusable.Untangle.file.csproj" />
-        <ProjectReference Include="..\Reusable.Untangle.http\Reusable.Untangle.http.csproj" />
-        <ProjectReference Include="..\Reusable.Untangle.mailto\Reusable.Untangle.mailto.csproj" />
+        <ProjectReference Include="..\Reusable.Toggle\Reusable.Toggle.csproj" />
+        <ProjectReference Include="..\Reusable.Octopus\Reusable.Octopus.csproj" />
+        <ProjectReference Include="..\Reusable.Octopus.config\Reusable.Octopus.config.csproj" />
+        <ProjectReference Include="..\Reusable.Octopus.config.AppConfig\Reusable.Octopus.config.AppConfig.csproj" />
+        <ProjectReference Include="..\Reusable.Octopus.config.Json\Reusable.Octopus.config.Json.csproj" />
+        <ProjectReference Include="..\Reusable.Octopus.config.SqlServer\Reusable.Octopus.config.SqlServer.csproj" />
+        <ProjectReference Include="..\Reusable.Octopus.file\Reusable.Octopus.file.csproj" />
+        <ProjectReference Include="..\Reusable.Octopus.http\Reusable.Octopus.http.csproj" />
+        <ProjectReference Include="..\Reusable.Octopus.mailto\Reusable.Octopus.mailto.csproj" />
         <ProjectReference Include="..\Reusable.Wiretap\Reusable.Wiretap.csproj" />
         <ProjectReference Include="..\Reusable.Utilities.JsonNet\Reusable.Utilities.JsonNet.csproj" />
-        <ProjectReference Include="..\Reusable.Utilities.Mailr\Reusable.Utilities.Mailr.csproj" />
         <ProjectReference Include="..\Reusable.Utilities.XUnit\Reusable.Utilities.XUnit.csproj" />
         <ProjectReference Include="..\Reusable.Teapot\Reusable.Teapot.csproj" />
         <ProjectReference Include="..\Reusable.Teapot.Assert\Reusable.Teapot.Assert.csproj" />
@@ -101,11 +104,50 @@
         <Compile Remove="src\Beaver\FeatureToggleTest.cs" />
         <Compile Remove="src\Translucent\Middleware\ResourceMiddlewareTest.cs" />
         <Compile Remove="src\Translucent\Middleware\EnvironmentVariableMiddlewareTest.cs" />
+        <Compile Remove="src\Deception\PhantomExceptionTest.cs" />
+        <Compile Remove="src\Experimental\Cron.cs" />
+        <Compile Remove="src\Flexo\**" />
+        <Compile Remove="src\Commander\**" />
+        <Compile Remove="src\Experimental\DtoUpdater.cs" />
+        <Compile Remove="src\Experimental\InfiniteCounterTest.cs" />
+        <Compile Remove="src\Teapot\UseCaseTest.cs" />
+        <Compile Remove="src\Translucent\config\ConfigRequestBuilderTest.cs" />
+        <Compile Remove="src\Translucent\Controllers\HttpControllerTest.cs" />
+        <Compile Remove="src\Translucent\Controllers\SqlServerControllerTest.cs" />
+        <Compile Remove="src\Translucent\Controllers\PhysicalFileControllerTest.cs" />
+        <Compile Remove="src\Utilities\Mailr\Models\HtmlTableTest.cs" />
+        <Compile Remove="src\TestHelper.cs" />
+        <Compile Remove="src\Core\RangeTest.cs" />
+        <Compile Remove="src\TestHelperFixture.cs" />
+        <Compile Remove="src\Translucent\Controllers\AppSettingControllerTest.cs" />
+        <Compile Remove="src\Utilities\JsonNet\RewritePrettyTypeVisitorTest.cs" />
+        <Compile Remove="src\Wiretap\UseCaseTest.cs" />
+        <Compile Remove="src\Wiretap\LoggerMiddlewareTest.cs" />
+        <Compile Remove="src\Wiretap\LoggerNodeTest.cs" />
+        <Compile Remove="src\Fluorite\Html\**" />
+        <Compile Remove="src\Fluorite\MarkupFormattingTemplateTest.cs" />
+        <Compile Remove="src\Fluorite\Helper.cs" />
+        <Compile Remove="src\Fluorite\HtmlTest.cs" />
+        <Compile Remove="src\Octopus\UriStringTest.cs" />
+        <Compile Remove="src\Octopus\UriStringHelperTest.cs" />
+        <Compile Remove="src\Octopus\SmtpProviderTest.cs" />
+        <Compile Remove="src\Octopus\Middleware\EnvironmentVariableMiddlewareTest.cs" />
+        <Compile Remove="src\Octopus\Middleware\ResourceMiddlewareTest.cs" />
+        <Compile Remove="src\Octopus\config\ConfigRequestBuilderTest.cs" />
+        <Compile Remove="src\Octopus\Controllers\AppSettingControllerTest.cs" />
+        <Compile Remove="src\Octopus\Controllers\HttpControllerTest.cs" />
+        <Compile Remove="src\Octopus\Controllers\SqlServerControllerTest.cs" />
 <!--        <Compile Remove="src\Commander\**" />-->
     </ItemGroup>
     <ItemGroup>
       <Folder Include="src\Beaver" />
-      <Folder Include="src\Translucent\Middleware" />
+      <Folder Include="src\Deception" />
+      <Folder Include="src\Fluorite" />
+      <Folder Include="src\Octopus\config" />
+      <Folder Include="src\Octopus\Middleware" />
+      <Folder Include="src\Teapot" />
+      <Folder Include="src\Utilities\Mailr\Models" />
+      <Folder Include="src\Wiretap" />
     </ItemGroup>
     
 </Project>

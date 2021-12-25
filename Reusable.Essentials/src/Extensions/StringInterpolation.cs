@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Linq;
 using System.Reflection;
@@ -8,14 +9,12 @@ using JetBrains.Annotations;
 
 namespace Reusable.Essentials.Extensions;
 
-public delegate bool TryGetValueCallback(string name, out object? value);
+public delegate bool TryGetValueCallback(string name, [MaybeNullWhen(true)] out object value);
 
 public interface ITryGetValue<in TKey, TValue>
 {
-    bool Execute(TKey key, out TValue value);
+    bool TryGetValue(TKey key, [MaybeNullWhen(true)] out TValue value);
 }
-
-public interface ITryGetFormatValue : ITryGetValue<string, object?> { }
 
 [PublicAPI]
 public static class StringInterpolation
@@ -62,9 +61,9 @@ public static class StringInterpolation
 
     [MustUseReturnValue]
     [ContractAnnotation("text: null => notnull; text: notnull => notnull")]
-    public static string Format(this string? text, ITryGetFormatValue tryGetFormatValue, IFormatProvider? formatProvider = default)
+    public static string Format(this string? text, ITryGetValue<string, object> tryGetValue, IFormatProvider? formatProvider = default)
     {
-        return text.Format((string name, out object? value) => tryGetFormatValue.Execute(name, out value), formatProvider);
+        return text.Format((string name, out object value) => tryGetValue.TryGetValue(name, out value), formatProvider);
     }
 
     [MustUseReturnValue]
@@ -101,7 +100,7 @@ public static class StringInterpolation
     {
         if (string.IsNullOrWhiteSpace(text))
         {
-            return text;
+            return string.Empty;
         }
 
         var properties =
@@ -113,9 +112,9 @@ public static class StringInterpolation
 
         return Format(text, (string name, out object value) =>
         {
-            if (properties.TryGetValue(name, out var property))
+            if (properties.TryGetValue(name, out var property) && property.GetValue(args) is { } result)
             {
-                value = property.GetValue(args);
+                value = result;
                 return true;
             }
             else
@@ -138,7 +137,7 @@ public static class StringInterpolation
         return
             string.IsNullOrEmpty(text)
                 ? Enumerable.Empty<string>()
-                : Regex.Matches(text, ExpressionPattern).Cast<Match>().Select(m => m.Groups[Groups.Name].Value);
+                : Regex.Matches(text, ExpressionPattern).Select(m => m.Groups[Groups.Name].Value);
     }
 
     private static IDictionary<string, object> ValidateNames(this IDictionary<string, object> replacements)
@@ -169,25 +168,4 @@ public static class StringInterpolation
 
         return replacements;
     }
-
-    //public static string ToJson<TException>(
-    //    this TException exception,
-    //    IEnumerable<PropertyInfo> excludeProperties = null,
-    //    Formatting formatting = Formatting.Indented) where TException : Exception
-    //{
-    //    excludeProperties = excludeProperties ?? typeof(Exception).GetProperties(BindingFlags.Instance | BindingFlags.Public);
-    //    var exceptionInfos = exception.GetInnerExceptions().Select(ex => CreateExceptionInfo(ex, excludeProperties));
-    //    var json = JsonConvert.SerializeObject(exceptionInfos, formatting);
-    //    return json;
-    //}
-
-    //public static string ToDebugString(this object data, IEnumerable<string> exclude = null, IFormatProvider formatProvider = null)
-    //{
-    //    exclude = exclude ?? Enumerable.Empty<string>();
-    //    formatProvider = formatProvider ?? CultureInfo.InvariantCulture;
-    //    var properties = data.GetType().GetProperties(BindingFlags.Instance | BindingFlags.Public).IsTrue(p => !exclude.Contains(p.Name));
-    //    var strings = properties.Select(p => p.Name + " = \"" + string.Format(formatProvider, "{0}", p.GetValue(data)) + "\"");
-    //    var result = string.Join(" ", strings);
-    //    return result; // asObject ? $"{{{result}}}" : result;
-    //}
 }

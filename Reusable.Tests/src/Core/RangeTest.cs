@@ -1,5 +1,6 @@
 ﻿using System;
 using Xunit;
+using Reusable.Essentials;
 
 //using Reusable.Utilities.Xunit.Extensions;
 

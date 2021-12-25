@@ -1,10 +1,9 @@
 using System;
 using System.Linq;
 using System.Reflection;
-using Reusable.Exceptionize;
-using Reusable.Extensions;
+using Reusable.Essentials;
+using Reusable.Essentials.Extensions;
 using Xunit;
-using Xunit.Sdk;
 
 namespace Reusable.Utilities.XUnit.Annotations
 {

@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Linq.Expressions;
 using Reusable.Essentials;
@@ -10,11 +11,11 @@ using Reusable.Fluorite.Html;
 
 namespace Reusable.Fluorite;
 
-public static class MarkupElementExtensions
+public static class HtmlElementFactory
 {
-    private static readonly ConcurrentDictionary<Type, object> MarkupElementFactoryCache = new ConcurrentDictionary<Type, object>();
+    private static readonly ConcurrentDictionary<Type, object> MarkupElementFactoryCache = new();
 
-    private static T CreateElement<T>(string name) where T : class, IHtmlElement
+    public static T CreateElement<T>(string name) where T : class, IHtmlElement
     {
         var create = (Func<string, T>)MarkupElementFactoryCache.GetOrAdd(typeof(T), _ =>
         {
@@ -41,80 +42,85 @@ public static class MarkupElementExtensions
 
         return create(name);
     }
+}
 
-    public static T Element<T>(this T? parent, string name, Action<T> elementAction) where T : class, IHtmlElement
-    {
-        return parent.Element<T, object>(name, null, (element, local) => elementAction(element));
-    }
-
-    // Create a new element allows to perform action on it with the specified local data. Useful for adding nested elements like in the console-template.
-    public static T Element<T, TLocal>(this T? parent, string name, TLocal local, Action<T, TLocal> body) where T : class, IHtmlElement
-    {
-        var element = CreateElement<T>(name);
-
-        body.Invoke(element, local);
-
-        // parent can be null if it's a builder so return the new element instead.
-        if (parent is null)
-        {
-            return element;
-        }
-        else
-        {
-            parent.Add(element);
-            return parent;
-        }
-    }
-
-    public static T Element<T>(this T @this, string name) where T : class, IHtmlElement
-    {
-        return @this.Element(name, e => { });
-    }
-
-    public static T Element<T>(this T @this, string name, IEnumerable<object> content) where T : class, IHtmlElement
-    {
-        return @this.Element(name, e => e.Append(content));
-    }
-
-    public static T Element<T>(this T @this, string name, params object[] content) where T : class, IHtmlElement
-    {
-        return @this.Element(name, (IEnumerable<object>)content);
-    }
-
+public static class MarkupElementExtensions
+{
     /// <summary>
     /// This extension creates multiple elements with the same name for each item in the content collection. Call the .Add method to add an item to the newly created element.
     /// </summary>
-    public static T Elements<T, TContent>(this T @this, string name, IEnumerable<TContent> content, Action<T, TContent> contentAction) where T : class, IHtmlElement
+    public static IHtmlElement Elements<T>(this IHtmlElement parent, string name, IEnumerable<T> content, Action<IHtmlElement, T>? onEach = default)
     {
+        onEach ??= (e, c) => e.Add(c!);
+        
         foreach (var item in content)
         {
-            var current = CreateElement<T>(name);
-            contentAction(current, item);
-            @this.Add(current);
+            // ReSharper disable once MustUseReturnValue
+            HtmlElement
+                .Create(name)
+                .Also(e => onEach(e, item))
+                .Also(parent.Add);
         }
-        return @this;
-    }
 
-    public static T Append<T>(this T parent, IEnumerable<object> content) where T : class, IHtmlElement
-    {
-        foreach (var item in content)
-        {
-            parent.Add(item);
-        }
         return parent;
     }
 
-    public static T Append<T>(this T parent, params object[] content) where T : class, IHtmlElement
+    // Creates a new element and allows to perform an action on it with the specified local data. Useful for adding nested elements.
+    public static IHtmlElement Element<T>(this IHtmlElement parent, string name, [DisallowNull] T content, Action<IHtmlElement, T>? onEach = default)
     {
-        return parent.Append(content.AsEnumerable());
+        onEach ??= (e, c) => e.Add(c!);
+
+        return
+            HtmlElement
+                .Create(name)
+                .Also(e => onEach(e, content))
+                .Also(parent.Add);
     }
+
+    public static IHtmlElement Element(this IHtmlElement parent, string name, Action<IHtmlElement> action)
+    {
+        return HtmlElement.Create(name).Also(action).Also(parent.Add);
+    }
+
+    public static IHtmlElement Element(this IHtmlElement parent, string name)
+    {
+        return HtmlElement.Create(name).Also(parent.Add);
+    }
+
+    public static IHtmlElement Element(this IHtmlElement parent, string name, IEnumerable<object> content)
+    {
+        return parent.Element(name, e =>
+        {
+            foreach (var item in content)
+            {
+                e.Add(item);
+            }
+        });
+    }
+
+    public static IHtmlElement Element(this IHtmlElement parent, string name, params object[] content)
+    {
+        return parent.Element(name, content.AsEnumerable());
+    }
+
+    public static IHtmlElement Text(this IHtmlElement parent, params object[] content)
+    {
+        return parent.Also(e =>
+        {
+            foreach (var item in content)
+            {
+                e.Add(item);
+            }
+        });
+    }
+
 
     public static T Attribute<T>(this T @this, string name, string value) where T : class, IHtmlElement
     {
         @this.Attributes[name] = value;
         return @this;
     }
-    
+
     public static string ToHtml<T>(this T element, HtmlFormatting formatting) where T : IHtmlElement
     {
         return element.ToString(default, new HtmlFormatProvider(new HtmlRenderer(formatting)));

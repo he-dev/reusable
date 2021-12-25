@@ -2,42 +2,41 @@
 using System.Collections.Generic;
 using System.Drawing;
 using System.Globalization;
-using Reusable.Drawing;
+using Reusable.Essentials.Drawing;
 
-namespace Reusable.OneTo1.Converters
+namespace Reusable.Snowball.Converters;
+
+public class StringToColor : TypeConverter<string, Color>
 {
-    public class StringToColor : TypeConverter<string, Color>
+    public List<ColorParser> ColorParsers { get; set; } = new List<ColorParser>
     {
-        public List<ColorParser> ColorParsers { get; set; } = new List<ColorParser>
-        {
-            new HexColorParser()
-        };
+        new HexColorParser()
+    };
 
-        protected override Color Convert(string value, ConversionContext context)
+    protected override Color Convert(string value, ConversionContext context)
+    {
+        foreach (var colorParser in ColorParsers)
         {
-            foreach (var colorParser in ColorParsers)
+            if (colorParser.TryParse(value, out var argb))
             {
-                if (colorParser.TryParse(value, out var argb))
-                {
-                    return new Color32(argb);
-                }
+                return new Color32(argb);
             }
-
-            return Color.Empty;
         }
+
+        return Color.Empty;
     }
+}
 
-    // ---
+// ---
 
-    public class ColorToStringConverter : TypeConverter<Color, string>
-    {
-        public IFormatProvider FormatProvider { get; set; } = CultureInfo.InvariantCulture;
+public class ColorToStringConverter : TypeConverter<Color, string>
+{
+    public IFormatProvider FormatProvider { get; set; } = CultureInfo.InvariantCulture;
 
-        public string? FormatString { get; set; }
+    public string? FormatString { get; set; }
         
-        protected override string Convert(Color value, ConversionContext context)
-        {
-            return string.Format(FormatProvider, FormatString, value);
-        }
+    protected override string Convert(Color value, ConversionContext context)
+    {
+        return string.Format(FormatProvider, FormatString, value);
     }
 }

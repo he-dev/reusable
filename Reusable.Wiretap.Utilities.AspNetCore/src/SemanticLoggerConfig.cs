@@ -3,9 +3,9 @@ using System.Linq.Custom;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.AspNetCore.Http;
-using Reusable.OmniLog.Utilities.AspNetCore.Extensions;
 using Reusable.OmniLog.Utilities.AspNetCore.Helpers;
 using Reusable.Wiretap.Data;
+using Reusable.Wiretap.Utilities.AspNetCore.Extensions;
 
 namespace Reusable.OmniLog.Utilities.AspNetCore
 {

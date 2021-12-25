@@ -14,7 +14,7 @@ internal class LambdaEqualityComparer<T> : IEqualityComparer<T>
         _getHashCode = getHashCode;
     }
 
-    public bool Equals(T x, T y)
+    public bool Equals(T? x, T? y)
     {
         if (ReferenceEquals(null, x)) return false;
         if (ReferenceEquals(null, y)) return false;

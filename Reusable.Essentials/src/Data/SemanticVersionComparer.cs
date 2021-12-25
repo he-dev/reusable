@@ -6,7 +6,7 @@ namespace Reusable.Essentials.Data;
 
 public class SemanticVersionComparer : IComparer<SemanticVersion>
 {
-    public int Compare(SemanticVersion left, SemanticVersion right)
+    public int Compare(SemanticVersion? left, SemanticVersion? right)
     {
         if (ReferenceEquals(left, right)) return ComparisonResult.Equal;
         if (ReferenceEquals(left, null)) return ComparisonResult.LessThan;

@@ -1,11 +1,10 @@
 using System;
 
-namespace Reusable.Commander.Annotations
-{
-    public class ServiceAttribute : Attribute
-    {
-        public ServiceAttribute(Type? serviceType = default) => ServiceType = serviceType;
+namespace Reusable.DoubleDash.Annotations;
 
-        public Type? ServiceType { get; }
-    }
+public class ServiceAttribute : Attribute
+{
+    public ServiceAttribute(Type? serviceType = default) => ServiceType = serviceType;
+
+    public Type? ServiceType { get; }
 }

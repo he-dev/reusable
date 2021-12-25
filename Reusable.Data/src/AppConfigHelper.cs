@@ -1,9 +1,7 @@
-using System;
 using System.Configuration;
 using System.Text.RegularExpressions;
-using JetBrains.Annotations;
-using Reusable.Exceptionize;
-using Reusable.Extensions;
+using Reusable.Essentials;
+using Reusable.Essentials.Extensions;
 
 namespace Reusable.Data
 {

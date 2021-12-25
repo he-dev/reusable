@@ -2,8 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using Reusable.Essentials.Diagnostics;
-using Reusable.OneTo1;
-using Reusable.OneTo1.Converters;
+using Reusable.Snowball;
+using Reusable.Snowball.Converters;
 using Reusable.Utilities.NLog.LayoutRenderers;
 
 //[assembly: DebuggerDisplay("{DebuggerDisplay(),nq}", Target = typeof(Person))]

@@ -1,6 +1,6 @@
 using System;
 using System.Collections;
-using Reusable.Exceptionize;
+using Reusable.Essentials;
 using Xunit;
 
 namespace Reusable.Cryptography
@@ -20,7 +20,7 @@ namespace Reusable.Cryptography
                     .For<Person>()
                     .Add(x => x.Name)
                     .Add(x => x.Age)
-                    .Build(SHA256.ComputeHash);
+                    .Build();
 
             var fingerprint1 = calculateFingerprint(new Person { Name = "John", Age = 40 });
             var fingerprint2 = calculateFingerprint(new Person { Name = "John", Age = 40 });
@@ -41,7 +41,7 @@ namespace Reusable.Cryptography
                     .For<Person>()
                     .Add(x => x.Name, StringOptions.IgnoreCase | StringOptions.IgnoreWhitespace)
                     .Add(x => x.Age)
-                    .Build(SHA256.ComputeHash);
+                    .Build();
 
             var fingerprint1 = calculateFingerprint(new Person { Name = "John", Age = 40 });
             var fingerprint2 = calculateFingerprint(new Person { Name = " JOHN   ", Age = 40 });
@@ -62,7 +62,7 @@ namespace Reusable.Cryptography
                     .For<Person>()
                     .Add(x => x.Name)
                     .Add(x => x.Age)
-                    .Build(SHA256.ComputeHash);
+                    .Build();
 
             var fingerprint1 = calculateFingerprint(new Person { Name = "John", Age = 40 });
             var fingerprint2 = calculateFingerprint(new Person { Name = "Johnny", Age = 41 });
@@ -85,14 +85,14 @@ namespace Reusable.Cryptography
                     .For<Person>()
                     .Add(x => x.Name)
                     .Add(x => x.Age)
-                    .Build(SHA256.ComputeHash);
+                    .Build();
             
             var calculateFingerprint2 =
                 FingerprintBuilder
                     .For<Person>()
                     .Add(x => x.Age)
                     .Add(x => x.Name)
-                    .Build(SHA256.ComputeHash);
+                    .Build();
 
             var fingerprint1 = calculateFingerprint1(new Person { Name = "John", Age = 40 });
             var fingerprint2 = calculateFingerprint2(new Person { Name = "John", Age = 40 });
@@ -114,7 +114,7 @@ namespace Reusable.Cryptography
                     .For<Person>()
                     .Add(x => x.Name)
                     .Add(x => x.Age)
-                    .Build(SHA256.ComputeHash);
+                    .Build();
 
             var fingerprint1 = calculateFingerprint(new Person { Name = null, Age = 40 });
             var fingerprint2 = calculateFingerprint(new Person { Name = null, Age = 40 });
@@ -127,7 +127,7 @@ namespace Reusable.Cryptography
         [Fact]
         public void Throws_when_builder_does_not_have_any_value_selectors()
         {
-            Assert.Throws<InvalidOperationException>(() => FingerprintBuilder.For<Person>().Build(SHA256.ComputeHash));
+            Assert.Throws<InvalidOperationException>(() => FingerprintBuilder.For<Person>().Build());
         }
 
         private class Person

@@ -2,9 +2,9 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using Reusable.OmniLog.Utilities.AspNetCore;
-using Reusable.OmniLog.Utilities.AspNetCore.Mvc.Filters;
 using Reusable.Wiretap.Abstractions;
 using Reusable.Wiretap.Extensions;
+using Reusable.Wiretap.Utilities.AspNetCore.Mvc.Filters;
 
 namespace Reusable.Wiretap.Utilities.AspNetCore;
 
@@ -33,6 +33,6 @@ public static class SemanticLoggerExtensions
     /// </summary>
     public static IApplicationBuilder UseWiretap(this IApplicationBuilder builder, SemanticLoggerConfig? config = default)
     {
-        return builder.UseMiddleware<SemanticLogger>(config ?? new SemanticLoggerConfig());
+        return builder.UseMiddleware<WiretapMiddleware>(config ?? new SemanticLoggerConfig());
     }
 }

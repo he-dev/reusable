@@ -7,7 +7,7 @@ internal class SemanticVersionLabelComparer : IComparer<string>
 {
     public static readonly IComparer<string> Default = new SemanticVersionLabelComparer();
 
-    public int Compare(string left, string right)
+    public int Compare(string? left, string? right)
     {
         if (ReferenceEquals(left, right)) return ComparisonResult.Equal;
         if (ReferenceEquals(left, null)) return ComparisonResult.LessThan;

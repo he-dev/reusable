@@ -1,11 +1,10 @@
 using System.Collections.Generic;
 using JetBrains.Annotations;
 using Newtonsoft.Json;
-using Reusable.Exceptionize;
+using Reusable.Essentials;
 using Reusable.Translucent;
 using Reusable.Utilities.JsonNet.Abstractions;
 using Reusable.Utilities.JsonNet.Annotations;
-using Reusable.Utilities.JsonNet.Services;
 using Reusable.Utilities.JsonNet.TypeDictionaries;
 using Reusable.Utilities.JsonNet.Visitors;
 using Xunit;

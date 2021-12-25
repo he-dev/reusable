@@ -1,28 +1,27 @@
 ﻿using System;
 using System.Globalization;
 
-namespace Reusable.OneTo1.Converters
+namespace Reusable.Snowball.Converters;
+
+public class StringToGuidConverter : TypeConverter<String, Guid>
 {
-    public class StringToGuidConverter : TypeConverter<String, Guid>
+    protected override Guid Convert(string value, ConversionContext context)
     {
-        protected override Guid Convert(string value, ConversionContext context)
-        {
-            return Guid.Parse(value);
-        }
+        return Guid.Parse(value);
     }
+}
 
-    public class GuidToStringConverter : TypeConverter<Guid, String>
-    {
-        public IFormatProvider FormatProvider { get; set; } = CultureInfo.InvariantCulture;
+public class GuidToStringConverter : TypeConverter<Guid, String>
+{
+    public IFormatProvider FormatProvider { get; set; } = CultureInfo.InvariantCulture;
 
-        public string? FormatString { get; set; }
+    public string? FormatString { get; set; }
         
-        protected override string Convert(Guid value, ConversionContext context)
-        {
-            return
-                string.IsNullOrEmpty(FormatString)
-                    ? value.ToString()
-                    : value.ToString(FormatString, FormatProvider);
-        }
+    protected override string Convert(Guid value, ConversionContext context)
+    {
+        return
+            string.IsNullOrEmpty(FormatString)
+                ? value.ToString()
+                : value.ToString(FormatString, FormatProvider);
     }
 }

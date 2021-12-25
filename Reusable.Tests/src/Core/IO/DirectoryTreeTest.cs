@@ -1,5 +1,4 @@
-using Reusable.IO;
-using Reusable.IO.DirectoryTree;
+using Reusable.Essentials.DirectoryTree;
 using Telerik.JustMock;
 using Xunit;
 

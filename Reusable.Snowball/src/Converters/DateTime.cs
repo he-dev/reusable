@@ -1,36 +1,35 @@
 ﻿using System;
 using System.Globalization;
-using Reusable.Extensions;
+using Reusable.Essentials;
 
-namespace Reusable.OneTo1.Converters
+namespace Reusable.Snowball.Converters;
+
+public class StringToDateTime : TypeConverter<string, DateTime>
 {
-    public class StringToDateTime : TypeConverter<string, DateTime>
-    {
-        public IFormatProvider FormatProvider { get; set; } = CultureInfo.InvariantCulture;
+    public IFormatProvider FormatProvider { get; set; } = CultureInfo.InvariantCulture;
 
-        public string? FormatString { get; set; }
+    public string? FormatString { get; set; }
         
-        protected override DateTime Convert(string value, ConversionContext context)
-        {
-            return
-                FormatString.IsNullOrEmpty()
-                    ? DateTime.Parse(value, FormatProvider, DateTimeStyles.None)
-                    : DateTime.ParseExact(value, FormatString, FormatProvider, DateTimeStyles.None);
-        }
+    protected override DateTime Convert(string value, ConversionContext context)
+    {
+        return
+            FormatString.IsNullOrEmpty()
+                ? DateTime.Parse(value, FormatProvider, DateTimeStyles.None)
+                : DateTime.ParseExact(value, FormatString, FormatProvider, DateTimeStyles.None);
     }
+}
 
-    public class DateTimeToString : TypeConverter<DateTime, string>
-    {
-        public IFormatProvider FormatProvider { get; set; } = CultureInfo.InvariantCulture;
+public class DateTimeToString : TypeConverter<DateTime, string>
+{
+    public IFormatProvider FormatProvider { get; set; } = CultureInfo.InvariantCulture;
 
-        public string? FormatString { get; set; }
+    public string? FormatString { get; set; }
         
-        protected override string Convert(DateTime value, ConversionContext context)
-        {
-            return
-                FormatString.IsNullOrEmpty()
-                    ? value.ToString(FormatProvider)
-                    : value.ToString(FormatString, FormatProvider);
-        }
+    protected override string Convert(DateTime value, ConversionContext context)
+    {
+        return
+            FormatString.IsNullOrEmpty()
+                ? value.ToString(FormatProvider)
+                : value.ToString(FormatString, FormatProvider);
     }
 }

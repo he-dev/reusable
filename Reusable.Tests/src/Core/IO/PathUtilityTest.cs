@@ -1,4 +1,4 @@
-using Reusable.IO;
+using Reusable.Essentials.Extensions;
 using Xunit;
 
 namespace Reusable.Core.IO

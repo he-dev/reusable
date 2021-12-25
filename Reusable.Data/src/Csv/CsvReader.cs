@@ -6,7 +6,7 @@ using System.Linq.Custom;
 using System.Text;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
-using Reusable.Extensions;
+using Reusable.Essentials.Extensions;
 
 namespace Reusable.Csv
 {

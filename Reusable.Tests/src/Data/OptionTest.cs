@@ -1,3 +1,4 @@
+using Reusable.Essentials.Data;
 using Xunit;
 
 namespace Reusable.Data

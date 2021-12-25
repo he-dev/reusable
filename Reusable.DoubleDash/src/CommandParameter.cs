@@ -1,14 +1,13 @@
 ﻿using System.Collections.Generic;
 using System.Diagnostics;
-using Reusable.Diagnostics;
+using Reusable.Essentials.Diagnostics;
 
-namespace Reusable.Commander
+namespace Reusable.DoubleDash;
+
+[DebuggerDisplay(DebuggerDisplayString.DefaultNoQuotes)]
+public class CommandParameter
 {
-    [DebuggerDisplay(DebuggerDisplayString.DefaultNoQuotes)]
-    public class CommandParameter
-    {
-        public bool Async { get; set; }
+    public bool Async { get; set; }
 
-        public List<string> Params { get; set; } = new List<string>();
-    }
+    public List<string> Params { get; set; } = new List<string>();
 }

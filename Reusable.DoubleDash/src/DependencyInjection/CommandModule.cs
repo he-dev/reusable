@@ -3,48 +3,47 @@ using System.Collections.Generic;
 using System.Linq;
 using Autofac;
 using JetBrains.Annotations;
-using Reusable.Extensions;
+using Reusable.Essentials;
 
-namespace Reusable.Commander.DependencyInjection
+namespace Reusable.DoubleDash.DependencyInjection;
+
+[PublicAPI]
+public class CommandModule : Autofac.Module
 {
-    [PublicAPI]
-    public class CommandModule : Autofac.Module
+    private readonly Action<ICommandRegistrationBuilder> _build;
+
+    public CommandModule(Action<ICommandRegistrationBuilder> build) => _build = build;
+
+    protected override void Load(ContainerBuilder builder)
     {
-        private readonly Action<ICommandRegistrationBuilder> _build;
+        builder
+            .RegisterType<CommandLineTokenizer>()
+            .As<ICommandLineTokenizer>();
 
-        public CommandModule(Action<ICommandRegistrationBuilder> build) => _build = build;
+        builder
+            .RegisterType<CommandLineParser>()
+            .As<ICommandLineParser>();
 
-        protected override void Load(ContainerBuilder builder)
-        {
-            builder
-                .RegisterType<CommandLineTokenizer>()
-                .As<ICommandLineTokenizer>();
+        // builder
+        //     .RegisterType<CommandFactory>()
+        //     .SingleInstance()
+        //     .As<ICommandFactory>();
 
-            builder
-                .RegisterType<CommandLineParser>()
-                .As<ICommandLineParser>();
+        builder
+            .RegisterType<CommandParameterBinder>()
+            .As<ICommandParameterBinder>();
 
-            // builder
-            //     .RegisterType<CommandFactory>()
-            //     .SingleInstance()
-            //     .As<ICommandFactory>();
+        builder
+            .RegisterType<CommandExecutor>()
+            .As<ICommandExecutor>();
 
-            builder
-                .RegisterType<CommandParameterBinder>()
-                .As<ICommandParameterBinder>();
+        var crb = new CommandRegistrationBuilder { Builder = builder }.Also(_build);
 
-            builder
-                .RegisterType<CommandExecutor>()
-                .As<ICommandExecutor>();
+        builder
+            .RegisterInstance(crb.ToList())
+            .As<IEnumerable<CommandInfo>>();
 
-            var crb = new CommandRegistrationBuilder { Builder = builder }.Also(_build);
-
-            builder
-                .RegisterInstance(crb.ToList())
-                .As<IEnumerable<CommandInfo>>();
-
-            // builder
-            //     .RegisterSource(new TypeListSource());
-        }
+        // builder
+        //     .RegisterSource(new TypeListSource());
     }
 }

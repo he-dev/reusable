@@ -2,7 +2,8 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Autofac;
-using Reusable.Commander.DependencyInjection;
+using Reusable.DoubleDash;
+using Reusable.DoubleDash.DependencyInjection;
 using Reusable.OmniLog;
 using Reusable.Wiretap;
 using Reusable.Wiretap.Abstractions;

@@ -1,20 +1,19 @@
 ﻿using System;
 
-namespace Reusable.OneTo1.Converters
-{
-    public class StringToEnum : ITypeConverter
-    {
-        public object? ConvertOrDefault(object value, Type toType, ConversionContext? context = default)
-        {
-            return value is string str && toType.IsEnum ? Enum.Parse(toType, str) : default;
-        }
-    }
+namespace Reusable.Snowball.Converters;
 
-    public class EnumToStringConverter : ITypeConverter
+public class StringToEnum : ITypeConverter
+{
+    public object? ConvertOrDefault(object value, Type toType, ConversionContext? context = default)
     {
-        public object? ConvertOrDefault(object value, Type toType, ConversionContext? context = default)
-        {
-            return value.GetType().IsEnum && toType == typeof(string) ? value.ToString() : default;
-        }
+        return value is string str && toType.IsEnum ? Enum.Parse(toType, str) : default;
+    }
+}
+
+public class EnumToStringConverter : ITypeConverter
+{
+    public object? ConvertOrDefault(object value, Type toType, ConversionContext? context = default)
+    {
+        return value.GetType().IsEnum && toType == typeof(string) ? value.ToString() : default;
     }
 }

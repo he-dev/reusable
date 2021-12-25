@@ -26,12 +26,11 @@
   <ItemGroup>
     <ProjectReference Include="..\Reusable.Essentials\Reusable.Essentials.csproj" />
     <ProjectReference Include="..\Reusable.DoubleDash\Reusable.DoubleDash.csproj" />
-    <ProjectReference Include="..\Reusable.Jumble\Reusable.Jumble.csproj" />
+    <ProjectReference Include="..\Reusable.Toggle\Reusable.Toggle.csproj" />
     <ProjectReference Include="..\Reusable.Snowball\Reusable.Snowball.csproj" />
     <ProjectReference Include="..\Reusable.Secure\Reusable.Secure.csproj" />
     <ProjectReference Include="..\Reusable.Fluorite\Reusable.Fluorite.csproj" />
     <ProjectReference Include="..\Reusable.Wiretap\Reusable.Wiretap.csproj" />
-    <ProjectReference Include="..\Reusable.Wiretap.Extensions.Telemetry\Reusable.Wiretap.Extensions.Telemetry.csproj" />
     <ProjectReference Include="..\Reusable.Wiretap.Connectors.Console\Reusable.Wiretap.Connectors.Console.csproj" />
     <ProjectReference Include="..\Reusable.Wiretap.Connectors.Console.Fancy\Reusable.Wiretap.Connectors.Console.Fancy.csproj" />
     <ProjectReference Include="..\Reusable.Wiretap.Connectors.NLog\Reusable.Wiretap.Connectors.NLog.csproj" />
@@ -40,14 +39,14 @@
     <ProjectReference Include="..\Reusable.Utilities.Mailr\Reusable.Utilities.Mailr.csproj" />
     <ProjectReference Include="..\Reusable.Utilities.NLog\Reusable.Utilities.NLog.csproj" />
     <ProjectReference Include="..\Reusable.Utilities.SqlClient\Reusable.Utilities.SqlClient.csproj" />
-    <ProjectReference Include="..\Reusable.Untangle\Reusable.Untangle.csproj" />
-    <ProjectReference Include="..\Reusable.Untangle.config\Reusable.Untangle.config.csproj" />
-    <ProjectReference Include="..\Reusable.Untangle.config.AppConfig\Reusable.Untangle.config.AppConfig.csproj" />
-    <ProjectReference Include="..\Reusable.Untangle.config.Json\Reusable.Untangle.config.Json.csproj" />
-    <ProjectReference Include="..\Reusable.Untangle.config.SqlServer\Reusable.Untangle.config.SqlServer.csproj" />
-    <ProjectReference Include="..\Reusable.Untangle.file\Reusable.Untangle.file.csproj" />
-    <ProjectReference Include="..\Reusable.Untangle.http\Reusable.Untangle.http.csproj" />
-    <ProjectReference Include="..\Reusable.Untangle.mailto\Reusable.Untangle.mailto.csproj" />
+    <ProjectReference Include="..\Reusable.Octopus\Reusable.Octopus.csproj" />
+    <ProjectReference Include="..\Reusable.Octopus.config\Reusable.Octopus.config.csproj" />
+    <ProjectReference Include="..\Reusable.Octopus.config.AppConfig\Reusable.Octopus.config.AppConfig.csproj" />
+    <ProjectReference Include="..\Reusable.Octopus.config.Json\Reusable.Octopus.config.Json.csproj" />
+    <ProjectReference Include="..\Reusable.Octopus.config.SqlServer\Reusable.Octopus.config.SqlServer.csproj" />
+    <ProjectReference Include="..\Reusable.Octopus.file\Reusable.Octopus.file.csproj" />
+    <ProjectReference Include="..\Reusable.Octopus.http\Reusable.Octopus.http.csproj" />
+    <ProjectReference Include="..\Reusable.Octopus.mailto\Reusable.Octopus.mailto.csproj" />
   </ItemGroup>
 
 <!--  <ItemGroup>-->

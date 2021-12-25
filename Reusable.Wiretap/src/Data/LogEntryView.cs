@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using Reusable.Essentials.Extensions;
 using Reusable.Wiretap.Abstractions;
 
 namespace Reusable.Wiretap.Data
@@ -20,5 +21,7 @@ namespace Reusable.Wiretap.Data
         public IEnumerator<ILogProperty> GetEnumerator() => Parent.Where(property => property is T).GetEnumerator();
 
         IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable)Parent).GetEnumerator();
+
+        bool ITryGetValue<string, object>.TryGetValue(string key, out object value) => Parent.TryGetValue(key, out value);
     }
 }
