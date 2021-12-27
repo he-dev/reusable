@@ -3,7 +3,7 @@
     <TargetFramework>net6.0</TargetFramework>
     <Configurations>Debug;Release</Configurations>
     <Platforms>AnyCPU</Platforms>
-    <RootNamespace>Reusable.Translucent</RootNamespace>
+    <RootNamespace>Reusable.Octopus</RootNamespace>
     <Nullable>enable</Nullable>
     <LangVersion>latest</LangVersion>
   </PropertyGroup>

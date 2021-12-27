@@ -7,9 +7,8 @@ using Reusable.Essentials;
 using Reusable.Essentials.Extensions;
 using Reusable.Octopus.Abstractions;
 using Reusable.Octopus.Data;
-using Reusable.Translucent.Data;
 
-namespace Reusable.Translucent.Controllers;
+namespace Reusable.Octopus.Controllers;
 
 public class EmbeddedFileController : ResourceController<FileRequest>
 {

@@ -101,7 +101,7 @@ public class Help : Command<Help.Parameter>
             parameter
                 .Commands
                 .Where(c => c.Name.Contains(parameter.Command, SoftString.Comparer))
-                .SingleOrThrow(onEmpty: ($"CommandNotFound", $"Could not find a command with the name '{parameter.Command}'"));
+                .SingleOrThrow($"Could not find a command with the name '{parameter.Command}'");
 
         // Headers
         var captions = new[] { "Option", "Description" }.Pad(ColumnWidths).ToList();

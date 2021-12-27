@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq.Custom;
 using Reusable.Essentials;
@@ -12,15 +13,15 @@ namespace Reusable.Extensions
             [Fact]
             public void Throws_when_collection_is_empty()
             {
-                var x = new int[0];
-                Assert.ThrowsAny<DynamicException>(() => x.SingleOrThrow(("a", "b")));
+                var x = Array.Empty<int>();
+                Assert.ThrowsAny<DynamicException>(() => x.SingleOrThrow("x"));
             }
 
             [Fact]
             public void Throws_when_collection_contains_more_then_one_element()
             {
                 var x = new[] { 1, 2 };
-                Assert.ThrowsAny<DynamicException>(() => x.SingleOrThrow(("a", "b")));
+                Assert.ThrowsAny<DynamicException>(() => x.SingleOrThrow("x"));
             }
         }
 

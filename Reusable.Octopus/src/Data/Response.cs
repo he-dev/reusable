@@ -15,8 +15,8 @@ public class Response : IDisposable, IItems
 
     public IDictionary<string, object> Items { get; } = new Dictionary<string, object>(SoftString.Comparer);
 
-    public static Response Success() => new() { StatusCode = ResourceStatusCode.Success };
-        
+    public static Response Success(object? body = default) => new() { Body = { body }, StatusCode = ResourceStatusCode.Success };
+    
     public static Response NotFound(string resourceName) => new() { ResourceName = resourceName, StatusCode = ResourceStatusCode.NotFound };
 
     public void Dispose()

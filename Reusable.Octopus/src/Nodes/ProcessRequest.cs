@@ -42,7 +42,7 @@ public class ProcessRequest : ResourceNode
 
                 foreach (var controller in candidates)
                 {
-                    context.Response.Log($"Invoke controller {controller.GetType().ToPrettyString()}...");
+                    context.Request.Log($"Invoke controller {controller.GetType().ToPrettyString()}...");
                     
                     if (await controller.InvokeAsync(context.Request) is { StatusCode: ResourceStatusCode.Success } response)
                     {
@@ -67,12 +67,8 @@ public class ProcessRequest : ResourceNode
             // Other methods must match exactly one controller.
             else
             {
-                var controller = candidates.SingleOrThrow
-                (
-                    onEmpty: ($"{nameof(ResourceController<Request>)}NotFound", $"Could not find controller for resource '{context.Request.ResourceName}'."),
-                    onMany: default
-                );
-
+                var controller = candidates.SingleOrThrow($"Could not find unique controller for resource '{context.Request.ResourceName}'.");
+                
                 if (context.Request.AllowControllerCaching)
                 {
                     Cache.Set(cacheKey, controller);

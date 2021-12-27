@@ -1,6 +1,4 @@
-using Reusable.Octopus.Data;
-
-namespace Reusable.Translucent.Data;
+namespace Reusable.Octopus.Data;
 
 public class FileRequest : Request
 {

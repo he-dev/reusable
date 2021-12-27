@@ -1,24 +1,29 @@
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
+using Reusable.Essentials;
 using Reusable.Octopus.Data;
 
 namespace Reusable.Octopus;
 
 public class ResourceContext
 {
-    private Response _response = default!;
-    private readonly Request _request = default!;
+    // Use the same instance for both (Request & Response) so it doesn't have to be merged later.
+    private List<string> _log = new();
 
-    public Request Request
+    private Response _response = default!;
+
+    public ResourceContext(Request request)
     {
-        get => _request;
-        init
-        {
-            _request = value;
-            _request.Items["Log"] = new List<string>();
-        }
+        if (request.ResourceName.Any() == false) throw DynamicException.Create(request, $"Resource name must not be null nor empty.");
+        if (request.Method == RequestMethod.None) throw DynamicException.Create(request, $"Request method must not be '{nameof(RequestMethod.None)}'.");
+
+        Request = request;
+        Request.Items["Log"] = _log;
     }
+
+    public Request Request { get; }
 
     public Response Response
     {
@@ -26,9 +31,7 @@ public class ResourceContext
         set
         {
             _response = value;
-
-            // Use the same instance for both so we don't have to merge it later.
-            _response.Items["Log"] = _request.Items["Log"];
+            _response.Items["Log"] = Request.Items["Log"];
         }
     }
 }

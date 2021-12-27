@@ -121,7 +121,7 @@ public static partial class LoggerExtensions
 
     public static T Node<T>(this ILoggerNode node) where T : ILoggerNode
     {
-        return node.EnumerateNext().OfType<T>().SingleOrThrow(onEmpty: () => DynamicException.Create($"{nameof(LoggerNode)}NotFound", $"There was no {typeof(T).ToPrettyString()}."));
+        return node.EnumerateNext().OfType<T>().SingleOrThrow($"Could not find logger node '{typeof(T).ToPrettyString()}'.");
     }
 
     public static T? NodeOrDefault<T>(this ILoggerNode node) where T : class, ILoggerNode

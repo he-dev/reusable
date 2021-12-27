@@ -2,8 +2,6 @@
 using System.Collections.Immutable;
 using System.Text.RegularExpressions;
 using JetBrains.Annotations;
-using Microsoft.VisualBasic;
-using Reusable;
 using Reusable.Essentials;
 using Reusable.Essentials.Collections;
 using Reusable.Essentials.Extensions;
@@ -110,30 +108,17 @@ public static class enumerable
         return values.Select(x => (x?.ToString() ?? string.Empty).QuoteWith(quotationMark));
     }
 
-    [ItemCanBeNull, ContractAnnotation("values: null => halt")]
-    public static IEnumerable<T> Loop<T>(this IEnumerable<T> values, int startAt = 0)
+    [ContractAnnotation("source: null => halt")]
+    public static IEnumerable<T> Loop<T>(this IEnumerable<T> source)
     {
-        if (startAt < 0)
-        {
-            throw new ArgumentOutOfRangeException(paramName: nameof(startAt), message: $"{nameof(startAt)} must be >= 0");
-        }
-
-        var moves = 0;
-
         // ReSharper disable once PossibleMultipleEnumeration
-        var enumerator = values.GetEnumerator();
+        var enumerator = source.GetEnumerator();
 
         try
         {
-            while (TryMoveNext(enumerator, out enumerator))
+            // ReSharper disable once PossibleMultipleEnumeration
+            while (enumerator.TryMoveNext(source, out enumerator))
             {
-                moves++;
-
-                if (startAt > 0 && moves <= startAt)
-                {
-                    continue;
-                }
-
                 yield return enumerator.Current;
             }
         }
@@ -141,26 +126,24 @@ public static class enumerable
         {
             enumerator.Dispose();
         }
+    }
 
-        bool TryMoveNext(IEnumerator<T> currentEnumerator, out IEnumerator<T> newEnumerator)
+    private static bool TryMoveNext<T>(this IEnumerator<T> currentEnumerator, IEnumerable<T> source, out IEnumerator<T> nextEnumerator)
+    {
+        if (currentEnumerator.MoveNext())
         {
-            if (currentEnumerator.MoveNext())
-            {
-                newEnumerator = currentEnumerator;
-                return true;
-            }
-            else
-            {
-                // Get a new enumerator because we took all elements and try again.
+            nextEnumerator = currentEnumerator;
+            return true;
+        }
+        else
+        {
+            // Get the enumerator because we took all elements and try again.
+            currentEnumerator.Dispose();
+            
+            nextEnumerator = source.GetEnumerator();
 
-                currentEnumerator.Dispose();
-
-                // ReSharper disable once PossibleMultipleEnumeration
-                newEnumerator = values.GetEnumerator();
-
-                // If we couldn't move after reset then we're done trying because the collection is empty.
-                return newEnumerator.MoveNext();
-            }
+            // If we couldn't move after reset then we're done trying because the collection is empty.
+            return nextEnumerator.MoveNext();
         }
     }
 
@@ -169,22 +152,17 @@ public static class enumerable
     /// </summary>
     public static bool StartsWith<TSource>(this IEnumerable<TSource> first, IEnumerable<TSource> second, IEqualityComparer<TSource> comparer)
     {
-        if (first == null) throw new ArgumentNullException(nameof(first));
-        if (second == null) throw new ArgumentNullException(nameof(second));
-        if (comparer == null) throw new ArgumentNullException(nameof(comparer));
+        using var f = first.GetEnumerator();
+        using var s = second.GetEnumerator();
 
-        using (var e1 = first.GetEnumerator())
-        using (var e2 = second.GetEnumerator())
+        while (s.MoveNext())
         {
-            while (e2.MoveNext())
-            {
-                if (!(e1.MoveNext() && comparer.Equals(e1.Current, e2.Current))) return false;
-            }
-
-            if (e2.MoveNext()) return false;
+            if (!f.MoveNext()) return false; // First collection is shorter.
+            if (!comparer.Equals(f.Current, s.Current)) return false; // Elements don't match.
         }
 
-        return true;
+        // There's nothing more to check.
+        return !s.MoveNext();
     }
 
     public static bool StartsWith<TSource>(this IEnumerable<TSource> first, IEnumerable<TSource> second)
@@ -194,85 +172,57 @@ public static class enumerable
 
     public static bool Empty<TSource>(this IEnumerable<TSource> source)
     {
-        return source.Any() == false;
+        using var e = source.GetEnumerator();
+        return !e.MoveNext();
     }
 
     public static bool EmptyOr<TSource>(this IEnumerable<TSource> source, Predicate<IEnumerable<TSource>> predicate)
     {
-        return
-            source.Any()
-                ? predicate(source)
-                : true;
+        using var e = source.GetEnumerator();
+        return !e.MoveNext() || predicate(source);
     }
 
     public static IEnumerable<T> Skip<T>(this IEnumerable<T> source, Func<T, bool> predicate)
     {
-        if (source == null) throw new ArgumentNullException(nameof(source));
-        if (predicate == null) throw new ArgumentNullException(nameof(predicate));
-
         return source.Where(x => !predicate(x));
     }
 
     public static Func<TElement, bool> ToAny<TElement>(this IEnumerable<Func<TElement, bool>> filters)
     {
-        if (filters == null) throw new ArgumentNullException(nameof(filters));
-
         return x => filters.Any(f => f(x));
     }
 
-    public static T SingleOrThrow<T>(this IEnumerable<T> source, Func<Exception>? onEmpty = null, Func<Exception>? onMany = null)
+    public static T SingleOrThrow<T>(this IEnumerable<T> source, string message)
     {
-        //return source.SingleOrThrow(_ => true, onEmpty, onMultiple);
-
-        if (source == null) throw new ArgumentNullException(nameof(source));
-
-        var items = source.Take(2).ToList();
-
-        onEmpty ??= () => DynamicException.Create("Empty", $"{source.GetType().ToPrettyString()} does not contain any elements.");
-        onMany ??= () => DynamicException.Create("Many", $"{source.GetType().ToPrettyString()} contains more than one element.");
-
-        return items.Count switch
+        using var e = source.GetEnumerator();
+        try
         {
-            0 => throw onEmpty(),
-            1 => items[0],
-            _ => throw onMany()
-        };
-    }
+            if (e.MoveNext())
+            {
+                return e.Current;
+            }
 
-    public static T SingleOrThrow<T>(this IEnumerable<T> source, (string Name, string Message) onEmpty = default, (string Name, string Message) onMany = default)
-    {
-        return source.SingleOrThrow
-        (
-            onEmpty: () => DynamicException.Create(onEmpty.Name ?? "Empty", onEmpty.Message ?? $"{source.GetType().ToPrettyString()} does not contain any elements."),
-            onMany: () => DynamicException.Create(onMany.Name ?? "Many", onMany.Message ?? $"{source.GetType().ToPrettyString()} contains more than one element.")
-        );
-    }
-
-    public static T FirstOrThrow<T>(this IEnumerable<T> source, (string Exception, string Message) onEmpty = default)
-    {
-        return source.Take(1).ToList() switch
+            throw DynamicException.Create("Empty", message);
+        }
+        finally
         {
-            { } items when items.Any() => items.Single(),
-            _ => throw DynamicException.Create(onEmpty.Exception ?? "Empty", onEmpty.Message ?? $"{source.GetType().ToPrettyString()} does not contain any elements.")
-        };
+            if (e.MoveNext())
+            {
+                throw DynamicException.Create("Many", message);
+            }
+        }
     }
 
-//        public static T SingleOrThrow<T>([NotNull] this IEnumerable<T> source, Func<T, bool> predicate, Func<Exception> onEmpty = null, Func<Exception> onMany = null)
-//        {
-//            if (source == null) throw new ArgumentNullException(nameof(source));
-//
-//            var items = source.Where(predicate).Take(2).ToList();
-//
-//            onEmpty = onEmpty ?? (() => DynamicException.Create("Empty", $"{source.GetType().ToPrettyString()} does not contain any elements that match the specified predicate."));
-//            onMany = onMany ?? (() => DynamicException.Create("Many", $"{source.GetType().ToPrettyString()} contains more than one element that matches the specified predicate."));
-//
-//            switch (items.Count)
-//            {
-//                case 0: throw onEmpty();
-//                case 1: return items[0];
-//                default: throw onMany();
-//            }
-//        }
+    public static T FirstOrThrow<T>(this IEnumerable<T> source, string message)
+    {
+        using var e = source.GetEnumerator();
+        if (e.MoveNext())
+        {
+            return e.Current;
+        }
+
+        throw DynamicException.Create("Empty", message);
+    }
 
     public static int CalcHashCode<T>(this IEnumerable<T?> values)
     {
@@ -294,45 +244,41 @@ public static class enumerable
 
     public static IEnumerable<T> Repeat<T>(Func<T> get)
     {
-        if (get == null) throw new ArgumentNullException(nameof(get));
-
         while (true)
         {
             yield return get();
         }
+
+        // ReSharper disable once IteratorNeverReturns - Since it's 'Always' this is by design.
     }
 
-    public static bool In<T>([CanBeNull] this T value, IEnumerable<T> others, IEqualityComparer<T> comparer)
+    public static bool In<T>(this T value, IEnumerable<T> others, IEqualityComparer<T> comparer)
     {
         return others.Contains(value, comparer);
     }
 
-    public static bool In<T>([CanBeNull] this T value, IEnumerable<T> others)
+    public static bool In<T>(this T value, IEnumerable<T> others)
     {
         return value.In(others, EqualityComparer<T>.Default);
     }
 
-    public static bool In<T>([CanBeNull] this T value, params T[] others)
+    public static bool In<T>(this T value, params T[] others)
     {
         return value.In(others.AsEnumerable());
     }
 
-    public static bool SoftIn([CanBeNull] this string value, IEnumerable<string> others)
+    public static bool SoftIn(this string? value, IEnumerable<string> others)
     {
         return value.In(others, SoftString.Comparer);
     }
 
-    public static bool SoftIn([CanBeNull] this string value, params string[] others) => value.SoftIn(others.AsEnumerable());
+    public static bool SoftIn(this string? value, params string[] others) => value.SoftIn(others.AsEnumerable());
 
-    public static bool NotIn<T>([CanBeNull] this T value, params T[] others)
-    {
-        return !value.In((IEnumerable<T>)others);
-    }
+    public static bool NotIn<T>(this T? value, params T[] others) => !value.In((IEnumerable<T>)others);
 
     public static IEnumerable<T> Flatten<T>(this IEnumerable<IEnumerable<T>> source) => source.SelectMany(x => x);
 
-    [ItemCanBeNull]
-    public static IEnumerable<T> Shuffle<T>([ItemCanBeNull] this IEnumerable<T> source, Random? random = null)
+    public static IEnumerable<T> Shuffle<T>(this IEnumerable<T> source, Random? random = null)
     {
         random ??= new Random((int)DateTime.UtcNow.Ticks);
 
@@ -437,54 +383,6 @@ public static class enumerable
     {
         return first.Merge(second, selectKey, Enumerable.Last);
     }
-
-
-    //        public static IEnumerable<T> Take<T>(this IEnumerable<T> source, int count)
-//        {
-//            if (source == null) throw new ArgumentNullException(nameof(source));
-//            if (count <= 0) return source;
-//
-//            if (count >= 0)
-//            {
-//                return Enumerable.Take(source, count);
-//            }
-//
-//            if (source is ICollection<T> collection)
-//            {
-//                return Enumerable.Take(collection, collection.Count - count);
-//            }
-//
-//            return Skipper();
-//
-//            IEnumerable<T> Skipper()
-//            {
-//                using (var e = source.GetEnumerator())
-//                {
-//                    if (!e.MoveNext())
-//                    {
-//                        yield break;
-//                    }
-//
-//                    var queue = new T[count];
-//                    queue[0] = e.Current;
-//                    var index = 1;
-//
-//                    while (index < count && e.MoveNext())
-//                    {
-//                        queue[index++] = e.Current;
-//                    }
-//
-//                    index = -1;
-//                    while (e.MoveNext())
-//                    {
-//                        index = (index + 1) % count;
-//                        yield return queue[index];
-//                        queue[index] = e.Current;
-//                    }
-//                }
-//            }
-//        }
-
 
     public static IEnumerable<Match> Match(this IEnumerable<string> source, string pattern, RegexOptions options = RegexOptions.None)
     {

@@ -137,6 +137,9 @@
         <Compile Remove="src\Octopus\Controllers\AppSettingControllerTest.cs" />
         <Compile Remove="src\Octopus\Controllers\HttpControllerTest.cs" />
         <Compile Remove="src\Octopus\Controllers\SqlServerControllerTest.cs" />
+        <Compile Remove="src\Octopus\Controllers\config\AppSettingControllerTest.cs" />
+        <Compile Remove="src\Octopus\Controllers\config\SqlServerControllerTest.cs" />
+        <Compile Remove="src\Octopus\Controllers\http\HttpControllerTest.cs" />
 <!--        <Compile Remove="src\Commander\**" />-->
     </ItemGroup>
     <ItemGroup>
@@ -144,7 +147,8 @@
       <Folder Include="src\Deception" />
       <Folder Include="src\Fluorite" />
       <Folder Include="src\Octopus\config" />
-      <Folder Include="src\Octopus\Middleware" />
+      <Folder Include="src\Octopus\Controllers\config" />
+      <Folder Include="src\Octopus\Controllers\http" />
       <Folder Include="src\Teapot" />
       <Folder Include="src\Utilities\Mailr\Models" />
       <Folder Include="src\Wiretap" />

@@ -1,10 +1,9 @@
 using System;
+using System.IO;
 using System.Threading.Tasks;
-using Reusable.Octopus;
 using Reusable.Octopus.Data;
-using Reusable.Translucent.Data;
 
-namespace Reusable.Translucent;
+namespace Reusable.Octopus;
 
 public static class ResourceHelpers
 {
@@ -25,14 +24,19 @@ public static class ResourceHelpers
         return (string)file.Body.Peek(); // .DeserializeTextAsync().GetAwaiter().GetResult();
     }
 
-    public static async Task WriteTextFileAsync(this IResource resources, string path, string value, Action<FileRequest.Text>? configure = default)
+    public static async Task WriteFileAsync(this IResource resources, string path, string body, Action<FileRequest.Text>? configure = default)
     {
-        using (await resources.CreateAsync(path, value, configure)) { }
+        using (await resources.CreateAsync(path, body, configure)) { }
     }
 
-    public static async Task WriteFileAsync(this IResource resources, string path, BodyStreamFunc bodyStream, Action<FileRequest.Stream>? configure = default)
+    public static async Task WriteFileAsync(this IResource resources, string path, Stream body, Action<FileRequest.Stream>? configure = default)
     {
-        using (await resources.CreateAsync(path, bodyStream, configure)) { }
+        using (await resources.CreateAsync(path, body, configure)) { }
+    }
+    
+    public static async Task WriteFileAsync(this IResource resources, string path, BodyStreamFunc body, Action<FileRequest.Stream>? configure = default)
+    {
+        using (await resources.CreateAsync(path, body, configure)) { }
     }
 
     public static async Task DeleteFileAsync(this IResource resources, string path, Action<FileRequest>? configure = default)

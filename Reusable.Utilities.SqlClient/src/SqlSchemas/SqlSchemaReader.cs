@@ -7,8 +7,7 @@ using JetBrains.Annotations;
 using Reusable.Essentials;
 using Reusable.Essentials.Extensions;
 using Reusable.Octopus;
-using Reusable.Translucent;
-using Reusable.Translucent.Controllers;
+using Reusable.Octopus.Controllers;
 
 namespace Reusable.Utilities.SqlClient.SqlSchemas
 {

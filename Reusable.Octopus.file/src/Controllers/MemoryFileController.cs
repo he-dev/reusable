@@ -5,9 +5,8 @@ using System.Threading.Tasks;
 using Reusable.Essentials.Extensions;
 using Reusable.Octopus.Abstractions;
 using Reusable.Octopus.Data;
-using Reusable.Translucent.Data;
 
-namespace Reusable.Translucent.Controllers;
+namespace Reusable.Octopus.Controllers;
 
 public class MemoryFileController : ResourceController<FileRequest>, IEnumerable<KeyValuePair<string, object?>>
 {

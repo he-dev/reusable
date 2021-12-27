@@ -20,18 +20,14 @@ public interface IResource
 [PublicAPI]
 public class Resource : IResource
 {
-    internal IResourceNode First { get; init; } = null!;
+    private IResourceNode First { get; init; } = null!;
 
     public async Task<Response> InvokeAsync(Request request)
     {
-        if (request.ResourceName.Any() == false) throw new ArgumentOutOfRangeException(nameof(request), $"Resource name must not be null nor empty.");
-        if (request.Method == RequestMethod.None) throw new ArgumentOutOfRangeException(nameof(request), $"Request method must not be '{nameof(RequestMethod.None)}'.");
+        var context = new ResourceContext(request).Also(x => x.Request.Log("Start."));
 
-        var context = new ResourceContext { Request = request };
-
-        context.Request.Log("Start.");
         await First.InvokeAsync(context).ConfigureAwait(false);
-        
+
         return context.Response;
     }
 
