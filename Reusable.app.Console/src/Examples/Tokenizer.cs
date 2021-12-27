@@ -42,7 +42,7 @@ namespace Reusable
                 }
 
                 var tokens = tokenizer.Tokenize(text.ToString()).ToList();
-                var html = HtmlElement.Builder.p();
+                var html = HtmlElement.Create("p");
 //                foreach (var token in tokens)
 //                {
 //                    switch (token.Type)

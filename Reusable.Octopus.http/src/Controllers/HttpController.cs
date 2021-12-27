@@ -20,9 +20,9 @@ namespace Reusable.Translucent.Controllers;
 [PublicAPI]
 public class HttpController : ResourceController<HttpRequest>
 {
-    private HttpClient Client { get; set; } = new();
-
     public override string? ResourceNameRoot => Client.BaseAddress?.ToString();
+
+    public HttpClient Client { get; set; } = new();
 
     public JsonSerializer Serializer { get; set; } = new()
     {
@@ -33,7 +33,7 @@ public class HttpController : ResourceController<HttpRequest>
             new StringEnumConverter()
         }
     };
-    
+
     public List<Action<HttpRequestHeaders>> HeaderActions { get; set; } = new();
 
     public override async Task<Response> ReadAsync(HttpRequest request) => await InvokeAsync(HttpMethod.Get, request);
@@ -49,7 +49,7 @@ public class HttpController : ResourceController<HttpRequest>
         var uri = ResolveUri(request);
 
         using var requestMessage = new HttpRequestMessage(method, uri);
-        await using var content = (request.Body is {} body ? Serializer.Serialize(body) : Stream.Null);
+        await using var content = (request.Body is { } body ? Serializer.Serialize(body) : Stream.Null);
 
         if (content != Stream.Null)
         {
@@ -85,7 +85,7 @@ public class HttpController : ResourceController<HttpRequest>
     private string ResolveUri(HttpRequest request)
     {
         var currentName = request.ResourceName.Peek();
-        var resolvedName = ResourceNameRoot is {} ? Path.Combine(ResourceNameRoot, currentName) : currentName;
+        var resolvedName = ResourceNameRoot is { } ? Path.Combine(ResourceNameRoot, currentName) : currentName;
         request.ResourceName.Push(resolvedName);
 
         return request.ResourceName.Peek();

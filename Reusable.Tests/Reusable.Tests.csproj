@@ -61,7 +61,7 @@
         <ProjectReference Include="..\Reusable.Octopus.config\Reusable.Octopus.config.csproj" />
         <ProjectReference Include="..\Reusable.Octopus.config.AppConfig\Reusable.Octopus.config.AppConfig.csproj" />
         <ProjectReference Include="..\Reusable.Octopus.config.Json\Reusable.Octopus.config.Json.csproj" />
-        <ProjectReference Include="..\Reusable.Octopus.config.SqlServer\Reusable.Octopus.config.SqlServer.csproj" />
+        <ProjectReference Include="..\Reusable.Octopus.config.Database\Reusable.Octopus.config.Database.csproj" />
         <ProjectReference Include="..\Reusable.Octopus.file\Reusable.Octopus.file.csproj" />
         <ProjectReference Include="..\Reusable.Octopus.http\Reusable.Octopus.http.csproj" />
         <ProjectReference Include="..\Reusable.Octopus.mailto\Reusable.Octopus.mailto.csproj" />

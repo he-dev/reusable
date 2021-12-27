@@ -3,10 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
-using Reusable.Data;
-using Reusable.Diagnostics;
-using Reusable.Extensions;
 using Reusable.Octopus;
+using Reusable.Octopus.Nodes;
 using Reusable.Quickey;
 using Reusable.Translucent;
 using Reusable.Translucent.Controllers;
@@ -22,40 +20,46 @@ namespace Reusable
 {
     public static partial class Examples
     {
-        public static async Task SendEmailOverSmtp()
-        {
-            var resources = new Resource(new[] { new SmtpController() });
-
-            await resources.SendEmailAsync(new Email<EmailSubject, EmailBody>
-            {
-                From = "console@test.com",
-                To = { "me@test.com" },
-                CC = { "you@test.com" },
-                Subject = new EmailSubject { Value = "How are you?" },
-                Body = new EmailBody { Value = "<p>I'm fine!</p>" },
-                IsHtml = true,
-                Attachments = new Dictionary<string, byte[]>()
-            }, smtp =>
-            {
-                smtp.Host = "localhost";
-                smtp.Port = 25;
-            });
-        }
+        // public static async Task SendEmailOverSmtp()
+        // {
+        //     var resources = new Resource(new[] { new SmtpController() });
+        //
+        //     await resources.SendEmailAsync(new Email<EmailSubject, EmailBody>
+        //     {
+        //         From = "console@test.com",
+        //         To = { "me@test.com" },
+        //         CC = { "you@test.com" },
+        //         Subject = new EmailSubject { Value = "How are you?" },
+        //         Body = new EmailBody { Value = "<p>I'm fine!</p>" },
+        //         IsHtml = true,
+        //         Attachments = new Dictionary<string, byte[]>()
+        //     }, smtp =>
+        //     {
+        //         smtp.Host = "localhost";
+        //         smtp.Port = 25;
+        //     });
+        // }
 
         public static async Task SendEmailOverMailr()
         {
-            var resources = new Resource(new[]
+            var resources = new Resource.Builder
             {
-                new HttpController
+                new ProcessRequest
                 {
-                    CreateHttpClient = () => new HttpClient
+                    Controllers =
                     {
-                        BaseAddress = new Uri("http://localhost:7000/api")
-                    },
-                    Name = "Mailr"
+                        new HttpController
+                        {
+                            Client = new HttpClient
+                            {
+                                BaseAddress = new Uri("http://localhost:7000/api")
+                            },
+                            Name = "Mailr"
+                        }
+                    }
                 }
-            });
-            
+            }.Build();
+
             await resources.SendEmailAsync
             (
                 "v1.0/mailr/messages/plaintext",

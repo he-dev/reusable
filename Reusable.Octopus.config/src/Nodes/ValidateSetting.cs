@@ -1,4 +1,7 @@
 using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.Linq;
 using System.Threading.Tasks;
 using Reusable.Essentials;
 using Reusable.Essentials.Extensions;
@@ -12,25 +15,52 @@ public class ValidateSetting : ResourceNode
 {
     public override async Task InvokeAsync(ResourceContext context)
     {
-        await InvokeNext(context);
-
         if (context.Request is ConfigRequest config)
         {
-            foreach (var validation in config.ValidationAttributes)
+            var required = config.ValidationAttributes.OfType<RequiredAttribute>().FirstOrDefault();
+
+            if (context.Request.Method == RequestMethod.Update)
             {
-                try
+                if (context.Request.Body.TryPeek(out var newValue))
                 {
-                    //validation.Validate(body, new ValidationContext(body));
+                    Validate(config.ResourceName.Peek(), newValue, config.ValidationAttributes);
                 }
-                catch (Exception inner)
+                else
                 {
-                    throw DynamicException.Create
-                    (
-                        "SettingValidation",
-                        $"Setting '{config.ResourceName}' didn't pass the '{validation.GetType().ToPrettyString()}' validation. See the inner exception for details.",
-                        inner
-                    );
+                    throw DynamicException.Create("SettingValidation", $"Setting '{config.ResourceName.Peek()}' is required.");
                 }
+            }
+
+            await InvokeNext(context);
+
+            if (context.Request.Method == RequestMethod.Read)
+            {
+                if (required is { } && context.Response.StatusCode == ResourceStatusCode.NotFound)
+                {
+                    throw DynamicException.Create("SettingValidation", $"Setting '{config.ResourceName.Peek()}' is required.");
+                }
+                else
+                {
+                    if (context.Response.Body.TryPeek(out var value))
+                    {
+                        Validate(config.ResourceName.Peek(), value, config.ValidationAttributes);
+                    }
+                }
+            }
+        }
+        else
+        {
+            await InvokeNext(context);
+        }
+    }
+
+    private static void Validate(string resourceName, object value, IEnumerable<ValidationAttribute> validationAttributes)
+    {
+        foreach (var validation in validationAttributes)
+        {
+            if (!validation.IsValid(value))
+            {
+                throw DynamicException.Create("SettingValidation", $"Setting '{resourceName}' didn't pass the '{validation.GetType().ToPrettyString()}'.");
             }
         }
     }

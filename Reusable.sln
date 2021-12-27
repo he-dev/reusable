@@ -66,7 +66,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Reusable.Octopus.config.App
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Reusable.Octopus.config.Json", "Reusable.Octopus.config.Json\Reusable.Octopus.config.Json.csproj", "{1401C17C-4D6A-4991-85B5-37996F08B061}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Reusable.Octopus.config.SqlServer", "Reusable.Octopus.config.SqlServer\Reusable.Octopus.config.SqlServer.csproj", "{32714941-5339-4768-BB8F-34AAF4E3B43A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Reusable.Octopus.config.Database", "Reusable.Octopus.config.Database\Reusable.Octopus.config.Database.csproj", "{32714941-5339-4768-BB8F-34AAF4E3B43A}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Reusable.Octopus.http", "Reusable.Octopus.http\Reusable.Octopus.http.csproj", "{93FEB82C-BD1C-4B44-83E1-D1E3362D6E13}"
 EndProject

@@ -24,16 +24,18 @@ public abstract class ConfigRequest : Request
             ResourceName = { selector.ToString() },
             Method = RequestMethod.Read,
             BodyType = selector.MemberType,
-            ControllerFilter = selector.MemberType.GetCustomAttribute<ControllerNameAttribute>() is {} attr ? new ControllerFilterByName(attr) : default
+            ControllerFilter = selector.MemberType.GetCustomAttribute<ControllerNameAttribute>() is {} attr ? new ControllerFilterByName(attr) : default,
+            ValidationAttributes = selector.MemberType.GetCustomAttributes<ValidationAttribute>()
         };
         
         public static Json Write(Selector selector, object data) => new()
         {
             ResourceName = { selector.ToString() },
-            Method = RequestMethod.Read,
+            Method = RequestMethod.Update,
             BodyType = selector.MemberType,
             Body = { data },
-            ControllerFilter = selector.MemberType.GetCustomAttribute<ControllerNameAttribute>() is {} attr ? new ControllerFilterByName(attr) : default
+            ControllerFilter = selector.MemberType.GetCustomAttribute<ControllerNameAttribute>() is {} attr ? new ControllerFilterByName(attr) : default,
+            ValidationAttributes = selector.MemberType.GetCustomAttributes<ValidationAttribute>()
         };
     }
     
@@ -43,15 +45,17 @@ public abstract class ConfigRequest : Request
         {
             ResourceName = { selector.ToString() },
             Method = RequestMethod.Read,
-            ControllerFilter = selector.MemberType.GetCustomAttribute<ControllerNameAttribute>() is {} attr ? new ControllerFilterByName(attr) : default
+            ControllerFilter = selector.MemberType.GetCustomAttribute<ControllerNameAttribute>() is {} attr ? new ControllerFilterByName(attr) : default,
+            ValidationAttributes = selector.MemberType.GetCustomAttributes<ValidationAttribute>()
         };
         
         public static Text Write(Selector selector, object data) => new()
         {
             ResourceName = { selector.ToString() },
-            Method = RequestMethod.Read,
+            Method = RequestMethod.Update,
             Body = { data },
-            ControllerFilter = selector.MemberType.GetCustomAttribute<ControllerNameAttribute>() is {} attr ? new ControllerFilterByName(attr) : default
+            ControllerFilter = selector.MemberType.GetCustomAttribute<ControllerNameAttribute>() is {} attr ? new ControllerFilterByName(attr) : default,
+            ValidationAttributes = selector.MemberType.GetCustomAttributes<ValidationAttribute>()
         };
     }
 }

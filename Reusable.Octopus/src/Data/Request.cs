@@ -30,7 +30,7 @@ public abstract class Request : IDisposable, IItems
 
     public bool AllowControllerCaching { get; set; } = true;
 
-    public CancellationToken CancellationToken { get; set; }
+    public CancellationToken CancellationToken { get; set; } = CancellationToken.None;
 
     public static T Read<T>(string name, object? body = default) where T : Request, new() => new T { Method = RequestMethod.Read, ResourceName = { name }, Body = { body } };
     public static T Create<T>(string name, object? body = default) where T : Request, new() => new T { Method = RequestMethod.Create, ResourceName = { name }, Body = { body } };
