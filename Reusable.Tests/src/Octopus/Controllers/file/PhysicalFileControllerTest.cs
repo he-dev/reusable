@@ -13,37 +13,37 @@ public class PhysicalFileControllerTest
 {
     private static readonly IResource Resource = new Resource.Builder
     {
+        new ManageString(),
         new ProcessRequest
         {
             Controllers = { new PhysicalFileController() }
         }
     }.Build();
-    
+
     [Fact]
     public async Task Can_handle_file_methods()
     {
         var tempFileName = GetTempFileName();
 
-        using (var response = await Resource.ReadAsync<FileRequest.Text>(tempFileName))
+        using (var response = await Resource.Read().File(tempFileName).InvokeAsync())
         {
             Assert.True(response.NotFound());
         }
 
-        await Resource.WriteFileAsync(tempFileName, "Hi!");
-        using (var response = await Resource.ReadAsync<FileRequest.Stream>(tempFileName))
+        using (await Resource.Create().File(tempFileName).Data("Hi!").InvokeAsync())
+        using (var response = await Resource.File(tempFileName).As(typeof(string)).ReadAsync())
         {
             Assert.True(response.Success());
-            var value = await ((Stream)response.Body.Peek()).ReadTextAsync();
-            Assert.Equal("Hi!", value);
+            Assert.Equal("Hi!", response.Body.Value);
         }
 
-        await Resource.DeleteFileAsync(tempFileName);
-        using (var response = await Resource.ReadAsync<FileRequest.Text>(tempFileName))
+        using (await Resource.File(tempFileName).DeleteAsync())
+        using (var response = await Resource.File(tempFileName).ReadAsync())
         {
             Assert.True(response.NotFound());
         }
-            
-        using (var response = await Resource.ReadAsync<FileRequest.Text>(tempFileName))
+
+        using (var response = await Resource.File(tempFileName).ReadAsync())
         {
             Assert.True(response.NotFound());
         }
@@ -54,7 +54,7 @@ public class PhysicalFileControllerTest
     {
         var tempFileName = "//auth/name";
 
-        using var response = await Resource.ReadAsync<FileRequest.Text>(tempFileName);
+        using var response = await Resource.File(tempFileName).ReadAsync();
         Assert.False(response.Success());
     }
 

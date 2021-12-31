@@ -140,6 +140,8 @@
         <Compile Remove="src\Octopus\Controllers\config\AppSettingControllerTest.cs" />
         <Compile Remove="src\Octopus\Controllers\config\SqlServerControllerTest.cs" />
         <Compile Remove="src\Octopus\Controllers\http\HttpControllerTest.cs" />
+        <Compile Remove="src\Octopus\Controllers\file\PhysicalFileControllerTest.cs" />
+        <Compile Remove="src\Octopus\Nodes\ProcessRequestTest.cs" />
 <!--        <Compile Remove="src\Commander\**" />-->
     </ItemGroup>
     <ItemGroup>

@@ -21,15 +21,15 @@ public abstract class DynamicException : Exception
         return Factory.CreateDynamicException(name, message, innerException);
     }
     
-    public static Exception Create<T>(string? message = default, Exception? innerException = default)
-    {
-        return Factory.CreateDynamicException(typeof(T).ToPrettyString(), message, innerException);
-    }
-
-    public static Exception Create<T>(T obj, string? message = default, Exception? innerException = default)
-    {
-        return Create<T>(message, innerException);
-    }
+    // public static Exception Create<T>(string? message = default, Exception? innerException = default)
+    // {
+    //     return Factory.CreateDynamicException(typeof(T).ToPrettyString(), message, innerException);
+    // }
+    //
+    // public static Exception Create<T>(T obj, string? message = default, Exception? innerException = default)
+    // {
+    //     return Create<T>(message, innerException);
+    // }
 }
 
 public readonly struct DynamicExceptionName

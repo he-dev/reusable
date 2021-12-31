@@ -24,10 +24,10 @@ public class ProcessRequestTest
         {
             Controllers =
             {
-                new AdHocController<TestRequest.Foo> { Name = "foo", Tags = { "a" }, OnRead = (c, r) => Response.Success(c.Name).ToTask() },
-                new AdHocController<TestRequest.Bar> { Name = "bar", Tags = { "b" }, OnRead = (c, r) => Response.Success(c.Name).ToTask() },
-                new AdHocController<TestRequest.Baz> { Name = "baz", Tags = { "c" }, OnRead = (c, r) => Response.Success(c.Name).ToTask() },
-                new AdHocController<TestRequest.Bar> { Name = "bax", Tags = { "b" }, OnRead = (c, r) => Response.Success(c.Name).ToTask() },
+                new AdHocController<FileRequest>("file") { Name = "foo", Tags = { "a" }, OnRead = (c, r) => Response.Success(c.Name).ToTask() },
+                new AdHocController<FileRequest>("file") { Name = "bar", Tags = { "b" }, OnRead = (c, r) => Response.Success(c.Name).ToTask() },
+                new AdHocController<FileRequest>("file") { Name = "baz", Tags = { "c" }, OnRead = (c, r) => Response.Success(c.Name).ToTask() },
+                new AdHocController<FileRequest>("file") { Name = "bax", Tags = { "b" }, OnRead = (c, r) => Response.Success(c.Name).ToTask() },
             }
         }
     }.Build();
@@ -35,7 +35,7 @@ public class ProcessRequestTest
     [Fact]
     public async Task Finds_resource_by_request_type()
     {
-        using var response = await Resource.ReadAsync<TestRequest.Baz>("qux");
+        using var response = await Resource.File("qux").ReadAsync();
 
         Assert.Equal(ResourceStatusCode.Success, response.StatusCode);
         Assert.Equal("baz", response.Body.Peek());

@@ -14,6 +14,7 @@
     <Compile Remove="src\Demos\RestClientDemo.cs" />
     <Compile Remove="src\AssertServerExperiment.cs" />
     <Compile Remove="src\ExceptionVisualizerExperiment.cs" />
+    <Compile Remove="src\Examples\Translucent.cs" />
 <!--    <Compile Remove="src\Examples\OmniLog.v2.cs" />-->
   </ItemGroup>
 
@@ -36,9 +37,7 @@
     <ProjectReference Include="..\Reusable.Wiretap.Connectors.NLog\Reusable.Wiretap.Connectors.NLog.csproj" />
     <ProjectReference Include="..\Reusable.ReMember\Reusable.ReMember.csproj" />
     <ProjectReference Include="..\Reusable.Utilities.JsonNet\Reusable.Utilities.JsonNet.csproj" />
-    <ProjectReference Include="..\Reusable.Utilities.Mailr\Reusable.Utilities.Mailr.csproj" />
     <ProjectReference Include="..\Reusable.Utilities.NLog\Reusable.Utilities.NLog.csproj" />
-    <ProjectReference Include="..\Reusable.Utilities.SqlClient\Reusable.Utilities.SqlClient.csproj" />
     <ProjectReference Include="..\Reusable.Octopus\Reusable.Octopus.csproj" />
     <ProjectReference Include="..\Reusable.Octopus.config\Reusable.Octopus.config.csproj" />
     <ProjectReference Include="..\Reusable.Octopus.config.AppConfig\Reusable.Octopus.config.AppConfig.csproj" />

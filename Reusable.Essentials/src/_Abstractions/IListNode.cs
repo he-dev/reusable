@@ -1,6 +1,6 @@
 namespace Reusable.Essentials;
 
-public interface IListNode<T> where T : class, IListNode<T>
+public interface IListNode<T> where T : IListNode<T>
 {
     T? Prev { get; set; }
 

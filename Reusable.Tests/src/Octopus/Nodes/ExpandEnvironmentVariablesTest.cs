@@ -14,7 +14,7 @@ public class EnvironmentVariableMiddlewareTest
         Environment.SetEnvironmentVariable("TEST_VARIABLE", @"X:\test\this");
 
         var controller = new ExpandEnvironmentVariables();
-        var context = new ResourceContext(Request.Read<FileRequest.Text>(@"%TEST_VARIABLE%\file.txt"));
+        var context = new ResourceContext(Request.Read<FileRequest>(@"%TEST_VARIABLE%\file.txt"));
         await controller.InvokeAsync(context);
 
         Assert.Equal(@"X:\test\this\file.txt", context.Request.ResourceName.Peek());

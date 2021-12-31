@@ -123,7 +123,6 @@ public static class StringExtensions
 
     public static string IndentLines(this string value, int indentWidth, char indentCharacter = ' ', Encoding? encoding = default)
     {
-        if (value == null) throw new ArgumentNullException(nameof(value));
         if (indentWidth < 0) throw new ArgumentOutOfRangeException(nameof(indentWidth));
 
         var output = new StringBuilder();

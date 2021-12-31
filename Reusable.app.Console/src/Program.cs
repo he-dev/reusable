@@ -6,39 +6,41 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Reusable
+namespace Reusable;
+
+internal static class Program
 {
-    internal static class Program
+    [STAThread]
+    private static async Task Main(string[] args)
     {
-        [STAThread]
-        private static void Main(string[] args)
-        {
-            //Examples.ConsoleColorizer();
-            //Examples.SemanticExtensions();
-            Examples.Log();
-            //Examples.Tokenize();
-            //await Examples.SendEmailAsync_Mailr();
-            //await Examples.SendEmailAsync_Smtp();
-            //await Demo.SendEmailAsync_Smtp();
-            //await Demo.SendEmailAsync_Mailr();
-            
-        }
-    }
+        //Examples.ConsoleColorizer();
+        //Examples.SemanticExtensions();
+        
+        //Examples.Log();
+        
+        await Experiments.ServicePipelineDemo.Test();
 
+        //Examples.Tokenize();
+        //await Examples.SendEmailAsync_Mailr();
+        //await Examples.SendEmailAsync_Smtp();
+        //await Demo.SendEmailAsync_Smtp();
+        //await Demo.SendEmailAsync_Mailr();
 
-    internal static class StringBuilderExtensions
-    {
-        public static bool Any(this StringBuilder stringBuilder) => stringBuilder.Length > 0;
-
-        public static StringBuilder RemoveLast(this StringBuilder stringBuilder)
-        {
-            if (stringBuilder.Any())
-            {
-                stringBuilder.Length--;
-            }
-
-            return stringBuilder;
-        }
     }
 }
 
+
+internal static class StringBuilderExtensions
+{
+    public static bool Any(this StringBuilder stringBuilder) => stringBuilder.Length > 0;
+
+    public static StringBuilder RemoveLast(this StringBuilder stringBuilder)
+    {
+        if (stringBuilder.Any())
+        {
+            stringBuilder.Length--;
+        }
+
+        return stringBuilder;
+    }
+}

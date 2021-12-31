@@ -72,13 +72,11 @@ public static class enumerable
 
     public static string Join<T>(this IEnumerable<T> values, string separator = "")
     {
-        if (values == null) throw new ArgumentNullException(nameof(values));
         return string.Join(separator, values);
     }
 
     public static string Join<T>(this IEnumerable<T> values, Func<T, string> selector, string separator)
     {
-        if (values == null) throw new ArgumentNullException(nameof(values));
         return string.Join(separator, values.Select(selector));
     }
 
