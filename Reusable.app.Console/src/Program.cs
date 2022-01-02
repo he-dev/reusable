@@ -18,7 +18,8 @@ internal static class Program
         
         //Examples.Log();
         
-        await Experiments.ServicePipelineDemo.Test();
+        //await Experiments.ServicePipelineDemo.Test();
+        await Experiments.ServicePipelineDemo2.Test();
 
         //Examples.Tokenize();
         //await Examples.SendEmailAsync_Mailr();

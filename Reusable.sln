@@ -92,6 +92,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reusable.Wiretap.Connectors
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reusable.Essentials", "Reusable.Essentials\Reusable.Essentials.csproj", "{5713F33F-3C5B-4B2D-8A0A-67D75CF1F4CF}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reusable.Synergy", "D:\.stuff\a\projects\reusable\Reusable.Synergy\Reusable.Synergy.csproj", "{B08E1A6D-F000-4759-9919-F1E18BB02AB1}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -236,6 +238,10 @@ Global
 		{5713F33F-3C5B-4B2D-8A0A-67D75CF1F4CF}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5713F33F-3C5B-4B2D-8A0A-67D75CF1F4CF}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5713F33F-3C5B-4B2D-8A0A-67D75CF1F4CF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B08E1A6D-F000-4759-9919-F1E18BB02AB1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B08E1A6D-F000-4759-9919-F1E18BB02AB1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B08E1A6D-F000-4759-9919-F1E18BB02AB1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B08E1A6D-F000-4759-9919-F1E18BB02AB1}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -277,6 +283,7 @@ Global
 		{F7D80E2C-1315-4D87-BB06-D5E5CBECECC1} = {0558F331-6EE1-4E74-B402-8CA44A62A37D}
 		{929C914F-5F63-4101-A3B3-6F42AB147B3A} = {0558F331-6EE1-4E74-B402-8CA44A62A37D}
 		{5713F33F-3C5B-4B2D-8A0A-67D75CF1F4CF} = {E50273AB-3639-4A78-8DE1-D46E402EA3EF}
+		{B08E1A6D-F000-4759-9919-F1E18BB02AB1} = {0558F331-6EE1-4E74-B402-8CA44A62A37D}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {2FA54731-890C-4550-BACA-E19B564CE1E3}

@@ -38,6 +38,7 @@
     <ProjectReference Include="..\Reusable.ReMember\Reusable.ReMember.csproj" />
     <ProjectReference Include="..\Reusable.Utilities.JsonNet\Reusable.Utilities.JsonNet.csproj" />
     <ProjectReference Include="..\Reusable.Utilities.NLog\Reusable.Utilities.NLog.csproj" />
+    <ProjectReference Include="..\Reusable.Synergy\Reusable.Synergy.csproj" />
     <ProjectReference Include="..\Reusable.Octopus\Reusable.Octopus.csproj" />
     <ProjectReference Include="..\Reusable.Octopus.config\Reusable.Octopus.config.csproj" />
     <ProjectReference Include="..\Reusable.Octopus.config.AppConfig\Reusable.Octopus.config.AppConfig.csproj" />
