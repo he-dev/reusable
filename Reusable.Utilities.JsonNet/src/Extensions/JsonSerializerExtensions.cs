@@ -14,23 +14,21 @@ public static class JsonSerializerExtensions
 
     public static void Serialize<T>(this JsonSerializer jsonSerializer, Stream stream, [DisallowNull] T obj)
     {
-        using (var textWriter = new StreamWriter(stream, UTF8NoBOM, BufferSize, leaveOpen: true))
-        using (var jsonWriter = new JsonTextWriter(textWriter))
-        {
-            jsonSerializer.Serialize(jsonWriter, obj);
-            jsonWriter.Flush();
-        }
+        using var textWriter = new StreamWriter(stream, UTF8NoBOM, BufferSize, leaveOpen: true);
+        using var jsonWriter = new JsonTextWriter(textWriter);
+        
+        jsonSerializer.Serialize(jsonWriter, obj);
+        jsonWriter.Flush();
     }
 
     public static Stream Serialize<T>(this JsonSerializer jsonSerializer, [DisallowNull] T obj)
     {
         var output = new MemoryStream();
-        using (var textWriter = new StreamWriter(output, UTF8NoBOM, BufferSize, leaveOpen: true))
-        using (var jsonWriter = new JsonTextWriter(textWriter))
-        {
-            jsonSerializer.Serialize(jsonWriter, obj);
-            jsonWriter.Flush();
-        }
+        using var textWriter = new StreamWriter(output, UTF8NoBOM, BufferSize, leaveOpen: true);
+        using var jsonWriter = new JsonTextWriter(textWriter);
+        
+        jsonSerializer.Serialize(jsonWriter, obj);
+        jsonWriter.Flush();
 
         return output;
     }
@@ -38,17 +36,17 @@ public static class JsonSerializerExtensions
     [return: NotNull]
     public static T Deserialize<T>(this JsonSerializer jsonSerializer, Stream stream)
     {
-        using (var streamReader = new StreamReader(stream, Encoding.UTF8, detectEncodingFromByteOrderMarks: true, BufferSize, leaveOpen: true))
-        using (var jsonTextReader = new JsonTextReader(streamReader))
-        {
-            return jsonSerializer.Deserialize<T>(jsonTextReader);
-        }
+        using var streamReader = new StreamReader(stream, Encoding.UTF8, detectEncodingFromByteOrderMarks: true, BufferSize, leaveOpen: true);
+        using var jsonTextReader = new JsonTextReader(streamReader);
+        
+        return jsonSerializer.Deserialize<T>(jsonTextReader);
     }
     
-    public static object? Deserialize(this JsonSerializer jsonSerializer, Stream stream, Type toType)
+    public static object Deserialize(this JsonSerializer jsonSerializer, Stream stream, Type toType)
     {
         using var streamReader = new StreamReader(stream, Encoding.UTF8, detectEncodingFromByteOrderMarks: true, BufferSize, leaveOpen: true);
         using var jsonTextReader = new JsonTextReader(streamReader);
+        
         return jsonSerializer.Deserialize(jsonTextReader, toType);
     }
 }

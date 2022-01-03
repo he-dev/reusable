@@ -10,15 +10,16 @@ public static class RequestExtensions
 {
     public static async Task<T> InvokeAsync<T>(this IRequest<T> request, IComponentContext components)
     {
-        var node =
-            components.ResolveOptionalNamed<Service.PipelineBuilder>(request.Tag()) is { } builder
-                ? builder.Build()
-                : throw DynamicException.Create("PipelineNotFound", $"There is no pipeline to invoke {request.GetType().ToPrettyString()}");
-        return
-            await node.InvokeAsync(request) is T result
-                ? result
-                : throw DynamicException.Create("Request", $"{request.GetType().ToPrettyString()} did not return any result.");
+        using (request)
+        {
+            var node =
+                components.ResolveOptionalNamed<Service.PipelineBuilder>(request.Tag()) is { } builder
+                    ? builder.Build()
+                    : throw DynamicException.Create("PipelineNotFound", $"There is no pipeline to invoke {request.GetType().ToPrettyString()}");
+            return
+                await node.InvokeAsync(request) is T result
+                    ? result
+                    : throw DynamicException.Create("Request", $"{request.GetType().ToPrettyString()} did not return any result.");
+        }
     }
-
-    
 }

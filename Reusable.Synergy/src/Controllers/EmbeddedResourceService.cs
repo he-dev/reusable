@@ -23,36 +23,30 @@ public class EmbeddedResourceService : Service
 
     public override async Task<object> InvokeAsync(IRequest request)
     {
-        if (request is IReadFile file)
+        if (request is not IReadFile file)
         {
-            var name = Normalize(file.Name);
-            if (FindResource(name) is { } stream)
-            {
-                if (request is ReadFile.Text t)
-                {
-                    await using (stream)
-                    {
-                        return await stream.ReadTextAsync();
-                    }
-                }
+            throw DynamicException.Create("UnknownRequest", $"{request.GetType().ToPrettyString()} is not supported by this {nameof(EmbeddedResourceService)}.");
+        }
 
-                if (request is ReadFile.Stream)
-                {
-                    return stream;
-                }
-            }
-            else
+        var name = Normalize(file.Name);
+
+        if (FindResource(name) is not { } stream)
+        {
+            return
+                MustSucceed
+                    ? throw DynamicException.Create("EmbeddedResourceNotFound", $"There is no such file as '{file.Name}'.")
+                    : await InvokeNext(request);
+        }
+
+        if (request is ReadFile<string>)
+        {
+            await using (stream)
             {
-                Console.WriteLine($"Embedded resource '{name}' not found.");
-                
-                return
-                    MustSucceed
-                        ? throw DynamicException.Create("EmbeddedResourceNotFound", $"There is no such file as '{file.Name}'.")
-                        : await InvokeNext(request);
+                return await stream.ReadTextAsync();
             }
         }
 
-        throw DynamicException.Create("UnknownRequest", $"{request.GetType().ToPrettyString()} is not supported by this {nameof(EmbeddedResourceService)}.");
+        return stream;
     }
 
     // Embedded resource names are separated by '.' so replace the windows separator.

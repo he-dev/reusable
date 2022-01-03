@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -6,7 +7,7 @@ using Reusable.Essentials;
 
 namespace Reusable.Synergy;
 
-public interface IRequest
+public interface IRequest : IDisposable
 {
     IDictionary<string, object> Items { get; }
 }
@@ -16,6 +17,8 @@ public interface IRequest<T> : IRequest { }
 public abstract class Request<T> : IRequest<T>
 {
     public IDictionary<string, object> Items { get; } = new Dictionary<string, object>(SoftString.Comparer);
+
+    public virtual void Dispose() { }
 }
 
 public sealed class Unit

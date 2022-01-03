@@ -5,9 +5,9 @@ using System.Threading.Tasks;
 
 namespace Reusable.Synergy.Services;
 
+// Allows to associate cache-lifetime to with a service.
 public class CacheLifetimeService : Service
 {
-// Allows to associate cache-lifetime to with a service.
     public CacheLifetimeService(TimeSpan fallback)
     {
         if (fallback == TimeSpan.Zero) throw new ArgumentException("Fallback value needs to be greater than zero.");

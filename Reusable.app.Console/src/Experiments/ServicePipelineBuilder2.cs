@@ -15,7 +15,7 @@ public class ServicePipelineDemo2
     {
         // Compose the container.
         var builder = new ContainerBuilder();
-        
+
         // Register cache dependency,
         builder.RegisterInstance(new MemoryCache(new MemoryCacheOptions())).As<IMemoryCache>().SingleInstance();
 
@@ -24,24 +24,22 @@ public class ServicePipelineDemo2
         {
             // This pipeline should resolve environment variables that might be used by the .Name property.
             new EnvironmentVariableService(PropertyService.For<IReadFile>.Select(x => x.Name)),
-            // All text files should be cached for 30min and other files for 15min.
-            new CacheLifetimeService(TimeSpan.FromMinutes(15))
+            // All text files should be cached for 15min.
+            new CacheLifetimeService(TimeSpan.FromMinutes(15)),
+            // Use this branch for .txt-files.
+            new BranchService(Condition.For<IReadFile>.When(x => x.Name.EndsWith(".txt"), ".txt"))
             {
-                Rules =
-                {
-                    // Add a condition for read-file request.
-                    Condition.For<IReadFile>.When(x => x.Name.EndsWith(".txt"), ".txt").Then(TimeSpan.FromMinutes(30))
-                }
+                Services = { new CacheLifetimeService(TimeSpan.FromMinutes(30)) }
             },
             new CacheService(c.Resolve<IMemoryCache>(), PropertyService.For<IReadFile>.Select(x => x.Name)),
             // This pipeline should look in embedded resources first before it reads files. 
             // Since this node doesn't have to succeed, the next one is called.
             new EmbeddedResourceService<ServicePipelineDemo2> { MustSucceed = false },
             // This overrides the file-service for testing.
-            new ConstantService.Text("This is not a real file!"),
+            //new ConstantService.Text("This is not a real file!"),
             // Finally this node tries to read a file.
             new FileService.Read()
-        }).InstancePerDependency().Named<Service.PipelineBuilder>(nameof(ReadFile.Text));
+        }).InstancePerDependency().Named<Service.PipelineBuilder>("notes");
 
         await using var container = builder.Build();
         await using var scope = container.BeginLifetimeScope();
@@ -50,7 +48,7 @@ public class ServicePipelineDemo2
         Environment.SetEnvironmentVariable("HOME", @"c:\temp");
 
         // Create the request and invoke it.
-        var result = await new ReadFile.Text(@"%HOME%\notes.txt").CacheLifetime(TimeSpan.FromMinutes(10)).InvokeAsync(scope);
+        var result = await new ReadFile<string>(@"%HOME%\notes.txt").Tag("notes").CacheLifetime(TimeSpan.FromMinutes(10)).InvokeAsync(scope);
 
         Console.WriteLine(result); // --> "This is not a real file!" or FileNotFoundException (as there is no "notes.txt".
     }
