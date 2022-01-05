@@ -8,21 +8,17 @@ namespace Reusable.Synergy.Services;
 // Allows to associate cache-lifetime to with a service.
 public class CacheLifetimeService : Service
 {
-    public CacheLifetimeService(TimeSpan fallback)
+    public CacheLifetimeService(TimeSpan value)
     {
-        if (fallback == TimeSpan.Zero) throw new ArgumentException("Fallback value needs to be greater than zero.");
-        Fallback = fallback;
+        if (value == TimeSpan.Zero) throw new ArgumentException("Cache lifetime needs to be greater than zero.");
+        Value = value;
     }
 
-    private TimeSpan Fallback { get; }
-
-    public List<ConditionBag<TimeSpan>> Rules { get; } = new();
+    private TimeSpan Value { get; }
 
     public override async Task<object> InvokeAsync(IRequest request)
     {
-        var lifetime = Rules.Where(c => c.Evaluate(request)).Select(c => c.GetValue()).FirstOrDefault();
-
-        request.CacheLifetime(lifetime > TimeSpan.Zero ? lifetime : Fallback);
+        request.CacheLifetime(Value);
 
         return await InvokeNext(request);
     }

@@ -6,7 +6,7 @@ using System.Reflection;
 using Reusable.Essentials.Extensions;
 using Reusable.Octopus;
 using Reusable.Octopus.Data;
-using Reusable.Quickey;
+using Reusable.ReMember;
 using Reusable.Translucent.Annotations;
 
 namespace Reusable.Translucent.Data;

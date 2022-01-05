@@ -3,133 +3,132 @@ using System.Linq;
 using System.Reflection;
 using JetBrains.Annotations;
 using Reusable.Essentials.Extensions;
-using Reusable.Quickey.Tokens;
+using Reusable.ReMember.Tokens;
 
-namespace Reusable.Quickey
+namespace Reusable.ReMember;
+
+public interface ISelectorTokenFactory
 {
-    public interface ISelectorTokenFactory
+    SelectorToken CreateSelectorToken(SelectorContext context);
+}
+
+public interface ISelectorTokenFactoryParameter { }
+
+[PublicAPI]
+[UsedImplicitly]
+[AttributeUsage(AttributeTargets.Interface | AttributeTargets.Class | AttributeTargets.Property, Inherited = false)]
+public abstract class SelectorTokenFactoryAttribute : Attribute, ISelectorTokenFactory
+{
+    public string? Prefix { get; set; }
+
+    public string? Suffix { get; set; }
+
+    protected string Format(MemberInfo member, string token)
     {
-        SelectorToken CreateSelectorToken(SelectorContext context);
+        // Get only own formatters and not inherited ones.
+        var formatters =
+            from f in member.GetCustomAttributes<SelectorTokenFormatterAttribute>(inherit: false)
+            where f.Token is null || GetType().IsInstanceOfType(f.Token)
+            select f;
+
+        var formatted = formatters.Aggregate(token, (current, formatter) => formatter.Format(current));
+
+        return $"{Prefix}{formatted}{Suffix}";
     }
 
-    public interface ISelectorTokenFactoryParameter { }
+    public abstract SelectorToken CreateSelectorToken(SelectorContext context);
+}
 
-    [PublicAPI]
-    [UsedImplicitly]
-    [AttributeUsage(AttributeTargets.Interface | AttributeTargets.Class | AttributeTargets.Property, Inherited = false)]
-    public abstract class SelectorTokenFactoryAttribute : Attribute, ISelectorTokenFactory
+public class UseSchemeAttribute : SelectorTokenFactoryAttribute
+{
+    private readonly string _name;
+
+    public UseSchemeAttribute(string name)
     {
-        public string? Prefix { get; set; }
-
-        public string? Suffix { get; set; }
-
-        protected string Format(MemberInfo member, string token)
-        {
-            // Get only own formatters and not inherited ones.
-            var formatters =
-                from f in member.GetCustomAttributes<SelectorTokenFormatterAttribute>(inherit: false)
-                where f.Token is null || GetType().IsInstanceOfType(f.Token)
-                select f;
-
-            var formatted = formatters.Aggregate(token, (current, formatter) => formatter.Format(current));
-
-            return $"{Prefix}{formatted}{Suffix}";
-        }
-
-        public abstract SelectorToken CreateSelectorToken(SelectorContext context);
+        _name = name;
+        Suffix = ":";
     }
 
-    public class UseSchemeAttribute : SelectorTokenFactoryAttribute
+    public override SelectorToken CreateSelectorToken(SelectorContext context)
     {
-        private readonly string _name;
+        return new SchemeToken(Format(context.Metadata.Member, _name));
+    }
+}
 
-        public UseSchemeAttribute(string name)
-        {
-            _name = name;
-            Suffix = ":";
-        }
+public class UseNamespaceAttribute : SelectorTokenFactoryAttribute
+{
+    private readonly string? _name;
 
-        public override SelectorToken CreateSelectorToken(SelectorContext context)
-        {
-            return new SchemeToken(Format(context.Metadata.Member, _name));
-        }
+    public UseNamespaceAttribute(string? name = default)
+    {
+        _name = name;
+        Suffix = "+";
     }
 
-    public class UseNamespaceAttribute : SelectorTokenFactoryAttribute
+    public override SelectorToken CreateSelectorToken(SelectorContext context)
     {
-        private readonly string? _name;
+        return new NamespaceToken(Format(context.Metadata.Member, _name ?? context.Metadata.Member.ReflectedType.Namespace));
+    }
+}
 
-        public UseNamespaceAttribute(string? name = default)
-        {
-            _name = name;
-            Suffix = "+";
-        }
+public class UseTypeAttribute : SelectorTokenFactoryAttribute
+{
+    private readonly string? _name;
 
-        public override SelectorToken CreateSelectorToken(SelectorContext context)
-        {
-            return new NamespaceToken(Format(context.Metadata.Member, _name ?? context.Metadata.Member.ReflectedType.Namespace));
-        }
+    public UseTypeAttribute(string? name = default)
+    {
+        _name = name;
+        Suffix = ".";
     }
 
-    public class UseTypeAttribute : SelectorTokenFactoryAttribute
+    public override SelectorToken CreateSelectorToken(SelectorContext context)
     {
-        private readonly string? _name;
+        // Get the first non-ignored type.
+        var types =
+            from t in context.Metadata.Member.Ancestors().OfType<Type>()
+            let attribute = t.GetCustomAttribute<SelectorAttribute?>()
+            where attribute is null || !attribute.Ignore
+            select t;
 
-        public UseTypeAttribute(string? name = default)
-        {
-            _name = name;
-            Suffix = ".";
-        }
+        var type = types.First();
 
-        public override SelectorToken CreateSelectorToken(SelectorContext context)
-        {
-            // Get the first non-ignored type.
-            var types =
-                from t in SelectorPath.Enumerate(context.Metadata.Member).OfType<Type>()
-                let attribute = t.GetCustomAttribute<SelectorAttribute?>()
-                where attribute is null || !attribute.Ignore
-                select t;
+        return new TypeToken(Format(type, _name ?? type?.ToPrettyString()));
+    }
+}
 
-            var type = types.First();
+public class UseMemberAttribute : SelectorTokenFactoryAttribute
+{
+    private readonly string? _name;
 
-            return new TypeToken(Format(type, _name ?? type?.ToPrettyString()));
-        }
+    public UseMemberAttribute(string? name = default)
+    {
+        _name = name;
     }
 
-    public class UseMemberAttribute : SelectorTokenFactoryAttribute
+    public override SelectorToken CreateSelectorToken(SelectorContext context)
     {
-        private readonly string? _name;
+        return new MemberToken(Format(context.Metadata.Member, _name ?? context.Metadata.Member.Name));
+    }
+}
 
-        public UseMemberAttribute(string? name = default)
-        {
-            _name = name;
-        }
-
-        public override SelectorToken CreateSelectorToken(SelectorContext context)
-        {
-            return new MemberToken(Format(context.Metadata.Member, _name ?? context.Metadata.Member.Name));
-        }
+public class UseIndexAttribute : SelectorTokenFactoryAttribute
+{
+    public UseIndexAttribute()
+    {
+        Prefix = "[";
+        Suffix = "]";
     }
 
-    public class UseIndexAttribute : SelectorTokenFactoryAttribute
+    public override SelectorToken CreateSelectorToken(SelectorContext context)
     {
-        public UseIndexAttribute()
-        {
-            Prefix = "[";
-            Suffix = "]";
-        }
+        return
+            context.TokenParameters.OfType<Parameter>().SingleOrDefault() is {} parameter
+                ? new IndexToken(Format(context.Metadata.Member, parameter.Index))
+                : new IndexToken(string.Empty);
+    }
 
-        public override SelectorToken CreateSelectorToken(SelectorContext context)
-        {
-            return
-                context.TokenParameters.OfType<Parameter>().SingleOrDefault() is {} parameter
-                    ? new IndexToken(Format(context.Metadata.Member, parameter.Index))
-                    : new IndexToken(string.Empty);
-        }
-
-        public class Parameter : ISelectorTokenFactoryParameter
-        {
-            public string Index { get; set; }
-        }
+    public class Parameter : ISelectorTokenFactoryParameter
+    {
+        public string Index { get; set; }
     }
 }

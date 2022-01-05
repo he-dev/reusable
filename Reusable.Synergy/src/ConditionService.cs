@@ -14,6 +14,10 @@ public record Condition(Func<object, bool> Evaluate) : ICondition
 {
     private static readonly ConcurrentDictionary<(Type, string), object> Cache = new();
 
+    public static ICondition True { get; } = For<IRequest>.When(_ => true, nameof(True));
+
+    public static ICondition False { get; } = For<IRequest>.When(_ => false, nameof(False));
+
     public abstract class For<TSource> where TSource : IRequest
     {
         public static ICondition When(Expression<Func<TSource, bool>> expression, string tag)

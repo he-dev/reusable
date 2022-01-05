@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Reusable.Essentials;
 using Reusable.Octopus;
-using Reusable.Quickey;
+using Reusable.ReMember;
 using Reusable.Translucent.Data;
 
 namespace Reusable.Translucent;

@@ -2,50 +2,49 @@ using System;
 using System.Text.RegularExpressions;
 using JetBrains.Annotations;
 
-namespace Reusable.Quickey
+namespace Reusable.ReMember;
+
+public interface ISelectorTokenFormatter
 {
-    public interface ISelectorTokenFormatter
-    {
-        Type? Token { get; set; }
+    Type? Token { get; set; }
         
-        string Format(string name);
-    }
+    string Format(string name);
+}
 
-    [UsedImplicitly]
-    [AttributeUsage(AttributeTargets.Interface | AttributeTargets.Class, Inherited = false)]
-    public abstract class SelectorTokenFormatterAttribute : Attribute, ISelectorTokenFormatter
-    {
-        public Type? Token { get; set; }
+[UsedImplicitly]
+[AttributeUsage(AttributeTargets.Interface | AttributeTargets.Class, Inherited = false)]
+public abstract class SelectorTokenFormatterAttribute : Attribute, ISelectorTokenFormatter
+{
+    public Type? Token { get; set; }
         
-        public abstract string Format(string name);
-    }
+    public abstract string Format(string name);
+}
     
-    [UsedImplicitly]
-    [AttributeUsage(AttributeTargets.Interface | AttributeTargets.Class | AttributeTargets.Property)]
-    public class ReplaceAttribute : SelectorTokenFormatterAttribute
+[UsedImplicitly]
+[AttributeUsage(AttributeTargets.Interface | AttributeTargets.Class | AttributeTargets.Property)]
+public class ReplaceAttribute : SelectorTokenFormatterAttribute
+{
+    private readonly string _pattern;
+    private readonly string _name;
+
+    public ReplaceAttribute([RegexPattern] string pattern, string name)
     {
-        private readonly string _pattern;
-        private readonly string _name;
-
-        public ReplaceAttribute([RegexPattern] string pattern, string name)
-        {
-            _pattern = pattern;
-            _name = name;
-        }
-
-        public override string Format(string name)
-        {
-            return Regex.Replace(name, _pattern, _name);
-        }
+        _pattern = pattern;
+        _name = name;
     }
 
-    public class TrimEndAttribute : ReplaceAttribute
+    public override string Format(string name)
     {
-        public TrimEndAttribute(string suffix) : base($"{suffix}$", string.Empty) { }
+        return Regex.Replace(name, _pattern, _name);
     }
+}
 
-    public class TrimStartAttribute : ReplaceAttribute
-    {
-        public TrimStartAttribute(string prefix) : base($"^{prefix}", string.Empty) { }
-    }
+public class TrimEndAttribute : ReplaceAttribute
+{
+    public TrimEndAttribute(string suffix) : base($"{suffix}$", string.Empty) { }
+}
+
+public class TrimStartAttribute : ReplaceAttribute
+{
+    public TrimStartAttribute(string prefix) : base($"^{prefix}", string.Empty) { }
 }

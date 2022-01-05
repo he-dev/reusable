@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics.CodeAnalysis;
 using Reusable.Essentials;
 
 namespace Reusable.Synergy;
@@ -12,7 +13,7 @@ public static class RequestItems
                 ? result
                 : throw DynamicException.Create("ItemNotFound", $"Could not find item '{name}'.");
     }
-
+    
     public static T GetItemOrDefault<T>(this IRequest request, string name, T fallback)
     {
         return

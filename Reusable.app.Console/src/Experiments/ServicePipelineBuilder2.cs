@@ -27,8 +27,9 @@ public class ServicePipelineDemo2
             // All text files should be cached for 15min.
             new CacheLifetimeService(TimeSpan.FromMinutes(15)),
             // Use this branch for .txt-files.
-            new BranchService(Condition.For<IReadFile>.When(x => x.Name.EndsWith(".txt"), ".txt"))
+            new BranchService
             {
+                When = Condition.For<IReadFile>.When(x => x.Name.EndsWith(".txt"), ".txt"),
                 Services = { new CacheLifetimeService(TimeSpan.FromMinutes(30)) }
             },
             new CacheService(c.Resolve<IMemoryCache>(), PropertyService.For<IReadFile>.Select(x => x.Name)),

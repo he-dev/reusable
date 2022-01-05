@@ -6,7 +6,7 @@ using System.Linq;
 using System.Reflection;
 using JetBrains.Annotations;
 using Reusable.Essentials;
-using Reusable.Quickey;
+using Reusable.ReMember;
 
 namespace Reusable.Data
 {

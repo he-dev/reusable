@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Reusable.Essentials;
 
@@ -10,6 +11,8 @@ namespace Reusable.Synergy;
 public interface IRequest : IDisposable
 {
     IDictionary<string, object> Items { get; }
+    
+    CancellationToken CancellationToken { get; set; }
 }
 
 public interface IRequest<T> : IRequest { }
@@ -17,6 +20,8 @@ public interface IRequest<T> : IRequest { }
 public abstract class Request<T> : IRequest<T>
 {
     public IDictionary<string, object> Items { get; } = new Dictionary<string, object>(SoftString.Comparer);
+    
+    public CancellationToken CancellationToken { get; set; } = CancellationToken.None;
 
     public virtual void Dispose() { }
 }
@@ -58,7 +63,7 @@ public abstract class Service : IService
                 : Unit.Default;
     }
 
-    private class Empty : Service
+    protected class Empty : Service
     {
         public override async Task<object> InvokeAsync(IRequest request) => await InvokeNext(request);
     }

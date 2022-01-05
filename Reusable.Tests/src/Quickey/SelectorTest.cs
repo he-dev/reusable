@@ -1,3 +1,4 @@
+using Reusable.ReMember;
 using Xunit;
 
 namespace Reusable.Quickey

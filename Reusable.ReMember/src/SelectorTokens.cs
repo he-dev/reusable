@@ -1,6 +1,6 @@
 using JetBrains.Annotations;
 
-namespace Reusable.Quickey
+namespace Reusable.ReMember
 {
     [PublicAPI]
     public abstract class SelectorToken //: IEquatable<SelectorToken>

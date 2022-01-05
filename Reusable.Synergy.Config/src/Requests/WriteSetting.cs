@@ -1,15 +1,15 @@
 namespace Reusable.Synergy.Requests;
 
-public interface IWriteFile
+public interface IWriteSetting : IRequest
 {
     public string Name { get; set; }
 
     public object Value { get; set; }
 }
 
-public class WriteFile : Request<Unit>, IWriteFile
+public class WriteSetting : Request<Unit>, IWriteSetting
 {
-    public WriteFile(string name, object value) => (Name, Value) = (name, value);
+    public WriteSetting(string name, object value) => (Name, Value) = (name, value);
 
     public string Name { get; set; }
     

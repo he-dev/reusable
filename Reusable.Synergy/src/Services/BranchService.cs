@@ -1,12 +1,12 @@
 using System.Threading.Tasks;
+using JetBrains.Annotations;
 
 namespace Reusable.Synergy.Services;
 
+[PublicAPI]
 public class BranchService : Service
 {
-    public BranchService(ICondition condition) => Condition = condition;
-
-    public ICondition Condition { get; }
+    public ICondition When { get; set; } = Condition.False;
 
     public PipelineBuilder Services { get; } = new();
 
@@ -21,7 +21,7 @@ public class BranchService : Service
         }
 
         return
-            Condition.Evaluate(request) && First is { }
+            When.Evaluate(request) && First is { }
                 ? await First.InvokeAsync(request)
                 : await InvokeNext(request);
     }
