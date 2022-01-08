@@ -1,17 +1,19 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Reusable.Essentials;
+using Reusable.Essentials.Extensions;
 
 namespace Reusable.Synergy;
 
 public interface IRequest : IDisposable
 {
     IDictionary<string, object> Items { get; }
-    
+
     CancellationToken CancellationToken { get; set; }
 }
 
@@ -20,7 +22,7 @@ public interface IRequest<T> : IRequest { }
 public abstract class Request<T> : IRequest<T>
 {
     public IDictionary<string, object> Items { get; } = new Dictionary<string, object>(SoftString.Comparer);
-    
+
     public CancellationToken CancellationToken { get; set; } = CancellationToken.None;
 
     public virtual void Dispose() { }
@@ -33,7 +35,7 @@ public sealed class Unit
     public static readonly Unit Default = new();
 }
 
-public interface IService : IEnumerable<IService>
+public interface IService : IEnumerable<IService>, IDisposable
 {
     bool MustSucceed { get; }
 
@@ -63,6 +65,22 @@ public abstract class Service : IService
                 : Unit.Default;
     }
 
+    [DoesNotReturn]
+    protected static object Failure<T>(T request, string message) where T : IRequest
+    {
+        throw DynamicException.Create(request.GetType().ToPrettyString(), message);
+    }
+
+    protected T ThrowIfNot<T>(IRequest request) where T : IRequest
+    {
+        if (request is not T result)
+        {
+            throw DynamicException.Create("Request", $"{GetType().ToPrettyString()} does not support {request.GetType().ToPrettyString()}. You need to use {request.GetType().ToPrettyString()}");
+        }
+
+        return result;
+    }
+
     protected class Empty : Service
     {
         public override async Task<object> InvokeAsync(IRequest request) => await InvokeNext(request);
@@ -81,4 +99,6 @@ public abstract class Service : IService
 
         public IService Build() => First;
     }
+
+    public virtual void Dispose() { }
 }

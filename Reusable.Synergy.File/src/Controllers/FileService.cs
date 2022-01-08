@@ -15,11 +15,8 @@ public abstract class FileService : Service
     {
         public override async Task<object> InvokeAsync(IRequest request)
         {
-            if (request is not IReadFile file)
-            {
-                throw DynamicException.Create("UnknownRequest", $"{request.GetType().ToPrettyString()} is not supported by this {nameof(FileService)}.");
-            }
-
+            var file = ThrowIfNot<IReadFile>(request);
+            
             if (!File.Exists(file.Name))
             {
                 return
@@ -44,11 +41,8 @@ public abstract class FileService : Service
     {
         public override async Task<object> InvokeAsync(IRequest request)
         {
-            if (request is not IWriteFile file)
-            {
-                throw DynamicException.Create("UnknownRequest", $"{request.GetType().ToPrettyString()} is not supported by this {nameof(FileService)}.");
-            }
-
+            var file = ThrowIfNot<IWriteFile>(request);
+            
             if (!File.Exists(file.Name))
             {
                 return

@@ -1,6 +1,6 @@
 namespace Reusable.Synergy.Requests;
 
-public interface IWriteFile
+public interface IWriteFile : IRequest
 {
     public string Name { get; set; }
 
