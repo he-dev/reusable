@@ -29,7 +29,7 @@ public class TelemetryService : Service
         }
         finally
         {
-            Logger.Log(Telemetry.Collect.Application().Execution().Auto());
+            Logger.Log(Telemetry.Collect.Application().UnitOfWork(nameof(InvokeAsync)).Auto());
         }
     }
 }

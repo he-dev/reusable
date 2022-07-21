@@ -4,8 +4,10 @@ using System.Text.RegularExpressions;
 using Reusable.Apps;
 using Reusable.Utilities.NLog.LayoutRenderers;
 using Reusable.Wiretap;
-using Reusable.Wiretap.Connectors;
+using Reusable.Wiretap.Abstractions;
+using Reusable.Wiretap.Channels;
 using Reusable.Wiretap.Conventions;
+using Reusable.Wiretap.Data;
 using Reusable.Wiretap.Extensions;
 using Reusable.Wiretap.Nodes;
 using Reusable.Wiretap.Pipelines;
@@ -18,62 +20,25 @@ public static partial class Examples
     {
         SmartPropertiesLayoutRenderer.Register();
 
-        using var loggerFactory =
-            LoggerFactory
-                .CreateWith<CompletePipeline>()
-                .Environment("Demo")
-                .Product("Reusable.app.Console")
-                .Configure<MapSnapshot>(node =>
-                {
-                    node.Mappings.Add<Person>(x => new
-                    {
-                        FullName = $"{x.LastName}, {x.FirstName}".ToUpper()
-                    });
-                })
-                .Configure<MapToLogLevel>(node =>
-                {
-                    // node.Mappers.Add(new MapPropertyToLogLevel<FlowStatus>
-                    // {
-                    //     PropertyName = "Status",
-                    //     Mappings =
-                    //     {
-                    //         [FlowStatus.Undefined] = LogLevel.Warning,
-                    //         [FlowStatus.Begin] = LogLevel.Debug,
-                    //         [FlowStatus.Completed] = LogLevel.Information,
-                    //         [FlowStatus.Canceled] = LogLevel.Warning,
-                    //         [FlowStatus.Faulted] = LogLevel.Error,
-                    //     }
-                    // });
-                })
-                .Configure<RenameProperty>(node =>
-                {
-                    //node.Mappings.Add(Names.Properties.Correlation, "Scope");
-                    //node.Mappings.Add(Names.Properties.Unit, "Identifier");
-                    node.Renames = new List<IRename>
-                    {
-                        new Replace
-                        {
-                            Replacements =
-                            {
-                                ["Correlation"] = "Scope"
-                            }
-                        },
-                        new Remove
-                        {
-                            Pattern = new Regex("Layer$", RegexOptions.IgnoreCase)
-                        }
-                    };
-                })
-                .Echo<NLogConnector>()
-                .Echo<ConsoleConnectorDynamic>(c =>
+        var pipeline =
+            Logger
+                .Pipeline<Default>()
+                .Use(new AttachProperty(LogProperty.Names.Environment(), "Demo"))
+                //.Use(new Constant<LoggableProperty.Product>("Reusable.app.Console"))
+                .Use(SnapshotMapping.For<Person>(x => new { FullName = $"{x.LastName}, {x.FirstName}".ToUpper() }))
+                //.Use<FormatPropertyName>(new Replace{MatchPattern = }) Correlation -> Scope
+                //.Use<FormatPropertyName>(new Replace{MatchPattern = }) trim Layer$
+                .Use<Channel>(new NLogChannel())
+                .Use<Channel>(new ConsoleChannelDynamic
                 {
                     // Render output with this template. This is the default.
-                    c.Template = new TextMessageBuilder
+                    Template = new TextMessageBuilder
                     {
-                        Template = @"[{Timestamp:HH:mm:ss:fff}] [{Level}] {Layer} | {Category} | {Identifier}: {Snapshot} {Elapsed}ms | {Message} {Exception}" 
-                            
-                    };
+                        Template = @"[{Timestamp:HH:mm:ss:fff}] [{Level}] {Layer} | {Category} | {Identifier}: {Snapshot} {Elapsed}ms | {Message} {Exception}"
+                    }
                 });
+
+        using var loggerFactory = new LoggerFactory(pipeline);
 
 
         var logger = loggerFactory.CreateLogger("Demo");
@@ -86,7 +51,7 @@ public static partial class Examples
 
 
         // Opening outer-scope.
-        using (logger.BeginScope("outer").WithCorrelationHandle("outer"))
+        using (logger.BeginScope().WithName("outer"))
         {
             logger.Log(Telemetry.Collect.Application().Argument("arg", "a"));
             logger.Log(Telemetry.Collect.Application().Variable("var", "v").Warning());
@@ -100,11 +65,11 @@ public static partial class Examples
             logger.Log(Telemetry.Collect.Application().Metadata("meta", new { m = "m" }));
             logger.Log(Telemetry.Collect.Persistence().Database().Snapshot("storage", new { meta = "data" }));
             logger.Log(Telemetry.Collect.Persistence().Cloud().Snapshot("www", new { meta = "data" }));
-                
+
             //logger.Scope().Exceptions.Push(new Exception());
 
             // Opening inner-scope.
-            using (logger.BeginScope("inner").WorkItem(new { fileName = "note.txt" }).WithCorrelationHandle("inner"))
+            using (logger.BeginScope("inner").WorkItem(new { fileName = "note.txt" }))
             {
                 // Logging an entire object in a single line.
                 var customer = new Person
@@ -120,7 +85,7 @@ public static partial class Examples
 
                 //logger.Log(Telemetry.Collect.Application().Decision().Decision("Don't do this.").Because("Disabled."));
                 logger.Log(Telemetry.Collect.Application().Decision("Don't do this.", "Disabled."));
-                    
+
                 logger.Log(Telemetry.Collect.Application().Decision("Don't do this either.", because: "It's disabled as well."));
 
                 //logger.Scope().Exceptions.Push(new InvalidCredentialException());
@@ -130,24 +95,24 @@ public static partial class Examples
             logger.Log(Telemetry.Collect.Application().Metadata("Goodbye", "Bye bye scopes!"));
         }
 
-        using (logger.BeginScope("Transaction"))
+        using (logger.BeginScope().WithName("Transaction"))
         {
-            using (logger.BeginScope("no-logs-1").UseBuffer())
+            using (logger.BeginScope().WithName("no-logs-1").UseBuffer())
             {
                 logger.Information("This message is not logged.");
             }
 
-            using (logger.BeginScope("no-logs-2").UseBuffer())
+            using (logger.BeginScope().WithName("no-logs-2").UseBuffer())
             {
                 logger.Information("This message is not logged.");
                 //logger.Information("This message overrides the transaction.", LoggerTransaction.Override);
             }
 
-            using (logger.BeginScope("delayed").UseBuffer())
+            using (logger.BeginScope().WithName("delayed").UseBuffer())
             {
                 logger.Information("This message is delayed.");
                 logger.Information("This message is delayed too.");
-                logger.Information("This message is logged first.", l => l.OverrideBuffer());
+                logger.Information("This message is logged first.", l => l.ScopeBufferOff());
                 //logger.Information("This message overrides the transaction as first.", LoggerTransaction.Override);
                 logger.Scope().Buffer().Flush();
             }

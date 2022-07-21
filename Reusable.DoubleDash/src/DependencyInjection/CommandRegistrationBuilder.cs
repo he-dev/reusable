@@ -12,8 +12,8 @@ namespace Reusable.DoubleDash.DependencyInjection;
 public interface ICommandRegistrationBuilder : IEnumerable<CommandInfo>
 {
     IRegistrationBuilder<TCommand, ConcreteReflectionActivatorData, SingleRegistrationStyle> Register<TCommand>() where TCommand : ICommand;
-    IRegistrationBuilder<Lambda<TParameter>, SimpleActivatorData, SingleRegistrationStyle> Register<TParameter>(ArgumentName name, ExecuteDelegate<TParameter> execute) where TParameter : CommandParameter, new();
-    IRegistrationBuilder<Lambda<TParameter>, SimpleActivatorData, SingleRegistrationStyle> Register<TParameter>(ArgumentName name, Action<TParameter> execute) where TParameter : CommandParameter, new();
+    IRegistrationBuilder<Lambda<TParameter>, SimpleActivatorData, SingleRegistrationStyle> Register<TParameter>(NameCollection nameCollection, ExecuteDelegate<TParameter> execute) where TParameter : CommandParameter, new();
+    IRegistrationBuilder<Lambda<TParameter>, SimpleActivatorData, SingleRegistrationStyle> Register<TParameter>(NameCollection nameCollection, Action<TParameter> execute) where TParameter : CommandParameter, new();
 }
     
 public class CommandRegistrationBuilder : ICommandRegistrationBuilder
@@ -34,18 +34,18 @@ public class CommandRegistrationBuilder : ICommandRegistrationBuilder
                 .Named<ICommand>(command.RegistrationKey);
     }
 
-    public IRegistrationBuilder<Lambda<TParameter>, SimpleActivatorData, SingleRegistrationStyle> Register<TParameter>(ArgumentName name, ExecuteDelegate<TParameter> execute) where TParameter : CommandParameter, new()
+    public IRegistrationBuilder<Lambda<TParameter>, SimpleActivatorData, SingleRegistrationStyle> Register<TParameter>(NameCollection nameCollection, ExecuteDelegate<TParameter> execute) where TParameter : CommandParameter, new()
     {
-        var command = new CommandInfo(typeof(Lambda<TParameter>), name).Also(AddCommand);
+        var command = new CommandInfo(typeof(Lambda<TParameter>), nameCollection).Also(AddCommand);
         return
             Builder
-                .Register(ctx => new Lambda<TParameter>(command.Name, execute))
+                .Register(ctx => new Lambda<TParameter>(command.NameCollection, execute))
                 .Named<ICommand>(command.RegistrationKey);
     }
 
-    public IRegistrationBuilder<Lambda<TParameter>, SimpleActivatorData, SingleRegistrationStyle> Register<TParameter>(ArgumentName name, Action<TParameter> execute) where TParameter : CommandParameter, new()
+    public IRegistrationBuilder<Lambda<TParameter>, SimpleActivatorData, SingleRegistrationStyle> Register<TParameter>(NameCollection nameCollection, Action<TParameter> execute) where TParameter : CommandParameter, new()
     {
-        return Register<TParameter>(name, (n, p, t) =>
+        return Register<TParameter>(nameCollection, (n, p, t) =>
         {
             execute(p);
             return Task.CompletedTask;
@@ -56,7 +56,7 @@ public class CommandRegistrationBuilder : ICommandRegistrationBuilder
     {
         if (!Commands.Add(command))
         {
-            throw DynamicException.Create("DuplicateCommandName", $"Command name '{command.Name.Primary}' is already in use.");
+            throw DynamicException.Create("DuplicateCommandName", $"Command name '{command.NameCollection.Primary}' is already in use.");
         }
     }
 

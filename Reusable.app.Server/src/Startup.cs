@@ -8,13 +8,12 @@ using Microsoft.AspNetCore.Mvc.Razor;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Reusable.OmniLog;
-using Reusable.OmniLog.Utilities.AspNetCore;
 using Reusable.Utilities.AspNetCore;
 using Reusable.Utilities.AspNetCore.Hosting;
 using Reusable.Utilities.NLog.LayoutRenderers;
 using Reusable.Wiretap;
 using Reusable.Wiretap.Abstractions;
-using Reusable.Wiretap.Connectors;
+using Reusable.Wiretap.Channels;
 using Reusable.Wiretap.Data;
 using Reusable.Wiretap.Extensions;
 using Reusable.Wiretap.Nodes;
@@ -76,7 +75,7 @@ namespace Reusable.Apps.Server
                     .Product("Reusable.app.Server")
                     .Environment(_hostingEnvironment.EnvironmentName)
                     .Echo<ConsoleConnectorDynamic>()
-                    .Echo<NLogConnector>();
+                    .Echo<NLogChannel>();
 
             services.AddWiretap
             (
@@ -84,10 +83,10 @@ namespace Reusable.Apps.Server
                     .Complete
                     .Configure<InvokePropertyService>(node =>
                     {
-                        node.Services.Add(new Constant("Environment", ));
-                        node.Services.Add(new Constant("Product", ));
+                        node.Services.Add(new AttachProperty("Environment", ));
+                        node.Services.Add(new AttachProperty("Product", ));
                     })
-                    .Configure<RenameProperty>(node =>
+                    .Configure<FormatPropertyName>(node =>
                     {
                         node.Mappings.Add(Names.Properties.Unit, "Identifier");
                         node.Mappings.Add(Names.Properties.Correlation, "Scope");
@@ -100,7 +99,7 @@ namespace Reusable.Apps.Server
                             Template = @"[{Timestamp:HH:mm:ss:fff}] [{Level}] {Layer} | {Category} | {Identifier}: {Snapshot} {Elapsed}ms | {Message} {Exception}"
                         });
 #endif
-                        node.Connectors.Add(new NLogConnector());
+                        node.Connectors.Add(new NLogChannel());
                     })
             );
 

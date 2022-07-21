@@ -12,6 +12,7 @@ using Reusable.DoubleDash.Annotations;
 using Reusable.Essentials;
 using Reusable.Essentials.Extensions;
 using Reusable.Snowball;
+using Reusable.Utilities.Autofac;
 using TypeConverterAttribute = Reusable.Snowball.TypeConverterAttribute;
 
 
@@ -39,11 +40,11 @@ internal class CommandParameterBinder : ICommandParameterBinder
         {
             var argName = property.GetArgumentName();
             var arg =
-                property.GetCustomAttribute<PositionAttribute?>() is {} position
-                    ? args.SingleOrDefault(x => x.Name.Equals(ArgumentName.Command)) is {} a && a.Count > position.Value
+                property.GetCustomAttribute<PositionAttribute>() is {} position
+                    ? args.SingleOrDefault(x => x.NameCollection.Equals(NameCollection.Command)) is {} a && a.Count > position.Value
                         ? CommandLineArgument.Create($"{argName}#{position}", new[] { a.ElementAt(position) })
                         : default
-                    : args.SingleOrDefault(x => x.Name.Equals(argName));
+                    : args.SingleOrDefault(x => x.NameCollection.Equals(argName));
 
             var converter =
                 property.GetCustomAttribute<TypeConverterAttribute>() is {} typeConverterAttribute
@@ -74,19 +75,19 @@ internal class CommandParameterBinder : ICommandParameterBinder
             }
             else
             {
-                if (property.GetCustomAttribute<RequiredAttribute?>() is {})
+                if (property.GetCustomAttribute<RequiredAttribute>() is {})
                 {
                     throw DynamicException.Create("ArgumentNotFound", $"Could not bind required parameter '{argName.First()}' because there was no such argument in the command-line.");
                 }
 
-                if (property.GetCustomAttribute<ContextAttribute?>() is {})
+                if (property.GetCustomAttribute<ContextAttribute>() is {})
                 {
                     property.SetValue(parameter, context);
                 }
 
-                if (property.GetCustomAttribute<ServiceAttribute?>() is {} service)
+                if (property.GetCustomAttribute<ServiceAttribute>() is {})
                 {
-                    property.SetValue(parameter, _scope.Resolve(service.ServiceType ?? property.PropertyType));
+                    property.SetValue(parameter, _scope.Resolve(property.PropertyType));
                 }
 
                 if (property.GetCustomAttribute<DefaultValueAttribute>() is {} defaultValue)

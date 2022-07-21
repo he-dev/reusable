@@ -1,6 +1,5 @@
 using System.Collections;
 using System.Collections.Generic;
-using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Linq;
 using JetBrains.Annotations;
@@ -19,19 +18,23 @@ public class LogEntry : ILogEntry
         Properties = new Dictionary<string, Stack<ILogProperty>>(SoftString.Comparer);
     }
 
-    private LogEntry(LogEntry other)
+    public LogEntry(ILogEntry other)
     {
-        Properties = new Dictionary<string, Stack<ILogProperty>>(other.Properties, SoftString.Comparer);
+        Properties = new Dictionary<string, Stack<ILogProperty>>(SoftString.Comparer);
+        foreach (var property in other)
+        {
+            Properties[property.Name] = new Stack<ILogProperty> { property };
+        }
     }
 
     private IDictionary<string, Stack<ILogProperty>> Properties { get; }
 
+    /// <summary>
+    /// Creates a new empty entry.
+    /// </summary>
     public static LogEntry Empty() => new();
 
-    public ILogProperty this[string name] =>
-        TryGetProperty(name, out var property)
-            ? property!
-            : throw DynamicException.Create("PropertyNotFound", $"There is no property with the name '{name}'.");
+    public ILogProperty this[string name] => TryPeek(name, out var property) ? property : LogProperty.Empty.Instance;
 
     public ILogEntry Push(ILogProperty property)
     {
@@ -47,24 +50,21 @@ public class LogEntry : ILogEntry
         return this;
     }
 
-    public bool TryGetProperty(string name, out ILogProperty property)
+    public bool TryPeek(string name, out ILogProperty property)
     {
-        if (Properties.TryGetValue(name, out var versions))
+        if (Properties.TryGetValue(name, out var versions) && versions.Peek() is { } latest and not LogProperty.Obsolete)
         {
-            property = versions.Peek();
+            property = latest;
             return true;
         }
-        else
-        {
-            property = default!;
-            return false;
-        }
+
+        property = LogProperty.Empty.Instance;
+        return false;
     }
 
     bool ITryGetValue<string, object>.TryGetValue(string key, out object value)
     {
-
-        if (TryGetProperty(key, out var property) && property.Value is { } result)
+        if (TryPeek(key, out var property) && property.Value is { } result)
         {
             value = result;
             return true;
@@ -74,9 +74,25 @@ public class LogEntry : ILogEntry
         return false;
     }
 
+    public IEnumerable<ILogProperty> Versions(string name)
+    {
+        return
+            Properties.TryGetValue(name, out var versions)
+                ? versions
+                : Enumerable.Empty<ILogProperty>();
+    }
+
     public override string ToString() => @"{Timestamp:HH:mm:ss:fff} | {Logger} | {Message}".Format(this);
 
-    public IEnumerator<ILogProperty> GetEnumerator() => Properties.Values.Select(versions => versions.Peek()).GetEnumerator();
+    public IEnumerator<ILogProperty> GetEnumerator()
+    {
+        return
+            Properties
+                .Values
+                .Select(versions => versions.Peek())
+                .Where(latest => latest is not LogProperty.Obsolete)
+                .GetEnumerator();
+    }
 
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 }

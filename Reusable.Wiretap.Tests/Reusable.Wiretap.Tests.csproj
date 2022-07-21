@@ -1,0 +1,39 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+    <PropertyGroup>
+        <TargetFramework>net6.0</TargetFramework>
+        <Nullable>enable</Nullable>
+        <LangVersion>default</LangVersion>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+        <DefineConstants>TRACE;RELEASE;JETBRAINS_ANNOTATIONS</DefineConstants>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    </PropertyGroup>
+    
+    <ItemGroup>
+        <PackageReference Include="Autofac" Version="6.1.0" />
+        <PackageReference Include="JetBrains.Annotations" Version="2021.3.0" />
+        <PackageReference Include="JustMock" Version="2021.1.222.1" />
+        <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.9.1" />
+        <PackageReference Include="xunit.runner.visualstudio" Version="2.4.3" />
+        <PackageReference Include="xunit" Version="2.4.1" />
+    </ItemGroup>
+    <ItemGroup>
+        <Reference Include="Microsoft.CSharp" />
+        <Reference Include="System.Configuration" />
+    </ItemGroup>
+    
+    <ItemGroup>
+      <ProjectReference Include="..\Reusable.Wiretap\Reusable.Wiretap.csproj" />
+    </ItemGroup>
+    
+    <ItemGroup>
+      <Compile Remove="src\Wiretap\LoggerMiddlewareTest.cs" />
+      <Compile Remove="src\Wiretap\LoggerNodeTest.cs" />
+    </ItemGroup>
+    
+    <ItemGroup>
+      <Folder Include="src\Wiretap" />
+    </ItemGroup>
+    
+</Project>

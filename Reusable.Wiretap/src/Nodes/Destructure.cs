@@ -15,12 +15,12 @@ public class Destructure : LoggerNode
     {
         var properties = LogEntry.Empty();
         var dictionaries =
-            from property in entry.Where<DestructibleProperty>()
+            from property in entry.WhereTag<DestructibleProperty>()
             select (property, property.Value.GetProperties().ToDictionary(x => x.Name, x => x.Value));
 
         foreach (var (property, dictionary) in dictionaries)
         {
-            properties.Push(new SerializableProperty(property.Name, dictionary));
+            properties.Push(new DataProperty(property.Name, dictionary));
         }
         
         entry.Merge(properties);

@@ -1,9 +1,10 @@
+using System;
+using System.Collections.Generic;
+
 namespace Reusable.Wiretap.Abstractions;
 
-public interface ILogger : ILoggerNode
+public interface ILogger : IEnumerable<ILoggerNode>, IDisposable //: ILoggerNode
 {
-    string Name { get; init; }
-    
     void Log(ILogEntry logEntry);
 }
 

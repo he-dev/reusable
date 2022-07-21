@@ -32,9 +32,4 @@
         <Reference Include="System.Runtime.Extensions" />
     </ItemGroup>
 
-    <ItemGroup>
-      <Folder Include="src\Cryptography" />
-    </ItemGroup>
-
-
 </Project>

@@ -22,7 +22,7 @@ public class CommandLineParser : ICommandLineParser
     public IEnumerable<List<CommandLineArgument>> Parse(string commandLine)
     {
         // The first parameter is always a command.
-        var arguments = new List<CommandLineArgument> { ArgumentName.Command };
+        var arguments = new List<CommandLineArgument> { NameCollection.Command };
 
         foreach (var token in _tokenizer.Tokenize(commandLine))
         {
@@ -33,20 +33,20 @@ public class CommandLineParser : ICommandLineParser
                     break;
 
                 case Argument:
-                    arguments.Add(ArgumentName.Create(token.Value));
+                    arguments.Add(NameCollection.Create(token.Value));
                     break;
 
                 case Flag:
-                    foreach (var flag in token.Value) arguments.Add(ArgumentName.Create(flag.ToString()));
+                    foreach (var flag in token.Value) arguments.Add(NameCollection.Create(flag.ToString()));
                     break;
 
                 case Params:
-                    arguments.Add(ArgumentName.Params);
+                    arguments.Add(NameCollection.Params);
                     break;
 
                 case Pipe when arguments.Any():
                     yield return arguments;
-                    arguments = new List<CommandLineArgument> { ArgumentName.Command };
+                    arguments = new List<CommandLineArgument> { NameCollection.Command };
                     break;
             }
         }

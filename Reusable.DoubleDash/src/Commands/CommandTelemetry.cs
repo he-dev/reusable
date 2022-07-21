@@ -20,7 +20,8 @@ public class CommandTelemetry : CommandDecorator
     {
         using (_logger.BeginScope("ExecuteCommand"))
         {
-            _logger.Log(Telemetry.Collect.Application().Execution().Started(new { commandName = Decoratee.Name.Primary }));
+            _logger.Log(Telemetry.Collect.Application().Metadata(new { commandName = Decoratee.NameCollection.Primary }));
+            _logger.Log(Telemetry.Collect.Application().UnitOfWork(nameof(ExecuteAsync)).Started());
             try
             {
                 await Decoratee.ExecuteAsync(parameter, cancellationToken);
@@ -32,7 +33,7 @@ public class CommandTelemetry : CommandDecorator
             }
             finally
             {
-                _logger.Log(Telemetry.Collect.Application().Execution().Auto());
+                _logger.Log(Telemetry.Collect.Application().UnitOfWork(nameof(ExecuteAsync)).Auto());
             }
         }
     }

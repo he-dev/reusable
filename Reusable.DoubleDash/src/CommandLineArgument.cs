@@ -17,25 +17,25 @@ public class CommandLineArgument : List<string>, IEquatable<CommandLineArgument>
 {
     public const string DefaultFormat = "-:";
 
-    internal CommandLineArgument(ArgumentName name, IEnumerable<string> values) : base(values) => Name = name;
+    internal CommandLineArgument(NameCollection nameCollection, IEnumerable<string> values) : base(values) => NameCollection = nameCollection;
 
-    internal CommandLineArgument(ArgumentName name, params string[] values) : this(name, values.AsEnumerable()) { }
+    internal CommandLineArgument(NameCollection nameCollection, params string[] values) : this(nameCollection, values.AsEnumerable()) { }
 
     //public static CommandLineArgument NotFound => new CommandLineArgument(MultiName.Empty, Enumerable.Empty<string>());
 
     private string DebuggerDisplay => ToString();
 
-    public ArgumentName Name { get; }
+    public NameCollection NameCollection { get; }
         
-    public static CommandLineArgument Create(string name, IEnumerable<string> values) => new CommandLineArgument(new ArgumentName(name), values);
+    public static CommandLineArgument Create(string name, IEnumerable<string> values) => new CommandLineArgument(new NameCollection(name), values);
 
     #region IEquatable
 
-    public bool Equals(CommandLineArgument? other) => Name.Equals(other?.Name);
+    public bool Equals(CommandLineArgument? other) => NameCollection.Equals(other?.NameCollection);
 
     public override bool Equals(object obj) => Equals(obj as CommandLineArgument);
 
-    public override int GetHashCode() => Name.GetHashCode();
+    public override int GetHashCode() => NameCollection.GetHashCode();
 
     #endregion
 
@@ -58,9 +58,9 @@ public class CommandLineArgument : List<string>, IEquatable<CommandLineArgument>
         var result = new StringBuilder();
 
         result.Append(
-            string.IsNullOrEmpty(Name.FirstOrDefault()?.ToString())
+            string.IsNullOrEmpty(NameCollection.FirstOrDefault()?.ToString())
                 ? string.Empty
-                : $"{argumentPrefix}{Name.FirstOrDefault()}");
+                : $"{argumentPrefix}{NameCollection.FirstOrDefault()}");
 
         result.Append(
             result.Any() && this.Any()
@@ -76,9 +76,9 @@ public class CommandLineArgument : List<string>, IEquatable<CommandLineArgument>
 
     public override string ToString() => ToString(DefaultFormat, CultureInfo.InvariantCulture);
 
-    public static implicit operator CommandLineArgument(ArgumentName name) => new CommandLineArgument(name);
+    public static implicit operator CommandLineArgument(NameCollection nameCollection) => new CommandLineArgument(nameCollection);
         
     public static implicit operator string(CommandLineArgument commandLineArgument) => commandLineArgument?.ToString() ?? string.Empty;
 
-    public static implicit operator bool(CommandLineArgument arg) => arg.Name.Any();
+    public static implicit operator bool(CommandLineArgument arg) => arg.NameCollection.Any();
 }

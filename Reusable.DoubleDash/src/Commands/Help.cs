@@ -9,9 +9,10 @@ using JetBrains.Annotations;
 using Reusable.DoubleDash.Annotations;
 using Reusable.Essentials;
 using Reusable.Essentials.Annotations;
+using Reusable.Utilities.Autofac;
 using Reusable.Wiretap;
 using Reusable.Wiretap.Abstractions;
-using Reusable.Wiretap.Connectors;
+using Reusable.Wiretap.Channels;
 using Reusable.Wiretap.Extensions;
 
 namespace Reusable.DoubleDash.Commands;
@@ -81,13 +82,13 @@ public class Help : Command<Help.Parameter>
         var userExecutableCommands =
             from command in parameter.Commands
             where !command.CommandType.IsDefined(typeof(InternalAttribute))
-            orderby command.Name.Primary
+            orderby command.NameCollection.Primary
             select command;
 
         foreach (var command in userExecutableCommands)
         {
-            var defaultId = command.Name.Primary;
-            var aliases = string.Join("|", command.Name.Secondary.Select(x => x.ToString()));
+            var defaultId = command.NameCollection.Primary;
+            var aliases = string.Join("|", command.NameCollection.Secondary.Select(x => x.ToString()));
             var description = command.CommandType.GetCustomAttribute<DescriptionAttribute>()?.Description ?? "N/A";
             var row = new[] { $"{defaultId} ({(aliases.Length > 0 ? aliases : "-")})", description }.Pad(ColumnWidths);
             //Logger.WriteLine(Style, new Indent(1), new TableRow { Cells = row });
@@ -100,7 +101,7 @@ public class Help : Command<Help.Parameter>
         var command =
             parameter
                 .Commands
-                .Where(c => c.Name.Contains(parameter.Command, SoftString.Comparer))
+                .Where(c => c.NameCollection.Contains(parameter.Command, SoftString.Comparer))
                 .SingleOrThrow($"Could not find a command with the name '{parameter.Command}'");
 
         // Headers

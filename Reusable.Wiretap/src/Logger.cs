@@ -1,44 +1,55 @@
+using System.Collections;
+using System.Collections.Generic;
 using Reusable.Essentials.Extensions;
 using Reusable.Wiretap.Abstractions;
-using Reusable.Wiretap.Data;
+using Reusable.Wiretap.Nodes;
 
 namespace Reusable.Wiretap;
 
-public class Logger : LoggerNode, ILogger
+public class Logger : ILogger
 {
-    public string Name { get; init; } = "Unknown";
+    private ILoggerNode First { get; }
 
-    public override void Invoke(ILogEntry entry) => InvokeNext(entry.Push(new LoggableProperty.Logger(Name)));
+    public Logger(ILoggerNode first) => First = first;
 
-    public virtual void Log(ILogEntry logEntry) => Invoke(logEntry);
+    public void Log(ILogEntry logEntry) => First.Invoke(logEntry);
+
+    public static IEnumerable<ILoggerNode> Pipeline<T>() where T : LoggerPipeline, new() => new T();
+
+    public IEnumerator<ILoggerNode> GetEnumerator() => First.EnumerateNext().GetEnumerator();
+
+    IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+
+    public void Dispose()
+    {
+        foreach (var node in First.EnumerateNext())
+        {
+            node.Dispose();
+        }
+    }
+
+    public class Empty : Logger
+    {
+        private Empty() : base(LoggerNode.Empty.Instance) { }
+
+        public static readonly ILogger Instance = new Empty();
+    }
 }
 
-// This decorator supports DI.
-public class Logger<T> : Logger, ILogger<T>
+// This logger supports DI.
+public class Logger<T> : ILogger<T>
 {
-    private readonly ILogger _logger;
-
     // This constructor makes it easier to create a typed logger with DI.
-    public Logger(ILoggerFactory loggerFactory)
-    {
-        _logger = loggerFactory.CreateLogger(typeof(T).ToPrettyString());
-    }
+    public Logger(ILoggerFactory loggerFactory) => Instance = loggerFactory.CreateLogger(typeof(T).ToPrettyString());
 
-    public static ILogger<T> Empty { get; } = new EmptyLogger();
+    private ILogger Instance { get; }
 
-    public override ILoggerNode? Prev
-    {
-        get => _logger.Prev;
-        set => _logger.Prev = value;
-    }
+    public void Log(ILogEntry logEntry) => Instance.Log(logEntry);
 
-    public override ILoggerNode? Next
-    {
-        get => _logger.Next;
-        set => _logger.Next = value;
-    }
 
-    public override void Log(ILogEntry logEntry) => _logger.Log(logEntry);
+    public IEnumerator<ILoggerNode> GetEnumerator() => Instance.GetEnumerator();
 
-    private class EmptyLogger : Logger, ILogger<T> { }
+    IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+
+    public void Dispose() => Instance.Dispose();
 }

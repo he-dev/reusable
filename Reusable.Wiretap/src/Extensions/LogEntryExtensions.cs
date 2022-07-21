@@ -2,155 +2,54 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using Reusable.Essentials;
 using Reusable.Wiretap.Abstractions;
 using Reusable.Wiretap.Data;
+using Reusable.Wiretap.Nodes.Scopeable;
 
 namespace Reusable.Wiretap.Extensions;
 
 public static class LogEntryExtensions
 {
-    public static ILogEntry Push(this ILogEntry entry, object? value, Func<object, ILogProperty> create)
+    public static bool ContainsProperty(this ILogEntry entry, string name) => entry.TryPeek(name, out _);
+
+    public static ILogEntry Push<T>(this ILogEntry entry, string name, object? value) where T : ILogPropertyTag
     {
         return
             value is { }
-                ? entry.Push(create(value))
+                ? entry.Push(new LogProperty<T>(name, value))
                 : entry;
     }
 
-    public static ILogProperty GetPropertyOrDefault(this ILogEntry entry, string name, ILogProperty defaultProperty)
-    {
-        return entry.TryGetProperty(name, out var property) ? property : defaultProperty;
-    }
-    
-    public static ILogProperty? GetPropertyOrDefault<T>(this ILogEntry entry) where T : ILogProperty
-    {
-        return entry.TryGetProperty(typeof(T).Name, out var property) ? property : default;
-    }
-    
-    
-
     public static T GetValueOrDefault<T>(this ILogEntry entry, string name, T defaultValue)
     {
-        return
-            entry.TryGetProperty(name, out var property) && property.Value is T result
-                ? result
-                : defaultValue;
-    }
-    
-    public static bool TryGetProperty<T>(this ILogEntry entry, string name, out T result) where T : ILogProperty
-    {
-        if (entry.TryGetProperty(name, out var property) && property is T casted)
-        {
-            result = casted;
-            return true;
-        }
-        else
-        {
-            result = default!;
-            return false;
-        }
-    }
-
-    public static bool TryGetProperty<T>(this ILogEntry entry, out ILogProperty property) where T : ILogProperty
-    {
-        return entry.TryGetProperty(typeof(T).Name, out property);
-    }
-
-    public static bool TryGetProperty<TProperty, TValue>(this ILogEntry entry, out TValue result) where TProperty : ILogProperty
-    {
-        if (entry.TryGetProperty(typeof(TProperty).Name, out var property))
-        {
-            if (property.Value is TValue value)
-            {
-                result = value;
-                return true;
-            }
-        }
-
-        result = default!;
-        return false;
-    }
-
-    public static TValue GetValueOrDefault<TProperty, TValue>(this ILogEntry entry, TValue fallback) where TProperty : ILogProperty
-    {
-        return entry.TryGetProperty<TProperty, TValue>(out var value) ? value : fallback;
-    }
-
-
-    public static ILogEntry Logger(this ILogEntry logEntry, string value) => logEntry.Push(new LoggableProperty.Logger(value));
-
-    public static ILogEntry Timestamp(this ILogEntry logEntry, DateTime value) => logEntry.Push(new LoggableProperty.Timestamp(value));
-
-    public static ILogEntry Level(this ILogEntry logEntry, LogLevel value) => logEntry.Push(new LoggableProperty.Level(value));
-
-    //public static ILogEntry Snapshot(this ILogEntry logEntry, object value) => logEntry.Push(new SerializableProperty.Snapshot(value));
-
-    public static ILogEntry Exception(this ILogEntry entry, Exception? value, LogLevel level = LogLevel.Error)
-    {
-        return
-            entry
-                .Push(value, v => new LoggableProperty.Exception(v))
-                .Push(value, _ => new LoggableProperty.Level(level));
-    }
-
-    public static ILogEntry Message(this ILogEntry entry, string? value)
-    {
-        return entry.Push(value, v => new LoggableProperty.Message(v));
-    }
-
-    public static ILogEntry MessageAppend(this ILogEntry entry, string? value, string separator = " | ")
-    {
-        return entry.Push(value, v => new LoggableProperty.Message($"{entry.GetValueOrDefault(nameof(LoggableProperty.Message), string.Empty)}{separator}{v}"));
-    }
-
-    public static ILogEntry Layer(this ILogEntry log, string name)
-    {
-        return log.Also(x => x.Push(new LoggableProperty.Layer(name)));
-    }
-
-    public static ILogEntry Category(this ILogEntry log, string name)
-    {
-        return log.Also(x => x.Push(new LoggableProperty.Category(name)));
-    }
-
-    public static ILogEntry Member(this ILogEntry log, string name)
-    {
-        return log.Also(x => x.Push(new LoggableProperty.Member(name)));
-    }
-
-    public static ILogEntry Snapshot(this ILogEntry entry, string name, object? value = default)
-    {
-        return entry.Also(e =>
-        {
-            e.Push(new LoggableProperty.Member(name));
-            e.Push(value, v => new SerializableProperty.Snapshot(v));
-        });
-    }
-
-    public static ILogEntry Caller(this ILogEntry log, LogCaller? caller)
-    {
-        return log.Also(x =>
-        {
-            if (caller is { })
-            {
-                x.Push(new LoggableProperty.CallerMemberName(caller.MemberName));
-                x.Push(new LoggableProperty.CallerLineNumber(caller.LineNumber));
-                x.Push(new LoggableProperty.CallerFilePath(caller.FilePath));
-            }
-        });
-    }
-
-    public static ILogEntry OverrideBuffer(this ILogEntry logEntry) => logEntry.Push(new MetaProperty.OverrideBuffer());
-
-    public static IEnumerable<ILogProperty> Where<T>(this ILogEntry entry) where T : ILogProperty
-    {
-        return entry.Where(property => property is T);
+        return entry[name].Value is T result ? result : defaultValue;
     }
 
     
+    //public static ILogEntry Level(this ILogEntry entry, LogLevel value) => entry.Push<IRegularProperty>(nameof(Level), value);
+    //public static ILogEntry Level(this ILogEntry entry, [CallerMemberName] string? name = null) => entry.Level((LogLevel)Enum.Parse(typeof(LogLevel), name!));
 
-    public static ILogEntry Merge(this ILogEntry entry, ILogEntry other)
+    public static ILogEntry Layer(this ILogEntry entry, string value) => entry.Push<IRegularProperty>(nameof(Layer), value);
+    public static ILogEntry Category(this ILogEntry entry, string value) => entry.Push<IRegularProperty>(nameof(Category), value);
+    public static ILogEntry Tag(this ILogEntry entry, string value) => entry.Push<IRegularProperty>(nameof(Tag), value);
+    public static ILogEntry Snapshot(this ILogEntry entry, object? value) => entry.Push<ITransientProperty>(nameof(Snapshot), value);
+    public static ILogEntry Message(this ILogEntry entry, string? value) => entry.Push<IRegularProperty>(nameof(Message), value);
+    public static ILogEntry Exception(this ILogEntry entry, Exception? value) => entry.Push<IRegularProperty>(nameof(Exception), value);
+
+    public static ILogEntry Force(this ILogEntry logEntry) => logEntry.Push<IMetaProperty>(nameof(ScopeBuffer), ScopeBuffer.Mode.Force);
+    public static ILogEntry Defer(this ILogEntry logEntry) => logEntry.Push<IMetaProperty>(nameof(ScopeBuffer), ScopeBuffer.Mode.Defer);
+
+    public static IEnumerable<ILogProperty> WhereTag<T>(this ILogEntry entry) where T : ILogPropertyTag
+    {
+        return entry.Where(property => property is ILogProperty<T>);
+    }
+
+    /// <summary>
+    /// Pushed one entry over the other.
+    /// </summary>
+    public static ILogEntry Push(this ILogEntry entry, ILogEntry other)
     {
         foreach (var property in other)
         {
@@ -160,13 +59,18 @@ public static class LogEntryExtensions
         return entry;
     }
 
+    public static ILogEntry Applied<T>(ILogEntry entry, T node) where T : ILoggerNode => entry.Push<IMetaProperty>(LogProperty.Names.Telemetry(), $"{nameof(Applied)}: {node}");
+    
+    public static ILogEntry Skipped<T>(ILogEntry entry, T node) where T : ILoggerNode => entry.Push<IMetaProperty>(LogProperty.Names.Telemetry(), $"{nameof(Skipped)}: {node}");
+
+
     public static DataTable ToDataTable(this IEnumerable<ILogEntry> entries, Action<DataRow>? dataRowAction = default)
     {
         var dataTable = new DataTable();
         foreach (var entry in entries)
         {
             var dataRow = dataTable.NewRow();
-            foreach (var item in entry.Where<LoggableProperty>())
+            foreach (var item in entry.WhereTag<IRegularProperty>())
             {
                 Add(dataTable.Columns, item.Name, item.Value.GetType());
                 dataRow[item.Name] = item.Value;

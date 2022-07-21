@@ -20,16 +20,11 @@
   
   <ItemGroup>
     <PackageReference Include="JetBrains.Annotations" Version="2021.3.0" />
-    <PackageReference Include="System.Memory" Version="4.5.4" />
-    <PackageReference Include="System.ValueTuple" Version="4.5.0" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Reusable.Octopus\Reusable.Octopus.csproj" />
-    <ProjectReference Include="..\Reusable.Octopus.config\Reusable.Octopus.config.csproj" />
-    <ProjectReference Include="..\Reusable.Snowball\Reusable.Snowball.csproj" />
+    <ProjectReference Include="..\Reusable.Synergy.Config\Reusable.Synergy.Config.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System.Configuration" />
   </ItemGroup>
   <ItemGroup>

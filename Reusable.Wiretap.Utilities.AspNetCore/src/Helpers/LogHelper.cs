@@ -2,11 +2,10 @@ using System;
 using System.IO;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Http.Internal;
 using Reusable.Essentials.Extensions;
 using Reusable.Wiretap.Data;
 
-namespace Reusable.OmniLog.Utilities.AspNetCore.Helpers
+namespace Reusable.Wiretap.Utilities.AspNetCore.Helpers
 {
     public static class LogHelper
     {

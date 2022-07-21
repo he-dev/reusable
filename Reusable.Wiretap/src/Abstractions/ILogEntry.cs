@@ -9,5 +9,10 @@ public interface ILogEntry : IEnumerable<ILogProperty>, ITryGetValue<string, obj
 
     ILogEntry Push(ILogProperty property);
 
-    bool TryGetProperty(string name, out ILogProperty property);
+    /// <summary>
+    /// Tries to get the latest version of a property.
+    /// </summary>
+    bool TryPeek(string name, out ILogProperty property);
+
+    IEnumerable<ILogProperty> Versions(string name);
 }

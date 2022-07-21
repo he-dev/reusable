@@ -2,8 +2,11 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Autofac;
+using Autofac.Core;
 using JetBrains.Annotations;
+using Reusable.DoubleDash.Annotations;
 using Reusable.Essentials;
+using Reusable.Utilities.Autofac;
 
 namespace Reusable.DoubleDash.DependencyInjection;
 
@@ -21,7 +24,7 @@ public class CommandModule : Autofac.Module
             .As<ICommandLineTokenizer>();
 
         builder
-            .RegisterType<CommandLineParser>()
+            .RegisterType<CommandLineParser>().PropertiesAutowired()
             .As<ICommandLineParser>();
 
         // builder
@@ -35,7 +38,8 @@ public class CommandModule : Autofac.Module
 
         builder
             .RegisterType<CommandExecutor>()
-            .As<ICommandExecutor>();
+            .As<ICommandExecutor>()
+            .PropertiesAutowired(new AttributeSelector<ServiceAttribute>());
 
         var crb = new CommandRegistrationBuilder { Builder = builder }.Also(_build);
 

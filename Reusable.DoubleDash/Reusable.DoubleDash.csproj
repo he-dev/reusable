@@ -24,9 +24,10 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Reusable.Essentials\Reusable.Essentials.csproj" />
-    <ProjectReference Include="..\Reusable.Wiretap.Connectors.Console.Fancy\Reusable.Wiretap.Connectors.Console.Fancy.csproj" />
+    <ProjectReference Include="..\Reusable.Wiretap.Channels.Console.Fancy\Reusable.Wiretap.Channels.Console.Fancy.csproj" />
     <ProjectReference Include="..\Reusable.Fluorite\Reusable.Fluorite.csproj" />
     <ProjectReference Include="..\Reusable.Snowball\Reusable.Snowball.csproj" />
+    <ProjectReference Include="..\Reusable.Utilities.Autofac\Reusable.Utilities.Autofac.csproj" />
   </ItemGroup>
 
   <ItemGroup>

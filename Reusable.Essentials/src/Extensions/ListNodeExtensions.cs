@@ -57,20 +57,26 @@ public static class ListNodeExtensions
     }
 
     [DebuggerStepThrough]
+    [Pure]
     public static T First<T>(this T node) where T : class, IListNode<T> => node.EnumeratePrev().Last();
 
     [DebuggerStepThrough]
+    [Pure]
     public static T Last<T>(this T node) where T : class, IListNode<T> => node.EnumerateNext().Last();
 
     [DebuggerStepThrough]
+    [Pure]
     public static IEnumerable<T> EnumerateNext<T>(this T n, bool includeSelf = true) where T : class, IListNode<T> => n.Enumerate(x => x.Next, includeSelf);
 
     [DebuggerStepThrough]
+    [Pure]
     public static IEnumerable<T> EnumerateNextWithoutSelf<T>(this T n) where T : class, IListNode<T> => n.Enumerate(x => x.Next, includeSelf: false);
 
     [DebuggerStepThrough]
+    [Pure]
     public static IEnumerable<T> EnumeratePrev<T>(this T n, bool includeSelf = true) where T : class, IListNode<T> => n.Enumerate(x => x.Prev, includeSelf);
 
+    [Pure]
     private static IEnumerable<T> Enumerate<T>(this T n, Func<T, T?> direction, bool includeSelf = true) where T : class, IListNode<T>
     {
         for (n = includeSelf ? n : direction(n); n is {}; n = direction(n))

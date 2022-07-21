@@ -75,7 +75,7 @@ public class NormalizeJsonTypePropertyMiddleware
             }
             finally
             {
-                _logger.Log(Telemetry.Collect.Application().Execution().Auto());
+                _logger.Log(Telemetry.Collect.Application().UnitOfWork(nameof(Invoke)).Auto());
             }
         }
 

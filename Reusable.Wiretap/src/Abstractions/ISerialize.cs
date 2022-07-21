@@ -5,6 +5,6 @@ namespace Reusable.Wiretap.Abstractions
     [PublicAPI]
     public interface ISerialize
     {
-        object Invoke(object obj);
+        object Invoke(object value);
     }
 }

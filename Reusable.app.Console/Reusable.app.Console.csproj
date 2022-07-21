@@ -29,12 +29,11 @@
     <ProjectReference Include="..\Reusable.DoubleDash\Reusable.DoubleDash.csproj" />
     <ProjectReference Include="..\Reusable.Toggle\Reusable.Toggle.csproj" />
     <ProjectReference Include="..\Reusable.Snowball\Reusable.Snowball.csproj" />
-    <ProjectReference Include="..\Reusable.Secure\Reusable.Secure.csproj" />
     <ProjectReference Include="..\Reusable.Fluorite\Reusable.Fluorite.csproj" />
     <ProjectReference Include="..\Reusable.Wiretap\Reusable.Wiretap.csproj" />
-    <ProjectReference Include="..\Reusable.Wiretap.Connectors.Console\Reusable.Wiretap.Connectors.Console.csproj" />
-    <ProjectReference Include="..\Reusable.Wiretap.Connectors.Console.Fancy\Reusable.Wiretap.Connectors.Console.Fancy.csproj" />
-    <ProjectReference Include="..\Reusable.Wiretap.Connectors.NLog\Reusable.Wiretap.Connectors.NLog.csproj" />
+    <ProjectReference Include="..\Reusable.Wiretap.Channels.Console\Reusable.Wiretap.Channels.Console.csproj" />
+    <ProjectReference Include="..\Reusable.Wiretap.Channels.Console.Fancy\Reusable.Wiretap.Channels.Console.Fancy.csproj" />
+    <ProjectReference Include="..\Reusable.Wiretap.Channels.NLog\Reusable.Wiretap.Channels.NLog.csproj" />
     <ProjectReference Include="..\Reusable.ReMember\Reusable.ReMember.csproj" />
     <ProjectReference Include="..\Reusable.Utilities.JsonNet\Reusable.Utilities.JsonNet.csproj" />
     <ProjectReference Include="..\Reusable.Utilities.NLog\Reusable.Utilities.NLog.csproj" />

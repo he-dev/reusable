@@ -16,7 +16,7 @@ namespace Reusable.Wiretap.Data
 
         public ILogEntry Push(ILogProperty property) => Parent.Push(property);
 
-        public bool TryGetProperty(string name, out ILogProperty property) => Parent.TryGetProperty(name, out property) && property is T;
+        public bool TryPeek(string name, out ILogProperty property) => Parent.TryPeek(name, out property) && property is T;
 
         public IEnumerator<ILogProperty> GetEnumerator() => Parent.Where(property => property is T).GetEnumerator();
 

@@ -10,30 +10,48 @@ namespace Reusable.Wiretap.Data;
 
 public class LoggerScope : ILoggerScope
 {
-    public LoggerScope(string name, IEnumerable<ILoggerNode> nodes)
+
+    public LoggerScope(IEnumerable<Func<ILoggerNode>> nodes, IDisposable disposer)
     {
-        Name = name;
-        Nodes = nodes.ToList();
-        First = Nodes.Join().First();
+        Disposer = disposer;
+        //Nodes = nodes.Select(f => f()).ToList();
+        First = nodes.Select(f => f()).Join().First();
     }
 
-    private IEnumerable<ILoggerNode> Nodes { get; }
-    
-    public string Name { get; }
-    
-    public ILoggerNode First { get; }
+    private IDisposable Disposer { get; }
+
+    //private IEnumerable<ILoggerNode> Nodes { get; }
+
+    private ILoggerNode First { get; }
+
+    public IEnumerable<ILoggerScope> Parents => AsyncScope<ILoggerScope>.Current.Enumerate().Select(s => s.Value);
 
     public IDictionary<string, object> Items { get; } = new Dictionary<string, object>(SoftString.Comparer);
-    
-    public IEnumerator<ILoggerScope> GetEnumerator() => AsyncScope<ILoggerScope>.Current.Enumerate().Select(s => s.Value).GetEnumerator();
+
+    public void Invoke(ILogEntry entry) => First.Invoke(entry);
+
+    public IEnumerator<ILoggerNode> GetEnumerator() => First.EnumerateNext().GetEnumerator();
 
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-    public void Dispose()
+    public virtual void Dispose()
     {
-        foreach (var node in Nodes) node.Dispose();
-        foreach (var item in Items) (item.Value as IDisposable)?.Dispose();
+        foreach (var node in this) node.Dispose();
+        foreach (var item in Items.Values.OfType<IDisposable>()) item.Dispose();
 
-        AsyncScope<ILoggerScope>.Current?.Dispose();
+        Items.Clear();
+
+        Disposer.Dispose();
+
+        //AsyncScope<ILoggerScope>.Current.Dispose();
+    }
+
+    public class Empty : LoggerScope
+    {
+        private Empty() : base(Enumerable.Empty<Func<ILoggerNode>>(), Disposable.Empty) { }
+
+        public static readonly ILoggerScope Instance = new Empty();
+
+        public override void Dispose() { }
     }
 }

@@ -8,21 +8,22 @@ using System.Text.RegularExpressions;
 using Reusable.DoubleDash.Annotations;
 using Reusable.Essentials.Annotations;
 using Reusable.Essentials.Extensions;
+using Reusable.Utilities.Autofac;
 
 namespace Reusable.DoubleDash;
 
 public interface ICommandNameResolver
 {
-    ArgumentName ResolveCommandName<T>() where T : ICommand;
+    NameCollection ResolveCommandName<T>() where T : ICommand;
 }
 
 public static class CommandHelper
 {
-    private static readonly ConcurrentDictionary<MemberInfo, ArgumentName> NameCache = new ConcurrentDictionary<MemberInfo, ArgumentName>();
+    private static readonly ConcurrentDictionary<MemberInfo, NameCollection> NameCache = new ConcurrentDictionary<MemberInfo, NameCollection>();
 
-    public static ArgumentName GetArgumentName(this MemberInfo member)
+    public static NameCollection GetArgumentName(this MemberInfo member)
     {
-        return NameCache.GetOrAdd(member, t => new ArgumentName(GetDefaultMemberName(t), t.GetCustomAttribute<AliasAttribute?>() ?? Enumerable.Empty<string>()));
+        return NameCache.GetOrAdd(member, t => new NameCollection(GetDefaultMemberName(t), t.GetCustomAttribute<AliasAttribute?>() ?? Enumerable.Empty<string>()));
     }
         
     private static string GetDefaultMemberName(MemberInfo commandType)

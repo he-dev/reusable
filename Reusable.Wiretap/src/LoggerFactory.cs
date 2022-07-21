@@ -1,44 +1,26 @@
 using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Linq;
 using Reusable.Essentials;
-using Reusable.Essentials.Extensions;
 using Reusable.Wiretap.Abstractions;
-using Reusable.Wiretap.Pipelines;
 
 namespace Reusable.Wiretap;
-
-public delegate IEnumerable<ILoggerNode> PipelineConfiguration(IEnumerable<ILoggerNode> nodes);
 
 public class LoggerFactory : ILoggerFactory
 {
     private ConcurrentDictionary<SoftString, ILogger> Loggers { get; } = new();
 
-    public LoggerPipeline Pipeline { get; set; } = new EmptyPipeline();
+    public LoggerFactory(ILoggerPipelineBuilder pipelineBuilder) => PipelineBuilder = pipelineBuilder;
 
-    public PipelineConfiguration PipelineConfiguration { get; set; } = nodes => nodes;
-
-    public static LoggerFactory CreateWith<T>() where T : LoggerPipeline, new() => new() { Pipeline = new T() };
+    private ILoggerPipelineBuilder PipelineBuilder { get; }
 
     #region ILoggerFactory
 
-    public ILogger CreateLogger(string name) => Loggers.GetOrAdd(name, CreatePipeline(name));
-
-    private ILogger CreatePipeline(string loggerName)
-    {
-        var configuredPipeline = PipelineConfiguration(Pipeline);
-        // Prepend does not work with .net-framework.
-        return (ILogger)new ILoggerNode[] { new Logger { Name = loggerName } }.Concat(configuredPipeline).Join().First();
-    }
+    public ILogger CreateLogger(string name) => Loggers.GetOrAdd(name!, new Logger(PipelineBuilder.Build(name)));
 
     public void Dispose()
     {
-        foreach (var logger in Loggers)
+        foreach (var (_, logger) in Loggers)
         {
-            foreach (var node in ((ILoggerNode)logger.Value).EnumerateNext())
-            {
-                node.Dispose();
-            }
+            logger.Dispose();
         }
 
         Loggers.Clear();

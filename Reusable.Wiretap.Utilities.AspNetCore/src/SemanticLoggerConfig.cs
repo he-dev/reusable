@@ -3,11 +3,11 @@ using System.Linq.Custom;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.AspNetCore.Http;
-using Reusable.OmniLog.Utilities.AspNetCore.Helpers;
 using Reusable.Wiretap.Data;
 using Reusable.Wiretap.Utilities.AspNetCore.Extensions;
+using Reusable.Wiretap.Utilities.AspNetCore.Helpers;
 
-namespace Reusable.OmniLog.Utilities.AspNetCore
+namespace Reusable.Wiretap.Utilities.AspNetCore
 {
     [PublicAPI]
     public class SemanticLoggerConfig

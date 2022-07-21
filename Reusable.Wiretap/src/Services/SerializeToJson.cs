@@ -25,8 +25,8 @@ public class SerializeToJson : ISerialize
         }
     };
 
-    public object Invoke(object obj)
+    public object Invoke(object value)
     {
-        return obj is string ? obj : JsonConvert.SerializeObject(obj, Settings);
+        return value is string ? value : JsonConvert.SerializeObject(value, Settings);
     }
 }

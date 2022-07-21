@@ -1,54 +1,53 @@
+using System;
 using System.Configuration;
 using System.Linq;
 using System.Threading.Tasks;
 using Reusable.Essentials;
 using Reusable.Essentials.Extensions;
-using Reusable.Octopus.Data;
-using Reusable.Translucent.Data;
+using Reusable.Synergy.Requests;
 
-namespace Reusable.Translucent.Controllers;
+namespace Reusable.Synergy.Controllers;
 
-public class AppSettingController : ConfigController
+public abstract class AppConfigService<T> : ConfigService<T> where T : IRequest { }
+
+public static class AppConfigServiceService
 {
-    protected override Task<Response> ReadAsync(ConfigRequest request)
+    public class Read : AppConfigService<IReadSetting>
     {
-        var exeConfig = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
-        var actualKey = FindActualKey(exeConfig, request.ResourceName.Peek()) ?? request.ResourceName.Peek();
-        var element = exeConfig.AppSettings.Settings[actualKey];
-        
-        request.ResourceName.Push(actualKey);
-
-        return
-            element is { }
-                ? Success<ConfigResponse>(request.ResourceName.Value, element.Value).ToTask()
-                : NotFound<ConfigResponse>(request.ResourceName.Value).ToTask();
+        protected override Task<object> InvokeAsync(IReadSetting setting)
+        {
+            var exeConfig = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
+            return
+                FindKeyOrDefault(exeConfig, setting.Name) is { } key
+                    ? exeConfig.AppSettings.Settings[key].ToTask<object>()
+                    : Unit.Default.ToTask<object>();
+        }
     }
 
-    protected override Task<Response> CreateAsync(ConfigRequest request)
+    public class Write : AppConfigService<IWriteSetting>
     {
-        var settingIdentifier = request.ResourceName.Peek();
-        var exeConfig = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
-        var actualKey = FindActualKey(exeConfig, settingIdentifier) ?? settingIdentifier;
-        var element = exeConfig.AppSettings.Settings[actualKey];
-        var value = (string)request.Data.Peek(); // Converter.ConvertOrThrow<string>(request.Body!);
-
-        request.ResourceName.Push(actualKey);
-        
-        if (element is { })
+        protected override Task<object> InvokeAsync(IWriteSetting setting)
         {
-            exeConfig.AppSettings.Settings[actualKey].Value = value;
-        }
-        else
-        {
-            exeConfig.AppSettings.Settings.Add(settingIdentifier, value);
-        }
+            if (setting.Value is not string value) throw new ArgumentException("Setting's value must be a string.");
 
-        exeConfig.Save(ConfigurationSaveMode.Minimal);
+            var exeConfig = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
+            if (FindKeyOrDefault(exeConfig, setting.Name) is { } key)
+            {
+                exeConfig.AppSettings.Settings[key].Value = value;
+            }
+            else
+            {
+                exeConfig.AppSettings.Settings.Add(setting.Name, value);
+            }
 
-        return Success<ConfigResponse>(request.ResourceName.Value).ToTask();
+            exeConfig.Save(ConfigurationSaveMode.Minimal);
+
+            return Unit.Default.ToTask<object>();
+        }
     }
 
-    private static string? FindActualKey(Configuration exeConfig, string key)
+    // Search for the key ignoring case.
+    private static string? FindKeyOrDefault(Configuration exeConfig, string key)
     {
         return
             exeConfig

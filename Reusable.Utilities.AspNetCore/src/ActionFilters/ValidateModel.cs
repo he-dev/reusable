@@ -28,7 +28,7 @@ namespace Reusable.Utilities.AspNetCore.ActionFilters
                 Telemetry
                     .Collect
                     .Application()
-                    .Metadata("ModelErrors", context.ModelState.Values.Select(value => value.Errors.Select(error => error.Exception.Message)))
+                    .Metadata(new { ModelErrors = context.ModelState.Values.Select(value => value.Errors.Select(error => error.Exception.Message)) })
                     .Error());
 
             context.Result = new BadRequestObjectResult(context.ModelState);

@@ -1,37 +1,31 @@
 using System;
-using System.Linq;
 using Reusable.Essentials;
-using Reusable.Essentials.Extensions;
+using Reusable.Wiretap.Data;
+using Reusable.Wiretap.Extensions;
 
 namespace Reusable.Wiretap.Abstractions;
 
 public interface ILoggerNode : IListNode<ILoggerNode>, IDisposable
 {
-    bool Enabled { get; set; }
-
     void Invoke(ILogEntry entry);
 }
 
 public abstract class LoggerNode : ILoggerNode
 {
-    public virtual bool Enabled { get; set; } = true;
-
     public virtual ILoggerNode? Prev { get; set; }
 
     public virtual ILoggerNode? Next { get; set; }
-        
+
     public abstract void Invoke(ILogEntry entry);
 
-    protected void InvokeNext(ILogEntry request)
-    {
-        if (this.EnumerateNext<ILoggerNode>(includeSelf: false).FirstOrDefault(n => n.Enabled) is {} next)
-        {
-            next.Invoke(request);
-        }
-    }
+    public virtual void Dispose() { }
 
-    public virtual void Dispose()
+    public class Empty : LoggerNode
     {
-        //((ILoggerNode)this).Remove();
+        private Empty() { }
+
+        public override void Invoke(ILogEntry entry) => Next?.Invoke(entry);
+
+        public static readonly ILoggerNode Instance = new Empty();
     }
 }

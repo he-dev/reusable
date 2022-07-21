@@ -17,16 +17,16 @@ public class MapSnapshot : LoggerNode
 
     public override void Invoke(ILogEntry entry)
     {
-        if (entry.TryGetProperty<SerializableProperty.Snapshot>(out var snapshot))
+        if (entry.TryGetProperty<DataProperty.Snapshot>(out var snapshot))
         {
             // Do we have a custom mapping for the dump?
             if (Mappings.TryGetMapping(snapshot.Value.GetType(), out var map))
             {
                 var obj = map(snapshot.Value);
-                entry.Push(new SerializableProperty.Snapshot(obj)); // Replace the original object.
+                entry.Push(new DataProperty.Snapshot(obj)); // Replace the original object.
             }
         }
-        
+
         InvokeNext(entry);
     }
 
@@ -85,3 +85,4 @@ public class MapSnapshot : LoggerNode
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
     }
 }
+

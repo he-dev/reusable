@@ -3,8 +3,8 @@ using System.IO;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.AspNetCore.Http;
+using Reusable.Essentials;
 using Reusable.Essentials.Extensions;
-using Reusable.OmniLog.Utilities.AspNetCore;
 using Reusable.Toggle;
 using Reusable.Wiretap.Abstractions;
 using Reusable.Wiretap.Conventions;
@@ -36,12 +36,12 @@ public class WiretapMiddleware
 
     public async Task Invoke(HttpContext context, IFeatureService features)
     {
-        using var scope = 
+        using var scope =
             _logger
-                .BeginScope(nameof(HttpRequest))
-                .WithCorrelationId(_config.GetCorrelationId(context))
-                .WithCorrelationHandle(_config.GetCorrelationHandle(context));
-            
+                .BeginScope()
+                .WithId(_config.GetCorrelationId(context))
+                .WithName(_config.GetCorrelationHandle(context));
+
         var requestBody =
             _config.CanLogRequestBody(context)
                 ? await _config.SerializeRequestBody(context)
@@ -51,8 +51,8 @@ public class WiretapMiddleware
             Telemetry
                 .Collect
                 .Application()
-                .Metadata(nameof(HttpRequest), context.Request)
-                .Message(requestBody));
+                .Metadata(new { HttpRequest = context.Request })
+                .Then(e => e.Message(requestBody)));
 
         try
         {
@@ -84,14 +84,18 @@ public class WiretapMiddleware
                 Telemetry
                     .Collect
                     .Application()
-                    .Metadata(nameof(HttpResponse), _config.TakeResponseSnapshot(context))
-                    .Message(responseBody)
+                    .Metadata(new { HttpResponse = _config.TakeResponseSnapshot(context) })
+                    .Then(e => e.Message(responseBody))
                     .Level(_config.MapStatusCode(context.Response.StatusCode)));
         }
         catch (Exception inner)
         {
-            _logger.Log(Telemetry.Collect.Application().Execution().Faulted(inner));
+            scope.Exception(inner);
             throw;
+        }
+        finally
+        {
+            _logger.Log(Telemetry.Collect.Application().UnitOfWork(nameof(Invoke)).Auto());
         }
     }
 

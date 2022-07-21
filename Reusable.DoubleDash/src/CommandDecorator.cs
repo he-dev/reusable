@@ -14,7 +14,7 @@ public abstract class CommandDecorator : ICommand, IDecorator<ICommand>
 
     public ICommand Decoratee { get; }
 
-    public virtual ArgumentName Name => Decoratee.Name;
+    public virtual NameCollection NameCollection => Decoratee.NameCollection;
 
     public Type ParameterType => Decoratee.ParameterType;
 

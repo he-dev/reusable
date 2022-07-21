@@ -9,8 +9,6 @@ namespace Reusable.Wiretap.Nodes.Scopeable;
 /// </summary>
 public class CacheScope : LoggerNode, IEnumerable<ILogEntry>
 {
-    public override bool Enabled { get; set; }
-
     public int Capacity { get; set; } = 10_000;
 
     private Queue<ILogEntry> Entries { get; } = new();
@@ -27,7 +25,7 @@ public class CacheScope : LoggerNode, IEnumerable<ILogEntry>
             }
         }
 
-        InvokeNext(entry);
+        Next?.Invoke(entry);
     }
 
     public IEnumerator<ILogEntry> GetEnumerator() => Entries.GetEnumerator();
@@ -36,7 +34,6 @@ public class CacheScope : LoggerNode, IEnumerable<ILogEntry>
 
     public override void Dispose()
     {
-        Enabled = false;
         Entries.Clear();
         base.Dispose();
     }

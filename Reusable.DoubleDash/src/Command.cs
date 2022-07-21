@@ -7,13 +7,16 @@ using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Reusable.DoubleDash.Annotations;
 using Reusable.Essentials;
+using Reusable.Essentials.Data;
 using Reusable.Essentials.Extensions;
 
 namespace Reusable.DoubleDash;
 
+public class Request : Trackable<object> { }
+
 public interface ICommand
 {
-    ArgumentName Name { get; }
+    NameCollection NameCollection { get; }
 
     /// <summary>
     /// Gets the type of the parameter.
@@ -27,12 +30,12 @@ public interface ICommand
 [PublicAPI]
 public abstract class Command<TParameter> : ICommand where TParameter : class, new()
 {
-    protected Command(ArgumentName? name = default)
+    protected Command(NameCollection? nameCollection = default)
     {
-        Name = name ?? GetType().GetArgumentName();
+        NameCollection = nameCollection ?? GetType().GetArgumentName();
     }
 
-    public virtual ArgumentName Name { get; }
+    public virtual NameCollection NameCollection { get; }
 
     public Type ParameterType => typeof(TParameter);
 
@@ -40,7 +43,7 @@ public abstract class Command<TParameter> : ICommand where TParameter : class, n
     {
         await ExecuteAsync
         (
-            parameter as TParameter ?? throw new ArgumentOutOfRangeException(paramName: nameof(parameter), message: $"{Name} command parameter must be of type {typeof(TParameter).ToPrettyString()}."),
+            parameter as TParameter ?? throw new ArgumentOutOfRangeException(paramName: nameof(parameter), message: $"{NameCollection} command parameter must be of type {typeof(TParameter).ToPrettyString()}."),
             cancellationToken
         );
     }
@@ -67,7 +70,7 @@ public static class Command
     {
         var query =
             from p in parameterType.GetParameterProperties()
-            from n in Enumerable.Empty<ArgumentName>() // p.GetMultiName()
+            from n in Enumerable.Empty<NameCollection>() // p.GetMultiName()
             group n by n into g
             where g.Count() > 1
             select g.Key;
@@ -80,7 +83,7 @@ public static class Command
 
     private static void ValidateParameterPropertyPositions(Type parameterType)
     {
-        var positions = parameterType.GetParameterProperties().Select(p => p.GetCustomAttribute<PositionAttribute>()).Where(p => p is {}).Select(p => p.Value);
+        var positions = parameterType.GetParameterProperties().Select(p => p.GetCustomAttribute<PositionAttribute>()).Where(p => p is { }).Select(p => p.Value);
         var positionCount = parameterType.GetParameterProperties().Count(p => p.IsDefined(typeof(PositionAttribute)));
         positionCount = positionCount.IsEven() ? positionCount : positionCount + 1;
         var pairCount = positionCount / 2;

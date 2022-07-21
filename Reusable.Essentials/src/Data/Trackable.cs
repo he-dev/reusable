@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Reusable.Essentials.Extensions;
 
 namespace Reusable.Essentials.Data;
@@ -16,9 +17,11 @@ public class Trackable<T> : Stack<T>, IDisposable
     
     public void Dispose()
     {
-        foreach (var item in this.Consume())
+        foreach (var item in this.Consume().OfType<IDisposable>())
         {
-            (item as IDisposable)?.Dispose();
+            item.Dispose();
         }
     }
+
+    public static implicit operator bool(Trackable<T> trackable) => trackable.HasValue;
 }

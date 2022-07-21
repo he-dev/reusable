@@ -53,7 +53,7 @@
     <DotNetCliToolReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Tools" Version="1.0.1" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Reusable.Wiretap.Connectors.NLog\Reusable.Wiretap.Connectors.NLog.csproj" />
+    <ProjectReference Include="..\Reusable.Wiretap.Channels.NLog\Reusable.Wiretap.Channels.NLog.csproj" />
     <ProjectReference Include="..\Reusable.Wiretap\Reusable.Wiretap.csproj" />
     <ProjectReference Include="..\Reusable.Wiretap.Utilities.AspNetCore\Reusable.Wiretap.Utilities.AspNetCore.csproj" />
     <ProjectReference Include="..\Reusable.Utilities.AspNetCore\Reusable.Utilities.AspNetCore.csproj" />

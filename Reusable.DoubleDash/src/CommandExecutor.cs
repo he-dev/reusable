@@ -8,7 +8,9 @@ using System.Threading.Tasks;
 using System.Threading.Tasks.Dataflow;
 using Autofac;
 using JetBrains.Annotations;
+using Reusable.DoubleDash.Annotations;
 using Reusable.Essentials;
+using Reusable.Utilities.Autofac;
 using Reusable.Wiretap.Abstractions;
 using Reusable.Wiretap.Conventions;
 using Reusable.Wiretap.Extensions;
@@ -20,6 +22,35 @@ public interface ICommandExecutor
     // You moved ICommandFactory from the the ctor to here because it causes a circular-dependency exception there.
     Task ExecuteAsync<TContext>(string commandLineString, TContext context = default, CancellationToken cancellationToken = default);
 }
+
+public interface ICommandFactory
+{
+    public ICommand Create(string commandName);
+}
+
+public class CommandFactory : ICommandFactory
+{
+    [Service]
+    public ILogger<CommandExecutor> Logger { get; set; } = null!;
+
+    [Service]
+    public ICommandLineParser CommandLineParser { get; set; } = null!;
+
+    [Service]
+    public ILifetimeScope LifetimeScope { get; set; } = null!;
+
+    [Service]
+    public ICommandParameterBinder CommandParameterBinder { get; set; } = null!;
+
+    [Service]
+    public IEnumerable<CommandInfo> Commands { get; set; } = null!;
+
+    public ICommand Create(string commandName)
+    {
+        return LifetimeScope.ResolveNamed<ICommand>(commandName);
+    }
+}
+
 
 [UsedImplicitly]
 public class CommandExecutor : ICommandExecutor
@@ -57,9 +88,9 @@ public class CommandExecutor : ICommandExecutor
 
         var executables =
             from t in commandLines.Select((args, index) => (args, index))
-            let arg0 = t.args.Where(a => a.Name.Equals(ArgumentName.Command)).SingleOrThrow($"Command line {t.index} does not contain command-name.")
+            let arg0 = t.args.Where(a => a.NameCollection.Equals(NameCollection.Command)).SingleOrThrow($"Command line {t.index} does not contain command-name.")
             let currentName = arg0.First()
-            let actualName = _commands.SingleOrDefault(cmd => cmd.Name.Contains(currentName, SoftString.Comparer))?.RegistrationKey ?? throw DynamicException.Create("CommandNameNotFound", $"Command '{currentName}' not found.")
+            let actualName = _commands.SingleOrDefault(cmd => cmd.NameCollection.Contains(currentName, SoftString.Comparer))?.RegistrationKey ?? throw DynamicException.Create("CommandNameNotFound", $"Command '{currentName}' not found.")
             let command = _lifetimeScope.ResolveNamed<ICommand>(actualName)
             select (command, t.args);
 

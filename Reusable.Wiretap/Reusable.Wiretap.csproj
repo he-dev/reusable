@@ -27,6 +27,14 @@
     <Compile Remove="src\Nodes\InjectAnonymousAction.cs" />
     <Compile Remove="src\Nodes\MapObject.cs" />
     <Compile Remove="src\Data\ConsoleStyle.cs" />
+    <Compile Remove="src\Nodes\CapitalizeValue.cs" />
+    <Compile Remove="src\Nodes\MapSnapshot.cs" />
+    <Compile Remove="src\Nodes\Destructure.cs" />
+    <Compile Remove="src\Nodes\EntryAction.cs" />
+    <Compile Remove="src\Data\LogEntryView.cs" />
+    <Compile Remove="src\Data\LogLevel.cs" />
+    <Compile Remove="src\Conventions\Telemetry1.cs" />
+    <Compile Remove="src\Nodes\InferLogLevel.cs" />
   </ItemGroup>
 
   <ItemGroup>
