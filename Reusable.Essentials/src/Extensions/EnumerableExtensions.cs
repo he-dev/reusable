@@ -137,7 +137,7 @@ public static class enumerable
         {
             // Get the enumerator because we took all elements and try again.
             currentEnumerator.Dispose();
-            
+
             nextEnumerator = source.GetEnumerator();
 
             // If we couldn't move after reset then we're done trying because the collection is empty.
@@ -430,6 +430,21 @@ public static class enumerable
                     : value.PadRight(width, padding);
         }
     }
+
+    public static void Dispose<T>(this IEnumerable<T> source)
+    {
+        foreach (var item in source.OfType<IDisposable>())
+        {
+            item.Dispose();
+        }
+    }
+    
+    public static void Dispose<TKey, TValue>(this ICollection<KeyValuePair<TKey, TValue>> source)
+    {
+        source.Select(x => x.Value).Dispose();
+    }
+
+    public static IEnumerable<T> Invoke<T>(this IEnumerable<Func<T>> source) => source.Select(f => f());
 }
 
 public class CollectionDiff<T>

@@ -4,7 +4,7 @@ using Reusable.Wiretap.Extensions;
 
 namespace Reusable.Wiretap.Nodes;
 
-public abstract class AttachProperty : LoggerNode { }
+public abstract class AttachProperty : LoggerMiddleware { }
 
 public class Attach<T> : AttachProperty where T : ILogPropertyTag
 {

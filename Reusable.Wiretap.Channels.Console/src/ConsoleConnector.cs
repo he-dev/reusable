@@ -4,7 +4,7 @@ using Reusable.Wiretap.Abstractions;
 namespace Reusable.Wiretap.Channels;
 
 [PublicAPI]
-public abstract class ConsoleChannel<T> : Channel
+public abstract class ConsoleChannel<T> : Channel<ConsoleChannel<T>>
 {
     public IConsoleMessageBuilder<T> Template { get; set; } = null!;
 

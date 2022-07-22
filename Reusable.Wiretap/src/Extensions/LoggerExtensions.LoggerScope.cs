@@ -15,15 +15,17 @@ public static partial class LoggerExtensions
     [MustUseReturnValue]
     public static ILoggerScope BeginScope(this ILogger logger, string? name = default)
     {
-        return logger.Node<ActivateScope>().Push().Also(() => name is { }, scope => scope.WithName(name!));
+        return logger.Node<ToggleScope>().Push().Also(() => name is { }, scope => scope.WithName(name!));
     }
 
     /// <summary>
     /// Gets the current scope.
     /// </summary>
+    [MustUseReturnValue]
     public static ILoggerScope Scope(this ILogger logger)
     {
-        return logger.Node<ActivateScope>().Current;
+        //return logger.Node<ToggleScope>().Current;
+        return ToggleScope.Current;
     }
 
     public static ILoggerScope Exception(this ILoggerScope scope, Exception exception)

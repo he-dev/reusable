@@ -1,31 +1,30 @@
 using System;
+using System.Collections;
+using System.Collections.Generic;
 using Reusable.Essentials;
-using Reusable.Wiretap.Data;
-using Reusable.Wiretap.Extensions;
+using Reusable.Essentials.Extensions;
 
 namespace Reusable.Wiretap.Abstractions;
 
-public interface ILoggerNode : IListNode<ILoggerNode>, IDisposable
+public interface ILoggerMiddleware : IListNode<ILoggerMiddleware>, IEnumerable<ILoggerMiddleware>
 {
     void Invoke(ILogEntry entry);
+
+    IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 }
 
-public abstract class LoggerNode : ILoggerNode
+public abstract class LoggerMiddleware : ListNode<ILoggerMiddleware>, ILoggerMiddleware
 {
-    public virtual ILoggerNode? Prev { get; set; }
-
-    public virtual ILoggerNode? Next { get; set; }
-
     public abstract void Invoke(ILogEntry entry);
 
-    public virtual void Dispose() { }
-
-    public class Empty : LoggerNode
+    public class Empty : LoggerMiddleware
     {
         private Empty() { }
 
         public override void Invoke(ILogEntry entry) => Next?.Invoke(entry);
 
-        public static readonly ILoggerNode Instance = new Empty();
+        public static readonly ILoggerMiddleware Instance = new Empty();
     }
+
+    public IEnumerator<ILoggerMiddleware> GetEnumerator() => ((ILoggerMiddleware)this).EnumerateNext().GetEnumerator();
 }

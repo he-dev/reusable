@@ -8,7 +8,7 @@ using Reusable.Wiretap.Extensions;
 
 namespace Reusable.Wiretap.Channels;
 
-public class NLogChannel : Channel
+public class NLogChannel : Channel<NLogChannel>
 {
     private readonly ConcurrentDictionary<string, NLog.Logger> _cache = new(SoftString.Comparer);
 
@@ -22,7 +22,7 @@ public class NLogChannel : Channel
     //     ["Fatal"] = NLog.LogLevel.Fatal,
     // };
 
-    public override void Invoke(ILogEntry entry)
+    protected override void Log(ILogEntry entry)
     {
         var loggerName = entry.GetValueOrDefault("Logger", "Unknown");
         _cache

@@ -1,55 +1,43 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using Reusable.Essentials.Extensions;
 using Reusable.Wiretap.Abstractions;
+using Reusable.Wiretap.Data;
+using Reusable.Wiretap.Extensions;
 using Reusable.Wiretap.Nodes;
 
 namespace Reusable.Wiretap;
 
-public class Logger : ILogger
+public class Logger : LoggerMiddleware, ILogger
 {
-    private ILoggerNode First { get; }
+    public Logger(string name) => Name = name;
 
-    public Logger(ILoggerNode first) => First = first;
+    #region LoggerNode
 
-    public void Log(ILogEntry logEntry) => First.Invoke(logEntry);
+    public override void Invoke(ILogEntry entry) => Next?.Invoke(entry.Push<IRegularProperty>(nameof(Logger), Name));
 
-    public static IEnumerable<ILoggerNode> Pipeline<T>() where T : LoggerPipeline, new() => new T();
+    #endregion
 
-    public IEnumerator<ILoggerNode> GetEnumerator() => First.EnumerateNext().GetEnumerator();
+    #region ILogger
 
-    IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+    public string Name { get; }
 
-    public void Dispose()
+    public void Log(ILogEntry entry) => Invoke(entry);
+
+    #endregion
+
+    public new class Empty : Logger
     {
-        foreach (var node in First.EnumerateNext())
-        {
-            node.Dispose();
-        }
-    }
-
-    public class Empty : Logger
-    {
-        private Empty() : base(LoggerNode.Empty.Instance) { }
+        private Empty() : base(nameof(Empty)) { }
 
         public static readonly ILogger Instance = new Empty();
     }
 }
 
 // This logger supports DI.
-public class Logger<T> : ILogger<T>
+public class Logger<T> : Logger, ILogger<T>
 {
     // This constructor makes it easier to create a typed logger with DI.
-    public Logger(ILoggerFactory loggerFactory) => Instance = loggerFactory.CreateLogger(typeof(T).ToPrettyString());
-
-    private ILogger Instance { get; }
-
-    public void Log(ILogEntry logEntry) => Instance.Log(logEntry);
-
-
-    public IEnumerator<ILoggerNode> GetEnumerator() => Instance.GetEnumerator();
-
-    IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
-
-    public void Dispose() => Instance.Dispose();
+    public Logger(string name) : base(name) { }
 }

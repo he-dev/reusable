@@ -4,7 +4,7 @@ using Reusable.Wiretap.Data;
 
 namespace Reusable.Wiretap.Nodes;
 
-public class AttachTimestamp<T> : LoggerNode where T : IDateTime, new()
+public class AttachTimestamp<T> : LoggerMiddleware where T : IDateTime, new()
 {
     public AttachTimestamp() => DateTime = new T();
 

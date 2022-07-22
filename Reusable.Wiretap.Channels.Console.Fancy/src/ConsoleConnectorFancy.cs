@@ -19,7 +19,7 @@ public class ConsoleChannelFancy : ConsoleChannel<IHtmlElement>
     /// <summary>
     /// Renders the Html to the console. This method is thread-safe.
     /// </summary>
-    public override void Invoke(ILogEntry entry)
+    protected override void Log(ILogEntry entry)
     {
         lock (SyncLock)
         {

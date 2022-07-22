@@ -11,7 +11,7 @@ namespace Reusable.Wiretap.Nodes.Scopeable;
 /// This nodes provides properties for log-entry correlation.
 /// </summary>
 [JsonObject(MemberSerialization.OptIn)]
-public class Correlation : LoggerNode
+public class Correlation : LoggerMiddleware
 {
     private object? _id;
 

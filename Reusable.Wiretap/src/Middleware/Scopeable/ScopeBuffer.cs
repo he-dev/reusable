@@ -10,7 +10,7 @@ namespace Reusable.Wiretap.Nodes.Scopeable;
 /// <summary>
 /// This node temporarily stores log-entries. You need to use Flush to log and empty the buffer. This node is disabled by default. 
 /// </summary>
-public class ScopeBuffer : LoggerNode
+public class ScopeBuffer : LoggerMiddleware
 {
     private Queue<ILogEntry> Entries { get; } = new();
 
@@ -52,13 +52,6 @@ public class ScopeBuffer : LoggerNode
     {
         Entries.Clear();
     }
-
-    public override void Dispose()
-    {
-        Entries.Clear();
-        base.Dispose();
-    }
-
     public enum Mode
     {
         None,

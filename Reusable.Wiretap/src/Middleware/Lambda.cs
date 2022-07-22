@@ -3,7 +3,7 @@ using Reusable.Wiretap.Abstractions;
 
 namespace Reusable.Wiretap.Nodes;
 
-public class Lambda : LoggerNode
+public class Lambda : LoggerMiddleware
 {
     public Lambda(Action<ILogEntry> action) => Action = action;
 

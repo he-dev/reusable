@@ -6,7 +6,7 @@ using Reusable.Wiretap.Extensions;
 
 namespace Reusable.Wiretap.Nodes;
 
-public class GuessProperty : LoggerNode
+public class GuessProperty : LoggerMiddleware
 {
     public override void Invoke(ILogEntry entry)
     {

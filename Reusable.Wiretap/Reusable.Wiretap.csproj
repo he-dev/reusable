@@ -35,6 +35,15 @@
     <Compile Remove="src\Data\LogLevel.cs" />
     <Compile Remove="src\Conventions\Telemetry1.cs" />
     <Compile Remove="src\Nodes\InferLogLevel.cs" />
+    <Compile Remove="src\Extensions\LoggerPipelineExtensions.cs" />
+    <Compile Remove="src\Middleware\CollectFlowTelemetry.cs" />
+    <Compile Remove="src\Middleware\CreateProperty.cs" />
+    <Compile Remove="src\Middleware\Destructure.cs" />
+    <Compile Remove="src\Middleware\EntryAction.cs" />
+    <Compile Remove="src\Middleware\InferLogLevel.cs" />
+    <Compile Remove="src\Middleware\InjectAnonymousAction.cs" />
+    <Compile Remove="src\Middleware\MapObject.cs" />
+    <Compile Remove="src\Middleware\MapSnapshot.cs" />
   </ItemGroup>
 
   <ItemGroup>

@@ -6,7 +6,7 @@ using Reusable.Wiretap.Extensions;
 
 namespace Reusable.Wiretap.Nodes;
 
-public class SplitSnapshots : LoggerNode
+public class SplitSnapshots : LoggerMiddleware
 {
     public override void Invoke(ILogEntry entry)
     {

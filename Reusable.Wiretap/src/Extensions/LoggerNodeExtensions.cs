@@ -22,7 +22,7 @@ namespace Reusable.Wiretap.Extensions
         /// <summary>
         /// Gets logger-node of the specified type.
         /// </summary>
-        public static T Node<T>(this IEnumerable<ILoggerNode> logger) where T : ILoggerNode
+        public static T Node<T>(this IEnumerable<ILoggerMiddleware> logger) where T : ILoggerMiddleware
         {
             return logger.OfType<T>().SingleOrThrow($"There must be exactly one node of type '{typeof(T).ToPrettyString()}'.");
         }

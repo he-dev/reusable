@@ -11,7 +11,7 @@ using static TimeSpanPrecision;
 /// <summary>
 /// This node adds 'Elapsed' time to the log.
 /// </summary>
-public class ScopeElapsed : LoggerNode
+public class ScopeElapsed : LoggerMiddleware
 {
     private readonly Stopwatch _stopwatch = Stopwatch.StartNew();
 

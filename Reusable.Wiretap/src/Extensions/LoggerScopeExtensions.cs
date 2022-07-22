@@ -41,12 +41,7 @@ public static class LoggerScopeExtensions
     public static Correlation Correlation(this ILoggerScope scope) => scope.Node<Correlation>();
         
     public static ScopeBuffer Buffer(this ILoggerScope scope) => scope.Node<ScopeBuffer>();
-        
-    /// <summary>
-    /// Gets the MemoryNode in current scope.
-    /// </summary>
-    public static CacheScope InMemoryCache(this ILoggerScope scope) => scope.Node<CacheScope>();
-        
+    
     /// <summary>
     /// Gets the stopwatch in current scope.
     /// </summary>

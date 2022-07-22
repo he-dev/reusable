@@ -11,6 +11,8 @@ public static class ListNodeExtensions
 {
     [DebuggerStepThrough]
     public static T Join<T>(this IEnumerable<T> source) where T : class, IListNode<T> => source.Aggregate(Append);
+    
+    public static T Join<T>(this T node, IEnumerable<T> nodes) where T : class, IListNode<T> => nodes.Prepend(node).Aggregate(Append);
 
     public static T Append<T>(this T a, T b) where T : class, IListNode<T>
     {

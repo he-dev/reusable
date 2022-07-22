@@ -3,9 +3,11 @@ using System.Collections.Generic;
 
 namespace Reusable.Wiretap.Abstractions;
 
-public interface ILogger : IEnumerable<ILoggerNode>, IDisposable //: ILoggerNode
+public interface ILogger : ILoggerMiddleware
 {
-    void Log(ILogEntry logEntry);
+    string Name { get; }
+
+    void Log(ILogEntry entry);
 }
 
 // ReSharper disable once UnusedTypeParameter - This is required for dependency-injection.

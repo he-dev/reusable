@@ -6,25 +6,15 @@ namespace Reusable.Wiretap;
 
 public class LoggerFactory : ILoggerFactory
 {
-    private ConcurrentDictionary<SoftString, ILogger> Loggers { get; } = new();
+    private ConcurrentDictionary<string, ILogger> Loggers { get; } = new(SoftString.Comparer);
 
-    public LoggerFactory(ILoggerPipelineBuilder pipelineBuilder) => PipelineBuilder = pipelineBuilder;
+    public LoggerFactory(ILoggerBuilder builder) => Builder = builder;
 
-    private ILoggerPipelineBuilder PipelineBuilder { get; }
+    private ILoggerBuilder Builder { get; }
 
     #region ILoggerFactory
 
-    public ILogger CreateLogger(string name) => Loggers.GetOrAdd(name!, new Logger(PipelineBuilder.Build(name)));
-
-    public void Dispose()
-    {
-        foreach (var (_, logger) in Loggers)
-        {
-            logger.Dispose();
-        }
-
-        Loggers.Clear();
-    }
+    public ILogger CreateLogger(string name) => Loggers.GetOrAdd(name, Builder.Build(name));
 
     #endregion
 }

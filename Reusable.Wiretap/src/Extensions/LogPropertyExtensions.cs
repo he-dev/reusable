@@ -21,4 +21,8 @@ public static class LogPropertyExtensions
     public static string Exception(this ILogPropertyName? _) => nameof(Exception);
     public static string LoggerScope(this ILogPropertyName? _) => nameof(LoggerScope);
     public static string Telemetry(this ILogPropertyName? _) => nameof(Snapshots);
+    
+    public static string ChannelName(this ILogPropertyName? _) => $"{nameof(Channel)}.{nameof(Channel.Name)}";
+    public static string ChannelOpt<T>(this ILogPropertyName? _, string? name) where T : IChannel => $"{typeof(T)}/{name}/{nameof(ChannelOpt)}";
+
 }

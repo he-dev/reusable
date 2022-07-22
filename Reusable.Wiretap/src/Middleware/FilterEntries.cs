@@ -6,7 +6,7 @@ namespace Reusable.Wiretap.Nodes;
 /// <summary>
 /// This node filters log-entries and short-circuits the pipeline.
 /// </summary>
-public class FilterEntries : LoggerNode
+public class FilterEntries : LoggerMiddleware
 {
     public FilterEntries(Func<ILogEntry, bool> canLog) => CanLog = canLog;
     

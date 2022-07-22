@@ -7,42 +7,27 @@ using Reusable.Wiretap.Abstractions;
 namespace Reusable.Wiretap.Channels;
 
 [PublicAPI]
-public class MemoryChannel : Channel, IEnumerable<ILogEntry>
+public class MemoryChannel : Channel<MemoryChannel>
 {
     public const int DefaultCapacity = 1_000;
 
-    private readonly LinkedList<ILogEntry> _logs = new();
+    public Queue<ILogEntry> Entries { get; } = new();
 
-    public MemoryChannel(int capacity = DefaultCapacity)
-    {
-        Capacity = capacity;
-    }
+    public MemoryChannel(int capacity = DefaultCapacity) => Capacity = capacity;
 
     public int Capacity { get; }
 
-    public ILogEntry? this[int index] => this.ElementAtOrDefault(index);
-
-    public override void Invoke(ILogEntry entry)
+    protected override void Log(ILogEntry entry)
     {
-        lock (_logs)
+        lock (Entries)
         {
-            _logs.AddLast(entry);
-            if (_logs.Count > Capacity)
+            Entries.Enqueue(entry);
+            if (Entries.Count > Capacity)
             {
-                _logs.RemoveFirst();
+                Entries.Dequeue();
             }
         }
-        
+
         Next?.Invoke(entry);
     }
-        
-    public IEnumerator<ILogEntry> GetEnumerator()
-    {
-        lock (_logs)
-        {
-            return _logs.GetEnumerator();
-        }
-    }
-
-    IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 }

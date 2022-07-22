@@ -10,9 +10,9 @@ using Reusable.Wiretap.Extensions;
 namespace Reusable.Wiretap.Nodes;
 
 /// <summary>
-/// This node renames log properties.
+/// This node formats the name of regular properties.
 /// </summary>
-public class FormatPropertyName : LoggerNode
+public class FormatPropertyName : LoggerMiddleware
 {
     //public override bool Enabled => MatchProperty is { } && MatchPattern is { };
 
@@ -69,12 +69,18 @@ public static class Trim
 
 public class Capitalize : FormatPropertyName
 {
+    /// <summary>
+    /// Capitalizes all properties.
+    /// </summary>
     public Capitalize()
     {
-        Matches = p => p is ILogProperty<IRegularProperty>;
+        Matches = p => true;
         Format = n => Regex.Replace(n, @"\A([a-z])", m => m.Value.ToUpper());
     }
 
+    /// <summary>
+    /// Capitalizes only the specified property.
+    /// </summary>
     public Capitalize(string property)
     {
         Matches = p => SoftString.Comparer.Equals(p.Name, property);

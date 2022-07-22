@@ -1,10 +1,9 @@
 ﻿using JetBrains.Annotations;
 
-namespace Reusable.Wiretap.Abstractions
+namespace Reusable.Wiretap.Abstractions;
+
+[PublicAPI]
+public interface ISerialize
 {
-    [PublicAPI]
-    public interface ISerialize
-    {
-        object Invoke(object value);
-    }
+    object Invoke(object value);
 }

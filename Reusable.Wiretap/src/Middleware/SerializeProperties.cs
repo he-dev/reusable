@@ -1,3 +1,4 @@
+using System;
 using System.Linq;
 using JetBrains.Annotations;
 using Reusable.Wiretap.Abstractions;
@@ -11,9 +12,11 @@ namespace Reusable.Wiretap.Nodes;
 /// This nodes takes care of serializable properties.
 /// </summary>
 [PublicAPI]
-public class SerializeProperties : LoggerNode
+public class SerializeProperties : LoggerMiddleware
 {
     public ISerialize Serialize { get; set; } = new SerializeToJson();
+    
+    public Func<object,  bool> TrySerialize { get; }
 
     public override void Invoke(ILogEntry entry)
     {

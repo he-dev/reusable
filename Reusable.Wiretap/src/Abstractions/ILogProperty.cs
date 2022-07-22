@@ -10,7 +10,3 @@ public interface ILogProperty
 public interface ILogPropertyTag { }
 
 public interface ILogProperty<T> : ILogProperty where T : ILogPropertyTag { }
-
-public interface ILoggableProperty : ILogProperty { }
-
-public interface IKnownProperty : ILogProperty { }

@@ -38,7 +38,7 @@ public class AsyncScope<T> : IDisposable where T : IDisposable
 
         return Current = new AsyncScope<T>(value)
         {
-            Parent = Current,
+            Parent = State.Value, // Cannot use Current here as it's recursive.
         };
     }
 
@@ -52,8 +52,3 @@ public class AsyncScope<T> : IDisposable where T : IDisposable
 
     public static implicit operator T(AsyncScope<T> scope) => scope.Value;
 }
-
-// public interface IAsyncScopeItem : IDisposable
-// {
-//     Action Disposer { get; set; }
-// }

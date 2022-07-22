@@ -4,7 +4,7 @@ using Reusable.Essentials;
 
 namespace Reusable.Wiretap.Abstractions;
 
-public interface ILoggerScope : IDisposable, IEnumerable<ILoggerNode>
+public interface ILoggerScope : ILoggerMiddleware, IDisposable
 {
     IEnumerable<ILoggerScope> Parents { get; }
 
@@ -12,6 +12,4 @@ public interface ILoggerScope : IDisposable, IEnumerable<ILoggerNode>
     /// Stores objects associated with this scope.
     /// </summary>
     IDictionary<string, object> Items { get; }
-
-    void Invoke(ILogEntry entry);
 }

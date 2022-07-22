@@ -2,10 +2,11 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
-using System.Runtime.CompilerServices;
 using Reusable.Essentials;
 using Reusable.Wiretap.Abstractions;
+using Reusable.Wiretap.ChannelFilters;
 using Reusable.Wiretap.Data;
+using Reusable.Wiretap.Nodes;
 using Reusable.Wiretap.Nodes.Scopeable;
 
 namespace Reusable.Wiretap.Extensions;
@@ -27,10 +28,6 @@ public static class LogEntryExtensions
         return entry[name].Value is T result ? result : defaultValue;
     }
 
-    
-    //public static ILogEntry Level(this ILogEntry entry, LogLevel value) => entry.Push<IRegularProperty>(nameof(Level), value);
-    //public static ILogEntry Level(this ILogEntry entry, [CallerMemberName] string? name = null) => entry.Level((LogLevel)Enum.Parse(typeof(LogLevel), name!));
-
     public static ILogEntry Layer(this ILogEntry entry, string value) => entry.Push<IRegularProperty>(nameof(Layer), value);
     public static ILogEntry Category(this ILogEntry entry, string value) => entry.Push<IRegularProperty>(nameof(Category), value);
     public static ILogEntry Tag(this ILogEntry entry, string value) => entry.Push<IRegularProperty>(nameof(Tag), value);
@@ -38,8 +35,18 @@ public static class LogEntryExtensions
     public static ILogEntry Message(this ILogEntry entry, string? value) => entry.Push<IRegularProperty>(nameof(Message), value);
     public static ILogEntry Exception(this ILogEntry entry, Exception? value) => entry.Push<IRegularProperty>(nameof(Exception), value);
 
-    public static ILogEntry Force(this ILogEntry logEntry) => logEntry.Push<IMetaProperty>(nameof(ScopeBuffer), ScopeBuffer.Mode.Force);
-    public static ILogEntry Defer(this ILogEntry logEntry) => logEntry.Push<IMetaProperty>(nameof(ScopeBuffer), ScopeBuffer.Mode.Defer);
+    public static ILogEntry Force(this ILogEntry entry) => entry.Push<IMetaProperty>(nameof(ScopeBuffer), ScopeBuffer.Mode.Force);
+    public static ILogEntry Defer(this ILogEntry entry) => entry.Push<IMetaProperty>(nameof(ScopeBuffer), ScopeBuffer.Mode.Defer);
+    
+    public static ILogEntry OptIn<T>(this ILogEntry entry, string? name = default) where T : IChannel
+    {
+        return entry.Push<IMetaProperty>(LogProperty.Names.ChannelOpt<T>(name), ChannelOpt.Mode.OptIn);
+    }
+
+    public static ILogEntry OptOut<T>(this ILogEntry entry, string? name = default) where T : IChannel
+    {
+        return entry.Push<IMetaProperty>(LogProperty.Names.ChannelOpt<T>(name), ChannelOpt.Mode.OptOut);
+    }
 
     public static IEnumerable<ILogProperty> WhereTag<T>(this ILogEntry entry) where T : ILogPropertyTag
     {
@@ -59,9 +66,9 @@ public static class LogEntryExtensions
         return entry;
     }
 
-    public static ILogEntry Applied<T>(ILogEntry entry, T node) where T : ILoggerNode => entry.Push<IMetaProperty>(LogProperty.Names.Telemetry(), $"{nameof(Applied)}: {node}");
+    //public static ILogEntry Applied<T>(ILogEntry entry, T node) where T : ILoggerNode => entry.Push<IMetaProperty>(LogProperty.Names.Telemetry(), $"{nameof(Applied)}: {node}");
     
-    public static ILogEntry Skipped<T>(ILogEntry entry, T node) where T : ILoggerNode => entry.Push<IMetaProperty>(LogProperty.Names.Telemetry(), $"{nameof(Skipped)}: {node}");
+    //public static ILogEntry Skipped<T>(ILogEntry entry, T node) where T : ILoggerNode => entry.Push<IMetaProperty>(LogProperty.Names.Telemetry(), $"{nameof(Skipped)}: {node}");
 
 
     public static DataTable ToDataTable(this IEnumerable<ILogEntry> entries, Action<DataRow>? dataRowAction = default)

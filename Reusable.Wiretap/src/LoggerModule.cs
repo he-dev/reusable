@@ -22,7 +22,8 @@ public class LoggerModule : Module
 
         builder
             .RegisterGeneric(typeof(Logger<>))
-            .As(typeof(ILogger<>));
+            .As(typeof(ILogger<>))
+            .OnActivating(e => { });
     }
 }
 

@@ -2,7 +2,7 @@ using System;
 
 namespace Reusable.Wiretap.Abstractions;
 
-public interface ILoggerFactory : IDisposable
+public interface ILoggerFactory
 {
     ILogger CreateLogger(string name);
 }

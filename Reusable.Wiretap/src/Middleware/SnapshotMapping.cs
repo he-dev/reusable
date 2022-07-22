@@ -24,7 +24,7 @@ public class SnapshotMapping<T> : SnapshotMapping
     }
 }
 
-public abstract class SnapshotMapping : LoggerNode
+public abstract class SnapshotMapping : LoggerMiddleware
 {
     public static SnapshotMapping For<T>(Func<T, object> map)
     {

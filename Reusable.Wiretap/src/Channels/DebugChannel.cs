@@ -4,11 +4,11 @@ using Reusable.Wiretap.Abstractions;
 
 namespace Reusable.Wiretap.Channels;
 
-public class DebugChannel : Channel
+public class DebugChannel : Channel<DebugChannel>
 {
     public string Template { get; set; } = "[{Timestamp:HH:mm:ss:fff}] [{Logger}] {Message}";
 
-    public override void Invoke(ILogEntry entry)
+    protected override void Log(ILogEntry entry)
     {
         Debug.WriteLine(Template.Format(entry));
         

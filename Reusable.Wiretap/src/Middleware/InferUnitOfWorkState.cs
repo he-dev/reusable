@@ -6,7 +6,7 @@ using Reusable.Wiretap.Extensions;
 
 namespace Reusable.Wiretap.Nodes;
 
-public class InferUnitOfWorkState : LoggerNode
+public class InferUnitOfWorkState : LoggerMiddleware
 {
     public override void Invoke(ILogEntry entry)
     {

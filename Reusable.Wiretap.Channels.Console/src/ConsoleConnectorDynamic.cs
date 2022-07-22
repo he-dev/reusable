@@ -12,7 +12,7 @@ public class ConsoleChannelDynamic : ConsoleChannel<string>
 {
     public ConsoleChannelDynamic() => Template = new TextMessageBuilder();
 
-    public override void Invoke(ILogEntry entry)
+    protected override void Log(ILogEntry entry)
     {
         var level = entry[LogProperty.Names.Level()].Value switch { LogLevel l => l, _ => LogLevel.Information };
 
