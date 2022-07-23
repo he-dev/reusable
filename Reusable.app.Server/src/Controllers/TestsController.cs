@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Reusable.OmniLog;
+using Reusable.Wiretap;
 using Reusable.Wiretap.Abstractions;
-using Reusable.Wiretap.Conventions;
 using Reusable.Wiretap.Extensions;
 using Reusable.Wiretap.Utilities.AspNetCore.Mvc.Filters;
 

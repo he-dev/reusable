@@ -13,7 +13,7 @@ public class ChannelOpt : IChannelFilter
     public bool CanLog<T>(ILogEntry entry) where T : IChannel
     {
         var name = entry[LogProperty.Names.ChannelName()].Value as string;
-        var channelMatches = entry.TryPeek($"{typeof(T)}/{name}/{nameof(ChannelOpt)}", out var property);
+        var channelMatches = entry.TryPeek(LogProperty.Names.ChannelOpt<T>(name), out var property);
 
         return property.Value switch
         {

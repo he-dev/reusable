@@ -11,8 +11,8 @@ using JetBrains.Annotations;
 using Reusable.DoubleDash.Annotations;
 using Reusable.Essentials;
 using Reusable.Utilities.Autofac;
+using Reusable.Wiretap;
 using Reusable.Wiretap.Abstractions;
-using Reusable.Wiretap.Conventions;
 using Reusable.Wiretap.Extensions;
 
 namespace Reusable.DoubleDash;

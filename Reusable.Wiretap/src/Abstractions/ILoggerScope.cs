@@ -11,5 +11,5 @@ public interface ILoggerScope : ILoggerMiddleware, IDisposable
     /// <summary>
     /// Stores objects associated with this scope.
     /// </summary>
-    IDictionary<string, object> Items { get; }
+    IDictionary<string, object> Properties { get; }
 }

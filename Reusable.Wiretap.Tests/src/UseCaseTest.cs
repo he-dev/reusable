@@ -8,7 +8,7 @@ using Reusable.Wiretap.ChannelFilters;
 using Reusable.Wiretap.Channels;
 using Reusable.Wiretap.Data;
 using Reusable.Wiretap.Extensions;
-using Reusable.Wiretap.Nodes;
+using Reusable.Wiretap.Middleware;
 using Xunit;
 
 namespace Reusable.Wiretap.Tests;
@@ -50,17 +50,17 @@ public class UseCaseTest
     }
 
     [Fact]
-    public void Can_log_scope()
+    public void Can_log_UnitOfWork()
     {
-        using var scope = Logger.BeginScope(nameof(Can_log_scope));
+        using var unitOfWork = Logger.BeginUnitOfWork().UseLayer(t => t.Business());
 
         //var entry = LogEntry.Empty();
         Logger.Log(e => e.Message("Test!"));
 
         var memory = Logger.Node<MemoryChannel>();
-        var entry = memory.Entries.Single();
+        var entry = memory.Entries.ElementAt(1);
         var regularProperties = entry.WhereTag<IRegularProperty>();
-        Assert.Equal(3, regularProperties.Count());
+        Assert.Equal(13, regularProperties.Count());
         Assert.Equal("Test!", entry["Message"].Value);
     }
 }

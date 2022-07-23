@@ -1,7 +1,7 @@
 ﻿using System;
 using Reusable.Wiretap.Abstractions;
 
-namespace Reusable.Wiretap.Nodes;
+namespace Reusable.Wiretap.Middleware;
 
 public class Lambda : LoggerMiddleware
 {

@@ -3,7 +3,6 @@ using System.Threading.Tasks;
 using Reusable.Essentials;
 using Reusable.Essentials.Extensions;
 using Reusable.Wiretap;
-using Reusable.Wiretap.Conventions;
 using Reusable.Wiretap.Extensions;
 
 namespace Reusable.Toggle;
@@ -20,9 +19,8 @@ public static partial class FeatureServiceExtensions
                 ? telemetry.Logger
                 : Logger.Empty.Instance;
 
-        using var scope = logger.BeginScope("UseFeature");
+        using var scope = logger.BeginUnitOfWork("UseFeature");
         logger.Log(Telemetry.Collect.Application().Metadata(new { feature = feature.Id, policy = feature.Policy }));
-        logger.Log(Telemetry.Collect.Application().UnitOfWork(nameof(Use)).Started());
 
         // Not catching exceptions because the caller should handle them.
         var exception = default(Exception);
@@ -37,12 +35,11 @@ public static partial class FeatureServiceExtensions
         }
         catch (Exception inner)
         {
-            scope.Exception(exception = inner);
+            scope.SetException(inner);
             throw DynamicException.Create("FeatureUsage", $"Could not use '{id}'. See the inner exception for details.", inner);
         }
         finally
         {
-            logger.Log(Telemetry.Collect.Application().UnitOfWork(nameof(Use)).Auto());
             features.Usage.AfterUse(new FeatureUsageContext(features, id, parameter, exception));
         }
     }

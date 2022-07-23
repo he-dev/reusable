@@ -19,7 +19,7 @@ public static class LogPropertyExtensions
     public static string Snapshots(this ILogPropertyName? _) => nameof(Snapshots);
     public static string UnitOfWork(this ILogPropertyName? _) => nameof(UnitOfWork);
     public static string Exception(this ILogPropertyName? _) => nameof(Exception);
-    public static string LoggerScope(this ILogPropertyName? _) => nameof(LoggerScope);
+    //public static string LoggerScope(this ILogPropertyName? _) => nameof(LoggerScope);
     public static string Telemetry(this ILogPropertyName? _) => nameof(Snapshots);
     
     public static string ChannelName(this ILogPropertyName? _) => $"{nameof(Channel)}.{nameof(Channel.Name)}";

@@ -2,7 +2,7 @@
 using Reusable.Wiretap.Abstractions;
 using Reusable.Wiretap.Data;
 
-namespace Reusable.Wiretap.Nodes;
+namespace Reusable.Wiretap.Middleware;
 
 public class AttachTimestamp<T> : LoggerMiddleware where T : IDateTime, new()
 {

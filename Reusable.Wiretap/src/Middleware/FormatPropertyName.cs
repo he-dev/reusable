@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
 using Reusable.Essentials;
@@ -7,7 +6,7 @@ using Reusable.Wiretap.Abstractions;
 using Reusable.Wiretap.Data;
 using Reusable.Wiretap.Extensions;
 
-namespace Reusable.Wiretap.Nodes;
+namespace Reusable.Wiretap.Middleware;
 
 /// <summary>
 /// This node formats the name of regular properties.

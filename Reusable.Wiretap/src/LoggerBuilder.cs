@@ -7,8 +7,7 @@ using Reusable.Essentials.Extensions;
 using Reusable.Wiretap.Abstractions;
 using Reusable.Wiretap.Data;
 using Reusable.Wiretap.Extensions;
-using Reusable.Wiretap.Nodes;
-using Reusable.Wiretap.Nodes.Scopeable;
+using Reusable.Wiretap.Middleware;
 using Reusable.Wiretap.Services;
 
 namespace Reusable.Wiretap;
@@ -16,11 +15,21 @@ namespace Reusable.Wiretap;
 [PublicAPI]
 public class LoggerBuilder : ILoggerBuilder
 {
-    public List<ILoggerMiddleware> Settings { get; set; } = new();
+    public List<ILoggerMiddleware> Settings { get; set; } = new()
+    {
+        new AttachTimestamp<DateTimeUtc>()
+    };
 
     public List<SnapshotMapping> Mappings { get; set; } = new();
 
     public List<FilterEntries> Filters { get; set; } = new();
+
+    public List<Func<ILoggerMiddleware>> Scope { get; set; } = new()
+    {
+        () => new UnitOfWorkCorrelation(),
+        () => new UnitOfWorkElapsed(),
+        () => new UnitOfWorkBuffer()
+    };
 
     public List<SerializeProperties> Serializers { get; set; } = new()
     {
@@ -51,8 +60,6 @@ public class LoggerBuilder : ILoggerBuilder
     {
         foreach (var node in Settings) yield return node;
 
-        yield return new AttachTimestamp<DateTimeUtc>();
-
         yield return new GuessProperty();
         yield return new GuessMessage();
         yield return new GuessEnum();
@@ -61,16 +68,9 @@ public class LoggerBuilder : ILoggerBuilder
         foreach (var node in Mappings) yield return node;
         foreach (var node in Filters) yield return node;
 
-        yield return new ToggleScope
-        (
-            () => new Correlation(),
-            () => new ScopeElapsed(),
-            () => new ScopeBuffer()
-        );
+        yield return new UnitOfWork(Scope);
 
         yield return new SplitSnapshots();
-        yield return new InferUnitOfWorkState();
-        yield return new InferUnitOfWorkResult();
 
         foreach (var node in Serializers) yield return node;
         foreach (var node in Fallbacks) yield return node;

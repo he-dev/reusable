@@ -1,35 +1,29 @@
 using System;
+using System.Runtime.CompilerServices;
 using JetBrains.Annotations;
 using Reusable.Essentials;
 using Reusable.Wiretap.Abstractions;
-using Reusable.Wiretap.Conventions;
-using Reusable.Wiretap.Nodes;
+using Reusable.Wiretap.Middleware;
 
 namespace Reusable.Wiretap.Extensions;
 
 public static partial class LoggerExtensions
 {
     /// <summary>
-    /// Creates a new scope that is open until disposed.
+    /// Initializes a new unit-of-work using the caller's name or a custom one.
     /// </summary>
     [MustUseReturnValue]
-    public static ILoggerScope BeginScope(this ILogger logger, string? name = default)
+    public static UnitOfWork.Item BeginUnitOfWork(this ILogger logger, string? name = default, [CallerMemberName] string? callerMemberName = default)
     {
-        return logger.Node<ToggleScope>().Push().Also(() => name is { }, scope => scope.WithName(name!));
+        return logger.Node<UnitOfWork>().Push(logger, name ?? callerMemberName!);
     }
 
     /// <summary>
-    /// Gets the current scope.
+    /// Gets the current unit-of-work.
     /// </summary>
     [MustUseReturnValue]
-    public static ILoggerScope Scope(this ILogger logger)
+    public static UnitOfWork.Item UnitOfWork(this ILogger logger)
     {
-        //return logger.Node<ToggleScope>().Current;
-        return ToggleScope.Current;
-    }
-
-    public static ILoggerScope Exception(this ILoggerScope scope, Exception exception)
-    {
-        return scope.Also(s => s.Items[nameof(Exception)] = exception);
+        return Middleware.UnitOfWork.Current ?? throw new InvalidOperationException($"You can use this method only with an active {nameof(Middleware.UnitOfWork)} scope.");
     }
 }

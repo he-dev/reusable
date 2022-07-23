@@ -1,13 +1,11 @@
 using System;
-using System.Linq.Custom;
 using System.Runtime.CompilerServices;
 using Reusable.Essentials;
-using Reusable.Essentials.Extensions;
 using Reusable.Wiretap.Abstractions;
 using Reusable.Wiretap.Data;
 using Reusable.Wiretap.Extensions;
 
-namespace Reusable.Wiretap.Conventions;
+namespace Reusable.Wiretap;
 
 /*
     Telemetry.Collect
@@ -34,7 +32,6 @@ internal static class Examples
         logger.Log(Telemetry.Collect.Application().UnitOfWork("name").Started());
         logger.Log(Telemetry.Collect.Application().UnitOfWork("name").Started());
         logger.Log(Telemetry.Collect.Application().UnitOfWork("name").Cancelled());
-        logger.Log(Telemetry.Collect.Application().UnitOfWork("name").Auto());
 
         var canCreateFile = false;
         logger.Log(Telemetry.Collect.Application().Decision(new { canCreateFile }));
@@ -57,16 +54,10 @@ public interface ITelemetryUnitOfWork { }
 
 public static class Telemetry
 {
-    public static Builder<ITelemetry> Collect => new();
+    public static Builder<ITelemetry> Collect => new(LogEntry.Empty());
 
-    public readonly struct Builder<T>
+    public record Builder<T>(ILogEntry Entry)
     {
-        public Builder() : this(new LogEntry()) { }
-
-        private Builder(ILogEntry entry) => Entry = entry;
-
-        private ILogEntry Entry { get; }
-
         public Builder<T> Push<TPropertyTag>(string name, object? value) where TPropertyTag : ILogPropertyTag
         {
             return this.Also(b => b.Entry.Push<TPropertyTag>(name, value));
@@ -74,7 +65,8 @@ public static class Telemetry
 
         public Builder<TNext> Next<TNext>() => new(Entry);
 
-        public static implicit operator Action<ILogEntry>(Builder<T> builder) => entry => entry.Push(builder.Entry);
+        // Not using an implicit operator as it would hide invalid use cases where the chain isn't complete yet.
+        public Action<ILogEntry> Build() => entry => entry.Push(Entry);
     }
 }
 
@@ -105,15 +97,28 @@ public static class TelemetryCategories
 
     public static Action<ILogEntry> Decision(this Telemetry.Builder<ITelemetryLayer> layer, object state)
     {
-        return layer.Category().Push<ITransientProperty>(LogProperty.Names.Snapshots(), state);
+        return layer.Category().Push<ITransientProperty>(LogProperty.Names.Snapshots(), state).Build();
     }
 
     public static Action<ILogEntry> Metric(this Telemetry.Builder<ITelemetryLayer> layer, object state)
     {
-        return layer.Category().Push<ITransientProperty>(LogProperty.Names.Snapshots(), state);
+        return layer.Category().Push<ITransientProperty>(LogProperty.Names.Snapshots(), state).Build();
     }
 
-    public static Telemetry.Builder<ITelemetryUnitOfWork> UnitOfWork(this Telemetry.Builder<ITelemetryLayer> layer, string tag)
+    public static Action<ILogEntry> Metric(this Telemetry.Builder<ITelemetryLayer> layer, int itemCount, int itemIndex)
+    {
+        return layer.Category().Push<ITransientProperty>(LogProperty.Names.Snapshots(), new
+        {
+            progress = new
+            {
+                itemCount,
+                itemIndex,
+                percentage = Math.Round(itemIndex / (double)itemCount, 2)
+            }
+        }).Build();
+    }
+
+    internal static Telemetry.Builder<ITelemetryUnitOfWork> UnitOfWork(this Telemetry.Builder<ITelemetryLayer> layer, string tag)
     {
         return layer.Category().Push<IRegularProperty>(nameof(tag), tag).Next<ITelemetryUnitOfWork>();
     }
@@ -123,47 +128,29 @@ public static class TelemetryCategories
         return unitOfWork.Push<IRegularProperty>(nameof(State), name);
     }
 
-    public static Action<ILogEntry> Started(this Telemetry.Builder<ITelemetryUnitOfWork> unitOfWork, int itemCount = 0)
+    internal static Action<ILogEntry> Started(this Telemetry.Builder<ITelemetryUnitOfWork> unitOfWork, int itemCount = 0)
     {
-        return unitOfWork.State().Push<ITransientProperty>(nameof(itemCount), itemCount);
+        return unitOfWork.State().Push<ITransientProperty>(nameof(itemCount), itemCount).Build();
     }
 
-    public static Action<ILogEntry> Working(this Telemetry.Builder<ITelemetryUnitOfWork> unitOfWork, int itemIndex)
+    internal static Action<ILogEntry> Completed(this Telemetry.Builder<ITelemetryUnitOfWork> unitOfWork)
     {
-        return unitOfWork.State().Push<ITransientProperty>(nameof(itemIndex), itemIndex);
+        return unitOfWork.State().Build();
     }
 
-    public static Action<ILogEntry> Completed(this Telemetry.Builder<ITelemetryUnitOfWork> unitOfWork)
+    internal static Action<ILogEntry> Cancelled(this Telemetry.Builder<ITelemetryUnitOfWork> unitOfWork)
     {
-        return unitOfWork.State();
+        return unitOfWork.State().Build();
     }
 
-    public static Action<ILogEntry> Cancelled(this Telemetry.Builder<ITelemetryUnitOfWork> unitOfWork)
+    internal static Action<ILogEntry> Faulted(this Telemetry.Builder<ITelemetryUnitOfWork> unitOfWork, Exception? exception = default)
     {
-        return unitOfWork.State();
+        return unitOfWork.State().Push<IRegularProperty>(LogProperty.Names.Exception(), exception).Build();
     }
 
-    public static Action<ILogEntry> Suspended(this Telemetry.Builder<ITelemetryUnitOfWork> unitOfWork)
-    {
-        return unitOfWork.State();
-    }
-
-    public static Action<ILogEntry> Faulted(this Telemetry.Builder<ITelemetryUnitOfWork> unitOfWork, Exception? exception = default)
-    {
-        return unitOfWork.State().Push<IRegularProperty>(LogProperty.Names.Exception(), exception);
-    }
-
-    /// <summary>
-    /// Use this in the finally block to automatically set the result to either Completed or Faulted if there is an exception in the current scope.
-    /// </summary>
-    public static Action<ILogEntry> Auto(this Telemetry.Builder<ITelemetryUnitOfWork> unitOfWork)
-    {
-        return unitOfWork.Push<IMetaProperty>(nameof(Auto), true);
-    }
-
-    public static Action<ILogEntry> Argument(this Telemetry.Builder<ITelemetryLayer> layer, object state) => layer.Category().Push<ITransientProperty>(LogProperty.Names.Snapshots(), state);
-    public static Action<ILogEntry> Variable(this Telemetry.Builder<ITelemetryLayer> layer, object state) => layer.Category().Push<ITransientProperty>(LogProperty.Names.Snapshots(), state);
-    public static Action<ILogEntry> Property(this Telemetry.Builder<ITelemetryLayer> layer, object state) => layer.Category().Push<ITransientProperty>(LogProperty.Names.Snapshots(), state);
-    public static Action<ILogEntry> Metadata(this Telemetry.Builder<ITelemetryLayer> layer, object state) => layer.Category().Push<ITransientProperty>(LogProperty.Names.Snapshots(), state);
-    public static Action<ILogEntry> WorkItem(this Telemetry.Builder<ITelemetryLayer> layer, object state) => layer.Category().Push<ITransientProperty>(LogProperty.Names.Snapshots(), state);
+    public static Action<ILogEntry> Argument(this Telemetry.Builder<ITelemetryLayer> layer, object state) => layer.Category().Push<ITransientProperty>(LogProperty.Names.Snapshots(), state).Build();
+    public static Action<ILogEntry> Variable(this Telemetry.Builder<ITelemetryLayer> layer, object state) => layer.Category().Push<ITransientProperty>(LogProperty.Names.Snapshots(), state).Build();
+    public static Action<ILogEntry> Property(this Telemetry.Builder<ITelemetryLayer> layer, object state) => layer.Category().Push<ITransientProperty>(LogProperty.Names.Snapshots(), state).Build();
+    public static Action<ILogEntry> Metadata(this Telemetry.Builder<ITelemetryLayer> layer, object state) => layer.Category().Push<ITransientProperty>(LogProperty.Names.Snapshots(), state).Build();
+    public static Action<ILogEntry> WorkItem(this Telemetry.Builder<ITelemetryLayer> layer, object state) => layer.Category().Push<ITransientProperty>(LogProperty.Names.Snapshots(), state).Build();
 }

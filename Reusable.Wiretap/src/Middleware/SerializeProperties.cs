@@ -1,12 +1,11 @@
 using System;
-using System.Linq;
 using JetBrains.Annotations;
 using Reusable.Wiretap.Abstractions;
 using Reusable.Wiretap.Data;
 using Reusable.Wiretap.Extensions;
 using Reusable.Wiretap.Services;
 
-namespace Reusable.Wiretap.Nodes;
+namespace Reusable.Wiretap.Middleware;
 
 /// <summary>
 /// This nodes takes care of serializable properties.

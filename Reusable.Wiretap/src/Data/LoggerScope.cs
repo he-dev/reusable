@@ -21,7 +21,7 @@ public class LoggerScope : LoggerMiddleware, ILoggerScope
 
     public IEnumerable<ILoggerScope> Parents => AsyncScope<ILoggerScope>.Current.Enumerate().Select(s => s.Value);
 
-    public IDictionary<string, object> Items { get; } = new Dictionary<string, object>(SoftString.Comparer);
+    public IDictionary<string, object> Properties { get; } = new Dictionary<string, object>(SoftString.Comparer);
 
     public override void Invoke(ILogEntry entry) => Next?.Invoke(entry);
 
@@ -29,7 +29,7 @@ public class LoggerScope : LoggerMiddleware, ILoggerScope
     {
         // Skip self or otherwise it'll be recursive.
         this.EnumerateNext<ILoggerMiddleware>(includeSelf: false).Dispose();
-        Items.Dispose();
+        Properties.Dispose();
         Disposer.Dispose();
     }
 }

@@ -2,25 +2,23 @@ using System;
 using System.Collections.Generic;
 using Reusable.Essentials.Extensions;
 using Reusable.Wiretap.Abstractions;
-using Reusable.Wiretap.Data;
-using Reusable.Wiretap.Extensions;
 
-namespace Reusable.Wiretap.Nodes.Scopeable;
+namespace Reusable.Wiretap.Middleware;
 
 /// <summary>
 /// This node temporarily stores log-entries. You need to use Flush to log and empty the buffer. This node is disabled by default. 
 /// </summary>
-public class ScopeBuffer : LoggerMiddleware
+public class UnitOfWorkBuffer : LoggerMiddleware
 {
+    public bool Enabled { get; set; }
+    
     private Queue<ILogEntry> Entries { get; } = new();
 
     public override void Invoke(ILogEntry entry)
     {
-        var enabled = entry[LogProperty.Names.LoggerScope()].Value is ILoggerScope scope && scope.Items.TryGetValue(nameof(ScopeBuffer), out var flag) && flag is true;
-
-        if (enabled)
+        if (Enabled)
         {
-            switch (entry[nameof(ScopeBuffer)].Value)
+            switch (entry[nameof(UnitOfWorkBuffer)].Value)
             {
                 case Mode.Force:
                     Next?.Invoke(entry);
@@ -29,7 +27,7 @@ public class ScopeBuffer : LoggerMiddleware
                     Entries.Enqueue(entry);
                     break;
                 default:
-                    throw new InvalidOperationException($"With enabled {nameof(ScopeBuffer)} you must use either {Mode.Force} or {Mode.Defer} when logging.");
+                    throw new InvalidOperationException($"With enabled {nameof(UnitOfWorkBuffer)} you must use either {Mode.Force} or {Mode.Defer} when logging.");
             }
         }
         else
@@ -52,6 +50,7 @@ public class ScopeBuffer : LoggerMiddleware
     {
         Entries.Clear();
     }
+    
     public enum Mode
     {
         None,

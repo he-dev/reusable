@@ -1,10 +1,9 @@
-using System.Linq.Custom;
 using Reusable.Essentials.Extensions;
 using Reusable.Wiretap.Abstractions;
 using Reusable.Wiretap.Data;
 using Reusable.Wiretap.Extensions;
 
-namespace Reusable.Wiretap.Nodes;
+namespace Reusable.Wiretap.Middleware;
 
 public class SplitSnapshots : LoggerMiddleware
 {

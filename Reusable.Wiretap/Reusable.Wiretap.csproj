@@ -18,23 +18,12 @@
   </PropertyGroup>
   
   <ItemGroup>
-    <Compile Remove="cfg\**" />
-    <Compile Remove="src\Nodes\BuilderNode.cs" />
-    <Compile Remove="src\Nodes\CollectFlowTelemetry.cs" />
     <Compile Remove="src\Extensions\ExecutionCategories-obsolete.cs" />
     <Compile Remove="src\ExecutionContext.cs" />
-    <Compile Remove="src\Nodes\CreateProperty.cs" />
-    <Compile Remove="src\Nodes\InjectAnonymousAction.cs" />
-    <Compile Remove="src\Nodes\MapObject.cs" />
     <Compile Remove="src\Data\ConsoleStyle.cs" />
-    <Compile Remove="src\Nodes\CapitalizeValue.cs" />
-    <Compile Remove="src\Nodes\MapSnapshot.cs" />
-    <Compile Remove="src\Nodes\Destructure.cs" />
-    <Compile Remove="src\Nodes\EntryAction.cs" />
     <Compile Remove="src\Data\LogEntryView.cs" />
     <Compile Remove="src\Data\LogLevel.cs" />
     <Compile Remove="src\Conventions\Telemetry1.cs" />
-    <Compile Remove="src\Nodes\InferLogLevel.cs" />
     <Compile Remove="src\Extensions\LoggerPipelineExtensions.cs" />
     <Compile Remove="src\Middleware\CollectFlowTelemetry.cs" />
     <Compile Remove="src\Middleware\CreateProperty.cs" />
@@ -44,6 +33,10 @@
     <Compile Remove="src\Middleware\InjectAnonymousAction.cs" />
     <Compile Remove="src\Middleware\MapObject.cs" />
     <Compile Remove="src\Middleware\MapSnapshot.cs" />
+    <Compile Remove="src\Middleware\ToggleScope.cs" />
+    <Compile Remove="src\Data\LoggerScope.cs" />
+    <Compile Remove="src\Middleware\InferUnitOfWorkResult.cs" />
+    <Compile Remove="src\Abstractions\ILoggerScope.cs" />
   </ItemGroup>
 
   <ItemGroup>

@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Threading;
 
 namespace Reusable.Essentials;
@@ -13,11 +14,7 @@ public class AsyncScope<T> : IDisposable where T : IDisposable
 
     public AsyncScope<T>? Parent { get; private init; }
 
-    public static AsyncScope<T> Current
-    {
-        get => State.Value ?? throw new InvalidOperationException($"There is no current scope.");
-        private set => State.Value = value!;
-    }
+    public static AsyncScope<T>? Current => State.Value;
 
     /// <summary>
     /// Gets a value indicating whether there are any states on the stack.
@@ -26,7 +23,7 @@ public class AsyncScope<T> : IDisposable where T : IDisposable
 
     public static AsyncScope<T> Push(T value)
     {
-        return Current = new AsyncScope<T>(value)
+        return State.Value = new AsyncScope<T>(value)
         {
             Parent = Current,
         };
@@ -34,19 +31,19 @@ public class AsyncScope<T> : IDisposable where T : IDisposable
 
     public static AsyncScope<T> Push(Func<IDisposable, T> create)
     {
-        var value = create(Disposable.Create(() => Current.Dispose()));
+        var value = create(Disposable.Create(() => State.Value?.Dispose()));
 
-        return Current = new AsyncScope<T>(value)
+        return State.Value = new AsyncScope<T>(value)
         {
-            Parent = State.Value, // Cannot use Current here as it's recursive.
+            Parent = State.Value,
         };
     }
 
     public void Dispose()
     {
-        if (Current.Parent is { } parent)
+        if (State.Value?.Parent is { } parent)
         {
-            Current = parent;
+            State.Value = parent;
         }
     }
 

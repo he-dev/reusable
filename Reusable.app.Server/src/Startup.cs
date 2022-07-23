@@ -16,7 +16,7 @@ using Reusable.Wiretap.Abstractions;
 using Reusable.Wiretap.Channels;
 using Reusable.Wiretap.Data;
 using Reusable.Wiretap.Extensions;
-using Reusable.Wiretap.Nodes;
+using Reusable.Wiretap.Middleware;
 using Reusable.Wiretap.Pipelines;
 using Reusable.Wiretap.Services.Properties;
 using Reusable.Wiretap.Utilities.AspNetCore;

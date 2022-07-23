@@ -50,6 +50,14 @@ public static class DictionaryExtensions
             throw new KeyNotFoundException($"The '{key}' key was not present in the dictionary", ex);
         }
     }
+    
+    public static TValue? GetValueOrDefault<TKey, TValue>(this IDictionary<TKey, TValue> dictionary, TKey key)
+    {
+        return
+            dictionary.TryGetValue(key, out var value)
+                ? value
+                : default;
+    }
 
     public static void AddSafely<TKey, TValue>(this IDictionary<TKey, TValue> dictionary, TKey key, TValue value)
     {

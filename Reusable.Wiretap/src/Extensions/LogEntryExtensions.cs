@@ -6,8 +6,7 @@ using Reusable.Essentials;
 using Reusable.Wiretap.Abstractions;
 using Reusable.Wiretap.ChannelFilters;
 using Reusable.Wiretap.Data;
-using Reusable.Wiretap.Nodes;
-using Reusable.Wiretap.Nodes.Scopeable;
+using Reusable.Wiretap.Middleware;
 
 namespace Reusable.Wiretap.Extensions;
 
@@ -35,8 +34,8 @@ public static class LogEntryExtensions
     public static ILogEntry Message(this ILogEntry entry, string? value) => entry.Push<IRegularProperty>(nameof(Message), value);
     public static ILogEntry Exception(this ILogEntry entry, Exception? value) => entry.Push<IRegularProperty>(nameof(Exception), value);
 
-    public static ILogEntry Force(this ILogEntry entry) => entry.Push<IMetaProperty>(nameof(ScopeBuffer), ScopeBuffer.Mode.Force);
-    public static ILogEntry Defer(this ILogEntry entry) => entry.Push<IMetaProperty>(nameof(ScopeBuffer), ScopeBuffer.Mode.Defer);
+    public static ILogEntry Force(this ILogEntry entry) => entry.Push<IMetaProperty>(nameof(UnitOfWorkBuffer), UnitOfWorkBuffer.Mode.Force);
+    public static ILogEntry Defer(this ILogEntry entry) => entry.Push<IMetaProperty>(nameof(UnitOfWorkBuffer), UnitOfWorkBuffer.Mode.Defer);
     
     public static ILogEntry OptIn<T>(this ILogEntry entry, string? name = default) where T : IChannel
     {

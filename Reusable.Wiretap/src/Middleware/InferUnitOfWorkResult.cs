@@ -1,10 +1,9 @@
 using System;
 using Reusable.Wiretap.Abstractions;
-using Reusable.Wiretap.Conventions;
 using Reusable.Wiretap.Data;
 using Reusable.Wiretap.Extensions;
 
-namespace Reusable.Wiretap.Nodes;
+namespace Reusable.Wiretap.Middleware;
 
 public class InferUnitOfWorkResult : LoggerMiddleware
 {
@@ -17,7 +16,7 @@ public class InferUnitOfWorkResult : LoggerMiddleware
                 throw new InvalidOperationException("You must create a logger-scope with BeginScope before you can use UnitOfWork's Auto option.");
             }
 
-            if (loggerScope.Items.TryGetValue(nameof(Exception), out var value) && value is Exception exception)
+            if (loggerScope.Properties.TryGetValue(nameof(Exception), out var value) && value is Exception exception)
             {
                 entry.Push<IRegularProperty>(LogProperty.Names.Snapshot(), new { state = nameof(TelemetryCategories.Faulted) });
                 entry.Push<IRegularProperty>(LogProperty.Names.Exception(), exception);

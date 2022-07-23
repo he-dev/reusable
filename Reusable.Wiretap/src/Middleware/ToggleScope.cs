@@ -1,21 +1,19 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
 using System.Linq.Custom;
 using Reusable.Essentials;
 using Reusable.Wiretap.Abstractions;
 using Reusable.Wiretap.Data;
 using Reusable.Wiretap.Extensions;
 
-namespace Reusable.Wiretap.Nodes;
+namespace Reusable.Wiretap.Middleware;
 
 /// <summary>
 /// This node turns logger-scope on or off. By default it logs BeginScope and EndScope entries for each scope.
 /// </summary>
 public class ToggleScope : LoggerMiddleware
 {
-    public ToggleScope(params Func<ILoggerMiddleware>[] builders) => Builders = builders;
+    public ToggleScope(IEnumerable<Func<ILoggerMiddleware>> builders) => Builders = builders;
 
     private IEnumerable<Func<ILoggerMiddleware>> Builders { get; }
 

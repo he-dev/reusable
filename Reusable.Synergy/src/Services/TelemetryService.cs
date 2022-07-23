@@ -2,8 +2,8 @@ using System;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Reusable.Essentials.Extensions;
+using Reusable.Wiretap;
 using Reusable.Wiretap.Abstractions;
-using Reusable.Wiretap.Conventions;
 using Reusable.Wiretap.Extensions;
 
 namespace Reusable.Synergy.Services;

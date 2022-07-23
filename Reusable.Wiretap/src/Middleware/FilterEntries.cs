@@ -1,7 +1,7 @@
 using System;
 using Reusable.Wiretap.Abstractions;
 
-namespace Reusable.Wiretap.Nodes;
+namespace Reusable.Wiretap.Middleware;
 
 /// <summary>
 /// This node filters log-entries and short-circuits the pipeline.
