@@ -2,7 +2,7 @@ using System;
 using Autofac;
 using Reusable.Wiretap.Abstractions;
 
-namespace Reusable.Wiretap;
+namespace Reusable.Wiretap.Extensions;
 
 public class LoggerModule : Module
 {

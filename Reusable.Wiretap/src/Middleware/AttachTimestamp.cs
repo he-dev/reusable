@@ -4,15 +4,21 @@ using Reusable.Wiretap.Data;
 
 namespace Reusable.Wiretap.Middleware;
 
-public class AttachTimestamp<T> : LoggerMiddleware where T : IDateTime, new()
+public class AttachTimestamp : LoggerMiddleware
 {
-    public AttachTimestamp() => DateTime = new T();
+    public AttachTimestamp(IDateTime dateTime, string propertyName = "Timestamp")
+    {
+        DateTime = dateTime;
+        PropertyName = propertyName;
+    }
 
     private IDateTime DateTime { get; }
 
+    private string PropertyName { get; }
+
     public override void Invoke(ILogEntry entry)
     {
-        entry.Push(new LogProperty<IRegularProperty>("Timestamp", DateTime.Now()));
+        entry.Push(new LogProperty<IRegularProperty>(PropertyName, DateTime.Now()));
         Next?.Invoke(entry);
     }
 }

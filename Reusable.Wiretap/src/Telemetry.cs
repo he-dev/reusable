@@ -12,10 +12,17 @@ namespace Reusable.Wiretap;
     ---
     
                                                 1        2          3           4          5                                                          
-    Timestamp | Product | Environment | Scope | Layer  | Category | Label/Tag | Snapshot | Message
-    ---------   -------   -----------   -----   -----    --------   ---------   --------   -------
-    Auto        Auto      Auto          Auto    Log      Log 
-                                                         Decision                        Description+Reason                                                         
+    Timestamp | Product | Environment | Correlation | Layer  | Category | State        | Snapshot | Message
+    ---------   -------   -----------   -----------   -----    --------   ------------   --------   -------
+    Auto        Auto      Auto          Auto          Log      Log 
+                                                               Decision                        Description+Reason      
+                                                               UnitOfWork Started
+                                                         
+    Layer
+    - Category
+      - Item
+      - Snapshot
+      - Message                                                  
                                                  
 */
 
@@ -58,9 +65,9 @@ public static class Telemetry
 
     public record Builder<T>(ILogEntry Entry)
     {
-        public Builder<T> Push<TPropertyTag>(string name, object? value) where TPropertyTag : ILogPropertyTag
+        public Builder<T> Push<TGroup>(string name, object? value) where TGroup : ILogPropertyGroup
         {
-            return this.Also(b => b.Entry.Push<TPropertyTag>(name, value));
+            return this.Also(b => b.Entry.Push<TGroup>(name, value));
         }
 
         public Builder<TNext> Next<TNext>() => new(Entry);
@@ -118,19 +125,19 @@ public static class TelemetryCategories
         }).Build();
     }
 
-    internal static Telemetry.Builder<ITelemetryUnitOfWork> UnitOfWork(this Telemetry.Builder<ITelemetryLayer> layer, string tag)
+    internal static Telemetry.Builder<ITelemetryUnitOfWork> UnitOfWork(this Telemetry.Builder<ITelemetryLayer> layer, string? name = default)
     {
-        return layer.Category().Push<IRegularProperty>(nameof(tag), tag).Next<ITelemetryUnitOfWork>();
+        return layer.Category().Push<IRegularProperty>(LogProperty.Names.Identifier(), name).Next<ITelemetryUnitOfWork>();
     }
 
     public static Telemetry.Builder<ITelemetryUnitOfWork> State(this Telemetry.Builder<ITelemetryUnitOfWork> unitOfWork, [CallerMemberName] string name = default!)
     {
-        return unitOfWork.Push<IRegularProperty>(nameof(State), name);
+        return unitOfWork.Push<ITransientProperty>(LogProperty.Names.Snapshot(), new { flow = name });
     }
 
-    internal static Action<ILogEntry> Started(this Telemetry.Builder<ITelemetryUnitOfWork> unitOfWork, int itemCount = 0)
+    internal static Action<ILogEntry> Started(this Telemetry.Builder<ITelemetryUnitOfWork> unitOfWork)
     {
-        return unitOfWork.State().Push<ITransientProperty>(nameof(itemCount), itemCount).Build();
+        return unitOfWork.State().Build();
     }
 
     internal static Action<ILogEntry> Completed(this Telemetry.Builder<ITelemetryUnitOfWork> unitOfWork)

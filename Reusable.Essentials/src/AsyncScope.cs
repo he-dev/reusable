@@ -29,22 +29,21 @@ public class AsyncScope<T> : IDisposable where T : IDisposable
         };
     }
 
-    public static AsyncScope<T> Push(Func<IDisposable, T> create)
+    public static T Push(Func<IDisposable, T> create)
     {
         var value = create(Disposable.Create(() => State.Value?.Dispose()));
 
-        return State.Value = new AsyncScope<T>(value)
+        State.Value = new AsyncScope<T>(value)
         {
             Parent = State.Value,
         };
+
+        return State.Value.Value;
     }
 
     public void Dispose()
     {
-        if (State.Value?.Parent is { } parent)
-        {
-            State.Value = parent;
-        }
+        State.Value = State.Value?.Parent!;
     }
 
     public static implicit operator T(AsyncScope<T> scope) => scope.Value;

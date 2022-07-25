@@ -22,7 +22,7 @@ public class FormatPropertyName : LoggerMiddleware
     public override void Invoke(ILogEntry entry)
     {
         var updates = LogEntry.Empty();
-        foreach (var property in entry.WhereTag<IRegularProperty>().Where(Matches))
+        foreach (var property in entry.OfType<IRegularProperty>().Where(Matches))
         {
             var newName = Format(property.Name);
 

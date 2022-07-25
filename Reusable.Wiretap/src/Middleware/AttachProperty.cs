@@ -6,7 +6,7 @@ namespace Reusable.Wiretap.Middleware;
 
 public abstract class AttachProperty : LoggerMiddleware { }
 
-public class Attach<T> : AttachProperty where T : ILogPropertyTag
+public class Attach<T> : AttachProperty where T : ILogPropertyGroup
 {
     public Attach(ILogProperty<T> property) => Property = property;
 

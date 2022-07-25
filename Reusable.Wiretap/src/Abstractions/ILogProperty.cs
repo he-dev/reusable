@@ -7,6 +7,6 @@ public interface ILogProperty
     object Value { get; }
 }
 
-public interface ILogPropertyTag { }
+public interface ILogPropertyGroup { }
 
-public interface ILogProperty<T> : ILogProperty where T : ILogPropertyTag { }
+public interface ILogProperty<T> : ILogProperty where T : ILogPropertyGroup { }

@@ -92,6 +92,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reusable.Synergy.Http", "Re
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reusable.Wiretap.Tests", "D:\.stuff\black\projects\reusable\Reusable.Wiretap.Tests\Reusable.Wiretap.Tests.csproj", "{3F7FEAF4-9A96-4313-867A-4E8DC27FFFCE}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reusable.Wiretap.Extensions.Autofac", "Reusable.Wiretap.Extensions.Autofac\Reusable.Wiretap.Extensions.Autofac.csproj", "{DC413FDC-4BA4-4FF0-A302-F93A9A2BBA99}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -236,6 +238,10 @@ Global
 		{3F7FEAF4-9A96-4313-867A-4E8DC27FFFCE}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3F7FEAF4-9A96-4313-867A-4E8DC27FFFCE}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{3F7FEAF4-9A96-4313-867A-4E8DC27FFFCE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DC413FDC-4BA4-4FF0-A302-F93A9A2BBA99}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DC413FDC-4BA4-4FF0-A302-F93A9A2BBA99}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DC413FDC-4BA4-4FF0-A302-F93A9A2BBA99}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DC413FDC-4BA4-4FF0-A302-F93A9A2BBA99}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -277,6 +283,7 @@ Global
 		{869064BE-D638-439F-98A0-B93240064B62} = {0558F331-6EE1-4E74-B402-8CA44A62A37D}
 		{28439A4E-82D2-40BC-9FB2-3D426FCDB77D} = {0558F331-6EE1-4E74-B402-8CA44A62A37D}
 		{3F7FEAF4-9A96-4313-867A-4E8DC27FFFCE} = {0558F331-6EE1-4E74-B402-8CA44A62A37D}
+		{DC413FDC-4BA4-4FF0-A302-F93A9A2BBA99} = {0558F331-6EE1-4E74-B402-8CA44A62A37D}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {2FA54731-890C-4550-BACA-E19B564CE1E3}

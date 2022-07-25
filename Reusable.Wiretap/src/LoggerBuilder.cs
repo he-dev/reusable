@@ -8,7 +8,6 @@ using Reusable.Wiretap.Abstractions;
 using Reusable.Wiretap.Data;
 using Reusable.Wiretap.Extensions;
 using Reusable.Wiretap.Middleware;
-using Reusable.Wiretap.Services;
 
 namespace Reusable.Wiretap;
 
@@ -17,33 +16,32 @@ public class LoggerBuilder : ILoggerBuilder
 {
     public List<ILoggerMiddleware> Settings { get; set; } = new()
     {
-        new AttachTimestamp<DateTimeUtc>()
+        new AttachTimestamp(new DateTimeUtc())
     };
 
     public List<SnapshotMapping> Mappings { get; set; } = new();
 
     public List<FilterEntries> Filters { get; set; } = new();
 
-    public List<Func<ILoggerMiddleware>> Scope { get; set; } = new()
+    public List<Func<ILoggerMiddleware>> UnitOfWorkFeatures { get; set; } = new()
     {
         () => new UnitOfWorkCorrelation(),
         () => new UnitOfWorkElapsed(),
         () => new UnitOfWorkBuffer()
     };
 
-    public List<SerializeProperties> Serializers { get; set; } = new()
+    public List<SerializeProperty> Serializers { get; set; } = new()
     {
-        new SerializeProperties
-        {
-            Serialize = new SerializeToJson()
-        }
+        new SerializeToJson("Correlation"),
+        new SerializeToJson("Snapshot"),
+        new SerializeTimeSpan("Elapsed")
     };
 
     public List<AttachProperty> Fallbacks { get; set; } = new()
     {
         new Attach<IRegularProperty>(LogProperty.Names.Layer(), "None"),
         new Attach<IRegularProperty>(LogProperty.Names.Category(), "None"),
-        new Attach<IRegularProperty>(LogProperty.Names.Tag(), "None"),
+        new Attach<IRegularProperty>(LogProperty.Names.Identifier(), "None"),
         new Attach<IRegularProperty>(LogProperty.Names.Snapshot(), "Empty"),
     };
 
@@ -53,8 +51,6 @@ public class LoggerBuilder : ILoggerBuilder
     };
 
     public List<IChannel> Channels { get; set; } = new();
-
-    public IChannelFilter ChannelFilter { get; set; } = new ChannelFilter.Empty();
 
     private IEnumerable<ILoggerMiddleware> Middleware()
     {
@@ -68,14 +64,14 @@ public class LoggerBuilder : ILoggerBuilder
         foreach (var node in Mappings) yield return node;
         foreach (var node in Filters) yield return node;
 
-        yield return new UnitOfWork(Scope);
+        yield return new UnitOfWork(UnitOfWorkFeatures);
 
         yield return new SplitSnapshots();
 
         foreach (var node in Serializers) yield return node;
         foreach (var node in Fallbacks) yield return node;
         foreach (var node in Formattings) yield return node;
-        foreach (var node in Channels) yield return node.Also(c => c.Filter = ChannelFilter);
+        foreach (var node in Channels) yield return node;
     }
 
     public ILogger Build(string name) => new Logger(name).Also(l => l.Join(Middleware()));

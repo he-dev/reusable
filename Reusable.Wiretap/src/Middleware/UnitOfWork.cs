@@ -12,9 +12,9 @@ namespace Reusable.Wiretap.Middleware;
 
 public class UnitOfWork : LoggerMiddleware
 {
-    public UnitOfWork(IEnumerable<Func<ILoggerMiddleware>> builders) => Builders = builders;
+    public UnitOfWork(IEnumerable<Func<ILoggerMiddleware>> features) => Features = features;
 
-    private IEnumerable<Func<ILoggerMiddleware>> Builders { get; }
+    private IEnumerable<Func<ILoggerMiddleware>> Features { get; }
 
     public static Item? Current => AsyncScope<Item>.Current?.Value;
 
@@ -24,14 +24,19 @@ public class UnitOfWork : LoggerMiddleware
     /// <returns></returns>
     public static IEnumerable<Item> Enumerate() => AsyncScope<Item>.Current.Enumerate().Reverse().Select(s => s.Value);
 
-    public Item Push(ILogger logger, string name)
+    public Item Push(ILogger logger, string name, object? id)
     {
-        var unitOfWork = AsyncScope<Item>.Push(disposer => new Item(Builders.Invoke())
+        var unitOfWork = AsyncScope<Item>.Push(disposer => new Item(Features.Invoke())
         {
             Logger = logger,
             Name = name,
             Disposer = disposer,
-        }).Value;
+        });
+
+        if (id is { })
+        {
+            unitOfWork.Node<UnitOfWorkCorrelation>().Id = id;
+        }
 
         logger.Log(unitOfWork.Layer(Telemetry.Collect).UnitOfWork(name).Started());
 

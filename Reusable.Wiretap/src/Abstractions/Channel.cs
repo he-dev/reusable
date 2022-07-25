@@ -1,4 +1,7 @@
 ﻿using System;
+using JetBrains.Annotations;
+using Reusable.Essentials;
+using Reusable.Essentials.Extensions;
 using Reusable.Wiretap.Data;
 using Reusable.Wiretap.Extensions;
 
@@ -7,40 +10,44 @@ namespace Reusable.Wiretap.Abstractions;
 
 public interface IChannel : ILoggerMiddleware
 {
-    string? Name { get; }
-
-    IChannelFilter Filter { get; set; }
+    string Name { get; }
 }
 
+[PublicAPI]
 public abstract class Channel : LoggerMiddleware, IChannel
 {
-    public string? Name { get; set; }
+    protected Channel(string name) => Name = name;
 
-    public IChannelFilter Filter { get; set; } = new ChannelFilter.Empty();
+    public string Name { get; set; }
+
+    public override void Invoke(ILogEntry entry)
+    {
+        if (CanLog(entry)) Log(entry);
+    }
+
+    protected abstract void Log(ILogEntry entry);
+
+    private bool CanLog(ILogEntry entry)
+    {
+        var channelMatches = entry[LogProperty.Names.ChannelName()].Value is string name && SoftString.Comparer.Equals(name, Name);
+
+        return entry[LogProperty.Names.ChannelMode()].Value switch
+        {
+            Mode.OptIn => channelMatches,
+            Mode.OptOut => !channelMatches,
+            _ => true
+        };
+    }
+
+    public enum Mode
+    {
+        None,
+        OptIn,
+        OptOut
+    }
 }
 
 public abstract class Channel<T> : Channel where T : IChannel
 {
-    public override void Invoke(ILogEntry entry)
-    {
-        entry.Push<IMetaProperty>(LogProperty.Names.ChannelName(), Name);
-        if (Filter.CanLog<T>(entry)) Log(entry);
-    }
-
-    protected abstract void Log(ILogEntry entry);
-}
-
-public interface IChannelFilter
-{
-    bool CanLog<T>(ILogEntry entry) where T : IChannel;
-}
-
-public abstract class ChannelFilter : IChannelFilter
-{
-    public abstract bool CanLog<T>(ILogEntry entry) where T : IChannel;
-
-    public class Empty : ChannelFilter
-    {
-        public override bool CanLog<T>(ILogEntry entry) => true;
-    }
+    protected Channel() : base(typeof(T).ToPrettyString()) { }
 }

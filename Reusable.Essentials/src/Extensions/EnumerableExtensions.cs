@@ -347,6 +347,8 @@ public static class enumerable
     public static IEnumerable<T> EmptyIfNull<T>(this IEnumerable<T>? source) => source ?? Enumerable.Empty<T>();
 
     public static Stack<T> ToStack<T>(this IEnumerable<T> source) => new(source);
+    
+    public static Queue<T> ToQueue<T>(this IEnumerable<T> source) => new(source);
 
     public static IEnumerable<TResult> Merge<TSource, TKey, TResult>
     (

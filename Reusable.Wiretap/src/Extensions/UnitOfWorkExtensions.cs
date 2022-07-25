@@ -6,10 +6,10 @@ namespace Reusable.Wiretap.Extensions;
 
 public static class UnitOfWorkExtensions
 {
-    public static UnitOfWork.Item SetCustomId(this UnitOfWork.Item unitOfWork, object value)
-    {
-        return unitOfWork.Also(x => x.Correlation().Id = value);
-    }
+    // public static UnitOfWork.Item SetCustomId(this UnitOfWork.Item unitOfWork, object value)
+    // {
+    //     return unitOfWork.Also(x => x.Correlation().Id = value);
+    // }
 
     public static UnitOfWork.Item UseLayer(this UnitOfWork.Item unitOfWork, UnitOfWork.LayerFunc layer)
     {

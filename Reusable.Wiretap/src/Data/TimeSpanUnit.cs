@@ -1,6 +1,6 @@
 namespace Reusable.Wiretap.Data;
 
-public enum TimeSpanPrecision
+public enum TimeSpanUnit
 {
     Milliseconds,
     Seconds,
@@ -16,4 +16,5 @@ public enum TimeSpanPrecision
 
     d = Days
     // ReSharper restore InconsistentNaming
+    
 }

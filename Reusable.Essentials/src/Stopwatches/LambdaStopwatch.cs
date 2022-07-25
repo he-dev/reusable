@@ -17,6 +17,7 @@ public class LambdaStopwatch : IStopwatch
     {
         _elapsed = elapsed;
         _reset = reset;
+        Start();
     }
 
     public bool IsRunning { get; private set; }

@@ -2,11 +2,11 @@
 
 namespace Reusable.Essentials;
 
-public class DateTimeLambda : IDateTime
+public class DateTimeFactory : IDateTime
 {
     private readonly Func<DateTime> _now;
 
-    public DateTimeLambda(Func<DateTime> now) => _now = now;
+    public DateTimeFactory(Func<DateTime> now) => _now = now;
 
     public DateTime Now() => _now();
 }

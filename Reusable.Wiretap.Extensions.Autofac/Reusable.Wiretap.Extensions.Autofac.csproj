@@ -6,6 +6,8 @@
     <Platforms>AnyCPU</Platforms>
     <LangVersion>latest</LangVersion>
     <Nullable>enable</Nullable>
+    <AssemblyName>Reusable.Wiretap.Extensions</AssemblyName>
+    <RootNamespace>Reusable.Wiretap.Extensions</RootNamespace>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
@@ -37,17 +39,16 @@
     <Compile Remove="src\Data\LoggerScope.cs" />
     <Compile Remove="src\Middleware\InferUnitOfWorkResult.cs" />
     <Compile Remove="src\Abstractions\ILoggerScope.cs" />
-    <Compile Remove="src\Data\TimeSpanUnit.cs" />
-    <Compile Remove="src\Extensions\TimeSpanExtensions.cs" />
   </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="JetBrains.Annotations" Version="2021.3.0" />
     <PackageReference Include="System.Data.DataSetExtensions" Version="4.5.0" />
+    <PackageReference Include="Autofac" Version="6.4.0" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Reusable.Essentials\Reusable.Essentials.csproj" />
+    <ProjectReference Include="..\Reusable.Wiretap\Reusable.Wiretap.csproj" />
   </ItemGroup>
 
   <ItemGroup>

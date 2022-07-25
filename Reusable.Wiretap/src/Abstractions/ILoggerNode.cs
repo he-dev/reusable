@@ -8,6 +8,8 @@ namespace Reusable.Wiretap.Abstractions;
 
 public interface ILoggerMiddleware : IListNode<ILoggerMiddleware>, IEnumerable<ILoggerMiddleware>
 {
+    string Name { get; }
+    
     void Invoke(ILogEntry entry);
 
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
@@ -15,6 +17,8 @@ public interface ILoggerMiddleware : IListNode<ILoggerMiddleware>, IEnumerable<I
 
 public abstract class LoggerMiddleware : ListNode<ILoggerMiddleware>, ILoggerMiddleware
 {
+    public virtual string Name => GetType().ToPrettyString();
+    
     public abstract void Invoke(ILogEntry entry);
 
     public class Empty : LoggerMiddleware

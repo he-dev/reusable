@@ -22,6 +22,19 @@ public static class ObjectExtensions
             select new Property(p.Name, p.GetValue(obj));
 
     }
+    
+    public static IEnumerable<Property> GetProperties(this object source, BindingFlags bindingFlags = BindingFlags.Public | BindingFlags.Instance)
+    {
+        if (source is IDictionary<string, object?> dictionary)
+        {
+            return dictionary.Select(x => new Property(x.Key, x.Value));
+        }
+
+        return
+            from p in source.GetType().GetProperties(bindingFlags)
+            select new Property(p.Name, p.GetValue(source));
+
+    }
         
 //        public static IEnumerable<KeyValuePair<string, object>> EnumerateProperties<T>(this T obj)
 //        {

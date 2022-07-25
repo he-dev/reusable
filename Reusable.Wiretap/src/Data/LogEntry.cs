@@ -34,7 +34,7 @@ public class LogEntry : ILogEntry
     /// </summary>
     public static LogEntry Empty() => new();
 
-    public ILogProperty this[string name] => TryPeek(name, out var property) ? property : LogProperty.Empty.Instance;
+    public ILogProperty this[string name] => TryPeek(name, out var property) ? property : LogProperty.Null.Instance;
 
     public ILogEntry Push(ILogProperty property)
     {
@@ -58,7 +58,7 @@ public class LogEntry : ILogEntry
             return true;
         }
 
-        property = LogProperty.Empty.Instance;
+        property = LogProperty.Null.Instance;
         return false;
     }
 

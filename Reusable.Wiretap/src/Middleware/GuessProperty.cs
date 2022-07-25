@@ -10,7 +10,7 @@ public class GuessProperty : LoggerMiddleware
     public override void Invoke(ILogEntry entry)
     {
         var update = LogEntry.Empty();
-        foreach (var property in entry.WhereTag<ITransientProperty>())
+        foreach (var property in entry.OfType<ITransientProperty>())
         {
             if (TryGuess(property.Value, out var result))
             {
@@ -25,8 +25,8 @@ public class GuessProperty : LoggerMiddleware
 
     protected virtual bool TryGuess(object value, out ILogProperty result)
     {
-        result = value as ILogProperty ?? LogProperty.Empty.Instance;
-        return result is not LogProperty.Empty;
+        result = value as ILogProperty ?? LogProperty.Null.Instance;
+        return result is not LogProperty.Null;
     }
 }
 
@@ -37,9 +37,9 @@ public class GuessEnum : GuessProperty
         result =
             value.GetType() is { IsEnum: true } type
                 ? new LogProperty<IRegularProperty>(type.Name, value)
-                : LogProperty.Empty.Instance;
+                : LogProperty.Null.Instance;
 
-        return result is not LogProperty.Empty;
+        return result is not LogProperty.Null;
     }
 }
 
@@ -50,9 +50,9 @@ public class GuessException : GuessProperty
         result =
             value is Exception exception
                 ? new LogProperty<IRegularProperty>(nameof(exception), exception)
-                : LogProperty.Empty.Instance;
+                : LogProperty.Null.Instance;
 
-        return result is not LogProperty.Empty;
+        return result is not LogProperty.Null;
     }
 }
 
@@ -63,8 +63,8 @@ public class GuessMessage : GuessProperty
         result =
             value is string message
                 ? new LogProperty<IRegularProperty>(nameof(message), message)
-                : LogProperty.Empty.Instance;
+                : LogProperty.Null.Instance;
 
-        return result is not LogProperty.Empty;
+        return result is not LogProperty.Null;
     }
 }

@@ -43,7 +43,7 @@ public class NLogChannel : Channel<NLogChannel>
             TimeStamp = entry.GetValueOrDefault("Timestamp", DateTime.UtcNow),
         };
 
-        foreach (var property in entry.WhereTag<IRegularProperty>())
+        foreach (var property in entry.OfType<IRegularProperty>())
         {
             logEventInfo.Properties.Add(property.Name, property.Value);
         }
