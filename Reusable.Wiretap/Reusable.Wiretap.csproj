@@ -39,6 +39,7 @@
     <Compile Remove="src\Abstractions\ILoggerScope.cs" />
     <Compile Remove="src\Data\TimeSpanUnit.cs" />
     <Compile Remove="src\Extensions\TimeSpanExtensions.cs" />
+    <Compile Remove="src\Middleware\GuessProperty.cs" />
   </ItemGroup>
 
   <ItemGroup>

@@ -18,38 +18,34 @@ public class WiretapMiddleware
 {
     private readonly ILogger _logger;
     private readonly RequestDelegate _next;
-    private readonly SemanticLoggerConfig _config;
+    private readonly WiretapMiddlewareConfiguration _configuration;
 
     public WiretapMiddleware
     (
-        ILoggerFactory loggerFactory,
+        ILogger<WiretapMiddleware> logger,
         RequestDelegate next,
-        SemanticLoggerConfig config
+        WiretapMiddlewareConfiguration configuration
     )
     {
         _next = next;
-        _config = config;
-        _logger = loggerFactory.CreateLogger<WiretapMiddleware>();
+        _configuration = configuration;
+        _logger = logger;
     }
 
     public async Task Invoke(HttpContext context, IFeatureService features)
     {
-        using var scope =
-            _logger
-                .BeginScope()
-                .WithId(_config.GetCorrelationId(context))
-                .WithName(_config.GetCorrelationHandle(context));
+        using var unitOfWork = _logger.BeginUnitOfWork(id: _configuration.GetCorrelationId(context));
 
         var requestBody =
-            _config.CanLogRequestBody(context)
-                ? await _config.SerializeRequestBody(context)
+            _configuration.CanLogRequestBody(context)
+                ? await _configuration.SerializeRequestBody(context)
                 : default;
 
         _logger.Log(
             Telemetry
                 .Collect
                 .Application()
-                .Metadata(new { HttpRequest = context.Request })
+                .Metadata(new { HttpRequest = _configuration.TakeRequestSnapshot(context.Request) })
                 .Then(e => e.Message(requestBody)));
 
         try
@@ -67,7 +63,7 @@ public class WiretapMiddleware
                 {
                     responseBody = await features.Use(Features.LogResponseBody, async () => await reader.ReadToEndAsync());
 
-                    if (_config.CanUpdateOriginalResponseBody(context))
+                    if (_configuration.CanUpdateOriginalResponseBody(context))
                     {
                         // Update the original response-body.
                         await memory.Rewind().CopyToAsync(responseBodyOriginal);
@@ -82,18 +78,14 @@ public class WiretapMiddleware
                 Telemetry
                     .Collect
                     .Application()
-                    .Metadata(new { HttpResponse = _config.TakeResponseSnapshot(context) })
+                    .Metadata(new { HttpResponse = _configuration.TakeResponseSnapshot(context.Response) })
                     .Then(e => e.Message(responseBody))
-                    .Level(_config.MapStatusCode(context.Response.StatusCode)));
+                    .Level(_configuration.MapStatusCode(context.Response.StatusCode)));
         }
         catch (Exception inner)
         {
-            scope.Exception(inner);
+            unitOfWork.SetException(inner);
             throw;
-        }
-        finally
-        {
-            _logger.Log(Telemetry.Collect.Application().UnitOfWork(nameof(Invoke)).Auto());
         }
     }
 

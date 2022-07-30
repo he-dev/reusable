@@ -18,13 +18,12 @@ public class LogEntry : ILogEntry
         Properties = new Dictionary<string, Stack<ILogProperty>>(SoftString.Comparer);
     }
 
+    /// <summary>
+    /// Copy constructor that copies only the last version of each property.
+    /// </summary>
     public LogEntry(ILogEntry other)
     {
-        Properties = new Dictionary<string, Stack<ILogProperty>>(SoftString.Comparer);
-        foreach (var property in other)
-        {
-            Properties[property.Name] = new Stack<ILogProperty> { property };
-        }
+        Properties = other.ToDictionary(x => x.Name, x => new Stack<ILogProperty> { x }, SoftString.Comparer);
     }
 
     private IDictionary<string, Stack<ILogProperty>> Properties { get; }

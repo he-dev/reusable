@@ -2,50 +2,99 @@ using System;
 using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
+using System.Linq;
 using JetBrains.Annotations;
+using Reusable.Essentials;
+using Reusable.Essentials.Extensions;
+using Reusable.Toggle.Mechanics;
+using Reusable.Wiretap.Abstractions;
+using Reusable.Wiretap.Extensions;
 
 namespace Reusable.Toggle;
 
-public record FallbackPolicyContext(IFeatureService Features, IFeatureIdentifier Id, object? Parameter = default);
-
-public record UpdatePolicyContext(IFeatureService Features, IFeatureIdentifier Id, IFeaturePolicy CurrentPolicy, IFeaturePolicy NewPolicy);
-
-public record FeatureStateContext(IFeatureService Features, IFeatureIdentifier Id, object? Parameter);
-
-public record FeatureUsageContext(IFeatureService Features, IFeatureIdentifier Id, object? Parameter, Exception? Exception);
-
 [PublicAPI]
-public interface IFeatureService : IEnumerable<Feature>
+public interface IFeatureService : IEnumerable<(string Name, FeatureMechanics Mehanics)>
 {
-    IFeatureUsage Usage { get; }
+    FeatureMechanics this[string name] { get; set; }
 
-    bool TryAdd(Feature feature);
+    bool CanUse(string name);
 
-    bool TryGet(IFeatureIdentifier id, out Feature feature);
-
-    bool TryRemove(IFeatureIdentifier id, out Feature feature);
+    bool TryUse(string name, [MaybeNullWhen(false)] out FeatureScope scope);
 }
 
 [PublicAPI]
 public class FeatureService : IFeatureService
 {
-    private ConcurrentDictionary<IFeatureIdentifier, Feature> Features { get; } = new();
+    private Dictionary<string, FeatureMechanics> Features { get; } = new(SoftString.Comparer);
 
-    public FeatureService(IFeatureUsage usage) => Usage = usage;
+    public FeatureMechanics this[string name]
+    {
+        get => Features.GetItemSafely(name);
+        set => Features[name] = value;
+    }
 
-    public FeatureService() : this(new DefaultUsage(FeaturePolicy.AlwaysEnabled)) { }
-
-    public static IFeatureService Empty() => new FeatureService();
-
-    public IFeatureUsage Usage { get; }
-
-    public bool TryAdd(Feature feature) => Features.TryAdd(feature.Id, feature);
-
-    public bool TryGet(IFeatureIdentifier id, out Feature feature) => Features.TryGetValue(id, out feature!);
-
-    public bool TryRemove(IFeatureIdentifier id, out Feature feature) => Features.TryRemove(id, out feature!);
-
-    public IEnumerator<Feature> GetEnumerator() => Features.Values.GetEnumerator();
+    public IEnumerator<(string Name, FeatureMechanics Mehanics)> GetEnumerator() => Features.Select(x => (x.Key, x.Value)).GetEnumerator();
 
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+
+    public void Add(string name, FeatureMechanics mechanics) => Features[name] = mechanics;
+
+    public bool CanUse(string name) => this[name].CanUse(this);
+
+    public virtual bool TryUse(string name, [MaybeNullWhen(false)] out FeatureScope scope)
+    {
+        if (CanUse(name))
+        {
+            scope = this[name].BeginUnitOfWork(this);
+            return true;
+        }
+
+        scope = default;
+        return false;
+    }
+}
+
+[PublicAPI]
+public class FeatureServiceWithTelemetry : FeatureService
+{
+    public FeatureServiceWithTelemetry(ILoggerFactory loggerFactory) => LoggerFactory = loggerFactory;
+
+    private ILoggerFactory LoggerFactory { get; }
+
+    public override bool TryUse(string name, [MaybeNullWhen(false)] out FeatureScope scope)
+    {
+        if (base.TryUse(name, out var inner))
+        {
+            var logger = LoggerFactory.CreateLogger(name);
+            var unitOfWork = logger.BeginUnitOfWork(name);
+            scope = new FeatureScope(() =>
+            {
+                inner.Dispose();
+                unitOfWork.Dispose();
+            });
+
+            return true;
+        }
+
+        scope = default;
+        return false;
+    }
+}
+
+public static class Test
+{
+    public static void Example()
+    {
+        var features = new FeatureService
+        {
+            { "Test", new CountdownFeature(1) }
+        };
+
+        if (features.TryUse("test", out var scope))
+        {
+            using var s = scope;
+            // do something...
+        }
+    }
 }

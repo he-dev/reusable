@@ -17,7 +17,12 @@ public interface ILoggerMiddleware : IListNode<ILoggerMiddleware>, IEnumerable<I
 
 public abstract class LoggerMiddleware : ListNode<ILoggerMiddleware>, ILoggerMiddleware
 {
-    public virtual string Name => GetType().ToPrettyString();
+    protected LoggerMiddleware(string? name = default)
+    {
+        Name = name is { } ? $"{GetType().ToPrettyString()}[{name}]" : GetType().ToPrettyString();
+    }
+
+    public virtual string Name { get; }
     
     public abstract void Invoke(ILogEntry entry);
 

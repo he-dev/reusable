@@ -5,13 +5,9 @@ namespace Reusable.Wiretap.Middleware;
 
 public class Lambda : LoggerMiddleware
 {
-    public Lambda(Action<ILogEntry> action) => Action = action;
-
-    private Action<ILogEntry> Action { get; }
-
-    public override void Invoke(ILogEntry entry)
-    {
-        Action(entry);
-        Next?.Invoke(entry);
-    }
+    private readonly Action<ILogEntry, ILoggerMiddleware?> invoke;
+    
+    public Lambda(Action<ILogEntry, ILoggerMiddleware?> invoke) => this.invoke = invoke;
+    
+    public override void Invoke(ILogEntry entry) => invoke(entry, Next);
 }

@@ -6,7 +6,9 @@ namespace Reusable.Wiretap.Channels;
 
 public class DebugChannel : Channel<DebugChannel>
 {
-    public string Template { get; set; } = "[{Timestamp:HH:mm:ss:fff}] [{Logger}] {Message}";
+    public DebugChannel(string? name = default) : base(name) { }
+    
+    public string Template { get; set; } = Telemetry.Template;
 
     protected override void Log(ILogEntry entry)
     {
@@ -14,4 +16,5 @@ public class DebugChannel : Channel<DebugChannel>
         
         Next?.Invoke(entry);
     }
+
 }

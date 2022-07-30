@@ -12,7 +12,7 @@ namespace Reusable.Wiretap;
     ---
     
                                                 1        2          3           4          5                                                          
-    Timestamp | Product | Environment | Correlation | Layer  | Category | State        | Snapshot | Message
+    Timestamp | Product | Environment | Correlation | Layer  | Category | Identifier   | Snapshot | Message
     ---------   -------   -----------   -----------   -----    --------   ------------   --------   -------
     Auto        Auto      Auto          Auto          Log      Log 
                                                                Decision                        Description+Reason      
@@ -61,6 +61,8 @@ public interface ITelemetryUnitOfWork { }
 
 public static class Telemetry
 {
+    public const string Template = "[{Timestamp:HH:mm:ss:fff}] | {Logger} | {Correlation} | {Layer}/{Category}/{Identifier}={Snapshot} ({Elapsed})| {Message} | {Exception}";
+    
     public static Builder<ITelemetry> Collect => new(LogEntry.Empty());
 
     public record Builder<T>(ILogEntry Entry)

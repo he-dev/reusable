@@ -30,8 +30,8 @@ public static class SemanticLoggerExtensions
     /// <summary>
     /// Registers OmniLog logger.
     /// </summary>
-    public static IApplicationBuilder UseWiretap(this IApplicationBuilder builder, SemanticLoggerConfig? config = default)
+    public static IApplicationBuilder UseWiretap(this IApplicationBuilder builder, WiretapMiddlewareConfiguration? config = default)
     {
-        return builder.UseMiddleware<WiretapMiddleware>(config ?? new SemanticLoggerConfig());
+        return builder.UseMiddleware<WiretapMiddleware>(config ?? new WiretapMiddlewareConfiguration());
     }
 }

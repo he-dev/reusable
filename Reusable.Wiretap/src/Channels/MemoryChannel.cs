@@ -11,11 +11,11 @@ public class MemoryChannel : Channel<MemoryChannel>
 {
     public const int DefaultCapacity = 1_000;
 
+    public MemoryChannel(string? name = default) : base(name) { }
+
     public Queue<ILogEntry> Entries { get; } = new();
 
-    public MemoryChannel(int capacity = DefaultCapacity) => Capacity = capacity;
-
-    public int Capacity { get; }
+    public int Capacity { get; set; } = DefaultCapacity;
 
     protected override void Log(ILogEntry entry)
     {

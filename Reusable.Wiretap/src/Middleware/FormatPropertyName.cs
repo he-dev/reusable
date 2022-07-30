@@ -11,18 +11,16 @@ namespace Reusable.Wiretap.Middleware;
 /// <summary>
 /// This node formats the name of regular properties.
 /// </summary>
-public class FormatPropertyName : LoggerMiddleware
+public abstract class FormatPropertyName : LoggerMiddleware
 {
-    //public override bool Enabled => MatchProperty is { } && MatchPattern is { };
+    protected Func<string, bool> Matches { get; set; } = default!;
 
-    public Func<ILogProperty, bool> Matches { get; set; }
-
-    public Func<string, string> Format { get; set; }
+    protected Func<string, string> Format { get; set; } = default!;
 
     public override void Invoke(ILogEntry entry)
     {
         var updates = LogEntry.Empty();
-        foreach (var property in entry.OfType<IRegularProperty>().Where(Matches))
+        foreach (var property in entry.OfType<IRegularProperty>().Where(p => Matches(p.Name)))
         {
             var newName = Format(property.Name);
 
@@ -51,7 +49,7 @@ public static class Trim
     {
         public Start(string property, string value)
         {
-            Matches = p => SoftString.Comparer.Equals(p.Name, property);
+            Matches = n => SoftString.Comparer.Equals(n, property);
             Format = n => Regex.Replace(n, $"^{value}", string.Empty, RegexOptions.IgnoreCase);
         }
     }
@@ -60,7 +58,7 @@ public static class Trim
     {
         public End(string property, string value)
         {
-            Matches = p => SoftString.Comparer.Equals(p.Name, property);
+            Matches = n => SoftString.Comparer.Equals(n, property);
             Format = n => Regex.Replace(n, $"{value}$", string.Empty, RegexOptions.IgnoreCase);
         }
     }
@@ -69,20 +67,11 @@ public static class Trim
 public class Capitalize : FormatPropertyName
 {
     /// <summary>
-    /// Capitalizes all properties.
+    /// Capitalizes all properties by default or the specified one.
     /// </summary>
-    public Capitalize()
+    public Capitalize(string? property = default)
     {
-        Matches = p => true;
-        Format = n => Regex.Replace(n, @"\A([a-z])", m => m.Value.ToUpper());
-    }
-
-    /// <summary>
-    /// Capitalizes only the specified property.
-    /// </summary>
-    public Capitalize(string property)
-    {
-        Matches = p => SoftString.Comparer.Equals(p.Name, property);
+        Matches = n => property is null || SoftString.Comparer.Equals(n, property);
         Format = n => Regex.Replace(n, @"\A([a-z])", m => m.Value.ToUpper());
     }
 }

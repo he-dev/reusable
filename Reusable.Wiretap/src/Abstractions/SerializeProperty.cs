@@ -26,6 +26,6 @@ public abstract class SerializeProperty : LoggerMiddleware
 
         Next?.Invoke(entry);
     }
-
+    
     protected abstract object Serialize(object value);
 }

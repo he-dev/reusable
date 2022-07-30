@@ -1,6 +1,7 @@
 ﻿using JetBrains.Annotations;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Reusable.Toggle;
+using Reusable.Toggle.Mechanics;
 
 namespace Reusable.Wiretap.Utilities.AspNetCore.Mvc.Filters
 {
@@ -19,7 +20,7 @@ namespace Reusable.Wiretap.Utilities.AspNetCore.Mvc.Filters
 
         public override void OnActionExecuting(ActionExecutingContext context)
         {
-            _features.TryAdd(new Feature(WiretapMiddleware.Features.LogResponseBody, FeaturePolicy.AlwaysEnabled));
+            _features.TryAdd(new FeatureMechanics(WiretapMiddleware.Features.LogResponseBody, FeaturePolicy.AlwaysEnabled));
         }
     }
 }

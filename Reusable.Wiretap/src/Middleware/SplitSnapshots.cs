@@ -13,7 +13,7 @@ public class SplitSnapshots : LoggerMiddleware
         {
             // We won't need it anymore.
             entry.Push(new LogProperty.Obsolete(split.Name));
-            
+
             // Optimized for performance.
             using var e = split.Value.GetProperties().GetEnumerator();
 
@@ -22,17 +22,17 @@ public class SplitSnapshots : LoggerMiddleware
             {
                 entry.Identifier(e.Current.Name);
                 entry.Snapshot(e.Current.Value);
+                Next?.Invoke(entry);
             }
 
-            // ...and copy it only when  more entries are required.
+            // ...and copy it only when more entries are required.
             while (e.MoveNext())
             {
                 var copy = new LogEntry(entry);
                 copy.Identifier(e.Current.Name);
                 copy.Snapshot(e.Current.Value);
+                Next?.Invoke(copy);
             }
-
-            Next?.Invoke(entry);
         }
         else
         {

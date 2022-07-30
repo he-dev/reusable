@@ -9,8 +9,8 @@ namespace Reusable.Wiretap.Middleware;
 public class FilterEntries : LoggerMiddleware
 {
     public FilterEntries(Func<ILogEntry, bool> canLog) => CanLog = canLog;
-    
-    public Func<ILogEntry, bool> CanLog { get; }
+
+    private Func<ILogEntry, bool> CanLog { get; }
 
     public override void Invoke(ILogEntry entry)
     {

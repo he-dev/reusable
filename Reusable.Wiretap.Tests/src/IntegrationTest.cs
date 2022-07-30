@@ -34,7 +34,7 @@ public class IntegrationTest
             Actual = Enumerable.Range(1, itemCount).Select(x => TimeSpan.FromTicks(x)).ToQueue(),
         };
 
-        var pipelineBuilder = new LoggerBuilder
+        var pipelineBuilder = new TelemetryLoggerBuilder
         {
             Settings =
             {

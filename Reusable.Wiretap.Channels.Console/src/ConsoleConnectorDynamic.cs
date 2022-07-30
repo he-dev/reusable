@@ -10,17 +10,17 @@ namespace Reusable.Wiretap.Channels;
 
 public class ConsoleChannelDynamic : ConsoleChannel<string>
 {
-    public ConsoleChannelDynamic() => Template = new TextMessageBuilder();
+    public ConsoleChannelDynamic(string? name = default) : base(name) => Template = new TextMessageBuilder();
 
     protected override void Log(ILogEntry entry)
     {
-        var level = entry[LogProperty.Names.Level()].Value switch { LogLevel l => l, _ => LogLevel.Information };
+        var level = entry[LogProperty.Names.Level()].Value switch { ConsoleStyle.LogLevel l => l, _ => ConsoleStyle.LogLevel.Information };
 
         using (Styles[level.ToString(), entry].Apply())
         {
             Console.WriteLine(Template.Build(entry));
         }
-        
+
         Next?.Invoke(entry);
     }
 }

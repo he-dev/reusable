@@ -10,7 +10,7 @@ using Reusable.Wiretap.Utilities.AspNetCore.Helpers;
 namespace Reusable.Wiretap.Utilities.AspNetCore
 {
     [PublicAPI]
-    public class SemanticLoggerConfig
+    public class WiretapMiddlewareConfiguration
     {
         public Func<HttpContext, object> GetCorrelationId { get; set; } = context => context.GetCorrelationHeaderOrDefault();
 
@@ -22,9 +22,9 @@ namespace Reusable.Wiretap.Utilities.AspNetCore
         
         public Func<HttpContext, bool> CanUpdateOriginalResponseBody { get; set; } = c => !c.Response.StatusCode.In(204, 304);
         
-        public Func<HttpContext, object> TakeRequestSnapshot { get; set; } = LogHelper.TakeRequestSnapshot;
+        public Func<HttpRequest, object> TakeRequestSnapshot { get; set; } = LogHelper.TakeRequestSnapshot;
 
-        public Func<HttpContext, object> TakeResponseSnapshot { get; set; } = LogHelper.TakeResponseSnapshot;
+        public Func<HttpResponse, object> TakeResponseSnapshot { get; set; } = LogHelper.TakeResponseSnapshot;
 
         public Func<int, LogLevel> MapStatusCode { get; set; } = LogHelper.MapStatusCode;
 

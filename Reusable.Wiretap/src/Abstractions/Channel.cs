@@ -8,17 +8,12 @@ using Reusable.Wiretap.Extensions;
 
 namespace Reusable.Wiretap.Abstractions;
 
-public interface IChannel : ILoggerMiddleware
-{
-    string Name { get; }
-}
+public interface IChannel : ILoggerMiddleware { }
 
 [PublicAPI]
 public abstract class Channel : LoggerMiddleware, IChannel
 {
-    protected Channel(string name) => Name = name;
-
-    public string Name { get; set; }
+    protected Channel(string? name) : base(name) { }
 
     public override void Invoke(ILogEntry entry)
     {
@@ -49,5 +44,5 @@ public abstract class Channel : LoggerMiddleware, IChannel
 
 public abstract class Channel<T> : Channel where T : IChannel
 {
-    protected Channel() : base(typeof(T).ToPrettyString()) { }
+    protected Channel(string? name) : base(name) { }
 }

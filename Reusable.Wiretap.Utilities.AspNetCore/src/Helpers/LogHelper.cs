@@ -5,74 +5,73 @@ using Microsoft.AspNetCore.Http;
 using Reusable.Essentials.Extensions;
 using Reusable.Wiretap.Data;
 
-namespace Reusable.Wiretap.Utilities.AspNetCore.Helpers
+namespace Reusable.Wiretap.Utilities.AspNetCore.Helpers;
+
+public static class LogHelper
 {
-    public static class LogHelper
+    public static object TakeRequestSnapshot(HttpRequest request)
     {
-        public static object TakeRequestSnapshot(HttpContext context)
+        return new
         {
-            return new
-            {
-                Path = context.Request.Path.Value,
-                Host = context.Request.Host.Value,
-                context.Request.ContentLength,
-                context.Request.ContentType,
-                context.Request.Cookies,
-                context.Request.Headers,
-                context.Request.IsHttps,
-                context.Request.Method,
-                context.Request.Protocol,
-                context.Request.QueryString,
-            };
-        }
-
-        public static async Task<string?> SerializeRequestBody(this HttpContext context)
-        {
-            if (context.Request.ContentLength > 0)
-            {
-                try
-                {
-                    await using var requestCopy = new MemoryStream();
-                    using var requestReader = new StreamReader(requestCopy);
-                    context.Request.EnableBuffering();
-                    await context.Request.Body.CopyToAsync(requestCopy);
-                    requestCopy.Rewind();
-                    return await requestReader.ReadToEndAsync();
-                }
-                finally
-                {
-                    context.Request.Body.Rewind();
-                }
-            }
-            else
-            {
-                return default;
-            }
-        }
-
-        public static object TakeResponseSnapshot(HttpContext context)
-        {
-            return new
-            {
-                context.Response.ContentLength,
-                context.Response.ContentType,
-                context.Response.Headers,
-                context.Response.StatusCode,
-            };
-        }
-
-        /// <summary>
-        /// Maps http-status-code to OmiLog log-level.
-        /// </summary>
-        public static Func<int, LogLevel> MapStatusCode { get; set; } = statusCode =>
-        {
-            return statusCode switch
-            {
-                var x when x >= 500 => LogLevel.Fatal,
-                var x when x >= 400 => LogLevel.Error,
-                var x when x >= 300 => LogLevel.Warning,
-                _ => LogLevel.Information,
-            };
+            Path = request.Path.Value,
+            Host = request.Host.Value,
+            request.ContentLength,
+            request.ContentType,
+            request.Cookies,
+            request.Headers,
+            request.IsHttps,
+            request.Method,
+            request.Protocol,
+            request.QueryString,
         };
     }
+
+    public static async Task<string?> SerializeRequestBody(this HttpContext context)
+    {
+        if (context.Request.ContentLength > 0)
+        {
+            try
+            {
+                await using var requestCopy = new MemoryStream();
+                using var requestReader = new StreamReader(requestCopy);
+                context.Request.EnableBuffering();
+                await context.Request.Body.CopyToAsync(requestCopy);
+                requestCopy.Rewind();
+                return await requestReader.ReadToEndAsync();
+            }
+            finally
+            {
+                context.Request.Body.Rewind();
+            }
+        }
+        else
+        {
+            return default;
+        }
+    }
+
+    public static object TakeResponseSnapshot(HttpResponse response)
+    {
+        return new
+        {
+            response.ContentLength,
+            response.ContentType,
+            response.Headers,
+            response.StatusCode,
+        };
+    }
+
+    /// <summary>
+    /// Maps http-status-code to OmiLog log-level.
+    /// </summary>
+    public static Func<int, LogLevel> MapStatusCode { get; set; } = statusCode =>
+    {
+        return statusCode switch
+        {
+            var x when x >= 500 => LogLevel.Fatal,
+            var x when x >= 400 => LogLevel.Error,
+            var x when x >= 300 => LogLevel.Warning,
+            _ => LogLevel.Information,
+        };
+    };
 }

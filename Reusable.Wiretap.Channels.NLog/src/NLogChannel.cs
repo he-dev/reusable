@@ -21,6 +21,8 @@ public class NLogChannel : Channel<NLogChannel>
     //     ["Error"] = NLog.LogLevel.Error,
     //     ["Fatal"] = NLog.LogLevel.Fatal,
     // };
+    
+    public NLogChannel(string? name = default) : base(name) { }
 
     protected override void Log(ILogEntry entry)
     {
