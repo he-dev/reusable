@@ -3,8 +3,8 @@ using System.IO;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.AspNetCore.Http;
-using Reusable.Essentials;
-using Reusable.Essentials.Extensions;
+using Reusable.Marbles;
+using Reusable.Marbles.Extensions;
 using Reusable.Toggle;
 using Reusable.Wiretap.Abstractions;
 using Reusable.Wiretap.Data;
@@ -36,10 +36,12 @@ public class WiretapMiddleware
     {
         using var unitOfWork = _logger.BeginUnitOfWork(id: _configuration.GetCorrelationId(context));
 
-        var requestBody =
-            _configuration.CanLogRequestBody(context)
-                ? await _configuration.SerializeRequestBody(context)
-                : default;
+        var requestBody = default(string);
+        if (features.TryUse(Features.LogRequestBody, out var logRequestBody))
+        {
+            using var s = logRequestBody;
+            requestBody = await _configuration.SerializeRequestBody(context);
+        }
 
         _logger.Log(
             Telemetry
@@ -61,7 +63,11 @@ public class WiretapMiddleware
 
                 using (var reader = new StreamReader(memory.Rewind()))
                 {
-                    responseBody = await features.Use(Features.LogResponseBody, async () => await reader.ReadToEndAsync());
+                    if (features.TryUse(Features.LogResponseBody, out var logResponseBody))
+                    {
+                        using var s = logResponseBody;
+                        responseBody = await reader.ReadToEndAsync();
+                    }
 
                     if (_configuration.CanUpdateOriginalResponseBody(context))
                     {
@@ -79,8 +85,7 @@ public class WiretapMiddleware
                     .Collect
                     .Application()
                     .Metadata(new { HttpResponse = _configuration.TakeResponseSnapshot(context.Response) })
-                    .Then(e => e.Message(responseBody))
-                    .Level(_configuration.MapStatusCode(context.Response.StatusCode)));
+                    .Then(e => e.Message(responseBody)));
         }
         catch (Exception inner)
         {
@@ -91,6 +96,7 @@ public class WiretapMiddleware
 
     public static class Features
     {
-        public static readonly IFeatureIdentifier LogResponseBody = new FeatureName(nameof(LogResponseBody));
+        public static readonly string LogRequestBody = nameof(LogRequestBody);
+        public static readonly string LogResponseBody = nameof(LogResponseBody);
     }
 }

@@ -1,6 +1,6 @@
 using System;
 using System.Diagnostics.CodeAnalysis;
-using Reusable.Essentials;
+using Reusable.Marbles;
 
 namespace Reusable.Synergy;
 

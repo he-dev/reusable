@@ -53,7 +53,7 @@
         <!--<PackageReference Include="xunit.assert" Version="2.4.1" />-->
     </ItemGroup>
     <ItemGroup>
-        <ProjectReference Include="..\Reusable.Essentials\Reusable.Essentials.csproj" />
+        <ProjectReference Include="..\Reusable.Marbles\Reusable.Marbles.csproj" />
         <ProjectReference Include="..\Reusable.DoubleDash\Reusable.DoubleDash.csproj" />
         <ProjectReference Include="..\Reusable.Deception\Reusable.Deception.csproj" />
         <ProjectReference Include="..\Reusable.Toggle\Reusable.Toggle.csproj" />

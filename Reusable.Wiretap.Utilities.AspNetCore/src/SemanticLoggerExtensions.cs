@@ -21,7 +21,7 @@ public static class SemanticLoggerExtensions
                 .AddScoped<LogResponseBody>();
     }
         
-    public static IServiceCollection AddWiretap(this IServiceCollection services, IEnumerable<ILoggerNode> nodes)
+    public static IServiceCollection AddWiretap(this IServiceCollection services, IEnumerable<ILoggerMiddleware> nodes)
     {
         //return services.AddWiretap(nodes.ToLoggerFactory());
         return default;

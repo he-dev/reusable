@@ -8,7 +8,7 @@ using System.Reflection;
 using System.Threading.Tasks;
 using Autofac;
 using Microsoft.Extensions.Caching.Memory;
-using Reusable.Essentials;
+using Reusable.Marbles;
 
 namespace Reusable.Experiments.Synergy1;
 

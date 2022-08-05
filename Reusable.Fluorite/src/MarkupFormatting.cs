@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using JetBrains.Annotations;
-using Reusable.Essentials.Extensions;
+using Reusable.Marbles.Extensions;
 
 namespace Reusable.Fluorite;
 

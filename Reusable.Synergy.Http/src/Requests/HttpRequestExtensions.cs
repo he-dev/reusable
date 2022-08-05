@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Net.Http.Headers;
-using Reusable.Essentials;
+using Reusable.Marbles;
 
 namespace Reusable.Synergy.Requests;
 

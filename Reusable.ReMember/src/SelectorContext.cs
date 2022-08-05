@@ -1,6 +1,6 @@
 using System.Collections.Generic;
-using Reusable.Essentials.Collections;
-using Reusable.Essentials.Reflection;
+using Reusable.Marbles.Collections;
+using Reusable.Marbles.Reflection;
 
 namespace Reusable.ReMember;
 

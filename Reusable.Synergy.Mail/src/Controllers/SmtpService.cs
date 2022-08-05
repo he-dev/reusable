@@ -5,8 +5,8 @@ using System.Threading.Tasks;
 using MailKit.Net.Smtp;
 using MimeKit;
 using MimeKit.Text;
-using Reusable.Essentials;
-using Reusable.Essentials.Extensions;
+using Reusable.Marbles;
+using Reusable.Marbles.Extensions;
 using Reusable.Synergy.Requests;
 using ContentDisposition = MimeKit.ContentDisposition;
 

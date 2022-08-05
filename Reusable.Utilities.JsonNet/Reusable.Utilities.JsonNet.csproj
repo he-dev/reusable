@@ -23,7 +23,7 @@
   </ItemGroup>
   
   <ItemGroup>
-    <ProjectReference Include="..\Reusable.Essentials\Reusable.Essentials.csproj" />
+    <ProjectReference Include="..\Reusable.Marbles\Reusable.Marbles.csproj" />
   </ItemGroup>
   
   <ItemGroup>

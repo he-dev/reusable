@@ -4,8 +4,8 @@ using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
 using System.Text;
-using Reusable.Essentials.Diagnostics;
-using Reusable.Essentials.Extensions;
+using Reusable.Marbles.Diagnostics;
+using Reusable.Marbles.Extensions;
 
 namespace Reusable.DoubleDash;
 

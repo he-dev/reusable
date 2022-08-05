@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Diagnostics;
-using Reusable.Essentials.Diagnostics;
+using Reusable.Marbles.Diagnostics;
 
 namespace Reusable.DoubleDash;
 

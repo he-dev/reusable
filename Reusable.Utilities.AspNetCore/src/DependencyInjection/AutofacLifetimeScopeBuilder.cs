@@ -4,7 +4,7 @@ using Autofac.Core;
 using Autofac.Extensions.DependencyInjection;
 using JetBrains.Annotations;
 using Microsoft.Extensions.DependencyInjection;
-using Reusable.Essentials;
+using Reusable.Marbles;
 
 namespace Reusable.Utilities.AspNetCore.DependencyInjection
 {

@@ -15,6 +15,9 @@
     <Compile Remove="src\AssertServerExperiment.cs" />
     <Compile Remove="src\ExceptionVisualizerExperiment.cs" />
     <Compile Remove="src\Examples\Translucent.cs" />
+    <Compile Remove="src\Examples\Wiretap.cs" />
+    <Compile Remove="src\Experiments\ServicePipelineBuilder2.cs" />
+    <Compile Remove="src\Experiments\ServicePipelineBuilder.cs" />
 <!--    <Compile Remove="src\Examples\OmniLog.v2.cs" />-->
   </ItemGroup>
 
@@ -25,27 +28,16 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Reusable.Essentials\Reusable.Essentials.csproj" />
-    <ProjectReference Include="..\Reusable.DoubleDash\Reusable.DoubleDash.csproj" />
+    <ProjectReference Include="..\Reusable.Marbles\Reusable.Marbles.csproj" />
     <ProjectReference Include="..\Reusable.Toggle\Reusable.Toggle.csproj" />
     <ProjectReference Include="..\Reusable.Snowball\Reusable.Snowball.csproj" />
     <ProjectReference Include="..\Reusable.Fluorite\Reusable.Fluorite.csproj" />
     <ProjectReference Include="..\Reusable.Wiretap\Reusable.Wiretap.csproj" />
-    <ProjectReference Include="..\Reusable.Wiretap.Channels.Console\Reusable.Wiretap.Channels.Console.csproj" />
-    <ProjectReference Include="..\Reusable.Wiretap.Channels.Console.Fancy\Reusable.Wiretap.Channels.Console.Fancy.csproj" />
+    <ProjectReference Include="..\Reusable.Prism\Reusable.Prism.csproj" />
     <ProjectReference Include="..\Reusable.Wiretap.Channels.NLog\Reusable.Wiretap.Channels.NLog.csproj" />
     <ProjectReference Include="..\Reusable.ReMember\Reusable.ReMember.csproj" />
     <ProjectReference Include="..\Reusable.Utilities.JsonNet\Reusable.Utilities.JsonNet.csproj" />
     <ProjectReference Include="..\Reusable.Utilities.NLog\Reusable.Utilities.NLog.csproj" />
-    <ProjectReference Include="..\Reusable.Synergy\Reusable.Synergy.csproj" />
-    <ProjectReference Include="..\Reusable.Octopus\Reusable.Octopus.csproj" />
-    <ProjectReference Include="..\Reusable.Octopus.config\Reusable.Octopus.config.csproj" />
-    <ProjectReference Include="..\Reusable.Octopus.config.AppConfig\Reusable.Octopus.config.AppConfig.csproj" />
-    <ProjectReference Include="..\Reusable.Octopus.config.Json\Reusable.Octopus.config.Json.csproj" />
-    <ProjectReference Include="..\Reusable.Octopus.config.Database\Reusable.Octopus.config.Database.csproj" />
-    <ProjectReference Include="..\Reusable.Octopus.file\Reusable.Octopus.file.csproj" />
-    <ProjectReference Include="..\Reusable.Octopus.http\Reusable.Octopus.http.csproj" />
-    <ProjectReference Include="..\Reusable.Octopus.mailto\Reusable.Octopus.mailto.csproj" />
   </ItemGroup>
 
 <!--  <ItemGroup>-->

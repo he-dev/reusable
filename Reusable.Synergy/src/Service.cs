@@ -5,8 +5,8 @@ using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Reusable.Essentials;
-using Reusable.Essentials.Extensions;
+using Reusable.Marbles;
+using Reusable.Marbles.Extensions;
 
 namespace Reusable.Synergy;
 

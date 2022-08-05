@@ -22,7 +22,7 @@
     <PackageReference Include="JetBrains.Annotations" Version="2021.3.0" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Reusable.Essentials\Reusable.Essentials.csproj" />
+    <ProjectReference Include="..\Reusable.Marbles\Reusable.Marbles.csproj" />
     <ProjectReference Include="..\Reusable.Wiretap\Reusable.Wiretap.csproj" />
   </ItemGroup>
   <ItemGroup>

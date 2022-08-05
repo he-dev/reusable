@@ -1,6 +1,4 @@
 using System.Threading.Tasks;
-using Reusable.Essentials;
-using Reusable.Essentials.Extensions;
 
 namespace Reusable.Synergy.Controllers;
 

@@ -5,7 +5,7 @@ using Autofac;
 using Autofac.Core;
 using JetBrains.Annotations;
 using Reusable.DoubleDash.Annotations;
-using Reusable.Essentials;
+using Reusable.Marbles;
 using Reusable.Utilities.Autofac;
 
 namespace Reusable.DoubleDash.DependencyInjection;

@@ -1,6 +1,6 @@
 using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
-using Reusable.Essentials.Extensions;
+using Reusable.Marbles.Extensions;
 using Reusable.Synergy.Requests;
 
 namespace Reusable.Synergy.Controllers;

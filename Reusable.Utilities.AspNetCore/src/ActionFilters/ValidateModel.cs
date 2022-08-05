@@ -5,32 +5,30 @@ using Reusable.Wiretap;
 using Reusable.Wiretap.Abstractions;
 using Reusable.Wiretap.Extensions;
 
-namespace Reusable.Utilities.AspNetCore.ActionFilters
+namespace Reusable.Utilities.AspNetCore.ActionFilters;
+
+public class ValidateModel : ActionFilterAttribute
 {
-    public class ValidateModel : ActionFilterAttribute
+    private readonly ILogger _logger;
+
+    public ValidateModel(ILoggerFactory loggerFactory)
     {
-        private readonly ILogger _logger;
+        _logger = loggerFactory.CreateLogger<ValidateModel>();
+    }
 
-        public ValidateModel(ILoggerFactory loggerFactory)
+    public override void OnActionExecuting(ActionExecutingContext context)
+    {
+        if (context.ModelState.IsValid)
         {
-            _logger = loggerFactory.CreateLogger<ValidateModel>();
+            return;
         }
 
-        public override void OnActionExecuting(ActionExecutingContext context)
-        {
-            if (context.ModelState.IsValid)
-            {
-                return;
-            }
+        _logger.Log(
+            Telemetry
+                .Collect
+                .Application()
+                .Metadata(new { ModelErrors = context.ModelState.Values.Select(value => value.Errors.Select(error => error.Exception.Message)) }));
 
-            _logger.Log(
-                Telemetry
-                    .Collect
-                    .Application()
-                    .Metadata(new { ModelErrors = context.ModelState.Values.Select(value => value.Errors.Select(error => error.Exception.Message)) })
-                    .Error());
-
-            context.Result = new BadRequestObjectResult(context.ModelState);
-        }
+        context.Result = new BadRequestObjectResult(context.ModelState);
     }
 }

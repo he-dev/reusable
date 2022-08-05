@@ -1,7 +1,7 @@
 using System;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
-using Reusable.Essentials.Extensions;
+using Reusable.Marbles.Extensions;
 using Reusable.Wiretap;
 using Reusable.Wiretap.Abstractions;
 using Reusable.Wiretap.Extensions;
@@ -17,19 +17,15 @@ public class TelemetryService : Service
 
     public override async Task<object> InvokeAsync(IRequest request)
     {
-        using var scope = Logger.BeginScope(request.GetType().ToPrettyString());
+        using var scope = Logger.BeginUnitOfWork(request.GetType().ToPrettyString());
         try
         {
             return await InvokeNext(request);
         }
         catch (Exception ex)
         {
-            scope.Exception(ex);
+            scope.SetException(ex);
             throw;
-        }
-        finally
-        {
-            Logger.Log(Telemetry.Collect.Application().UnitOfWork(nameof(InvokeAsync)).Auto());
         }
     }
 }

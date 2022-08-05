@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using Reusable.Essentials.Diagnostics;
+using Reusable.Marbles.Diagnostics;
 using Reusable.Snowball;
 using Reusable.Snowball.Converters;
 using Reusable.Utilities.NLog.LayoutRenderers;

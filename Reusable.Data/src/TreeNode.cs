@@ -4,8 +4,8 @@ using System.Diagnostics;
 using System.Linq;
 using System.Linq.Custom;
 using JetBrains.Annotations;
-using Reusable.Essentials.Diagnostics;
-using Reusable.Essentials.Extensions;
+using Reusable.Marbles.Diagnostics;
+using Reusable.Marbles.Extensions;
 
 namespace Reusable.Data
 {

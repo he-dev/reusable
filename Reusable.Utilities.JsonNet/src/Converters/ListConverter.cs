@@ -6,9 +6,9 @@ using System.Linq;
 using System.Linq.Custom;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using Reusable.Essentials;
-using Reusable.Essentials.Extensions;
-using Reusable.Essentials.Reflection;
+using Reusable.Marbles;
+using Reusable.Marbles.Extensions;
+using Reusable.Marbles.Reflection;
 
 namespace Reusable.Utilities.JsonNet.Converters;
 

@@ -1,4 +1,4 @@
-using Reusable.Essentials.Extensions;
+using Reusable.Marbles.Extensions;
 using Xunit;
 
 namespace Reusable.Core.IO

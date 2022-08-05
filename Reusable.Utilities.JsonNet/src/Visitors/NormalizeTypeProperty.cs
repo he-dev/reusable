@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using JetBrains.Annotations;
 using Newtonsoft.Json.Linq;
-using Reusable.Essentials.Extensions;
+using Reusable.Marbles.Extensions;
 using Reusable.Utilities.JsonNet.Abstractions;
 using Reusable.Utilities.JsonNet.Services;
 

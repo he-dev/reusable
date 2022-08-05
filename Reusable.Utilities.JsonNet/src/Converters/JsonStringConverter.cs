@@ -5,8 +5,8 @@ using System.Reflection;
 using JetBrains.Annotations;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using Reusable.Essentials;
-using Reusable.Essentials.Extensions;
+using Reusable.Marbles;
+using Reusable.Marbles.Extensions;
 using Reusable.Utilities.JsonNet.Annotations;
 
 namespace Reusable.Utilities.JsonNet.Converters;

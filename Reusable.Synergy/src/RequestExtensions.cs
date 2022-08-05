@@ -2,8 +2,8 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Autofac;
-using Reusable.Essentials;
-using Reusable.Essentials.Extensions;
+using Reusable.Marbles;
+using Reusable.Marbles.Extensions;
 
 namespace Reusable.Synergy;
 

@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Reusable.Essentials.Extensions;
+using Reusable.Marbles.Extensions;
 
 namespace Reusable.Utilities.MSTest
 {

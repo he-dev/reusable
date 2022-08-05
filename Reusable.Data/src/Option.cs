@@ -9,10 +9,10 @@ using System.Linq.Custom;
 using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
 using JetBrains.Annotations;
-using Reusable.Essentials;
-using Reusable.Essentials.Collections;
-using Reusable.Essentials.Diagnostics;
-using Reusable.Essentials.Extensions;
+using Reusable.Marbles;
+using Reusable.Marbles.Collections;
+using Reusable.Marbles.Diagnostics;
+using Reusable.Marbles.Extensions;
 
 namespace Reusable.Data
 {

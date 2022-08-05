@@ -10,7 +10,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.WebUtilities;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using Reusable.Essentials.Extensions;
+using Reusable.Marbles.Extensions;
 using Reusable.Utilities.JsonNet;
 using Reusable.Utilities.JsonNet.Abstractions;
 using Reusable.Utilities.JsonNet.Visitors;
@@ -48,7 +48,7 @@ public class NormalizeJsonTypePropertyMiddleware
     {
         if (context.Request.ContentType == "application/json" && context.Request.ContentLength > 0)
         {
-            using var scope = _logger.BeginScope("NormalizeJson");
+            using var scope = _logger.BeginUnitOfWork("NormalizeJson");
             try
             {
                 using var requestReader = new HttpRequestStreamReader(context.Request.Body, Encoding.UTF8);
@@ -69,11 +69,7 @@ public class NormalizeJsonTypePropertyMiddleware
             }
             catch (Exception e)
             {
-                _logger.Scope().Exception(e);
-            }
-            finally
-            {
-                _logger.Log(Telemetry.Collect.Application().UnitOfWork(nameof(Invoke)).Auto());
+                scope.SetException(e);
             }
         }
 

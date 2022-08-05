@@ -5,9 +5,8 @@ using System.Data.SqlClient;
 using System.Linq;
 using System.Linq.Custom;
 using JetBrains.Annotations;
-using Reusable.Essentials;
-using Reusable.Essentials.Collections;
-using Reusable.Essentials.Extensions;
+using Reusable.Marbles;
+using Reusable.Marbles.Collections;
 
 namespace Reusable.Utilities.SqlClient
 {

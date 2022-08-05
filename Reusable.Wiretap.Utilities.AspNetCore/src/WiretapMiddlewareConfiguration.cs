@@ -26,8 +26,6 @@ namespace Reusable.Wiretap.Utilities.AspNetCore
 
         public Func<HttpResponse, object> TakeResponseSnapshot { get; set; } = LogHelper.TakeResponseSnapshot;
 
-        public Func<int, LogLevel> MapStatusCode { get; set; } = LogHelper.MapStatusCode;
-
-        public Func<HttpContext, Task<string?>> SerializeRequestBody { get; set; } = LogHelper.SerializeRequestBody;
+        public Func<HttpContext, Task<string?>> SerializeRequestBody { get; set; } = LogHelper.DumpRequestBody;
     }
 }

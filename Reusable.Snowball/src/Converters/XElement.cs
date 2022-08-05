@@ -2,7 +2,7 @@
 using System.IO;
 using System.Text;
 using System.Xml.Linq;
-using Reusable.Essentials.Extensions;
+using Reusable.Marbles.Extensions;
 
 namespace Reusable.Snowball.Converters;
 

@@ -1,7 +1,7 @@
 using System.IO;
 using JetBrains.Annotations;
-using Reusable.Essentials.Data;
-using Reusable.Essentials.Extensions;
+using Reusable.Marbles.Data;
+using Reusable.Marbles.Extensions;
 
 namespace Reusable.Teapot
 {

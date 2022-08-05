@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
 using Newtonsoft.Json.Serialization;
-using Reusable.Essentials;
+using Reusable.Marbles;
 
 namespace Reusable.Utilities.JsonNet.Serialization;
 

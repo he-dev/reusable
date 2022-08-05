@@ -24,7 +24,7 @@
     <PackageReference Include="xunit.extensibility.core" Version="2.4.1" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Reusable.Essentials\Reusable.Essentials.csproj" />
+    <ProjectReference Include="..\Reusable.Marbles\Reusable.Marbles.csproj" />
     <ProjectReference Include="..\Reusable.Teapot\Reusable.Teapot.csproj" />
     <ProjectReference Include="..\Reusable.Teapot.Assert\Reusable.Teapot.Assert.csproj" />
     <ProjectReference Include="..\Reusable.Utilities.JsonNet\Reusable.Utilities.JsonNet.csproj" />

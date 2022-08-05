@@ -3,7 +3,7 @@ using System.Linq;
 using System.Linq.Custom;
 using JetBrains.Annotations;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Reusable.Essentials.Extensions;
+using Reusable.Marbles.Extensions;
 
 namespace Reusable.Utilities.MSTest
 {

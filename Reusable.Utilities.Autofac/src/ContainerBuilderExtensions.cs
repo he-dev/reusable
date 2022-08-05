@@ -4,7 +4,7 @@ using System.Diagnostics.CodeAnalysis;
 using Autofac;
 using Autofac.Builder;
 using Autofac.Core;
-using Reusable.Essentials;
+using Reusable.Marbles;
 
 namespace Reusable.Utilities.Autofac;
 

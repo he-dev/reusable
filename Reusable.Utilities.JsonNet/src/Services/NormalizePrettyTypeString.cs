@@ -4,8 +4,8 @@ using System.Linq;
 using System.Linq.Custom;
 using System.Text.RegularExpressions;
 using JetBrains.Annotations;
-using Reusable.Essentials;
-using Reusable.Essentials.Extensions;
+using Reusable.Marbles;
+using Reusable.Marbles.Extensions;
 using Reusable.Utilities.JsonNet.Abstractions;
 
 namespace Reusable.Utilities.JsonNet.Services;

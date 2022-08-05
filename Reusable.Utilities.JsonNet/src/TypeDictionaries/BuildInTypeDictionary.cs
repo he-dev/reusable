@@ -2,7 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Immutable;
-using Reusable.Essentials;
+using Reusable.Marbles;
 using Reusable.Utilities.JsonNet.Abstractions;
 
 namespace Reusable.Utilities.JsonNet.TypeDictionaries;

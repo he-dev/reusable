@@ -2,7 +2,7 @@ using System;
 using System.IO;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
-using Reusable.Essentials.Extensions;
+using Reusable.Marbles.Extensions;
 using Reusable.Wiretap.Data;
 
 namespace Reusable.Wiretap.Utilities.AspNetCore.Helpers;
@@ -26,7 +26,7 @@ public static class LogHelper
         };
     }
 
-    public static async Task<string?> SerializeRequestBody(this HttpContext context)
+    public static async Task<string?> DumpRequestBody(this HttpContext context)
     {
         if (context.Request.ContentLength > 0)
         {
@@ -60,18 +60,4 @@ public static class LogHelper
             response.StatusCode,
         };
     }
-
-    /// <summary>
-    /// Maps http-status-code to OmiLog log-level.
-    /// </summary>
-    public static Func<int, LogLevel> MapStatusCode { get; set; } = statusCode =>
-    {
-        return statusCode switch
-        {
-            var x when x >= 500 => LogLevel.Fatal,
-            var x when x >= 400 => LogLevel.Error,
-            var x when x >= 300 => LogLevel.Warning,
-            _ => LogLevel.Information,
-        };
-    };
 }

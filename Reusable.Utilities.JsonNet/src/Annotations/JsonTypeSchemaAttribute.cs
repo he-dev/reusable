@@ -2,7 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using JetBrains.Annotations;
-using Reusable.Essentials;
+using Reusable.Marbles;
 
 namespace Reusable.Utilities.JsonNet.Annotations;
 

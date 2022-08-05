@@ -28,7 +28,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Reusable.Essentials\Reusable.Essentials.csproj" />
+    <ProjectReference Include="..\Reusable.Marbles\Reusable.Marbles.csproj" />
     <ProjectReference Include="..\Reusable.Octopus.file\Reusable.Octopus.file.csproj" />
     <ProjectReference Include="..\Reusable.Octopus\Reusable.Octopus.csproj" />
   </ItemGroup>

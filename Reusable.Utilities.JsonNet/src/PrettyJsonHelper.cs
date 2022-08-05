@@ -2,7 +2,7 @@ using System;
 using JetBrains.Annotations;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using Reusable.Essentials;
+using Reusable.Marbles;
 
 namespace Reusable.Utilities.JsonNet;
 

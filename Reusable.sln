@@ -70,9 +70,9 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "lib-tools", "lib-tools", "{
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reusable.Wiretap.Channels.Console", "Reusable.Wiretap.Channels.Console\Reusable.Wiretap.Channels.Console.csproj", "{F7D80E2C-1315-4D87-BB06-D5E5CBECECC1}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reusable.Wiretap.Channels.Console.Fancy", "Reusable.Wiretap.Channels.Console.Fancy\Reusable.Wiretap.Channels.Console.Fancy.csproj", "{929C914F-5F63-4101-A3B3-6F42AB147B3A}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reusable.Prism", "Reusable.Prism\Reusable.Prism.csproj", "{929C914F-5F63-4101-A3B3-6F42AB147B3A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reusable.Essentials", "Reusable.Essentials\Reusable.Essentials.csproj", "{5713F33F-3C5B-4B2D-8A0A-67D75CF1F4CF}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reusable.Marbles", "Reusable.Marbles\Reusable.Marbles.csproj", "{5713F33F-3C5B-4B2D-8A0A-67D75CF1F4CF}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reusable.Synergy", "Reusable.Synergy\Reusable.Synergy.csproj", "{B08E1A6D-F000-4759-9919-F1E18BB02AB1}"
 EndProject
@@ -126,7 +126,6 @@ Global
 		{D1F32907-120A-43CB-9770-291835E9717C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D1F32907-120A-43CB-9770-291835E9717C}.Release|Any CPU.Build.0 = Release|Any CPU
 		{89968832-E668-48AE-BAEF-19F4C689613B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{89968832-E668-48AE-BAEF-19F4C689613B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{89968832-E668-48AE-BAEF-19F4C689613B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{89968832-E668-48AE-BAEF-19F4C689613B}.Release|Any CPU.Build.0 = Release|Any CPU
 		{25A53836-CA06-4F6A-A321-199F004005D8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
@@ -165,7 +164,6 @@ Global
 		{8B72AB74-C38E-450D-86D4-D6AC33AC9961}.Release|Any CPU.Build.0 = Release|Any CPU
 		{3FA08226-408C-4347-BBD8-7D505C8D48DE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{3FA08226-408C-4347-BBD8-7D505C8D48DE}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{3FA08226-408C-4347-BBD8-7D505C8D48DE}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{AA718846-0C3E-4B92-9E68-2052DCFBFD12}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{AA718846-0C3E-4B92-9E68-2052DCFBFD12}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{AA718846-0C3E-4B92-9E68-2052DCFBFD12}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -193,7 +191,6 @@ Global
 		{06522BEB-490C-45DD-A428-A7F0EB84E147}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{06522BEB-490C-45DD-A428-A7F0EB84E147}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F7D80E2C-1315-4D87-BB06-D5E5CBECECC1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{F7D80E2C-1315-4D87-BB06-D5E5CBECECC1}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F7D80E2C-1315-4D87-BB06-D5E5CBECECC1}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F7D80E2C-1315-4D87-BB06-D5E5CBECECC1}.Release|Any CPU.Build.0 = Release|Any CPU
 		{929C914F-5F63-4101-A3B3-6F42AB147B3A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU

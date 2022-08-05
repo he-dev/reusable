@@ -25,7 +25,7 @@
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\Reusable.Essentials\Reusable.Essentials.csproj" />
+        <ProjectReference Include="..\Reusable.Marbles\Reusable.Marbles.csproj" />
         <ProjectReference Include="..\Reusable.Wiretap\Reusable.Wiretap.csproj" />
         <ProjectReference Include="..\Reusable.Utilities.Autofac\Reusable.Utilities.Autofac.csproj" />
         <ProjectReference Include="..\Reusable.Utilities.JsonNet\Reusable.Utilities.JsonNet.csproj" />
