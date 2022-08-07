@@ -40,21 +40,3 @@ namespace Reusable.Marbles;
 //     }
 // }
 
-public record ConsoleStyle(ConsoleColor BackgroundColor, ConsoleColor ForegroundColor)
-{
-    public ConsoleStyle() : this(Console.BackgroundColor, Console.ForegroundColor) { }
-
-    public Restore Apply() => new Restore().Also(() =>
-    {
-        // Apply this style.
-        Console.BackgroundColor = BackgroundColor;
-        Console.ForegroundColor = ForegroundColor;
-    });
-
-    public static ConsoleStyle Current => new(Console.BackgroundColor, Console.ForegroundColor);
-
-    public record Restore : ConsoleStyle, IDisposable
-    {
-        public void Dispose() => (Console.BackgroundColor, Console.ForegroundColor) = (BackgroundColor, ForegroundColor);
-    }
-}

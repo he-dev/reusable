@@ -33,7 +33,7 @@ public class Version : Command<CommandParameter>
 
     protected override Task ExecuteAsync(CommandParameter parameter, CancellationToken cancellationToken)
     {
-        _logger.Log(ConsoleTemplate.ComposeLine().Indent(1).Text(_version));
+        _logger.Log(ConsoleElement<>.ComposeLine().Indent(1).Text(_version));
 
         return Task.CompletedTask;
     }
@@ -72,12 +72,12 @@ public class Help : Command<Help.Parameter>
         // Print headers,
         var captions = new[] { "Command", "Description" }; //.Pad(ColumnWidths);
         //Logger.WriteLine(Style, new Indent(1), new TableRow { Cells = captions });
-        Logger.Log(ConsoleTemplate.ComposeLine().Indent(1).Record(captions, ColumnWidths));
+        Logger.Log(ConsoleElement<>.ComposeLine().Indent(1).Record(captions, ColumnWidths));
 
         // Underline headers. Each one is as wide as its text.
         var separators = captions.Select(c => new string('-', c.Trim().Length)); //.Pad(ColumnWidths);
         //Logger.WriteLine(Style, new Indent(1), new TableRow { Cells = separators });
-        Logger.Log(ConsoleTemplate.ComposeLine().Indent(1).Record(separators, ColumnWidths));
+        Logger.Log(ConsoleElement<>.ComposeLine().Indent(1).Record(separators, ColumnWidths));
 
         // Commands
         var userExecutableCommands =
