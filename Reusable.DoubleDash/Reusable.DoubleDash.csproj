@@ -25,7 +25,6 @@
   <ItemGroup>
     <ProjectReference Include="..\Reusable.Marbles\Reusable.Marbles.csproj" />
     <ProjectReference Include="..\Reusable.Prism\Reusable.Prism.csproj" />
-    <ProjectReference Include="..\Reusable.Fluorite\Reusable.Fluorite.csproj" />
     <ProjectReference Include="..\Reusable.Snowball\Reusable.Snowball.csproj" />
     <ProjectReference Include="..\Reusable.Utilities.Autofac\Reusable.Utilities.Autofac.csproj" />
   </ItemGroup>
