@@ -1,6 +1,5 @@
 ﻿using System;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
+using System.Text.Json.Serialization;
 
 namespace Reusable.Apps.Server.Json
 {
@@ -13,7 +12,7 @@ namespace Reusable.Apps.Server.Json
             return objectType == typeof(JsonString);
         }
 
-        public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
+        public override object ReadJson_(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
         {
             var jToken = JToken.ReadFrom(reader);
             return new JsonString(jToken.ToString());

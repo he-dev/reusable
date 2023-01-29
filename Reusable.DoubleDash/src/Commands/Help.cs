@@ -14,7 +14,6 @@ using Reusable.Utilities.Autofac;
 using Reusable.Wiretap;
 using Reusable.Wiretap.Abstractions;
 using Reusable.Wiretap.Channels;
-using Reusable.Wiretap.Extensions;
 
 namespace Reusable.DoubleDash.Commands;
 

@@ -13,14 +13,13 @@ using Reusable.Marbles;
 using Reusable.Utilities.Autofac;
 using Reusable.Wiretap;
 using Reusable.Wiretap.Abstractions;
-using Reusable.Wiretap.Extensions;
 
 namespace Reusable.DoubleDash;
 
 public interface ICommandExecutor
 {
     // You moved ICommandFactory from the the ctor to here because it causes a circular-dependency exception there.
-    Task ExecuteAsync<TContext>(string commandLineString, TContext context = default, CancellationToken cancellationToken = default);
+    Task ExecuteAsync<TContext>(string commandLineString, TContext? context = default, CancellationToken cancellationToken = default);
 }
 
 public interface ICommandFactory
@@ -77,7 +76,7 @@ public class CommandExecutor : ICommandExecutor
         _commands = commands;
     }
 
-    public async Task ExecuteAsync<TContext>(string commandLineString, TContext context = default, CancellationToken cancellationToken = default)
+    public async Task ExecuteAsync<TContext>(string commandLineString, TContext? context = default, CancellationToken cancellationToken = default)
     {
         if (commandLineString.IsNullOrEmpty())
         {

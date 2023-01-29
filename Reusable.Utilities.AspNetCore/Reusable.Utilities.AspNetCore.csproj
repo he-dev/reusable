@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-      <TargetFramework>net6.0</TargetFramework>
+      <TargetFramework>net7.0</TargetFramework>
     <AssemblyName>Reusable.Utilities.AspNetCore</AssemblyName>
     <RootNamespace>Reusable.Utilities.AspNetCore</RootNamespace>
     <Configurations>Debug;Release</Configurations>
@@ -33,6 +33,11 @@
 
   <ItemGroup>
     <Folder Include="src\Abstractions" />
+    <Folder Include="src\Middleware" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Remove="src\Middleware\NormalizeJsonTypePropertyMiddleware.cs" />
   </ItemGroup>
 
 </Project>

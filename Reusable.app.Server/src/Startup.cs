@@ -1,25 +1,18 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using JetBrains.Annotations;
+﻿using JetBrains.Annotations;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Razor;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Reusable.OmniLog;
+using Microsoft.Extensions.Logging;
 using Reusable.Utilities.AspNetCore;
 using Reusable.Utilities.AspNetCore.Hosting;
 using Reusable.Utilities.NLog.LayoutRenderers;
-using Reusable.Wiretap;
-using Reusable.Wiretap.Abstractions;
 using Reusable.Wiretap.Channels;
-using Reusable.Wiretap.Data;
-using Reusable.Wiretap.Extensions;
 using Reusable.Wiretap.Middleware;
-using Reusable.Wiretap.Pipelines;
-using Reusable.Wiretap.Services.Properties;
 using Reusable.Wiretap.Utilities.AspNetCore;
+using ILoggerFactory = Reusable.Wiretap.Abstractions.ILoggerFactory;
 
 [assembly: AspMvcViewLocationFormat("/src/Views/{1}/{0}.cshtml")]
 [assembly: AspMvcViewLocationFormat("/src/Views/Shared/{0}.cshtml")]
@@ -33,16 +26,16 @@ namespace Reusable.Apps.Server
 
         private readonly IConfiguration _configuration;
 
-        private readonly IHostingEnvironment _hostingEnvironment;
+        private readonly IWebHostEnvironment _webHostEnvironment;
 
-        public Startup(IConfiguration configuration, IHostingEnvironment hostingEnvironment)
+        public Startup(IConfiguration configuration, IWebHostEnvironment hostingEnvironment)
         {
             _configuration = configuration;
-            _hostingEnvironment = hostingEnvironment;
+            _webHostEnvironment = hostingEnvironment;
             var builder = new ConfigurationBuilder()
-                .SetBasePath(_hostingEnvironment.ContentRootPath)
+                .SetBasePath(_webHostEnvironment.ContentRootPath)
                 .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
-                .AddJsonFile($"appsettings.{_hostingEnvironment.EnvironmentName}.json", optional: true)
+                .AddJsonFile($"appsettings.{_webHostEnvironment.EnvironmentName}.json", optional: true)
                 .AddEnvironmentVariables();
             _configuration = builder.Build();
         }
@@ -51,7 +44,7 @@ namespace Reusable.Apps.Server
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            SmartPropertiesLayoutRenderer.Register();
+            SoftLayoutRenderer.Register();
 
             var loggerFactory =
                 LoggerFactory
@@ -73,7 +66,7 @@ namespace Reusable.Apps.Server
                         });
                     })
                     .Product("Reusable.app.Server")
-                    .Environment(_hostingEnvironment.EnvironmentName)
+                    .Environment(_webHostEnvironment.EnvironmentName)
                     .Echo<ConsoleConnectorDynamic>()
                     .Echo<NLogChannel>();
 
@@ -99,7 +92,7 @@ namespace Reusable.Apps.Server
                             Template = @"[{Timestamp:HH:mm:ss:fff}] [{Level}] {Layer} | {Category} | {Identifier}: {Snapshot} {Elapsed}ms | {Message} {Exception}"
                         });
 #endif
-                        node.Connectors.Add(new NLogChannel());
+                        node.Connectors.Add(new LogToNLog());
                     })
             );
 
@@ -108,19 +101,19 @@ namespace Reusable.Apps.Server
                 .AddMvc();
                 //.AddJsonOptions(options => { options.JsonSerializerOptions.Converters.Add(new JsonStringConverter()); });
 
-            services
-                .AddScoped<IFeatureToggle>(_ => new FeatureToggle(FeaturePolicy.AlwaysOff));
-
-            services
-                .AddScoped<IFeatureController>(s =>
-                {
-                    var agent = new FeatureController(s.GetService<IFeatureToggle>());
-                    return new FeatureTelemetry(agent, s.GetService<ILogger<FeatureTelemetry>>());
-                });
+            // services
+            //     .AddScoped<IFeatureToggle>(_ => new FeatureToggle(FeaturePolicy.AlwaysOff));
+            //
+            // services
+            //     .AddScoped<IFeatureController>(s =>
+            //     {
+            //         var agent = new FeatureController(s.GetService<IFeatureToggle>());
+            //         return new FeatureTelemetry(agent, s.GetService<ILogger<FeatureTelemetry>>());
+            //     });
 
             services.Configure<RazorViewEngineOptions>(options => { options.ViewLocationExpanders.Add(new RelativeViewLocationExpander("src")); });
 
-            services.AddSingleton(_hostingEnvironment.ContentRootFileProvider);
+            services.AddSingleton(_webHostEnvironment.ContentRootFileProvider);
 
             //services.AddApiVersioning(setupAction =>
             //{

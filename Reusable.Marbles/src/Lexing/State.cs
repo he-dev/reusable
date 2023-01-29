@@ -50,7 +50,7 @@ public class State<TToken> where TToken : Enum
 
     private static TokenMatcherProviderAttribute GetTokenMatcherProviderOrDefault()
     {
-        return typeof(TToken).GetCustomAttribute<TokenMatcherProviderAttribute?>() ?? new EnumTokenMatcherProviderAttribute();
+        return typeof(TToken).GetCustomAttribute<TokenMatcherProviderAttribute>() ?? new EnumTokenMatcherProviderAttribute();
     }
 
     public override string ToString() => $"State: '{Token}', Next: [{string.Join(", ", Next)}]";

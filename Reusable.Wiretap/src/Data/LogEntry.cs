@@ -1,97 +1,37 @@
 using System.Collections;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using JetBrains.Annotations;
+using System.Collections.Immutable;
+using Microsoft.Extensions.Caching.Memory;
 using Reusable.Marbles;
-using Reusable.Marbles.Extensions;
-using Reusable.Wiretap.Abstractions;
 
 namespace Reusable.Wiretap.Data;
 
-[PublicAPI]
-public class LogEntry : ILogEntry
+public class LogEntry : IEnumerable<KeyValuePair<string, object?>>
 {
-    [DebuggerStepThrough]
-    public LogEntry()
+    private LogEntry(IImmutableDictionary<string, object?> data, IEnumerable<IMemoryCache> contexts)
     {
-        Properties = new Dictionary<string, Stack<ILogProperty>>(SoftString.Comparer);
+        Data = data;
+        Contexts = contexts;
     }
 
-    /// <summary>
-    /// Copy constructor that copies only the last version of each property.
-    /// </summary>
-    public LogEntry(ILogEntry other)
-    {
-        Properties = other.ToDictionary(x => x.Name, x => new Stack<ILogProperty> { x }, SoftString.Comparer);
-    }
+    public LogEntry(string status, IEnumerable<IMemoryCache> contexts)
+        : this(
+            ImmutableDictionary
+                .Create<string, object?>(SoftString.Comparer)
+                .SetItem(nameof(status), status), contexts) 
+    { }
 
-    private IDictionary<string, Stack<ILogProperty>> Properties { get; }
+    private IImmutableDictionary<string, object?> Data { get; }
 
-    /// <summary>
-    /// Creates a new empty entry.
-    /// </summary>
-    public static LogEntry Empty() => new();
+    public IEnumerable<IMemoryCache> Contexts { get; }
 
-    public ILogProperty this[string name] => TryPeek(name, out var property) ? property : LogProperty.Null.Instance;
+    public string Status => (string)Data[nameof(Status)]!;
 
-    public ILogEntry Push(ILogProperty property)
-    {
-        if (Properties.TryGetValue(property.Name, out var versions))
-        {
-            versions.Push(property);
-        }
-        else
-        {
-            Properties[property.Name] = new Stack<ILogProperty> { property };
-        }
+    public LogEntry SetItem(string key, object? value) => new(Data.SetItem(key, value), Contexts);
 
-        return this;
-    }
+    public bool TryGetValue(string key, out object? value) => Data.TryGetValue(key, out value);
 
-    public bool TryPeek(string name, out ILogProperty property)
-    {
-        if (Properties.TryGetValue(name, out var versions) && versions.Peek() is { } latest and not LogProperty.Obsolete)
-        {
-            property = latest;
-            return true;
-        }
+    public IEnumerator<KeyValuePair<string, object?>> GetEnumerator() => Data.GetEnumerator();
 
-        property = LogProperty.Null.Instance;
-        return false;
-    }
-
-    bool ITryGetValue<string, object>.TryGetValue(string key, out object value)
-    {
-        if (TryPeek(key, out var property) && property.Value is { } result)
-        {
-            value = result;
-            return true;
-        }
-
-        value = default!;
-        return false;
-    }
-
-    public IEnumerable<ILogProperty> Versions(string name)
-    {
-        return
-            Properties.TryGetValue(name, out var versions)
-                ? versions
-                : Enumerable.Empty<ILogProperty>();
-    }
-
-    public override string ToString() => @"{Timestamp:HH:mm:ss:fff} | {Logger} | {Message}".Format(this);
-
-    public IEnumerator<ILogProperty> GetEnumerator()
-    {
-        return
-            Properties
-                .Values
-                .Select(versions => versions.Peek())
-                .Where(latest => latest is not LogProperty.Obsolete)
-                .GetEnumerator();
-    }
-
-    IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+    IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable)Data).GetEnumerator();
 }

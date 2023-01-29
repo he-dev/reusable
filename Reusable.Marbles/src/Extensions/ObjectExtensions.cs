@@ -10,7 +10,7 @@ namespace Reusable.Marbles.Extensions;
 
 public static class ObjectExtensions
 {
-    public static IEnumerable<Property> GetProperties<T>(this T obj, BindingFlags bindingFlags = BindingFlags.Public | BindingFlags.Instance)
+    public static IEnumerable<Property> EnumerateProperties<T>(this T obj, BindingFlags bindingFlags = BindingFlags.Public | BindingFlags.Instance)
     {
         if (obj is IDictionary<string, object?> dictionary)
         {
@@ -23,7 +23,7 @@ public static class ObjectExtensions
 
     }
     
-    public static IEnumerable<Property> GetProperties(this object source, BindingFlags bindingFlags = BindingFlags.Public | BindingFlags.Instance)
+    public static IEnumerable<Property> EnumerateProperties(this object source, BindingFlags bindingFlags = BindingFlags.Public | BindingFlags.Instance)
     {
         if (source is IDictionary<string, object?> dictionary)
         {

@@ -3,7 +3,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using Reusable.Wiretap;
 using Reusable.Wiretap.Abstractions;
-using Reusable.Wiretap.Extensions;
 
 namespace Reusable.DoubleDash.Commands;
 

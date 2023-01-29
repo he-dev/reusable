@@ -4,7 +4,6 @@ using System.Linq;
 using Reusable.Marbles.Diagnostics;
 using Reusable.Snowball;
 using Reusable.Snowball.Converters;
-using Reusable.Utilities.NLog.LayoutRenderers;
 
 //[assembly: DebuggerDisplay("{DebuggerDisplay(),nq}", Target = typeof(Person))]
 
@@ -14,7 +13,7 @@ namespace Reusable.Apps
     {
         public static void ConsoleColorizer()
         {
-            SmartPropertiesLayoutRenderer.Register();
+            //SoftLayoutRenderer.Register();
 
             //            var loggerFactory = new LoggerFactory
             //            {

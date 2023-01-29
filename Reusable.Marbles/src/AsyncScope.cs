@@ -1,9 +1,11 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 
 namespace Reusable.Marbles;
 
-public class AsyncScope<T> : IDisposable where T : IDisposable
+public class AsyncScope<T> : IDisposable
 {
     private static readonly AsyncLocal<AsyncScope<T>> State = new();
 
@@ -14,6 +16,11 @@ public class AsyncScope<T> : IDisposable where T : IDisposable
     public AsyncScope<T>? Parent { get; private init; }
 
     public static AsyncScope<T>? Current => State.Value;
+
+    /// <summary>
+    /// Enumerates scopes. Deepest first.
+    /// </summary>
+    public static IEnumerable<T> Enumerate() => Current?.Enumerate().Select(s => s.Value) ?? Enumerable.Empty<T>();
 
     /// <summary>
     /// Gets a value indicating whether there are any states on the stack.
@@ -28,22 +35,16 @@ public class AsyncScope<T> : IDisposable where T : IDisposable
         };
     }
 
-    public static T Push(Func<IDisposable, T> create)
-    {
-        var value = create(Disposable.Create(() => State.Value?.Dispose()));
-
-        State.Value = new AsyncScope<T>(value)
-        {
-            Parent = State.Value,
-        };
-
-        return State.Value.Value;
-    }
-
     public void Dispose()
     {
-        State.Value = State.Value?.Parent!;
+        (State.Value!.Value as IDisposable)?.Dispose();
+        State.Value = State.Value!.Parent;
     }
 
     public static implicit operator T(AsyncScope<T> scope) => scope.Value;
+}
+
+public static class AsyncScope
+{
+    public static AsyncScope<T> Push<T>(T item) => AsyncScope<T>.Push(item);
 }

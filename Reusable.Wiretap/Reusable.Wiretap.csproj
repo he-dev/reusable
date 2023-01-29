@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net6.0</TargetFramework>
+    <TargetFramework>net7.0</TargetFramework>
     <Configurations>Debug;Release</Configurations>
     <Platforms>AnyCPU</Platforms>
     <LangVersion>latest</LangVersion>
@@ -16,34 +16,11 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
     <DefineConstants>TRACE;RELEASE</DefineConstants>
   </PropertyGroup>
-  
-  <ItemGroup>
-    <Compile Remove="src\Extensions\ExecutionCategories-obsolete.cs" />
-    <Compile Remove="src\ExecutionContext.cs" />
-    <Compile Remove="src\Data\ConsoleStyle.cs" />
-    <Compile Remove="src\Data\LogEntryView.cs" />
-    <Compile Remove="src\Data\LogLevel.cs" />
-    <Compile Remove="src\Conventions\Telemetry1.cs" />
-    <Compile Remove="src\Extensions\LoggerPipelineExtensions.cs" />
-    <Compile Remove="src\Middleware\CollectFlowTelemetry.cs" />
-    <Compile Remove="src\Middleware\CreateProperty.cs" />
-    <Compile Remove="src\Middleware\Destructure.cs" />
-    <Compile Remove="src\Middleware\EntryAction.cs" />
-    <Compile Remove="src\Middleware\InferLogLevel.cs" />
-    <Compile Remove="src\Middleware\InjectAnonymousAction.cs" />
-    <Compile Remove="src\Middleware\MapObject.cs" />
-    <Compile Remove="src\Middleware\MapSnapshot.cs" />
-    <Compile Remove="src\Middleware\ToggleScope.cs" />
-    <Compile Remove="src\Data\LoggerScope.cs" />
-    <Compile Remove="src\Middleware\InferUnitOfWorkResult.cs" />
-    <Compile Remove="src\Abstractions\ILoggerScope.cs" />
-    <Compile Remove="src\Data\TimeSpanUnit.cs" />
-    <Compile Remove="src\Extensions\TimeSpanExtensions.cs" />
-    <Compile Remove="src\Middleware\GuessProperty.cs" />
-  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="JetBrains.Annotations" Version="2021.3.0" />
+    <PackageReference Include="Microsoft.Extensions.Caching.Abstractions" Version="5.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="5.0.0" />
     <PackageReference Include="System.Data.DataSetExtensions" Version="4.5.0" />
   </ItemGroup>
 

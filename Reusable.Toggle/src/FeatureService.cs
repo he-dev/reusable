@@ -9,7 +9,6 @@ using Reusable.Marbles;
 using Reusable.Marbles.Extensions;
 using Reusable.Toggle.Mechanics;
 using Reusable.Wiretap.Abstractions;
-using Reusable.Wiretap.Extensions;
 
 namespace Reusable.Toggle;
 

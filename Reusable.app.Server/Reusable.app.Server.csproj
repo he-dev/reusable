@@ -1,11 +1,12 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Web">
   <PropertyGroup>
-      <TargetFramework>net6.0</TargetFramework>
+      <TargetFramework>net7.0</TargetFramework>
     <RuntimeIdentifier>win81-x64</RuntimeIdentifier>
     <RootNamespace>Reusable.Apps.Server</RootNamespace>
     <SignAssembly>false</SignAssembly>
     <AssemblyName>Reusable.Apps</AssemblyName>
-    <Platforms>AnyCPU</Platforms>    
+    <Platforms>AnyCPU</Platforms>
+    <Nullable>enable</Nullable>    
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
@@ -30,6 +31,7 @@
     <EmbeddedResource Remove="Middleware\**" />
     <None Remove="ActionFilters\**" />
     <None Remove="Middleware\**" />
+    <Compile Remove="src\Json\JsonStringConverter.cs" />
   </ItemGroup>
 
   <ItemGroup>
@@ -46,7 +48,7 @@
     <PackageReference Include="Microsoft.AspNetCore.StaticFiles" Version="2.2.0" />
     <PackageReference Include="Microsoft.Extensions.DependencyModel" Version="5.0.0" />
     <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="5.0.0" />
-    <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
+<!--    <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />-->
     <PackageReference Include="NLog" Version="4.7.12" />
   </ItemGroup>
   <ItemGroup>
@@ -55,10 +57,10 @@
   <ItemGroup>
     <ProjectReference Include="..\Reusable.Wiretap.Channels.NLog\Reusable.Wiretap.Channels.NLog.csproj" />
     <ProjectReference Include="..\Reusable.Wiretap\Reusable.Wiretap.csproj" />
-    <ProjectReference Include="..\Reusable.Wiretap.Utilities.AspNetCore\Reusable.Wiretap.Utilities.AspNetCore.csproj" />
+    <ProjectReference Include="..\Reusable.Wiretap.AspNetCore\Reusable.Wiretap.AspNetCore.csproj" />
     <ProjectReference Include="..\Reusable.Utilities.AspNetCore\Reusable.Utilities.AspNetCore.csproj" />
     <ProjectReference Include="..\Reusable.Utilities.NLog\Reusable.Utilities.NLog.csproj" />
-    <ProjectReference Include="..\Reusable.Utilities.SqlClient\Reusable.Utilities.SqlClient.csproj" />
+<!--    <ProjectReference Include="..\Reusable.Utilities.SqlClient\Reusable.Utilities.SqlClient.csproj" />-->
   </ItemGroup>
   <ItemGroup>
     <Service Include="{508349b6-6b84-4df5-91f0-309beebad82d}" />

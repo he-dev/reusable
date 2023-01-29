@@ -16,7 +16,6 @@ using Reusable.Utilities.JsonNet.Abstractions;
 using Reusable.Utilities.JsonNet.Visitors;
 using Reusable.Wiretap.Abstractions;
 using Reusable.Wiretap;
-using Reusable.Wiretap.Data;
 using Reusable.Wiretap.Extensions;
 
 namespace Reusable.Utilities.AspNetCore.Middleware;
@@ -69,7 +68,7 @@ public class NormalizeJsonTypePropertyMiddleware
             }
             catch (Exception e)
             {
-                scope.SetException(e);
+                scope.Faulted(attachment: e);
             }
         }
 

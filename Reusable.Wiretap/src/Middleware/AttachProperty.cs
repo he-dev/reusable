@@ -1,28 +1,19 @@
+using System;
 using Reusable.Wiretap.Abstractions;
 using Reusable.Wiretap.Data;
-using Reusable.Wiretap.Extensions;
 
 namespace Reusable.Wiretap.Middleware;
 
-public abstract class AttachProperty : LoggerMiddleware { }
-
-public class Attach<T> : AttachProperty where T : ILogPropertyGroup
+public class AttachProperty : IMiddleware
 {
-    public Attach(ILogProperty<T> property) => Property = property;
+    public AttachProperty(string key, object value) => (Key, Value) = (key, value);
 
-    public Attach(string name, object value) : this(new LogProperty<T>(name, value)) { }
+    private string Key { get; }
 
-    private ILogProperty<T> Property { get; }
+    private object Value { get; }
 
-    public bool AllowOverwrite { get; set; } = false;
-
-    public override void Invoke(ILogEntry entry)
+    public void Invoke(LogEntry entry, Action<LogEntry> next)
     {
-        if (!entry.ContainsProperty(Property.Name) || AllowOverwrite)
-        {
-            entry.Push(Property);
-        }
-
-        Next?.Invoke(entry);
+        next(entry.SetItem(Key, Value));
     }
 }

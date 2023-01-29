@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFramework>net6.0</TargetFramework>
+    <TargetFramework>net7.0</TargetFramework>
     <RootNamespace>Reusable</RootNamespace>
     <LangVersion>latest</LangVersion>
     <DebugType>full</DebugType>
@@ -15,7 +15,6 @@
     <Compile Remove="src\AssertServerExperiment.cs" />
     <Compile Remove="src\ExceptionVisualizerExperiment.cs" />
     <Compile Remove="src\Examples\Translucent.cs" />
-    <Compile Remove="src\Examples\Wiretap.cs" />
     <Compile Remove="src\Experiments\ServicePipelineBuilder2.cs" />
     <Compile Remove="src\Experiments\ServicePipelineBuilder.cs" />
 <!--    <Compile Remove="src\Examples\OmniLog.v2.cs" />-->
@@ -23,13 +22,17 @@
 
   <ItemGroup>
     <PackageReference Include="JetBrains.Annotations" Version="2021.3.0" />
+    <PackageReference Include="Microsoft.Data.SqlClient" Version="5.1.0" />
+    <PackageReference Include="NLog" Version="5.1.1" />
+    <PackageReference Include="NLog.Database" Version="5.1.1" />
+    <PackageReference Include="NLog.Schema" Version="5.1.1" />
     <PackageReference Include="System.Reactive" Version="5.0.0" />
     <PackageReference Include="Microsoft.Data.Sqlite" Version="6.0.1" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\Reusable.Marbles\Reusable.Marbles.csproj" />
-    <ProjectReference Include="..\Reusable.Toggle\Reusable.Toggle.csproj" />
+<!--    <ProjectReference Include="..\Reusable.Toggle\Reusable.Toggle.csproj" />-->
     <ProjectReference Include="..\Reusable.Snowball\Reusable.Snowball.csproj" />
     <ProjectReference Include="..\Reusable.Fluorite\Reusable.Fluorite.csproj" />
     <ProjectReference Include="..\Reusable.Wiretap\Reusable.Wiretap.csproj" />
@@ -37,7 +40,7 @@
     <ProjectReference Include="..\Reusable.Wiretap.Channels.NLog\Reusable.Wiretap.Channels.NLog.csproj" />
     <ProjectReference Include="..\Reusable.ReMember\Reusable.ReMember.csproj" />
     <ProjectReference Include="..\Reusable.Utilities.JsonNet\Reusable.Utilities.JsonNet.csproj" />
-    <ProjectReference Include="..\Reusable.Utilities.NLog\Reusable.Utilities.NLog.csproj" />
+<!--    <ProjectReference Include="..\Reusable.Utilities.NLog\Reusable.Utilities.NLog.csproj" />-->
   </ItemGroup>
 
 <!--  <ItemGroup>-->
@@ -55,6 +58,14 @@
     <None Update="NLog.SqlServer\NLog.tt">
       <Generator>TextTemplatingFileGenerator</Generator>
       <LastGenOutput>NLog.config</LastGenOutput>
+    </None>
+    <None Update="NLog.config.bak">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>NLog.tt</DependentUpon>
     </None>
   </ItemGroup>
 

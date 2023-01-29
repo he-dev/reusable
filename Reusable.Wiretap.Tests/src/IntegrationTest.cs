@@ -11,6 +11,7 @@ using Reusable.Wiretap.Channels;
 using Reusable.Wiretap.Data;
 using Reusable.Wiretap.Extensions;
 using Reusable.Wiretap.Middleware;
+using Reusable.Wiretap.Services;
 using Telerik.JustMock.XUnit;
 using Xunit;
 
@@ -34,9 +35,9 @@ public class IntegrationTest
             Actual = Enumerable.Range(1, itemCount).Select(x => TimeSpan.FromTicks(x)).ToQueue(),
         };
 
-        var pipelineBuilder = new TelemetryLoggerBuilder
+        var pipelineBuilder = new LoggerBuilder
         {
-            Settings =
+            Properties =
             {
                 new Attach<IRegularProperty>(LogProperty.Names.Environment(), "Demo"),
                 new AttachTimestamp(new DateTimeFactory(timestamps.Actual.Dequeue))
@@ -52,16 +53,16 @@ public class IntegrationTest
             },
             Serializers =
             {
-                { new SerializeTimeSpan("Elapsed") { GetValue = ts => ts.Ticks }, x => x.Name }
+                { new SerializeTimeSpanToDouble("Elapsed") { GetValue = ts => ts.Ticks }, x => x.Name }
             },
-            Channels = { new MemoryChannel() },
+            Channels = { new LogToMemory() },
         };
 
         var loggerFactory = new LoggerFactory(pipelineBuilder);
         var logger = loggerFactory.CreateLogger<IntegrationTest>();
 
 
-        var memory = logger.Node<MemoryChannel>();
+        var memory = logger.Node<LogToMemory>();
 
         using (var unitOfWorkDefault = logger.BeginUnitOfWork(id: "foo"))
         {

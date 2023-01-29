@@ -1,8 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Reusable.OmniLog;
-using Reusable.Wiretap;
 using Reusable.Wiretap.Abstractions;
-using Reusable.Wiretap.Extensions;
 using Reusable.Wiretap.Utilities.AspNetCore.Mvc.Filters;
 
 
@@ -10,12 +7,12 @@ namespace Reusable.Apps.Server.Controllers
 {
     //[ApiVersion("1.0")]
     [Route("/api/[controller]")]
-    [ServiceFilter(typeof(LogResponseBody))]
+    [ServiceFilter(typeof(CanLogResponseBody))]
     public class TestsController : Controller
     {
         private readonly ILogger _logger;
 
-        public TestsController(ILogger<TestsController> logger)
+        public TestsController(ILogger logger)
         {
             _logger = logger;
         }
@@ -23,7 +20,7 @@ namespace Reusable.Apps.Server.Controllers
         [HttpGet]
         public IActionResult Get(string message)
         {
-            _logger.Log(Telemetry.Collect.Application().Metadata("Test", 123));
+            //_logger.Log(Telemetry.Collect.Application().Metadata("Test", 123));
             return Ok("Hallo GET!");
         }
 

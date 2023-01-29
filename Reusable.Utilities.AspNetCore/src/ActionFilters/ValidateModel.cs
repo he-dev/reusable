@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Reusable.Wiretap;
 using Reusable.Wiretap.Abstractions;
-using Reusable.Wiretap.Extensions;
 
 namespace Reusable.Utilities.AspNetCore.ActionFilters;
 
@@ -11,9 +10,9 @@ public class ValidateModel : ActionFilterAttribute
 {
     private readonly ILogger _logger;
 
-    public ValidateModel(ILoggerFactory loggerFactory)
+    public ValidateModel(ILogger logger)
     {
-        _logger = loggerFactory.CreateLogger<ValidateModel>();
+        _logger = logger;
     }
 
     public override void OnActionExecuting(ActionExecutingContext context)
@@ -23,11 +22,11 @@ public class ValidateModel : ActionFilterAttribute
             return;
         }
 
-        _logger.Log(
-            Telemetry
-                .Collect
-                .Application()
-                .Metadata(new { ModelErrors = context.ModelState.Values.Select(value => value.Errors.Select(error => error.Exception.Message)) }));
+        // _logger.Log(
+        //     Telemetry
+        //         .Collect
+        //         .Application()
+        //         .Metadata(new { ModelErrors = context.ModelState.Values.Select(value => value.Errors.Select(error => error.Exception.Message)) }));
 
         context.Result = new BadRequestObjectResult(context.ModelState);
     }

@@ -20,7 +20,8 @@ internal static class Program
         
         //await Experiments.ServicePipelineDemo.Test();
         //await Experiments.ServicePipelineDemo2.Test();
-        PrismDemo.Start();
+        //PrismDemo.Start();
+        Examples.Log();
 
         //Examples.Tokenize();
         //await Examples.SendEmailAsync_Mailr();

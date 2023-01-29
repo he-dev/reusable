@@ -8,7 +8,7 @@ namespace Reusable.Marbles;
 
 public static class Composition
 {
-    [MustUseReturnValue]
+    //[MustUseReturnValue]
     public static T Also<T>(this T obj, Action? also)
     {
         also?.Invoke();
@@ -18,14 +18,14 @@ public static class Composition
     /// <summary>
     /// Allows to pipe an action on the current object in a functional way.
     /// </summary>
-    [MustUseReturnValue]
+    //[MustUseReturnValue]
     public static T Also<T>(this T obj, Action<T>? next)
     {
         next?.Invoke(obj);
         return obj;
     }
 
-    [MustUseReturnValue]
+    //[MustUseReturnValue]
     public static T Also<T>(this T obj, Func<bool> when, Action<T>? next)
     {
         if (when())

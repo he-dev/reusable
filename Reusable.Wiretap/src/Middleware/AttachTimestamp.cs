@@ -1,24 +1,18 @@
-﻿using Reusable.Marbles;
+﻿using System;
+using Reusable.Marbles;
 using Reusable.Wiretap.Abstractions;
 using Reusable.Wiretap.Data;
 
 namespace Reusable.Wiretap.Middleware;
 
-public class AttachTimestamp : LoggerMiddleware
+public class AttachTimestamp : IMiddleware
 {
-    public AttachTimestamp(IDateTime dateTime, string propertyName = "Timestamp")
+    public const string Key = "timestamp";
+
+    public Func<DateTime> GetDateTime { get; set; } = () => new DateTimeUtc().Now();
+
+    public void Invoke(LogEntry entry, Action<LogEntry> next)
     {
-        DateTime = dateTime;
-        PropertyName = propertyName;
-    }
-
-    private IDateTime DateTime { get; }
-
-    private string PropertyName { get; }
-
-    public override void Invoke(ILogEntry entry)
-    {
-        entry.Push(new LogProperty<IRegularProperty>(PropertyName, DateTime.Now()));
-        Next?.Invoke(entry);
+        next(entry.SetItem(Key, GetDateTime()));
     }
 }

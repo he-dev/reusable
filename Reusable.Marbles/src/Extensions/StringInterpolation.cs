@@ -13,7 +13,7 @@ public delegate bool TryGetValueCallback(string name, [MaybeNullWhen(true)] out 
 
 public interface ITryGetValue<in TKey, TValue>
 {
-    bool TryGetValue(TKey key, [MaybeNullWhen(true)] out TValue value);
+    bool TryGetValue(TKey key, [MaybeNullWhen(false)] out TValue value);
 }
 
 [PublicAPI]

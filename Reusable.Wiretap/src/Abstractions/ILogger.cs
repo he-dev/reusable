@@ -1,14 +1,8 @@
-using System;
-using System.Collections.Generic;
+using Reusable.Wiretap.Data;
 
 namespace Reusable.Wiretap.Abstractions;
 
-public interface ILogger : ILoggerMiddleware
+public interface ILogger
 {
-    string Name { get; }
-
-    void Log(ILogEntry entry);
+    void Log(LogEntry entry);
 }
-
-// ReSharper disable once UnusedTypeParameter - This is required for dependency-injection.
-public interface ILogger<T> : ILogger { }
