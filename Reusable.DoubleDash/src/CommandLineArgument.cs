@@ -4,42 +4,15 @@ using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
 using System.Text;
-using Reusable.Marbles.Diagnostics;
-using Reusable.Marbles.Extensions;
 
 namespace Reusable.DoubleDash;
 
-/// <summary>
-/// This class represents a single command-line argument with all its values.
-/// </summary>
-[DebuggerDisplay(DebuggerDisplayString.DefaultNoQuotes)]
-public class CommandLineArgument : List<string>, IEquatable<CommandLineArgument>, IFormattable
+public class CommandLineArgument
 {
-    public const string DefaultFormat = "-:";
+    public string Name { get; set; }
 
-    internal CommandLineArgument(NameCollection nameCollection, IEnumerable<string> values) : base(values) => NameCollection = nameCollection;
-
-    internal CommandLineArgument(NameCollection nameCollection, params string[] values) : this(nameCollection, values.AsEnumerable()) { }
-
-    //public static CommandLineArgument NotFound => new CommandLineArgument(MultiName.Empty, Enumerable.Empty<string>());
-
-    private string DebuggerDisplay => ToString();
-
-    public NameCollection NameCollection { get; }
-        
-    public static CommandLineArgument Create(string name, IEnumerable<string> values) => new CommandLineArgument(new NameCollection(name), values);
-
-    #region IEquatable
-
-    public bool Equals(CommandLineArgument? other) => NameCollection.Equals(other?.NameCollection);
-
-    public override bool Equals(object obj) => Equals(obj as CommandLineArgument);
-
-    public override int GetHashCode() => NameCollection.GetHashCode();
-
-    #endregion
-
-    #region IFormattable
+    public IList<string> Values { get; } = new List<string>();
+    
 
     public string ToString(string format, IFormatProvider formatProvider)
     {

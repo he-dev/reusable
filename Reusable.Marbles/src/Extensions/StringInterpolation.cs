@@ -9,9 +9,9 @@ using JetBrains.Annotations;
 
 namespace Reusable.Marbles.Extensions;
 
-public delegate bool TryGetValueCallback(string name, [MaybeNullWhen(true)] out object value);
+public delegate bool TryGetValueCallback(string name, [MaybeNullWhen(false)] out object value);
 
-public interface ITryGetValue<in TKey, TValue>
+public interface ITryGetValue<in TKey, [CanBeNull] TValue>
 {
     bool TryGetValue(TKey key, [MaybeNullWhen(false)] out TValue value);
 }

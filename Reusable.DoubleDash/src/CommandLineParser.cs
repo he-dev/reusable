@@ -22,14 +22,14 @@ public class CommandLineParser : ICommandLineParser
     public IEnumerable<List<CommandLineArgument>> Parse(string commandLine)
     {
         // The first parameter is always a command.
-        var arguments = new List<CommandLineArgument> { NameCollection.Command };
+        var arguments = new Stack<CommandLineArgument>();
 
         foreach (var token in _tokenizer.Tokenize(commandLine))
         {
             switch (token.Type)
             {
                 case Value:
-                    arguments.Last().Add(token.Value);
+                    arguments.Peek().Values.Add(token.Value);
                     break;
 
                 case Argument:

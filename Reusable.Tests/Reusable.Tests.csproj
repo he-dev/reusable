@@ -65,7 +65,7 @@
         <ProjectReference Include="..\Reusable.Octopus.file\Reusable.Octopus.file.csproj" />
         <ProjectReference Include="..\Reusable.Octopus.http\Reusable.Octopus.http.csproj" />
         <ProjectReference Include="..\Reusable.Octopus.mailto\Reusable.Octopus.mailto.csproj" />
-        <ProjectReference Include="..\Reusable.Wiretap\Reusable.Wiretap.csproj" />
+        <ProjectReference Include="..\Wiretap\Wiretap.csproj" />
         <ProjectReference Include="..\Reusable.Utilities.JsonNet\Reusable.Utilities.JsonNet.csproj" />
         <ProjectReference Include="..\Reusable.Utilities.XUnit\Reusable.Utilities.XUnit.csproj" />
         <ProjectReference Include="..\Reusable.Teapot\Reusable.Teapot.csproj" />

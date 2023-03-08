@@ -1,0 +1,26 @@
+{
+  "fallback": "c",
+  "settings": [
+    {
+      "feature": "a",
+      "policy": {
+        "$b": "AlwaysOn"
+      }
+    },
+    {
+      "feature": {
+        "name": "b",
+        "description": "blub",
+        "tags": [
+          "foo",
+          "bar"
+        ]
+      },
+      "policy": true
+    },
+    {
+      "feature": "c",
+      "policy": false
+    }
+  ]
+}

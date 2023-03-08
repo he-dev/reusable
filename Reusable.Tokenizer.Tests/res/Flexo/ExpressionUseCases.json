@@ -1,0 +1,633 @@
+[
+  {
+    "Description": "Collection accepts non-expression values.",
+    "Body": {
+      "$t": "Flexo.Collection",
+      "Values": [
+        2.0,
+        {
+          "$t": "Flexo.Double",
+          "Value": 3.0
+        },
+        1.0
+      ]
+    },
+    "Expected": [
+      2.0,
+      3.0,
+      1.0
+    ],
+    "Throws": false
+  },
+  {
+    "Description": "Any returns True when at least one value is True.",
+    "Body": {
+      "$t": "Flexo.Any",
+      "Values": [
+        false,
+        true,
+        false
+      ]
+    },
+    "Expected": [
+      true
+    ],
+    "Throws": false
+  },
+  {
+    "Description": "Any returns False when all values are False.",
+    "Body": {
+      "$t": "Flexo.Any",
+      "Values": [
+        false,
+        false,
+        false
+      ]
+    },
+    "Expected": [
+      false
+    ],
+    "Throws": false
+  },
+  {
+    "Description": "Any returns False when at least one value is False and a custom predicate False is used.",
+    "Body": {
+      "$t": "Flexo.Any",
+      "Values": [
+        true,
+        true,
+        false
+      ],
+      "Predicate": false
+    },
+    "Expected": [
+      true
+    ],
+    "Throws": false
+  },
+  {
+    "Description": "All returns True when all values are True.",
+    "Body": {
+      "$t": "Flexo.All",
+      "Values": [
+        true,
+        true
+      ]
+    },
+    "Expected": [
+      true
+    ],
+    "Throws": false
+  },
+  {
+    "Description": "All returns False when at least one value is False.",
+    "Body": {
+      "$t": "Flexo.All",
+      "Values": [
+        true,
+        false,
+        true
+      ]
+    },
+    "Expected": [
+      false
+    ],
+    "Throws": false
+  },
+  {
+    "Description": "All returns True when all values are False and a custom predicate False is used.",
+    "Body": {
+      "$t": "Flexo.All",
+      "Values": [
+        false,
+        false,
+        false
+      ],
+      "Predicate": false
+    },
+    "Expected": [
+      true
+    ],
+    "Throws": false
+  },
+  {
+    "Description": "Sum adds all values.",
+    "Body": {
+      "$t": "Flexo.Collection",
+      "Values": [
+        1.0,
+        3.0,
+        2.0
+      ],
+      "This": {
+        "$t": "Flexo.Sum"
+      }
+    },
+    "Expected": [
+      6.0
+    ],
+    "Throws": false
+  },
+  {
+    "Description": "ToDouble converts True to 1.",
+    "Body": {
+      "$t": "Flexo.True",
+      "This": {
+        "$t": "Flexo.ToDouble"
+      }
+    },
+    "Expected": [
+      1.0
+    ],
+    "Throws": false
+  },
+  {
+    "Description": "Not negates False to True.",
+    "Body": {
+      "$t": "Flexo.False",
+      "This": {
+        "$t": "Flexo.Not"
+      }
+    },
+    "Expected": [
+      true
+    ],
+    "Throws": false
+  },
+  {
+    "Description": "ToDouble doesn't do anything when value is already a double.",
+    "Body": {
+      "$t": "Flexo.Double",
+      "Value": 2.0,
+      "This": {
+        "$t": "Flexo.ToDouble"
+      }
+    },
+    "Expected": [
+      2.0
+    ],
+    "Throws": false
+  },
+  {
+    "Description": "Max returns the max value.",
+    "Body": {
+      "$t": "Flexo.Collection",
+      "Values": [
+        1.0,
+        3.0,
+        2.0
+      ],
+      "This": {
+        "$t": "Flexo.Max"
+      }
+    },
+    "Expected": [
+      3.0
+    ],
+    "Throws": false
+  },
+  {
+    "Description": "Min return the min value.",
+    "Body": {
+      "$t": "Flexo.Collection",
+      "Values": [
+        1.0,
+        3.0,
+        2.0
+      ],
+      "This": {
+        "$t": "Flexo.Min"
+      }
+    },
+    "Expected": [
+      1.0
+    ],
+    "Throws": false
+  },
+  {
+    "Description": "Contains returns True if at least one element matches the predicate.",
+    "Body": {
+      "$t": "Flexo.Collection",
+      "Values": [
+        "foo",
+        "bar",
+        "baz"
+      ],
+      "This": {
+        "$t": "Flexo.Contains",
+        "Predicate": {
+          "$t": "Flexo.IsEqual",
+          "Value": "BAR",
+          "Comparer": "SoftString"
+        }
+      }
+    },
+    "Expected": [
+      true
+    ],
+    "Throws": false
+  },
+  {
+    "Description": "Matches returns true if at least one element matches the pattern.",
+    "Body": {
+      "$t": "Flexo.Collection",
+      "Values": [
+        "Foo",
+        "Bar",
+        "Baz"
+      ],
+      "This": {
+        "$t": "Flexo.Any",
+        "Predicate": {
+          "$t": "Flexo.Matches",
+          "Pattern": "^ba",
+          "IgnoreCase": true
+        }
+      }
+    },
+    "Expected": [
+      true
+    ],
+    "Throws": false
+  },
+  //  {
+  //    "Description": "Can use Any as an extension with a custom predicate.",
+  //    "Body": {
+  //      "$t": "Flexo.Collection",
+  //      "Values": [
+  //        "foo",
+  //        "bar",
+  //        "baz"
+  //      ],
+  //      "This": {
+  //        "$t": "Flexo.Contains",
+  //        "Value": "^ba",
+  //        "Comparer": "Regex"
+  //      }
+  //    },
+  //    "Expected": true,
+  //    "Throws": false
+  //  },
+  {
+    "Description": "All can be used as an extension.",
+    "Body": {
+      "$t": "Flexo.Collection",
+      "Values": [
+        true,
+        true,
+        true
+      ],
+      "This": {
+        "$t": "Flexo.All"
+      }
+    },
+    "Expected": [
+      true
+    ],
+    "Throws": false
+  },
+  {
+    "Description": "Overlaps returns True when it overlaps with Arg.",
+    "Body": {
+      "$t": "Flexo.Collection",
+      "Values": [
+        "foo",
+        "bar",
+        "baz"
+      ],
+      "This": {
+        "$t": "Flexo.Overlaps",
+        "With": [
+          "qux",
+          "BAR"
+        ],
+        "Comparer": "SoftString"
+      }
+    },
+    "Expected": [
+      true
+    ],
+    "Throws": false
+  },
+  {
+    "Description": "IsSubset returns True when Arg is subset of values.",
+    "Body": {
+      "$t": "Flexo.Collection",
+      "Values": [
+        "bar",
+        "baz"
+      ],
+      "This": {
+        "$t": "Flexo.IsSubset",
+        "Of": [
+          "foo",
+          "bar",
+          "baz"
+        ],
+        "Comparer": "SoftString"
+      }
+    },
+    "Expected": [
+      true
+    ],
+    "Throws": false
+  },
+  {
+    "Description": "IsSubset returns False when Arg is not subset of values.",
+    "Body": {
+      "$t": "Flexo.Collection",
+      "Values": [
+        "bar",
+        "qux"
+      ],
+      "This": {
+        "$t": "Flexo.IsSubset",
+        "Of": [
+          "foo",
+          "bar",
+          "baz"
+        ],
+        "Comparer": "SoftString"
+      }
+    },
+    "Expected": [
+      false
+    ],
+    "Throws": false
+  },
+  {
+    "Description": "IsSuperset returns True when Arg is superset of values.",
+    "Body": {
+      "$t": "Flexo.Collection",
+      "Values": [
+        "foo",
+        "bar",
+        "baz"
+      ],
+      "This": {
+        "$t": "Flexo.IsSuperset",
+        "Of": [
+          "bar",
+          "baz"
+        ],
+        "Comparer": "SoftString"
+      }
+    },
+    "Expected": [
+      true
+    ],
+    "Throws": false
+  },
+  {
+    "Description": "IsSuperset returns False when Arg is not superset of values.",
+    "Body": {
+      "$t": "Flexo.Collection",
+      "Values": [
+        "foo",
+        "bar",
+        "baz"
+      ],
+      "This": {
+        "$t": "Flexo.IsSuperset",
+        "Of": [
+          "bar",
+          "qux"
+        ],
+        "Comparer": "SoftString"
+      }
+    },
+    "Expected": [
+      false
+    ],
+    "Throws": false
+  },
+  {
+    "Description": "IsEqual returns True when the value is equal Arg.",
+    "Body": {
+      "$t": "Flexo.Double",
+      "Value": 2.0,
+      "This": {
+        "$t": "Flexo.IsEqual",
+        "Value": 2.0
+      }
+    },
+    "Expected": [
+      true
+    ],
+    "Throws": false
+  },
+  {
+    "Description": "ToString converts Arg to string.",
+    "Body": {
+      "$t": "Flexo.Collection",
+      "Values": [
+        1.0,
+        true
+      ],
+      "This": {
+        "$t": "Flexo.Select",
+        "Selector": {
+          "$t": "Flexo.ToString"
+        }
+      }
+    },
+    "Expected": [
+      "1",
+      "True"
+    ],
+    "Throws": false
+  },
+  {
+    "Description": "In returns True when it contains Arg.",
+    "Body": {
+      "$t": "Flexo.String",
+      "Value": "foo",
+      "This": {
+        "$t": "Flexo.In",
+        "Values": [
+          "bar",
+          "baz",
+          "foo"
+        ]
+      }
+    },
+    "Expected": [
+      true
+    ],
+    "Throws": false
+  },
+  {
+    "Description": "Import invokes the imported package which returns True.",
+    "Body": {
+      "$t": "Flexo.Double",
+      "Value": 2.0,
+      "This": {
+        "$t": "Flexo.Import",
+        "Package": "IsPositive"
+      }
+    },
+    "Expected": [
+      true
+    ],
+    "Throws": false
+  },
+  {
+    "Description": "Import invokes the imported package which returns False.",
+    "Body": {
+      "$t": "Flexo.Double",
+      "Value": -1.0,
+      "This": {
+        "$t": "Flexo.Import",
+        "Package": "IsPositive"
+      }
+    },
+    "Expected": [
+      false
+    ],
+    "Throws": false
+  },
+  {
+    "Description": "Where filters a collection.",
+    "Body": {
+      "$t": "Flexo.Collection",
+      "Values": [
+        1.0,
+        2.0,
+        3.0,
+        4.0
+      ],
+      "This": {
+        "$t": "Flexo.Where",
+        "Predicate": {
+          "$t": "Flexo.IsGreaterThan",
+          "Value": 2.0
+        }
+      }
+    },
+    "Expected": [
+      3.0,
+      4.0
+    ],
+    "Throws": false
+  },
+  {
+    "Description": "IIf selects True when Arg is True.",
+    "Body": {
+      "$t": "Flexo.True",
+      "This": {
+        "$t": "Flexo.IIf",
+        "True": "foo",
+        "False": "bar"
+      }
+    },
+    "Expected": [
+      "foo"
+    ],
+    "Throws": false
+  },
+  {
+    "Description": "IIf selects False when Arg is False.",
+    "Body": {
+      "$t": "Flexo.False",
+      "This": {
+        "$t": "Flexo.IIf",
+        "True": "foo",
+        "False": "bar"
+      }
+    },
+    "Expected": [
+      "bar"
+    ],
+    "Throws": false
+  },
+  {
+    "Description": "ForEach invokes Body with each Arg and return the last result.",
+    "Body": {
+      "$t": "Flexo.Collection",
+      "Values": [
+        1.0,
+        2.0,
+        3.0,
+        4.0
+      ],
+      "This": {
+        "$f": "ForEach",
+        "Body": {
+          "$f": "ToString"
+        }
+      }
+    },
+    "Expected": [
+      "4"
+    ],
+    "Throws": false
+  },
+  {
+    "Description": "GetSingle gets value by path.",
+    "Body": {
+      "$t": "Flexo.GetSingle",
+      "Path": "Product.Price"
+    },
+    "Expected": [
+      3
+    ],
+    "Throws": false
+  },
+  {
+    "Description": "GetMany gets value by path.",
+    "Body": {
+      "$t": "Flexo.GetMany",
+      "Path": "Product.Categories",
+      "This": {
+        "$f": "Select",
+        "Selector": {
+          "$f": "GetSingle",
+          "Path": "arg.Color"
+        }
+      }
+    },
+    "Expected": [
+      "Green",
+      "Red",
+      "Orange"
+    ],
+    "Throws": false
+  },
+  {
+    "Description": "Block returns the last result.",
+    "Body": {
+      "$f": "Block",
+      "Body": [
+        {
+          "$f": "Double",
+          "Value": 1
+        },
+        {
+          "$f": "Double",
+          "Value": 3
+        },
+        {
+          "$f": "Double",
+          "Value": 2
+        }
+      ]
+    },
+    "Expected": [
+      2.0
+    ],
+    "Throws": false
+  }
+  // goto 304
+  //  {
+  //    "Description": "",
+  //    "Body": {},
+  //    "Expected": null,
+  //    "Throws": false
+  //  },
+  //  {
+  //    "Description": "",
+  //    "Body": {},
+  //    "Expected": null,
+  //    "Throws": false
+  //  }
+]

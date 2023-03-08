@@ -37,7 +37,7 @@ public class AsyncScope<T> : IDisposable
 
     public void Dispose()
     {
-        (State.Value!.Value as IDisposable)?.Dispose();
+        //(State.Value!.Value as IDisposable)?.Dispose();
         State.Value = State.Value!.Parent;
     }
 

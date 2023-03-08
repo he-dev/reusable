@@ -18,6 +18,7 @@ using TypeConverterAttribute = Reusable.Snowball.TypeConverterAttribute;
 
 namespace Reusable.DoubleDash;
 
+
 public interface ICommandParameterBinder
 {
     T Bind<T>(List<CommandLineArgument> args, object? context = default) where T : CommandParameter, new();
@@ -40,18 +41,18 @@ internal class CommandParameterBinder : ICommandParameterBinder
         {
             var argName = property.GetArgumentName();
             var arg =
-                property.GetCustomAttribute<PositionAttribute>() is {} position
-                    ? args.SingleOrDefault(x => x.NameCollection.Equals(NameCollection.Command)) is {} a && a.Count > position.Value
+                property.GetCustomAttribute<PositionAttribute>() is { } position
+                    ? args.SingleOrDefault(x => x.NameCollection.Equals(NameCollection.Command)) is { } a && a.Count > position.Value
                         ? CommandLineArgument.Create($"{argName}#{position}", new[] { a.ElementAt(position) })
                         : default
                     : args.SingleOrDefault(x => x.NameCollection.Equals(argName));
 
             var converter =
-                property.GetCustomAttribute<TypeConverterAttribute>() is {} typeConverterAttribute
+                property.GetCustomAttribute<TypeConverterAttribute>() is { } typeConverterAttribute
                     ? (ITypeConverter)Activator.CreateInstance(typeConverterAttribute.ConverterType)
                     : CommandArgumentConverter.Default;
 
-            if (arg is {})
+            if (arg is { })
             {
                 var deserialize =
                     property.PropertyType.IsEnumerable(except: typeof(string))
@@ -59,7 +60,7 @@ internal class CommandParameterBinder : ICommandParameterBinder
                         : arg.SingleOrDefault() as object;
 
                 var obj =
-                    deserialize is {}
+                    deserialize is { }
                         ? converter.ConvertOrThrow(deserialize, property.PropertyType)
                         : property.PropertyType == typeof(bool);
 
@@ -75,22 +76,22 @@ internal class CommandParameterBinder : ICommandParameterBinder
             }
             else
             {
-                if (property.GetCustomAttribute<RequiredAttribute>() is {})
+                if (property.GetCustomAttribute<RequiredAttribute>() is { })
                 {
                     throw DynamicException.Create("ArgumentNotFound", $"Could not bind required parameter '{argName.First()}' because there was no such argument in the command-line.");
                 }
 
-                if (property.GetCustomAttribute<ContextAttribute>() is {})
+                if (property.GetCustomAttribute<ContextAttribute>() is { })
                 {
                     property.SetValue(parameter, context);
                 }
 
-                if (property.GetCustomAttribute<ServiceAttribute>() is {})
+                if (property.GetCustomAttribute<ServiceAttribute>() is { })
                 {
                     property.SetValue(parameter, _scope.Resolve(property.PropertyType));
                 }
 
-                if (property.GetCustomAttribute<DefaultValueAttribute>() is {} defaultValue)
+                if (property.GetCustomAttribute<DefaultValueAttribute>() is { } defaultValue)
                 {
                     property.SetValue(parameter, converter.ConvertOrThrow(defaultValue.Value, property.PropertyType));
                 }

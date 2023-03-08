@@ -1,55 +1,51 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
-using System.Linq.Custom;
-using System.Reflection;
-using System.Threading;
-using System.Threading.Tasks;
-using JetBrains.Annotations;
 using Reusable.DoubleDash.Annotations;
-using Reusable.Marbles;
-using Reusable.Marbles.Data;
-using Reusable.Marbles.Extensions;
 
 namespace Reusable.DoubleDash;
 
-public class Request : Trackable<object> { }
 
-public interface ICommand
+public class CommandLine
 {
-    NameCollection NameCollection { get; }
-
-    /// <summary>
-    /// Gets the type of the parameter.
-    /// </summary>
-    /// <remarks>This property is required for when a command is decorated and there is no access to the parameter type via generic arguments.</remarks>
-    Type ParameterType { get; }
-
-    Task ExecuteAsync(object? parameter, CancellationToken cancellationToken = default);
+    public IEnumerable<CommandLineSwitch> Switch(IEnumerable<string> args, Action<CommandLineSwitch> configureSwitch)
+    {
+        var tokenizer = new CommandLineTokenizer();
+        var parser = new CommandLineParser(tokenizer);
+        var x = parser.Parse(string.Join(" ", args));
+        
+        yield return new CommandLineSwitch();
+    }
 }
 
-[PublicAPI]
-public abstract class Command<TParameter> : ICommand where TParameter : class, new()
+public class CommandLineSwitch
 {
-    protected Command(NameCollection? nameCollection = default)
-    {
-        NameCollection = nameCollection ?? GetType().GetArgumentName();
-    }
+    public string Command { get; set; }
+    
+    public IEnumerable<CommandLineArgument> Arguments { get; set; }
 
-    public virtual NameCollection NameCollection { get; }
-
-    public Type ParameterType => typeof(TParameter);
-
-    public virtual async Task ExecuteAsync(object? parameter, CancellationToken cancellationToken)
-    {
-        await ExecuteAsync
-        (
-            parameter as TParameter ?? throw new ArgumentOutOfRangeException(paramName: nameof(parameter), message: $"{NameCollection} command parameter must be of type {typeof(TParameter).ToPrettyString()}."),
-            cancellationToken
-        );
-    }
-
-    protected abstract Task ExecuteAsync(TParameter parameter, CancellationToken cancellationToken);
+    public Stack<Type> Cases { get; } = new();
 }
+
+public static class CommandLineCase
+{
+    public static IEnumerable<CommandLineSwitch> Case<T>(this IEnumerable<CommandLineSwitch> commandLineSwitches, Action<T> execute) where T : new()
+    {
+        foreach (var commandLineSwitch in commandLineSwitches)
+        {
+            commandLineSwitch.Cases.Push(typeof(T));
+            
+            if (typeof(T).Name == commandLineSwitch.Command)
+            {
+                execute(new T());
+                yield break;
+            }
+
+            yield return commandLineSwitch;
+        }
+    }
+}
+
 
 public static class Command
 {

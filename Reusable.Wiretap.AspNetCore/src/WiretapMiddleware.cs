@@ -4,7 +4,6 @@ using System.Linq.Custom;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.AspNetCore.Http;
-using Reusable.Marbles.Extensions;
 using Reusable.Wiretap.Abstractions;
 using Reusable.Wiretap.Utilities.AspNetCore.Extensions;
 using Reusable.Wiretap.Utilities.AspNetCore.Mvc.Filters;
@@ -16,7 +15,7 @@ namespace Reusable.Wiretap.Utilities.AspNetCore;
 [PublicAPI]
 public class WiretapMiddleware
 {
-    private readonly IUnitOfWork _unitOfWork;
+    private readonly ILogger _taskLogger;
     private readonly RequestDelegate _next;
     private readonly TakeRequestSnapshot _takeRequestSnapshot;
     private readonly TakeResponseSnapshot _takeResponseSnapshot;
@@ -25,7 +24,7 @@ public class WiretapMiddleware
 
     public WiretapMiddleware
     (
-        IUnitOfWork unitOfWork,
+        ILogger taskLogger,
         RequestDelegate next,
         TakeRequestSnapshot takeRequestSnapshot,
         TakeResponseSnapshot takeResponseSnapshot,
@@ -33,7 +32,7 @@ public class WiretapMiddleware
         Configuration configuration
     )
     {
-        _unitOfWork = unitOfWork;
+        _taskLogger = taskLogger;
         _next = next;
         _takeRequestSnapshot = takeRequestSnapshot;
         _takeResponseSnapshot = takeResponseSnapshot;
@@ -43,7 +42,7 @@ public class WiretapMiddleware
 
     public async Task Invoke(HttpContext context)
     {
-        using var requestFlow = _unitOfWork.Begin(_configuration.GetCorrelationId(context));
+        using var requestFlow = _taskLogger.Start(_configuration.GetCorrelationId(context));
 
         var requestBody =
             _configuration.CanLogRequestBody(context)

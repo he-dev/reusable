@@ -8,11 +8,9 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Reusable.Utilities.AspNetCore;
 using Reusable.Utilities.AspNetCore.Hosting;
-using Reusable.Utilities.NLog.LayoutRenderers;
 using Reusable.Wiretap.Channels;
 using Reusable.Wiretap.Middleware;
 using Reusable.Wiretap.Utilities.AspNetCore;
-using ILoggerFactory = Reusable.Wiretap.Abstractions.ILoggerFactory;
 
 [assembly: AspMvcViewLocationFormat("/src/Views/{1}/{0}.cshtml")]
 [assembly: AspMvcViewLocationFormat("/src/Views/Shared/{0}.cshtml")]
@@ -44,7 +42,6 @@ namespace Reusable.Apps.Server
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            SoftLayoutRenderer.Register();
 
             var loggerFactory =
                 LoggerFactory

@@ -36,6 +36,8 @@ public static class DictionaryExtensions
 
         return source.Select(x => (x.Key, x.Value));
     }
+    
+    
 
     #region Safely
 
@@ -50,7 +52,7 @@ public static class DictionaryExtensions
             throw new KeyNotFoundException($"The '{key}' key was not present in the dictionary", ex);
         }
     }
-    
+
     public static TValue? GetValueOrDefault<TKey, TValue>(this IDictionary<TKey, TValue> dictionary, TKey key)
     {
         return

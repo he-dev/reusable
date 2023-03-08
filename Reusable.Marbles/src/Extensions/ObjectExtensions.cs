@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
@@ -10,30 +11,28 @@ namespace Reusable.Marbles.Extensions;
 
 public static class ObjectExtensions
 {
-    public static IEnumerable<Property> EnumerateProperties<T>(this T obj, BindingFlags bindingFlags = BindingFlags.Public | BindingFlags.Instance)
+    public static IEnumerable<KeyValuePair<string, object?>> EnumerateProperties<T>(this T obj, BindingFlags bindingFlags = BindingFlags.Public | BindingFlags.Instance)
     {
         if (obj is IDictionary<string, object?> dictionary)
         {
-            return dictionary.Select(x => new Property(x.Key, x.Value));
+            return dictionary;
         }
 
         return
             from p in typeof(T).GetProperties(bindingFlags)
-            select new Property(p.Name, p.GetValue(obj));
+            select new KeyValuePair<string, object?>(p.Name, p.GetValue(obj));
 
     }
     
-    public static IEnumerable<Property> EnumerateProperties(this object source, BindingFlags bindingFlags = BindingFlags.Public | BindingFlags.Instance)
+    public static IEnumerable<KeyValuePair<string, object?>> EnumerateProperties(this object? source, BindingFlags bindingFlags = BindingFlags.Public | BindingFlags.Instance)
     {
-        if (source is IDictionary<string, object?> dictionary)
+        return source switch
         {
-            return dictionary.Select(x => new Property(x.Key, x.Value));
-        }
-
-        return
-            from p in source.GetType().GetProperties(bindingFlags)
-            select new Property(p.Name, p.GetValue(source));
-
+            null => Enumerable.Empty<KeyValuePair<string, object?>>(),
+            IDictionary<string, object?> dictionary => dictionary,
+            IImmutableDictionary<string, object?> dictionary => dictionary,
+            _ => from p in source.GetType().GetProperties(bindingFlags) select new KeyValuePair<string, object?>(p.Name, p.GetValue(source))
+        };
     }
         
 //        public static IEnumerable<KeyValuePair<string, object>> EnumerateProperties<T>(this T obj)

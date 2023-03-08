@@ -1,10 +1,7 @@
 ﻿using System;
-using Microsoft.Extensions.Caching.Memory;
 using Reusable.Apps;
 using Reusable.Wiretap;
-using Reusable.Wiretap.Abstractions;
 using Reusable.Wiretap.Channels;
-using Reusable.Wiretap.Middleware;
 using Reusable.Wiretap.Services;
 
 namespace Reusable;
@@ -16,21 +13,19 @@ public static partial class Examples
         var logger = 
             LoggerBuilder
                 .CreateDefault()
-                .Configure<AttachInstance>(m => m.Name = "console")
                 .Use<LogToNLog>()
                 .Use<LogToConsole>()
                 .Build();
         
-        var unitOfWork = new UnitOfWork(logger, () => new MemoryCache(new MemoryCacheOptions()));
-
         // Opening outer-scope.
-        using (var outer = unitOfWork.Begin("outer"))
+        using (var outer = logger.Start("outer"))
         {
+            outer.AttachCorrelationId("123");
             outer.Running();
             outer.Running(new { m = "m" });
 
             // Opening inner-scope.
-            using (var inner = unitOfWork.Begin("inner", new { fileName = "note.txt" }))
+            using (var inner = logger.Start("inner", new { fileName = "note.txt" }))
             {
                 // Logging an entire object in a single line.
                 var customer = new Person
@@ -57,7 +52,7 @@ public static partial class Examples
 
             //logger.Scope().Exceptions.Push(new DivideByZeroException());
             outer.Running(new { greeting = "Bye bye scopes!" });
-            outer.Commit();
+            
         }
     }
 }

@@ -1,7 +1,6 @@
 using System.IO;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
-using Reusable.Marbles.Extensions;
 
 namespace Reusable.Wiretap.Utilities.AspNetCore.Services;
 

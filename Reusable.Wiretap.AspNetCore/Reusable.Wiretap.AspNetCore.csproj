@@ -33,7 +33,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Reusable.Wiretap\Reusable.Wiretap.csproj" />
+    <ProjectReference Include="..\Wiretap\Wiretap.csproj" />
   </ItemGroup>
 
 </Project>

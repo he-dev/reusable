@@ -1,0 +1,5 @@
+{
+    "Test1": {
+        "$t": "test.JsonTestClass1<int>"
+    }
+}

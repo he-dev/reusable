@@ -30,7 +30,7 @@ public interface ICommandFactory
 public class CommandFactory : ICommandFactory
 {
     [Service]
-    public ILogger<CommandExecutor> Logger { get; set; } = null!;
+    public ILogger Logger { get; set; } = null!;
 
     [Service]
     public ICommandLineParser CommandLineParser { get; set; } = null!;
@@ -41,12 +41,12 @@ public class CommandFactory : ICommandFactory
     [Service]
     public ICommandParameterBinder CommandParameterBinder { get; set; } = null!;
 
-    [Service]
-    public IEnumerable<CommandInfo> Commands { get; set; } = null!;
-
     public ICommand Create(string commandName)
     {
-        return LifetimeScope.ResolveNamed<ICommand>(commandName);
+        var command = LifetimeScope.ResolveOptionalNamed<ICommand>(commandName) ?? throw DynamicException.Create("CommandNotFound", $"There's no such command as '{commandName}'.");
+
+
+        return command;
     }
 }
 
@@ -62,7 +62,7 @@ public class CommandExecutor : ICommandExecutor
 
     public CommandExecutor
     (
-        ILogger<CommandExecutor> logger,
+        ILogger logger,
         ICommandLineParser commandLineParser,
         ILifetimeScope lifetimeScope,
         ICommandParameterBinder commandParameterBinder,

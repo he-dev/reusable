@@ -1,0 +1,33 @@
+[
+  {
+    "Description": "Collection accepts non-expression values.",
+    "Body": {
+      "$t": "Flexo.Collection",
+      "Values": [
+        2.0,
+        {
+          "$t": "Flexo.Double",
+          "Value": 3.0
+        },
+        1.0
+      ]
+    },
+    "Expected": [
+      2.0,
+      3.0,
+      1.0
+    ],
+    "Throws": false
+  },
+  {
+    "Description": "IIf selects True when Arg is True.",
+    "Body": {
+      "$t": "Flexo.IIf",
+      "Value": true,
+      "True": "foo",
+      "False": "bar"
+    },
+    "Expected": [ "foo" ],
+    "Throws": false
+  }
+]

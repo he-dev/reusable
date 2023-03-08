@@ -21,9 +21,9 @@ public enum CommandLineToken
     Start = 0,
 
     // [Regex(@"(?:\A|\s+|\\|)(?!\-)([_a-z0-9\+\.\-\:\*\/\!]+)"), Text]
-    [Text(Mode = TokenizerModes.Default | CommandLineModes.Params)]
+    [Text(WhenMode = TokenizerModes.Default | CommandLineModes.Params)]
     [Regex(@"(?:\A|\s+|\\|)(?!\-)([^\s\|]+)")]
-    [Regex(@"(?:\s+)([^\s]+)", Mode = CommandLineModes.Params)]
+    [Regex(@"(?:\s+)([^\s]+)", WhenMode = CommandLineModes.Params)]
     Value,
 
     [Regex(@"\s+--([a-z][a-z0-9\+\.\-]+)")]
@@ -33,7 +33,7 @@ public enum CommandLineToken
     [Regex(@"\s+\-([a-z]+)")]
     Flag,
 
-    [Regex(@"\s+(--)(?=\s)", SetMode = CommandLineModes.Params)]
+    [Regex(@"\s+(--)(?=\s)", BeginMode = CommandLineModes.Params)]
     Params,
 
     [Regex(@"\s*(\|)")]
@@ -47,6 +47,13 @@ public class CommandLineTokenizer : Tokenizer<CommandLineToken>, ICommandLineTok
       input ------ x ------------- x ----- x -- x ----> command-line
             \     / \             / \     / \  /
              value   --arg ----- /   -flag   --
+                          \     /
+                           value
+                           
+                                                  
+      command ------   x ------------- x ----- x -- x ----> command-line
+              \       / \             / \     / \  /
+               literal   \--arg  /   -flag   --
                           \     /
                            value                                                  
     */
