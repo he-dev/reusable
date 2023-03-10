@@ -7,7 +7,8 @@
     <LangVersion>default</LangVersion>
     <Nullable>enable</Nullable>
     <DebugType>full</DebugType>
-    <RootNamespace>Reusable.Wiretap.Utilities.AspNetCore</RootNamespace>
+    <RootNamespace>Reusable.Wiretap.AspNetCore</RootNamespace>
+    <AssemblyName>Reusable.Wiretap.AspNetCore</AssemblyName>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
@@ -20,20 +21,31 @@
   </PropertyGroup>
   
   <ItemGroup>
-    <PackageReference Include="JetBrains.Annotations" Version="2021.3.0" />
-    <PackageReference Include="Microsoft.AspNetCore.Mvc" Version="2.2.0">
-      <ExcludeAssets>analyzers</ExcludeAssets>
-    </PackageReference>
+    <PackageReference Include="JetBrains.Annotations" Version="2022.3.1" PrivateAssets="All" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc" Version="2.2.0" ExcludeAssets="analyzers" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="6.0.0" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="6.0.0" />
     <PackageReference Include="System.ValueTuple" Version="4.5.0" />
-    <PackageReference Include="Microsoft.AspNetCore.Http.Abstractions" Version="2.2.0">
-      <ExcludeAssets>analyzers</ExcludeAssets>
-    </PackageReference>
+    <PackageReference Include="Microsoft.AspNetCore.Http.Abstractions" Version="2.2.0" ExcludeAssets="analyzers" />     
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\Wiretap\Wiretap.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Remove="src\Mvc\Filters\**" />
+    <Compile Remove="src\Mvc\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Remove="src\Mvc\Filters\**" />
+    <EmbeddedResource Remove="src\Mvc\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Remove="src\Mvc\Filters\**" />
+    <None Remove="src\Mvc\**" />
   </ItemGroup>
 
 </Project>

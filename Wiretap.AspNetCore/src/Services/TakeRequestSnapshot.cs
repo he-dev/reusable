@@ -1,10 +1,11 @@
 using Microsoft.AspNetCore.Http;
+using Reusable.Wiretap.AspNetCore.Abstractions;
 
-namespace Reusable.Wiretap.Utilities.AspNetCore.Services;
+namespace Reusable.Wiretap.AspNetCore.Services;
 
-public class TakeRequestSnapshot
+public class TakeRequestSnapshot : ITakeSnapshot<HttpRequest>
 {
-    public virtual object Invoke(HttpRequest request) => new
+    public object Invoke(HttpRequest request) => new
     {
         Path = request.Path.Value,
         Host = request.Host.Value,

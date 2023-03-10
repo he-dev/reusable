@@ -35,5 +35,7 @@ public class LogEntry : IEnumerable<KeyValuePair<string, object?>>
     public IEnumerator<KeyValuePair<string, object?>> GetEnumerator() => Data.GetEnumerator();
 
     IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable)Data).GetEnumerator();
+
+    public static LogEntry Create(LoggerContext context, string status) => new(context, status);
 }
 

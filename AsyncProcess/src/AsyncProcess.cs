@@ -6,9 +6,14 @@ using System.Threading.Tasks;
 
 namespace Reusable;
 
-public static class AsyncProcess
+public interface IAsyncProcess
 {
-    public static async Task<Result> StartAsync(string fileName, IEnumerable<string> arguments, string? workingDirectory, int timeoutMilliseconds)
+    Task<AsyncProcess.Result> StartAsync(string fileName, IEnumerable<string> arguments, string? workingDirectory, int timeoutMilliseconds);
+
+}
+public class AsyncProcess : IAsyncProcess
+{
+    public async Task<Result> StartAsync(string fileName, IEnumerable<string> arguments, string? workingDirectory, int timeoutMilliseconds)
     {
         // If you run bash-script on Linux it is possible that ExitCode can be 255.
         // To fix it you can try to add '#!/bin/bash' header to the script.

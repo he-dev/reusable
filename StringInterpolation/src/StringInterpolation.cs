@@ -11,6 +11,8 @@ namespace Reusable;
 
 public delegate bool TryGetValueFunc(string name, [MaybeNullWhen(false)] out object value);
 
+public delegate bool TryGetValueFunc<TValue>(string name, [MaybeNullWhen(false)] out TValue value);
+
 public interface ITryGetValue<in TKey, [CanBeNull] TValue>
 {
     bool TryGetValue(TKey key, [MaybeNullWhen(false)] out TValue value);
@@ -164,6 +166,31 @@ public static class StringInterpolation
         }
 
         return replacements;
+    }
+
+    private static IDictionary<string, string> ValidateNames(this IDictionary<string, string> source)
+    {
+        // ReSharper disable once ReturnValueOfPureMethodIsNotUsed - TopologicalSort will throw if the graph has a cycle.
+        var sorted =
+            source
+                .ToDictionary
+                (
+                    x => x.Key,
+                    x => GetNames(x.Value),
+                    StringComparer.OrdinalIgnoreCase
+                )
+                .Select(x => (x.Key, x.Value))
+                .ToDirectedGraph()
+                .TopologicalSort(StringComparer.OrdinalIgnoreCase)
+                .ToList();
+
+        var missingPlaceholders = sorted.Where(node => !source.ContainsKey(node)).ToList();
+        if (missingPlaceholders.Any())
+        {
+            throw new KeyNotFoundException($"One or more placeholders are missing: [{string.Join(", ", missingPlaceholders)}]");
+        }
+
+        return source;
     }
 }
 

@@ -15,6 +15,17 @@ public static class StreamExtensions
 
         return stream;
     }
+    
+    public static bool TryRewind<T>(this T stream) where T : Stream
+    {
+        if (stream.CanSeek)
+        {
+            stream.Seek(0, SeekOrigin.Begin);
+            return true;
+        }
+
+        return false;
+    }
 
     public static async Task<string> ReadTextAsync(this Stream stream, Encoding? encoding = default)
     {

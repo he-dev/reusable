@@ -24,13 +24,13 @@ public class LoggerContext : IDisposable, IEnumerable<LoggerContext>
     public LoggerContext(LogDelegate log, string name)
     {
         Log = log;
-        Properties.Scoped.Add(AttachScope.Key, name);
+        Properties.Scoped.Set(AttachScope.Key, name);
         Scope = AsyncScope.Push(this);
     }
 
     private LogDelegate Log { get; }
 
-    public Data Properties { get; } = new();
+    public PropertyGroup Properties { get; } = new();
 
     private IDisposable Scope { get; }
 
@@ -39,18 +39,18 @@ public class LoggerContext : IDisposable, IEnumerable<LoggerContext>
         Properties.Scoped.Set(nameof(Status), name);
 
         Log(
-            new LogEntry(this, name)
-                .SetItem(nameof(details), details.EnumerateProperties().ToImmutableDictionary<string, object?>(SoftString.Comparer))
+            LogEntry
+                .Create(this, name)
+                .SetItem(nameof(details), details.EnumerateProperties().ToImmutableDictionary(SoftString.Comparer))
                 .SetItem(nameof(attachment), attachment));
 
-        Properties.Transient.Dispose();
         Properties.Transient = new Container();
     }
 
     public void Dispose()
     {
         // Finalize when the user hasn't already done that.
-        if (Properties.Scoped.TryGetItem(nameof(Status), out string status) && !status.In(Finalizers))
+        if (Properties.Scoped.TryGetItem(nameof(Status), out string? status) && !status.In(Finalizers))
         {
             if (Properties.Scoped.TryGetItem<Exception>(nameof(Exception), out var exception))
             {
@@ -62,6 +62,7 @@ public class LoggerContext : IDisposable, IEnumerable<LoggerContext>
             }
         }
 
+        Properties.Dispose();
         Scope.Dispose();
     }
 
@@ -69,11 +70,27 @@ public class LoggerContext : IDisposable, IEnumerable<LoggerContext>
 
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-    public class Data
+    public class PropertyGroup : IDisposable
     {
+        private Container _transient = new();
+        
         public Container Scoped { get; } = new();
 
-        public Container Transient { get; internal set; } = new();
+        public Container Transient
+        {
+            get => _transient;
+            internal set
+            {
+                _transient.Dispose();
+                _transient = value;
+            }
+        }
+
+        public void Dispose()
+        {
+            Scoped.Dispose();
+            Transient.Dispose();
+        }
     }
 
     public class Container : IDisposable
@@ -82,15 +99,19 @@ public class LoggerContext : IDisposable, IEnumerable<LoggerContext>
 
         public bool ContainsKey(string key) => Data.ContainsKey(key);
 
-        public TItem GetOrAdd<TItem>(string key, Func<TItem> factory)
+        public TItem? GetOrAdd<TItem>(string key, Func<TItem> factory)
         {
-            if (!Data.TryGetValue(key, out var result))
+            if (Data.TryGetValue(key, out var result))
             {
-                result = factory();
-                Data[key] = result;
+                return (TItem?)result;
             }
 
-            return (TItem)result;
+            if (factory() is { } value)
+            {
+                return Set(key, value).Get<TItem>(key);
+            }
+
+            throw new ArgumentException("Value must not be null.", paramName: nameof(factory));
         }
 
         public TItem Get<TItem>(string key)
@@ -102,25 +123,21 @@ public class LoggerContext : IDisposable, IEnumerable<LoggerContext>
                     return item;
                 }
 
-                throw new InvalidCastException($"Cannot cast '{key}' to '{typeof(TItem)}'.");
+                throw new InvalidCastException($"Cannot cast '{key}' from '{value.GetType()}' to '{typeof(TItem)}'.");
             }
 
-            throw new KeyNotFoundException($"Key '{key}' not found..");
+            throw new KeyNotFoundException($"Key '{key}' not found.");
         }
 
-        public TItem Set<TItem>(string key, TItem value)
+        public Container Set<TItem>(string key, TItem? value)
         {
-            try
-            {
-                return value;
-            }
-            finally
+            if (value is { })
             {
                 Data[key] = value;
             }
-        }
 
-        public TItem Add<TItem>(string key, TItem value) => GetOrAdd(key, () => value);
+            return this;
+        }
 
         public bool TryGetItem<TItem>(string key, [MaybeNullWhen(false)] out TItem item)
         {

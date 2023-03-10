@@ -1,14 +1,14 @@
 using System.Linq;
 using Microsoft.AspNetCore.Http;
 
-namespace Reusable.Wiretap.Utilities.AspNetCore.Extensions;
+namespace Reusable.Wiretap.AspNetCore.Extensions;
 
 public static class HttpContextExtensions
 {
     /// <summary>
     /// Gets the 'X-Correlation-ID' header by default, otherwise the 'TraceIdentifier'.
     /// </summary>
-    public static string? GetCorrelationId(this HttpContext context, string header = "X-Correlation-ID")
+    public static string? CorrelationId(this HttpContext context, string header = "X-Correlation-ID")
     {
         return context.Request.Headers[header] switch
         {
