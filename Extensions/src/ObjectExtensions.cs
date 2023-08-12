@@ -28,20 +28,16 @@ public static class ObjectExtensions
         return
             from p in typeof(T).GetProperties(bindingFlags)
             select new KeyValuePair<string, object?>(p.Name, p.GetValue(obj));
-
     }
-    
+
     public static IEnumerable<KeyValuePair<string, object?>> EnumerateProperties(this object? source, BindingFlags bindingFlags = BindingFlags.Public | BindingFlags.Instance)
     {
-        return source switch
-        {
-            null => Enumerable.Empty<KeyValuePair<string, object?>>(),
-            IDictionary<string, object?> dictionary => dictionary,
-            IImmutableDictionary<string, object?> dictionary => dictionary,
-            _ => from p in source.GetType().GetProperties(bindingFlags) select new KeyValuePair<string, object?>(p.Name, p.GetValue(source))
-        };
+        return
+            source is null
+                ? Enumerable.Empty<KeyValuePair<string, object?>>()
+                : from p in source.GetType().GetProperties(bindingFlags) select new KeyValuePair<string, object?>(p.Name, p.GetValue(source));
     }
-        
+
 //        public static IEnumerable<KeyValuePair<string, object>> EnumerateProperties<T>(this T obj)
 //        {
 //            if (obj is IDictionary<string, object> dictionary)
@@ -74,7 +70,7 @@ public static class ObjectExtensions
     {
         return createDecorator(decorable);
     }
-    
+
     // AsEnumerable is already taken and generates chars.
     public static IEnumerable<T> ToEnumerable<T>(this T source)
     {

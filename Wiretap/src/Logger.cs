@@ -1,23 +1,23 @@
 using JetBrains.Annotations;
 using Reusable.Extensions;
 using Reusable.Wiretap.Abstractions;
+using Reusable.Wiretap.Services;
 
 namespace Reusable.Wiretap;
 
 public class Logger : ILogger
 {
-    public Logger(LogDelegate log) => Log = log;
-
-    private LogDelegate Log { get; }
+    public required LogFunc Log { get; init; }
 
     [MustUseReturnValue]
-    public LoggerContext Start
+    public ActivityContext Begin
     (
         string name,
+        string? message = default,
         object? details = default,
         object? attachment = default
     )
     {
-        return new LoggerContext(Log, name).Also(context => context.Started(details, attachment));
+        return new ActivityContext { Name = name, Log = Log }.Also(activity => activity.LogBegin(message, details, attachment));
     }
 }

@@ -44,17 +44,17 @@ public class WiretapMiddleware
     {
         var correlationId = _configuration.GetCorrelationId(context);
         var requestBody = _configuration.CanLogRequestBody(context) ? await _serializeRequest.Invoke(context.Request) : default;
-        using var status = _logger.Start("HandleRequest", new { correlationId, request = _takeRequestSnapshot.Invoke(context.Request) }, requestBody);
+        using var activity = _logger.Begin("HandleRequest", details: new { correlationId, request = _takeRequestSnapshot.Invoke(context.Request) }, attachment: requestBody);
 
         try
         {
             await _next(context);
             var responseBody = _configuration.CanLogResponseBody(context) ? await _serializeResponse.Invoke(context.Response) : default;
-            status.Completed(new { correlationId, response = _takeResponseSnapshot.Invoke(context.Response) }, responseBody);
+            activity.LogEnd(details: new { correlationId, response = _takeResponseSnapshot.Invoke(context.Response) }, attachment: responseBody);
         }
         catch (Exception inner)
         {
-            status.Faulted(new { correlationId, response = _takeResponseSnapshot.Invoke(context.Response) }, attachment: inner);
+            activity.LogError(details: new { correlationId, response = _takeResponseSnapshot.Invoke(context.Response) }, attachment: inner);
             throw;
         }
     }

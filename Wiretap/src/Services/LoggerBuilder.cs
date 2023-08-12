@@ -3,35 +3,36 @@ using System.Collections.Generic;
 using System.Linq;
 using Reusable.Extensions;
 using Reusable.Wiretap.Abstractions;
-using Reusable.Wiretap.Middleware;
+using Reusable.Wiretap.Modules;
 
 namespace Reusable.Wiretap.Services;
 
-public class LoggerBuilder : IEnumerable<IMiddleware>
+public class LoggerBuilder : IEnumerable<IModule>
 {
-    private List<IMiddleware> Middleware { get; } = new();
+    private List<IModule> Modules { get; } = new();
 
-    public void Add(IMiddleware middleware) => this.Also(_ => Middleware.Add(middleware));
+    public void Add(IModule module) => this.Also(_ => Modules.Add(module));
 
     public static LoggerBuilder CreateDefault() => new()
     {
-        new AttachNode(),
-        new AttachParent(),
-        new AttachTimestamp(),
-        new AttachScope(),
-        new AttachLevel(),
-        new AttachElapsed(),
-        new AttachCorrelationId(),
+        new SetUniqueId(),
+        new SetParent(),
+        new SetTimestamp(),
+        //new SetLevel(),
+        new SetElapsed(),
+        new AttachDetails(),
+        new AttachProperties(),
+        new AttachCallerInfo(),
         new SerializeDetails(),
     };
 
-    public IEnumerator<IMiddleware> GetEnumerator() => Middleware.GetEnumerator();
+    public IEnumerator<IModule> GetEnumerator() => Modules.GetEnumerator();
 
-    IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable)Middleware).GetEnumerator();
+    IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable)Modules).GetEnumerator();
 
     public ILogger Build()
     {
-        var log = this.Reverse().Aggregate(new LogDelegate(_ => { }), (next, middleware) => entry => middleware.Invoke(entry, next));
-        return new Logger(log);
+        var log = this.Reverse().Aggregate(new LogFunc((_, _) => { }), (next, middleware) => (flow, entry) => middleware.Invoke(flow, entry, next));
+        return new Logger { Log = log };
     }
 }

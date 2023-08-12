@@ -3,33 +3,32 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Text;
 using System.Threading.Tasks;
+using Reusable.Extensions;
 
 namespace Reusable;
 
 public interface IAsyncProcess
 {
     Task<AsyncProcess.Result> StartAsync(string fileName, IEnumerable<string> arguments, string? workingDirectory, int timeoutMilliseconds);
-
 }
+
 public class AsyncProcess : IAsyncProcess
 {
     public async Task<Result> StartAsync(string fileName, IEnumerable<string> arguments, string? workingDirectory, int timeoutMilliseconds)
     {
         // If you run bash-script on Linux it is possible that ExitCode can be 255.
         // To fix it you can try to add '#!/bin/bash' header to the script.
-        using var process = new Process
+        using var process = new Process();
+        process.StartInfo = new ProcessStartInfo
         {
-            StartInfo = new ProcessStartInfo
-            {
-                FileName = fileName,
-                Arguments = string.Join(' ', arguments),
-                UseShellExecute = false,
-                RedirectStandardInput = true,
-                RedirectStandardOutput = true,
-                RedirectStandardError = true,
-                CreateNoWindow = true,
-                WorkingDirectory = workingDirectory ?? string.Empty
-            }
+            FileName = fileName,
+            Arguments = string.Join(' ', arguments),
+            UseShellExecute = false,
+            RedirectStandardInput = true,
+            RedirectStandardOutput = true,
+            RedirectStandardError = true,
+            CreateNoWindow = true,
+            WorkingDirectory = workingDirectory ?? string.Empty
         };
 
         var outputBuilder = new StringBuilder();
@@ -81,7 +80,7 @@ public class AsyncProcess : IAsyncProcess
                 // Waits process completion and then checks it was not completed by timeout.
                 if (await Task.WhenAny(Task.Delay(timeoutMilliseconds), processTask) == processTask && waitForExit.Result)
                 {
-                    return new Result(process.ExitCode)
+                    return new Result(process.StartInfo, process.ExitCode)
                     {
                         Completed = true,
                         Output = outputBuilder.ToString(),
@@ -93,7 +92,7 @@ public class AsyncProcess : IAsyncProcess
                 try
                 {
                     process.Kill();
-                    return new Result(-1)
+                    return new Result(process.StartInfo, -1)
                     {
                         TimedOut = true,
                         Killed = true,
@@ -103,7 +102,7 @@ public class AsyncProcess : IAsyncProcess
                 }
                 catch (Exception ex)
                 {
-                    return new Result(-1)
+                    return new Result(process.StartInfo, -1)
                     {
                         TimedOut = true,
                         Output = outputBuilder.ToString(),
@@ -116,7 +115,7 @@ public class AsyncProcess : IAsyncProcess
         catch (Exception ex)
         {
             // Usually it occurs when an executable file is not found or is not executable.
-            return new Result(-1)
+            return new Result(process.StartInfo, -1)
             {
                 Output = outputBuilder.ToString(),
                 Error = errorBuilder.ToString(),
@@ -124,16 +123,15 @@ public class AsyncProcess : IAsyncProcess
             };
         }
 
-        return new Result(0);
+        return new Result(process.StartInfo, 0);
     }
-
 
     private static Task<bool> WaitForExitAsync(Process process, int timeout)
     {
         return Task.Run(() => process.WaitForExit(timeout));
     }
-    
-    public record Result(int ExitCode)
+
+    public record Result(ProcessStartInfo StartInfo, int ExitCode)
     {
         public bool Success => ExitCode == 0;
         public bool Completed { get; init; }
@@ -147,16 +145,15 @@ public class AsyncProcess : IAsyncProcess
         {
             return
                 new StringBuilder()
+                    .AppendLine($"FileName: {StartInfo.FileName}")
+                    .Append("Arguments:").AppendLine(StartInfo.Arguments.IsNotNullOrEmpty() ? StartInfo.Arguments : " null")
                     .AppendLine($"ExitCode: {ExitCode}")
                     .AppendLine($"Completed: {Completed}")
                     .AppendLine($"TimedOut: {TimedOut}")
                     .AppendLine($"Killed: {Killed}")
-                    .AppendLine("Output:")
-                    .AppendLine(Output).AppendLine()
-                    .AppendLine("Error:")
-                    .AppendLine(Error).AppendLine()
-                    .AppendLine("Exception:")
-                    .AppendLine(Exception?.ToString())
+                    .Append("Output:").Append(Output.IsNotNullOrEmpty() ? Environment.NewLine + Output : " null").AppendLine()
+                    .Append("Error:").Append(Error.IsNotNullOrEmpty() ? Environment.NewLine + Error : " null").AppendLine()
+                    .Append("Exception:").Append(Exception is not null ? Environment.NewLine + Exception : " null")
                     .ToString();
         }
 

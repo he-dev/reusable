@@ -15,7 +15,7 @@ public class SerializeRequest : ISerialize<HttpRequest>
         {
             try
             {
-                using var reader = new StreamReader(request.Body);
+                using var reader = new StreamReader(request.Body, leaveOpen: true);
                 return await reader.ReadToEndAsync();
             }
             finally
