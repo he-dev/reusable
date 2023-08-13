@@ -1,6 +1,7 @@
 using System;
+using System.Collections.Generic;
 using System.Runtime.CompilerServices;
-using Microsoft.Extensions.Caching.Memory;
+using Reusable.Extensions;
 using Reusable.Wiretap.Data;
 using Reusable.Wiretap.Services;
 
@@ -8,21 +9,21 @@ namespace Reusable.Wiretap;
 
 public static class ActivityExtensions
 {
-    public static IDisposable PushItem(this ActivityContext activity, string name, object value)
+    public static IDisposable PushItem(this IDictionary<string, object?> source, string name, object value)
     {
-        activity.Items.Set(name, value);
-        return Disposable.From(() => activity.Items.Remove(name));
+        source.SetItem(name, value);
+        return Disposable.From(() => source.RemoveItem(name));
     }
 
     public static IDisposable PushCallerInfo
     (
-        this ActivityContext activity,
+        this IDictionary<string, object?> source,
         [CallerMemberName] string? callerMemberName = null,
         [CallerLineNumber] int? callerLineNumber = 0,
         [CallerFilePath] string? callerFilePath = null
     )
     {
-        return activity.PushItem("CallerInfo", new
+        return source.PushItem(Strings.Items.Caller, new
         {
             memberName = callerMemberName,
             lineNumber = callerLineNumber,
@@ -30,8 +31,8 @@ public static class ActivityExtensions
         });
     }
 
-    public static IDisposable PushDetail(this ActivityContext activity, object value)
+    public static IDisposable PushDetails(this IDictionary<string, object?> source, object value)
     {
-        return activity.PushItem(LogEntry.PropertyNames.Details, DetailsFactory.CreateDetails(value));
+        return source.PushItem(Strings.Items.Details, DetailsFactory.CreateDetails(value));
     }
 }

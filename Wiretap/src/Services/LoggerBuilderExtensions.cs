@@ -14,8 +14,8 @@ public static class LoggerBuilderExtensions
     {
         return builder.Also(b => b.Add(new InvokeWhen
         {
-            Module = module, 
-            Filter = new Modules.OptFilter()
+            Module = module,
+            Filter = new OptFilter()
         }));
     }
 
@@ -24,9 +24,9 @@ public static class LoggerBuilderExtensions
         return builder.Use(new T());
     }
 
-    public static LoggerBuilder Use(this LoggerBuilder builder, Func<IActivity, LogEntry, LogEntry> middleware)
+    public static LoggerBuilder Use(this LoggerBuilder builder, Action<TraceContext> invokeAction)
     {
-        return builder.Use(new InvokeFunc(middleware));
+        return builder.Use(new InvokeAction { Body = invokeAction });
     }
 
     public static LoggerBuilder Configure<T>(this LoggerBuilder builder, Action<T> configure) where T : IModule

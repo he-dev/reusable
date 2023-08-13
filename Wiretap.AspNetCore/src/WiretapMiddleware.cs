@@ -44,7 +44,7 @@ public class WiretapMiddleware
     {
         var correlationId = _configuration.GetCorrelationId(context);
         var requestBody = _configuration.CanLogRequestBody(context) ? await _serializeRequest.Invoke(context.Request) : default;
-        using var activity = _logger.Begin("HandleRequest", details: new { correlationId, request = _takeRequestSnapshot.Invoke(context.Request) }, attachment: requestBody);
+        using var activity = _logger.LogBegin("HandleRequest", details: new { correlationId, request = _takeRequestSnapshot.Invoke(context.Request) }, attachment: requestBody);
 
         try
         {

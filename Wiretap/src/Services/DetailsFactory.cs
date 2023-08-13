@@ -1,5 +1,5 @@
 using System.Collections.Generic;
-using System.Collections.Immutable;
+using System.Linq;
 using Reusable.Extensions;
 
 namespace Reusable.Wiretap.Services;
@@ -10,7 +10,7 @@ public static class DetailsFactory
     {
         return 
             details is not IEnumerable<KeyValuePair<string, object?>>
-                ? details.EnumerateProperties().ToImmutableDictionary(SoftString.Comparer)
+                ? details.EnumerateProperties().ToDictionary(x => x.Key, x => x.Value, SoftString.Comparer)
                 : details;
     }
 }

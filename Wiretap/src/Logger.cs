@@ -10,7 +10,7 @@ public class Logger : ILogger
     public required LogFunc Log { get; init; }
 
     [MustUseReturnValue]
-    public ActivityContext Begin
+    public ActivityContext LogBegin
     (
         string name,
         string? message = default,

@@ -16,7 +16,7 @@ public static class StringExtensions
 
     [ContractAnnotation("value: null => false; notnull => true")]
     public static bool IsNotNullOrEmpty([NotNullWhen(true)] this string? value) => !IsNullOrEmpty(value);
-    
+
     public static string? NullIfEmpty(this string? value) => string.IsNullOrEmpty(value) ? null : value;
 
     public static string? NullIfWhitespace(this string? value) => string.IsNullOrWhiteSpace(value) ? null : value;
@@ -59,7 +59,7 @@ public static class StringExtensions
     {
         return new StreamReader(new MemoryStream(encoding.GetBytes(value)));
     }
-    
+
     [ContractAnnotation("value: null => halt; value: notnull => notnull")]
     public static Stream ToMemoryStream(this string value, Encoding? encoding = default)
     {
@@ -77,10 +77,12 @@ public static class StringExtensions
     }
 
     public static string Capitalize(this string? value) => value is { } ? Regex.Replace(value, @"\A([a-z]+)", m => m.Value.ToUpper()) : string.Empty;
-    
-    public static string RegexReplace(this string? value, [RegexPattern] string pattern, string replacement = "", RegexOptions options = RegexOptions.None)
+
+    //[ContractAnnotation("value:null => null; value:notnull => notnull")]
+    [return: NotNullIfNotNull(nameof(value))]
+    public static string? RegexReplace(this string? value, [RegexPattern] string pattern, string replacement = "", RegexOptions options = RegexOptions.IgnoreCase | RegexOptions.Compiled)
     {
-        return value is { } ? Regex.Replace(value, pattern, replacement, options) : string.Empty;
+        return value is not null ? Regex.Replace(value, pattern, replacement, options) : default;
     }
 
     public static string IndentLines(this string value, int indentWidth, char indentCharacter = ' ', Encoding? encoding = default)

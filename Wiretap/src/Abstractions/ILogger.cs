@@ -1,4 +1,3 @@
-using System.Runtime.CompilerServices;
 using Reusable.Wiretap.Data;
 using Reusable.Wiretap.Services;
 
@@ -6,7 +5,7 @@ namespace Reusable.Wiretap.Abstractions;
 
 public interface ILogger
 {
-    ActivityContext Begin
+    ActivityContext LogBegin
     (
         string name,
         string? message = default,
@@ -16,7 +15,7 @@ public interface ILogger
 }
 
 
-public delegate void LogFunc(IActivity activity, LogEntry entry);
+public delegate void LogFunc(TraceContext context);
 
 /// <summary>
 /// This is a marker interface for log modules.

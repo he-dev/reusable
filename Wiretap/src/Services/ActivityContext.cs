@@ -1,12 +1,12 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Collections.Immutable;
 using System.Linq.Custom;
-using Microsoft.Extensions.Caching.Memory;
+using System.Text.RegularExpressions;
 using Reusable.Extensions;
 using Reusable.Wiretap.Abstractions;
 using Reusable.Wiretap.Data;
+using Reusable.Wiretap.Extensions;
 
 namespace Reusable.Wiretap.Services;
 
@@ -14,7 +14,7 @@ public interface IActivity : IEnumerable<IActivity>
 {
     string Name { get; }
 
-    IMemoryCache Items { get; }
+    IDictionary<string, object?> Items { get; }
 
     void LogTrace(string name, string? message, object? details, object? attachment, bool isFinal = false);
 }
@@ -30,7 +30,7 @@ public class ActivityContext : IDisposable, IActivity
 
     public required LogFunc Log { get; init; }
 
-    public IMemoryCache Items { get; } = new MemoryCache(new MemoryCacheOptions());
+    public IDictionary<string, object?> Items { get; } = new SoftDictionary();
 
     private bool IsComplete { get; set; }
 
@@ -44,18 +44,16 @@ public class ActivityContext : IDisposable, IActivity
         }
 
         IsComplete = isFinal;
+        var context = new TraceContext { Activity = this };
+        context
+            .Entry
+            .SetItem(Strings.Items.Activity, Name)
+            .SetItem(Strings.Items.Trace, name)
+            .SetItem(Strings.Items.Message, message)
+            .SetItem(Strings.Items.Details, DetailsFactory.CreateDetails(details))
+            .SetItem(Strings.Items.Attachment, attachment);
 
-        details = DetailsFactory.CreateDetails(details);
-
-        Log(
-            this,
-            LogEntry
-                .Empty()
-                .SetItem(LogEntry.PropertyNames.Trace, name)
-                .SetItem(LogEntry.PropertyNames.Message, message)
-                .SetItem(LogEntry.PropertyNames.Details, details)
-                .SetItem(LogEntry.PropertyNames.Attachment, attachment)
-        );
+        Log(context);
     }
 
     public void Dispose()
@@ -81,4 +79,3 @@ public class ActivityContext : IDisposable, IActivity
 
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 }
-

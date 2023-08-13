@@ -1,20 +1,19 @@
+using Reusable.Extensions;
 using Reusable.Wiretap.Abstractions;
 using Reusable.Wiretap.Data;
-using Reusable.Wiretap.Services;
+using Reusable.Wiretap.Extensions;
 
 namespace Reusable.Wiretap.Modules;
 
 public class AttachDetails : IModule
 {
-    public void Invoke(IActivity activity, LogEntry entry, LogFunc next)
+    public void Invoke(TraceContext context, LogFunc next)
     {
-        if (activity.Items.GetItem(LogEntry.PropertyNames.Details) is Item item)
+        foreach (var detail in context.Items.Details())
         {
-            entry = entry.SetItem(LogEntry.PropertyNames.Details, entry.Details().SetItem(item.Name, item.Value));
+            context.Entry.Details().SetItem(detail.Key, detail.Value);
         }
 
-        next(activity, entry);
+        next(context);
     }
-
-    public record Item(string Name, object Value);
 }

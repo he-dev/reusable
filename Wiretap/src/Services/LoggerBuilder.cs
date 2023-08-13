@@ -21,8 +21,8 @@ public class LoggerBuilder : IEnumerable<IModule>
         //new SetLevel(),
         new SetElapsed(),
         new AttachDetails(),
-        new AttachProperties(),
-        new AttachCallerInfo(),
+        new SetExtra(),
+        new AttachCaller(),
         new SerializeDetails(),
     };
 
@@ -32,7 +32,7 @@ public class LoggerBuilder : IEnumerable<IModule>
 
     public ILogger Build()
     {
-        var log = this.Reverse().Aggregate(new LogFunc((_, _) => { }), (next, middleware) => (flow, entry) => middleware.Invoke(flow, entry, next));
+        var log = this.Reverse().Aggregate(new LogFunc(_ => { }), (next, middleware) => (context => middleware.Invoke(context, next)));
         return new Logger { Log = log };
     }
 }

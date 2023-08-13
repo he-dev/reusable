@@ -1,7 +1,6 @@
 using Reusable.Wiretap.Abstractions;
 using Reusable.Wiretap.Data;
 using Reusable.Wiretap.Extensions;
-using Reusable.Wiretap.Services;
 
 namespace Reusable.Wiretap.Modules;
 
@@ -9,31 +8,34 @@ public class InvokeWhen : IModule
 {
     public required IModule Module { get; init; }
 
-    public required IModuleFilter Filter { get; init; }
+    public required IFilter Filter { get; init; }
 
-    public void Invoke(IActivity activity, LogEntry entry, LogFunc next)
+    public void Invoke(TraceContext context, LogFunc next)
     {
-        if (Filter.Matches(activity, entry.Module(Module)))
+        using var moduleToken = context.Items.PushItem(Strings.Items.Module, Module);
+        if (Filter.Matches(context))
         {
-            Module.Invoke(activity, entry, next);
+            moduleToken.Dispose();
+            Module.Invoke(context, next);
         }
         else
         {
-            next(activity, entry);
+            moduleToken.Dispose();
+            next(context);
         }
     }
 }
 
-public interface IModuleFilter
+public interface IFilter
 {
-    bool Matches(IActivity activity, LogEntry entry);
+    bool Matches(TraceContext context);
 }
 
-public class OptFilter : IModuleFilter
+public class OptFilter : IFilter
 {
-    public bool Matches(IActivity activity, LogEntry entry)
+    public bool Matches(TraceContext context)
     {
-        if (activity.Items.Opt() is { } opt && entry.Module() is { } module)
+        if (context.Items.Opt() is { } opt && context.Items.Module() is {} module)
         {
             var moduleType = module.GetType();
             return

@@ -2,7 +2,6 @@
 using JetBrains.Annotations;
 using Reusable.Wiretap.Abstractions;
 using Reusable.Wiretap.Data;
-using Reusable.Wiretap.Services;
 
 namespace Reusable.Wiretap.Modules.Loggers;
 
@@ -11,21 +10,21 @@ public class LogToMemory : ILog
 {
     public const int DefaultCapacity = 1_000_000;
 
-    public Queue<LogEntry> Entries { get; } = new();
+    public Queue<IDictionary<string, object?>> Entries { get; } = new();
 
     public int Capacity { get; set; } = DefaultCapacity;
     
-    public void Invoke(IActivity activity, LogEntry entry, LogFunc next)
+    public void Invoke(TraceContext context, LogFunc next)
     {
         lock (Entries)
         {
-            Entries.Enqueue(entry);
+            Entries.Enqueue(context.Entry);
             if (Entries.Count > Capacity)
             {
                 Entries.Dequeue();
             }
         }
 
-        next(activity, entry);
+        next(context);
     }
 }

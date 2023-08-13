@@ -1,17 +1,16 @@
 ﻿using System;
 using Reusable.Wiretap.Abstractions;
 using Reusable.Wiretap.Data;
-using Reusable.Wiretap.Extensions;
 
 namespace Reusable.Wiretap.Modules;
 
-public class SetTimestamp : IModule
+public class InvokeAction : IModule
 {
-    public Func<DateTime> Now { get; set; } = () => DateTime.UtcNow;
+    public required Action<TraceContext> Body { get; init; }
 
     public void Invoke(TraceContext context, LogFunc next)
     {
-        context.Entry.Timestamp(Now());
+        Body(context);
         next(context);
     }
 }

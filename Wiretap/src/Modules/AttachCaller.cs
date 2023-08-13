@@ -1,17 +1,17 @@
-using System.Linq;
 using Reusable.Wiretap.Abstractions;
 using Reusable.Wiretap.Data;
+using Reusable.Extensions;
 using Reusable.Wiretap.Extensions;
 
 namespace Reusable.Wiretap.Modules;
 
-public class SetParent : IModule
+public class AttachCaller : IModule
 {
     public void Invoke(TraceContext context, LogFunc next)
     {
-        if (context.Activity.Skip(1).FirstOrDefault() is { } parent)
+        if (context.Activity.Items.GetItem<object>(Strings.Items.Caller) is { } caller)
         {
-            context.Entry.ParentId(parent.Items.UniqueId());
+            context.Entry.Details().SetItem(Strings.Items.Caller, caller);
         }
 
         next(context);

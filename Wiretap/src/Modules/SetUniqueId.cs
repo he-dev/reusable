@@ -1,8 +1,7 @@
 using System;
-using System.Linq;
 using Reusable.Wiretap.Abstractions;
 using Reusable.Wiretap.Data;
-using Reusable.Wiretap.Services;
+using Reusable.Wiretap.Extensions;
 
 namespace Reusable.Wiretap.Modules;
 
@@ -13,9 +12,10 @@ public class SetUniqueId : IModule
     /// </summary>
     public Func<object> NewId { get; set; } = () => Guid.NewGuid();
 
-    public void Invoke(IActivity activity, LogEntry entry, LogFunc next)
+    public void Invoke(TraceContext context, LogFunc next)
     {
-        var id = activity.Items.UniqueId(_ => NewId());
-        next(activity, entry.UniqueId(id));
+        var id = context.Activity.Items.UniqueId(NewId);
+        context.Entry.UniqueId(id);
+        next(context);
     }
 }
