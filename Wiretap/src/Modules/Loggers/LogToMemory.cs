@@ -14,7 +14,7 @@ public class LogToMemory : ILog
 
     public int Capacity { get; set; } = DefaultCapacity;
     
-    public void Invoke(TraceContext context, LogFunc next)
+    public void Invoke(TraceContext context, LogAction next)
     {
         lock (Entries)
         {

@@ -9,7 +9,7 @@ public class SetTimestamp : IModule
 {
     public Func<DateTime> Now { get; set; } = () => DateTime.UtcNow;
 
-    public void Invoke(TraceContext context, LogFunc next)
+    public void Invoke(TraceContext context, LogAction next)
     {
         context.Entry.Timestamp(Now());
         next(context);

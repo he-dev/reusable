@@ -3,36 +3,35 @@ using System.Collections.Generic;
 using System.Linq;
 using Reusable.Extensions;
 using Reusable.Wiretap.Abstractions;
+using Reusable.Wiretap.Data;
 using Reusable.Wiretap.Modules;
 
 namespace Reusable.Wiretap.Services;
 
-public class LoggerBuilder : IEnumerable<IModule>
+public class LogActionBuilder : IEnumerable<IModule>
 {
     private List<IModule> Modules { get; } = new();
 
     public void Add(IModule module) => this.Also(_ => Modules.Add(module));
 
-    public static LoggerBuilder CreateDefault() => new()
+    public static LogActionBuilder CreateDefault() => new()
     {
-        new SetUniqueId(),
         new SetParent(),
+        new SetUniqueId(),
         new SetTimestamp(),
-        //new SetLevel(),
         new SetElapsed(),
         new AttachDetails(),
-        new SetExtra(),
-        new AttachCaller(),
+        new InvokeWhen { Module = new AttachOwner(), Filter = new TraceFilter { Trace = Strings.Traces.Begin } },
         new SerializeDetails(),
+        new SetExtra(),
     };
 
     public IEnumerator<IModule> GetEnumerator() => Modules.GetEnumerator();
 
     IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable)Modules).GetEnumerator();
 
-    public ILogger Build()
+    public LogAction Build()
     {
-        var log = this.Reverse().Aggregate(new LogFunc(_ => { }), (next, middleware) => (context => middleware.Invoke(context, next)));
-        return new Logger { Log = log };
+        return this.Reverse().Aggregate(new LogAction(_ => { }), (next, middleware) => (context => middleware.Invoke(context, next)));
     }
 }

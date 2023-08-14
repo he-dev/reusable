@@ -23,7 +23,7 @@ public class SerializeDetails : IModule
         DictionaryKeyPolicy = JsonNamingPolicy.CamelCase,
     };
 
-    public void Invoke(TraceContext context, LogFunc next)
+    public void Invoke(TraceContext context, LogAction next)
     {
         context.Entry.SetItem(Strings.Items.Details, JsonSerializer.Serialize(context.Entry.Details(), Options));
         next(context);

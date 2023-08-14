@@ -10,11 +10,11 @@ public class SerializeResponse : ISerialize<HttpResponse>
 {
     public async Task<string?> Invoke(HttpResponse response)
     {
-        if (response.ContentLength > 0 && response.Body.TryRewind())
+        if (response.ContentType.StartsWith("application/json") && response.Body.TryRewind())
         {
             try
             {
-                using var reader = new StreamReader(response.Body);
+                using var reader = new StreamReader(response.Body, leaveOpen: true);
                 return await reader.ReadToEndAsync();
             }
             finally

@@ -12,6 +12,8 @@ public static class Strings
 
         public static readonly string Caller = nameof(Caller);
         public static readonly string Module = nameof(Module);
+        
+        public static readonly string Owner = nameof(Owner);
     }
     
     public static class Traces

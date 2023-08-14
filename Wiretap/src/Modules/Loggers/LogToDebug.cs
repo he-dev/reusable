@@ -8,7 +8,7 @@ public class LogToDebug : ILog
 {
     public string Template { get; set; } = "{timestamp:HH:mm:ss:fff} | {activity} | {trace} | {elapsed} | {message} | {details} | {attachment}";
 
-    public void Invoke(TraceContext context, LogFunc next)
+    public void Invoke(TraceContext context, LogAction next)
     {
         Debug.WriteLine(Template.Format(context.Entry.TryGetValue));
         next(context);

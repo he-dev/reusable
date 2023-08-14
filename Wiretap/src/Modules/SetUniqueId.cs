@@ -12,7 +12,7 @@ public class SetUniqueId : IModule
     /// </summary>
     public Func<object> NewId { get; set; } = () => Guid.NewGuid();
 
-    public void Invoke(TraceContext context, LogFunc next)
+    public void Invoke(TraceContext context, LogAction next)
     {
         var id = context.Activity.Items.UniqueId(NewId);
         context.Entry.UniqueId(id);

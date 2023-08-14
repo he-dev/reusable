@@ -10,7 +10,7 @@ public class SetElapsed : IModule
 {
     public Func<TimeSpan, double> ToDouble { get; set; } = timeSpan => Math.Round(timeSpan.TotalSeconds, 3);
 
-    public void Invoke(TraceContext context, LogFunc next)
+    public void Invoke(TraceContext context, LogAction next)
     {
         var elapsed = context.Activity.Items.Stopwatch(Stopwatch.StartNew).Elapsed;
         context.Entry.Elapsed(ToDouble(elapsed));

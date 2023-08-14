@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.AspNetCore.Http;
@@ -22,7 +23,7 @@ public class WiretapMiddleware
 
     public WiretapMiddleware
     (
-        ILogger logger,
+        ILogger<WiretapMiddleware> logger,
         RequestDelegate next,
         ITakeSnapshot<HttpRequest> takeRequestSnapshot,
         ITakeSnapshot<HttpResponse> takeResponseSnapshot,
@@ -44,18 +45,33 @@ public class WiretapMiddleware
     {
         var correlationId = _configuration.GetCorrelationId(context);
         var requestBody = _configuration.CanLogRequestBody(context) ? await _serializeRequest.Invoke(context.Request) : default;
-        using var activity = _logger.LogBegin("HandleRequest", details: new { correlationId, request = _takeRequestSnapshot.Invoke(context.Request) }, attachment: requestBody);
+        using var activity = _logger.Begin("HandleRequest");
+        using var detailsToken = activity.Items.PushDetails(new { correlationId });
+        activity.LogRequest(details: new { request = _takeRequestSnapshot.Invoke(context.Request) }, attachment: requestBody);
 
+        var responseStream = context.Response.Body;
         try
         {
+            using var memoryStream = new MemoryStream();
+            context.Response.Body = memoryStream;
+
             await _next(context);
+
             var responseBody = _configuration.CanLogResponseBody(context) ? await _serializeResponse.Invoke(context.Response) : default;
-            activity.LogEnd(details: new { correlationId, response = _takeResponseSnapshot.Invoke(context.Response) }, attachment: responseBody);
+
+            await memoryStream.CopyToAsync(responseStream);
+
+            activity.LogResponse(details: new { response = _takeResponseSnapshot.Invoke(context.Response) }, attachment: responseBody);
+            activity.LogEnd();
         }
         catch (Exception inner)
         {
-            activity.LogError(details: new { correlationId, response = _takeResponseSnapshot.Invoke(context.Response) }, attachment: inner);
+            activity.LogError(attachment: inner);
             throw;
+        }
+        finally
+        {
+            context.Response.Body = responseStream;
         }
     }
 

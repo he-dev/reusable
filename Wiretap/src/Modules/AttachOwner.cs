@@ -1,5 +1,4 @@
-using System.Collections.Generic;
-using System.Linq;
+using System;
 using Reusable.Extensions;
 using Reusable.Wiretap.Abstractions;
 using Reusable.Wiretap.Data;
@@ -7,13 +6,13 @@ using Reusable.Wiretap.Extensions;
 
 namespace Reusable.Wiretap.Modules;
 
-public class AttachDetails : IModule
+public class AttachOwner : IModule
 {
     public void Invoke(TraceContext context, LogAction next)
     {
-        foreach (var detail in context.Items.Details() ?? Enumerable.Empty<KeyValuePair<string, object?>>())
+        if (context.Activity.Items.GetItem<Type>(Strings.Items.Owner) is { } owner)
         {
-            context.Entry.Details()!.SetItem(detail.Key, detail.Value);
+            context.Entry.Details()!.SetItem(Strings.Items.Owner, owner.Name);
         }
 
         next(context);

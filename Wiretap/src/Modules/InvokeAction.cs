@@ -8,7 +8,7 @@ public class InvokeAction : IModule
 {
     public required Action<TraceContext> Body { get; init; }
 
-    public void Invoke(TraceContext context, LogFunc next)
+    public void Invoke(TraceContext context, LogAction next)
     {
         Body(context);
         next(context);

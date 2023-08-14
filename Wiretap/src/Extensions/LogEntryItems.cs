@@ -22,11 +22,13 @@ public static class LogEntryItems
     public static DateTime? Timestamp(this Container source) => source.GetItemByCaller<DateTime>();
     public static Container Timestamp(this Container source, DateTime value) => source.SetItemByCaller(value);
 
-    public static IDictionary<string, object?> Details(this Container source) => source.GetItemByCaller<IDictionary<string, object?>>() ?? throw new InvalidOperationException("Details don't seem to be initialized yet.");
-    
+    public static IDictionary<string, object?>? Details(this Container source) => source.GetItemByCaller<IDictionary<string, object?>>();
+
     public static Stopwatch Stopwatch(this Container source, Func<Stopwatch> factory) => source.GetItemOrCreate(nameof(Stopwatch), factory)!;
 
 
     public static Exception? Exception(this Container source) => source.GetItemByCaller<Exception>();
     public static Container Exception(this Container source, Exception value) => source.SetItemByCaller(value);
+
+
 }

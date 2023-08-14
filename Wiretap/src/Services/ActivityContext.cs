@@ -2,7 +2,6 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq.Custom;
-using System.Text.RegularExpressions;
 using Reusable.Extensions;
 using Reusable.Wiretap.Abstractions;
 using Reusable.Wiretap.Data;
@@ -10,7 +9,7 @@ using Reusable.Wiretap.Extensions;
 
 namespace Reusable.Wiretap.Services;
 
-public interface IActivity : IEnumerable<IActivity>
+public interface IActivity : IDisposable, IEnumerable<IActivity>
 {
     string Name { get; }
 
@@ -19,18 +18,22 @@ public interface IActivity : IEnumerable<IActivity>
     void LogTrace(string name, string? message, object? details, object? attachment, bool isFinal = false);
 }
 
-public class ActivityContext : IDisposable, IActivity
+public class ActivityContext : IActivity
 {
-    public ActivityContext()
+    public ActivityContext(string name, ILogger logger)
     {
+        Name = name;
+        Logger = logger;
+        Items = new SoftDictionary();
+        Items.SetItem(Strings.Items.Owner, Logger.Owner);
         Chain = AsyncScope.Push(this);
     }
 
-    public required string Name { get; init; }
+    public string Name { get; }
 
-    public required LogFunc Log { get; init; }
+    private ILogger Logger { get; }
 
-    public IDictionary<string, object?> Items { get; } = new SoftDictionary();
+    public IDictionary<string, object?> Items { get; }
 
     private bool IsComplete { get; set; }
 
@@ -40,7 +43,7 @@ public class ActivityContext : IDisposable, IActivity
     {
         if (IsComplete)
         {
-            throw new InvalidOperationException($"Cannot trace '{name}' because this '{Name}' activity is complete.");
+            throw new InvalidOperationException($"Cannot trace '{name}' because the '{Name}' activity is complete.");
         }
 
         IsComplete = isFinal;
@@ -53,7 +56,7 @@ public class ActivityContext : IDisposable, IActivity
             .SetItem(Strings.Items.Details, DetailsFactory.CreateDetails(details))
             .SetItem(Strings.Items.Attachment, attachment);
 
-        Log(context);
+        Logger.Log(context);
     }
 
     public void Dispose()
@@ -61,13 +64,14 @@ public class ActivityContext : IDisposable, IActivity
         // finalize the activity if the user hasn't already done that
         if (!IsComplete)
         {
+            var details = new { auto = true };
             if (Items.Exception() is { } exception)
             {
-                this.LogError(attachment: exception);
+                this.LogError(details: details, attachment: exception);
             }
             else
             {
-                this.LogEnd();
+                this.LogEnd(details: details);
             }
         }
 

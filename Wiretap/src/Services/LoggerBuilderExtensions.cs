@@ -10,7 +10,7 @@ namespace Reusable.Wiretap.Services;
 
 public static class LoggerBuilderExtensions
 {
-    public static LoggerBuilder Use<T>(this LoggerBuilder builder, T module) where T : IModule
+    public static LogActionBuilder Use<T>(this LogActionBuilder builder, T module) where T : IModule
     {
         return builder.Also(b => b.Add(new InvokeWhen
         {
@@ -19,17 +19,17 @@ public static class LoggerBuilderExtensions
         }));
     }
 
-    public static LoggerBuilder Use<T>(this LoggerBuilder builder) where T : IModule, new()
+    public static LogActionBuilder Use<T>(this LogActionBuilder builder) where T : IModule, new()
     {
         return builder.Use(new T());
     }
 
-    public static LoggerBuilder Use(this LoggerBuilder builder, Action<TraceContext> invokeAction)
+    public static LogActionBuilder Use(this LogActionBuilder builder, Action<TraceContext> invokeAction)
     {
         return builder.Use(new InvokeAction { Body = invokeAction });
     }
 
-    public static LoggerBuilder Configure<T>(this LoggerBuilder builder, Action<T> configure) where T : IModule
+    public static LogActionBuilder Configure<T>(this LogActionBuilder builder, Action<T> configure) where T : IModule
     {
         return builder.Also(b => configure(b.OfType<T>().SingleOrThrow($"Could not find a single '{typeof(T)}'.")));
     }

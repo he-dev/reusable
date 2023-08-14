@@ -9,7 +9,7 @@ public class SetExtra : IModule
 {
     public IDictionary<string, object> Items { get; } = new Dictionary<string, object>();
 
-    public void Invoke(TraceContext context, LogFunc next)
+    public void Invoke(TraceContext context, LogAction next)
     {
         foreach (var item in Items)
         {

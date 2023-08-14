@@ -1,5 +1,4 @@
-using JetBrains.Annotations;
-using Reusable.Extensions;
+using System;
 using Reusable.Wiretap.Abstractions;
 using Reusable.Wiretap.Services;
 
@@ -7,17 +6,21 @@ namespace Reusable.Wiretap;
 
 public class Logger : ILogger
 {
-    public required LogFunc Log { get; init; }
+    public required Type Owner { get; init; }
 
-    [MustUseReturnValue]
-    public ActivityContext LogBegin
-    (
-        string name,
-        string? message = default,
-        object? details = default,
-        object? attachment = default
-    )
+    public required LogAction Log { get; init; }
+}
+
+public class Logger<T> : ILogger<T>
+{
+    public Logger(LoggerFactory factory)
     {
-        return new ActivityContext { Name = name, Log = Log }.Also(activity => activity.LogBegin(message, details, attachment));
+        Inner = factory.CreateLogger<T>();
     }
+
+    private ILogger Inner { get; }
+
+    Type ILogger.Owner => Inner.Owner;
+
+    LogAction ILogger.Log => Inner.Log;
 }
