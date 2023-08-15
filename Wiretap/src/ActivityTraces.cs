@@ -6,27 +6,27 @@ namespace Reusable.Wiretap;
 
 public static class ActivityTraces
 {
-    public static void LogTraceByCaller(this IActivity activity, string? message, object? details, object? attachment, bool isFinal, [CallerMemberName] string name = "")
+    public static IActivity LogTraceByCaller(this IActivity activity, string? message, object? details, object? attachment, bool isFinal, [CallerMemberName] string name = "")
     {
-        activity.LogTrace(name.RegexReplace("^Log"), message, details, attachment, isFinal);
+        return activity.Also(x => x.LogTrace(name.RegexReplace("^Log"), message, details, attachment, isFinal));
     }
 
-    internal static void LogBegin(this IActivity activity, string? message = default, object? details = default, object? attachment = default)
+    internal static IActivity LogBegin(this IActivity activity, string? message = default, object? details = default, object? attachment = default)
     {
-        activity.LogTraceByCaller(message, details, attachment, false);
+        return activity.LogTraceByCaller(message, details, attachment, false);
     }
 
-    public static void LogArgs(this IActivity activity, string? message = default, object? details = default, object? attachment = default)
+    public static IActivity LogArgs(this IActivity activity, string? message = default, object? details = default, object? attachment = default)
     {
-        activity.LogTraceByCaller(message, details, attachment, false);
+        return activity.LogTraceByCaller(message, details, attachment, false);
     }
 
-    public static void LogInfo(this IActivity activity, string? message = default, object? details = default, object? attachment = default)
+    public static IActivity LogInfo(this IActivity activity, string? message = default, object? details = default, object? attachment = default)
     {
-        activity.LogTraceByCaller(message, details, attachment, false);
+        return activity.LogTraceByCaller(message, details, attachment, false);
     }
 
-    public static void LogCaller
+    public static IActivity LogCaller
     (
         this IActivity activity,
         [CallerMemberName] string? callerMemberName = null,
@@ -34,7 +34,7 @@ public static class ActivityTraces
         [CallerFilePath] string? callerFilePath = null
     )
     {
-        activity.LogTraceByCaller(default, new
+        return activity.LogTraceByCaller(default, new
         {
             caller = new
             {
@@ -45,24 +45,24 @@ public static class ActivityTraces
         }, default, false);
     }
 
-    public static void LogMetric(this IActivity activity, string? message = default, object? details = default, object? attachment = default)
+    public static IActivity LogMetric(this IActivity activity, string? message = default, object? details = default, object? attachment = default)
     {
-        activity.LogTraceByCaller(message, details, attachment, false);
+        return activity.LogTraceByCaller(message, details, attachment, false);
     }
 
-    public static void LogRequest(this IActivity activity, string? message = default, object? details = default, object? attachment = default)
+    public static IActivity LogRequest(this IActivity activity, string? message = default, object? details = default, object? attachment = default)
     {
-        activity.LogTraceByCaller(message, details, attachment, false);
+        return activity.LogTraceByCaller(message, details, attachment, false);
     }
 
-    public static void LogResponse(this IActivity activity, string? message = default, object? details = default, object? attachment = default)
+    public static IActivity LogResponse(this IActivity activity, string? message = default, object? details = default, object? attachment = default)
     {
-        activity.LogTraceByCaller(message, details, attachment, false);
+        return activity.LogTraceByCaller(message, details, attachment, false);
     }
 
-    public static void LogResult(this IActivity activity, string? message = default, object? details = default, object? attachment = default)
+    public static IActivity LogResult(this IActivity activity, string? message = default, object? details = default, object? attachment = default)
     {
-        activity.LogTraceByCaller(message, details, attachment, true);
+        return activity.LogTraceByCaller(message, details, attachment, true);
     }
 
     /// <summary>

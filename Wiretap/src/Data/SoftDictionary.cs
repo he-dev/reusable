@@ -2,7 +2,7 @@ using System.Collections.Generic;
 
 namespace Reusable.Wiretap.Data;
 
-public class SoftDictionary : Dictionary<string, object?>
+public class SoftDictionary<TValue> : Dictionary<string, TValue>
 {
     public SoftDictionary() : base(SoftString.Comparer) { }
 }

@@ -5,12 +5,9 @@ namespace Reusable.Wiretap.AspNetCore.Extensions;
 
 public static class HttpContextExtensions
 {
-    /// <summary>
-    /// Gets the 'X-Correlation-ID' header by default, otherwise the 'TraceIdentifier'.
-    /// </summary>
-    public static string? CorrelationId(this HttpContext context, string header = "X-Correlation-ID")
+    public static string? CorrelationId(this IHeaderDictionary headers, string header = "X-Correlation-ID")
     {
-        return context.Request.Headers[header] switch
+        return headers[header] switch
         {
             { Count: 1 } correlationId => correlationId.Single(), _ => default
         };

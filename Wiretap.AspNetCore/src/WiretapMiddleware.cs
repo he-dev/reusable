@@ -3,9 +3,10 @@ using System.IO;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.AspNetCore.Http;
+using Reusable.Extensions;
 using Reusable.Wiretap.Abstractions;
 using Reusable.Wiretap.AspNetCore.Abstractions;
-using Reusable.Wiretap.AspNetCore.Extensions;
+using Reusable.Wiretap.AspNetCore.Services;
 
 namespace Reusable.Wiretap.AspNetCore;
 
@@ -17,9 +18,8 @@ public class WiretapMiddleware
     private readonly RequestDelegate _next;
     private readonly ITakeSnapshot<HttpRequest> _takeRequestSnapshot;
     private readonly ITakeSnapshot<HttpResponse> _takeResponseSnapshot;
-    private readonly ISerialize<HttpRequest> _serializeRequest;
-    private readonly ISerialize<HttpResponse> _serializeResponse;
-    private readonly Configuration _configuration;
+    private readonly IFilter<HttpRequest> _requestFilter;
+    private readonly IFilter<HttpResponse> _responseFilter;
 
     public WiretapMiddleware
     (
@@ -27,63 +27,84 @@ public class WiretapMiddleware
         RequestDelegate next,
         ITakeSnapshot<HttpRequest> takeRequestSnapshot,
         ITakeSnapshot<HttpResponse> takeResponseSnapshot,
-        ISerialize<HttpRequest> serializeRequest,
-        ISerialize<HttpResponse> serializeResponse,
-        Configuration configuration
+        IFilter<HttpRequest> requestFilter,
+        IFilter<HttpResponse> responseFilter
     )
     {
         _logger = logger;
         _next = next;
         _takeRequestSnapshot = takeRequestSnapshot;
         _takeResponseSnapshot = takeResponseSnapshot;
-        _serializeRequest = serializeRequest;
-        _serializeResponse = serializeResponse;
-        _configuration = configuration;
+        _requestFilter = requestFilter;
+        _responseFilter = responseFilter;
     }
 
     public async Task Invoke(HttpContext context)
     {
-        var correlationId = _configuration.GetCorrelationId(context);
-        var requestBody = _configuration.CanLogRequestBody(context) ? await _serializeRequest.Invoke(context.Request) : default;
-        using var activity = _logger.Begin("HandleRequest");
-        using var detailsToken = activity.Items.PushDetails(new { correlationId });
-        activity.LogRequest(details: new { request = _takeRequestSnapshot.Invoke(context.Request) }, attachment: requestBody);
-
-        var responseStream = context.Response.Body;
-        try
+        using (var activity = _logger.Begin("DumpRequest", details: new { context.TraceIdentifier }))
         {
-            using var memoryStream = new MemoryStream();
-            context.Response.Body = memoryStream;
+            var requestBody = default(object);
+            if (_requestFilter.Matches(context))
+            {
+                context.Request.EnableBuffering();
+                if (context.Request.Body.TryRewind())
+                {
+                    using var reader = new StreamReader(context.Request.Body, leaveOpen: true);
+                    requestBody = await reader.ReadToEndAsync();
+                }
+            }
 
-            await _next(context);
+            activity.LogRequest(details: new { request = _takeRequestSnapshot.Invoke(context.Request) }, attachment: requestBody);
+        }
 
-            var responseBody = _configuration.CanLogResponseBody(context) ? await _serializeResponse.Invoke(context.Response) : default;
+        // save the original stream for later to restore it
+        var responseStream = context.Response.Body;
 
-            await memoryStream.CopyToAsync(responseStream);
+        // replace the stream with one supporting seeking
+        using var memoryStream = new MemoryStream();
+        context.Response.Body = memoryStream;
+
+        using (var activity = _logger.Begin("MeasureRequest", details: new { context.TraceIdentifier }))
+        {
+            try
+            {
+                await _next(context);
+            }
+            catch (Exception e)
+            {
+                activity.LogError(attachment: e);
+                throw;
+            }
+        }
+
+        using (var activity = _logger.Begin("DumpResponse", details: new { context.TraceIdentifier }))
+        {
+            var responseBody = default(object);
+            try
+            {
+                if (_responseFilter.Matches(context))
+                {
+                    if (context.Response.Body.TryRewind())
+                    {
+                        using var reader = new StreamReader(context.Response.Body, leaveOpen: true);
+                        responseBody = await reader.ReadToEndAsync();
+                        // copy the response back to the original stream
+                        await memoryStream.Rewind().CopyToAsync(responseStream);
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                activity.LogError(attachment: e);
+                throw;
+            }
+            finally
+            {
+                // restore the original stream
+                context.Response.Body = responseStream;
+            }
 
             activity.LogResponse(details: new { response = _takeResponseSnapshot.Invoke(context.Response) }, attachment: responseBody);
-            activity.LogEnd();
         }
-        catch (Exception inner)
-        {
-            activity.LogError(attachment: inner);
-            throw;
-        }
-        finally
-        {
-            context.Response.Body = responseStream;
-        }
-    }
-
-    [PublicAPI]
-    public class Configuration
-    {
-        public Func<HttpContext, string> GetCorrelationId { get; set; } = context => context.CorrelationId() ?? context.TraceIdentifier;
-
-        public Func<HttpContext, bool> CanLogRequestBody { get; set; } = _ => true;
-
-        public Func<HttpContext, bool> CanLogResponseBody { get; set; } = _ => true;
-
-        //public Func<HttpContext, bool> CanUpdateOriginalResponseBody { get; set; } = c => !c.Response.StatusCode.In(204, 304);
     }
 }

@@ -24,7 +24,7 @@ public class ActivityContext : IActivity
     {
         Name = name;
         Logger = logger;
-        Items = new SoftDictionary();
+        Items = new SoftDictionary<object?>();
         Items.SetItem(Strings.Items.Owner, Logger.Owner);
         Chain = AsyncScope.Push(this);
     }

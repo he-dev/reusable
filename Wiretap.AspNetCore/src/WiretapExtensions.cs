@@ -1,8 +1,6 @@
-﻿using System;
-using Microsoft.AspNetCore.Builder;
+﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
-using Reusable.Extensions;
 using Reusable.Wiretap.AspNetCore.Abstractions;
 using Reusable.Wiretap.AspNetCore.Services;
 
@@ -19,15 +17,15 @@ public static class WiretapExtensions
             services
                 .AddSingleton<ITakeSnapshot<HttpRequest>, TakeRequestSnapshot>()
                 .AddSingleton<ITakeSnapshot<HttpResponse>, TakeResponseSnapshot>()
-                .AddSingleton<ISerialize<HttpRequest>, SerializeRequest>()
-                .AddSingleton<ISerialize<HttpResponse>, SerializeResponse>();
+                .AddSingleton<IFilter<HttpRequest>, RequestFilter>()
+                .AddSingleton<IFilter<HttpResponse>, ResponseFilter>();
     }
     
     /// <summary>
     /// Registers Wiretap middleware.
     /// </summary>
-    public static IApplicationBuilder UseWiretap(this IApplicationBuilder builder, Action<WiretapMiddleware.Configuration> configure = default)
+    public static IApplicationBuilder UseWiretap(this IApplicationBuilder builder)
     {
-        return builder.UseMiddleware<WiretapMiddleware>(new WiretapMiddleware.Configuration().Also(configure));
+        return builder.UseMiddleware<WiretapMiddleware>();
     }
 }
