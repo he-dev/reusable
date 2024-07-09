@@ -1,17 +1,14 @@
 ﻿using System;
 using System.IO;
 using System.Threading.Tasks;
-using JetBrains.Annotations;
 using Microsoft.AspNetCore.Http;
 using Reusable.Extensions;
 using Reusable.Wiretap.Abstractions;
 using Reusable.Wiretap.AspNetCore.Abstractions;
-using Reusable.Wiretap.AspNetCore.Services;
+using Reusable.Wiretap.AspNetCore.Extensions;
 
 namespace Reusable.Wiretap.AspNetCore;
 
-[UsedImplicitly]
-[PublicAPI]
 public class WiretapMiddleware
 {
     private readonly ILogger _logger;
@@ -41,7 +38,7 @@ public class WiretapMiddleware
 
     public async Task Invoke(HttpContext context)
     {
-        using (var activity = _logger.Begin("DumpRequest", details: new { context.TraceIdentifier }))
+        using (var activity = _logger.LogBegin("DumpRequest", data: new { context.TraceIdentifier }))
         {
             var requestBody = default(object);
             if (_requestFilter.Matches(context))
@@ -64,7 +61,7 @@ public class WiretapMiddleware
         using var memoryStream = new MemoryStream();
         context.Response.Body = memoryStream;
 
-        using (var activity = _logger.Begin("MeasureRequest", details: new { context.TraceIdentifier }))
+        using (var activity = _logger.LogBegin("MeasureRequest", data: new { context.TraceIdentifier }))
         {
             try
             {
@@ -77,7 +74,7 @@ public class WiretapMiddleware
             }
         }
 
-        using (var activity = _logger.Begin("DumpResponse", details: new { context.TraceIdentifier }))
+        using (var activity = _logger.LogBegin("DumpResponse", data: new { context.TraceIdentifier }))
         {
             var responseBody = default(object);
             try

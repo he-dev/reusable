@@ -1,15 +1,38 @@
+using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using JetBrains.Annotations;
 using Reusable.Extensions;
-using Reusable.Wiretap.Abstractions;
-using Reusable.Wiretap.Services;
 
 namespace Reusable.Wiretap;
 
 public static class LoggerExtensions
 {
     [MustUseReturnValue]
-    public static IActivity Begin(this ILogger logger, string name, string? message = default, object? details = default, object? attachment = default)
+    public static IProcedure LogBegin
+    (
+        this ILogger logger,
+        string? name = default,
+        string? message = default,
+        object? data = default,
+        IEnumerable<object>? tags = default,
+        [CallerMemberName] string func = "",
+        [CallerFilePath] string file = "",
+        [CallerLineNumber] int line = 0
+    )
     {
-        return new ActivityContext(name, logger).Also(activity => activity.LogBegin(message, details, attachment));
+        return new ProcedureContext(logger, name ?? func, new Source(func, file, line)).Also
+        (
+            activity => activity.Log
+            (
+                new Trace
+                (
+                    Name: "begin",
+                    Message: message,
+                    Data: data,
+                    Tags: tags
+                ),
+                inProgress: true
+            )
+        );
     }
 }

@@ -1,7 +1,6 @@
 ﻿using System;
 using System.IO;
 using System.Linq.Expressions;
-using System.Reactive.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
@@ -21,7 +20,7 @@ internal static class Program
         //await Experiments.ServicePipelineDemo.Test();
         //await Experiments.ServicePipelineDemo2.Test();
         //PrismDemo.Start();
-        Examples.Log();
+        Examples.LogExample();
 
         //Examples.Tokenize();
         //await Examples.SendEmailAsync_Mailr();

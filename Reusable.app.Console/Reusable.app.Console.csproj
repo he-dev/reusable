@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFramework>net7.0</TargetFramework>
+    <TargetFramework>net8.0</TargetFramework>
     <RootNamespace>Reusable</RootNamespace>
     <LangVersion>latest</LangVersion>
     <DebugType>full</DebugType>
@@ -17,30 +17,26 @@
     <Compile Remove="src\Examples\Translucent.cs" />
     <Compile Remove="src\Experiments\ServicePipelineBuilder2.cs" />
     <Compile Remove="src\Experiments\ServicePipelineBuilder.cs" />
+    <Compile Remove="src\Examples\PrismDemo.cs" />
+    <Compile Remove="src\Examples\Tokenizer.cs" />
+    <Compile Remove="src\Experiments\**" />
+    <Compile Remove="src\Demo.cs" />
 <!--    <Compile Remove="src\Examples\OmniLog.v2.cs" />-->
   </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="JetBrains.Annotations" Version="2021.3.0" />
     <PackageReference Include="Microsoft.Data.SqlClient" Version="5.1.0" />
-    <PackageReference Include="NLog" Version="5.1.1" />
-    <PackageReference Include="NLog.Database" Version="5.1.1" />
-    <PackageReference Include="NLog.Schema" Version="5.1.1" />
+    <PackageReference Include="NLog" Version="5.3.2" />
+    <PackageReference Include="NLog.Database" Version="5.3.2" />
+    <PackageReference Include="NLog.Schema" Version="5.3.2" />
     <PackageReference Include="System.Reactive" Version="5.0.0" />
     <PackageReference Include="Microsoft.Data.Sqlite" Version="6.0.1" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Reusable.Marbles\Reusable.Marbles.csproj" />
-<!--    <ProjectReference Include="..\Reusable.Toggle\Reusable.Toggle.csproj" />-->
-    <ProjectReference Include="..\Reusable.Snowball\Reusable.Snowball.csproj" />
-    <ProjectReference Include="..\Reusable.Fluorite\Reusable.Fluorite.csproj" />
+    <ProjectReference Include="..\Wiretap.Modules.Loggers.NLog\Wiretap.Modules.Loggers.NLog.csproj" />
     <ProjectReference Include="..\Wiretap\Wiretap.csproj" />
-    <ProjectReference Include="..\Reusable.Prism\Reusable.Prism.csproj" />
-    <ProjectReference Include="..\Wiretap.Channels.NLog\Wiretap.Channels.NLog.csproj" />
-    <ProjectReference Include="..\Reusable.ReMember\Reusable.ReMember.csproj" />
-    <ProjectReference Include="..\Reusable.Utilities.JsonNet\Reusable.Utilities.JsonNet.csproj" />
-<!--    <ProjectReference Include="..\Reusable.Utilities.NLog\Reusable.Utilities.NLog.csproj" />-->
   </ItemGroup>
 
 <!--  <ItemGroup>-->
@@ -67,6 +63,7 @@
       <AutoGen>True</AutoGen>
       <DependentUpon>NLog.tt</DependentUpon>
     </None>
+    <None Remove="src\Experiments\**" />
   </ItemGroup>
 
 
@@ -87,6 +84,11 @@
       <AutoGen>True</AutoGen>
       <DependentUpon>NLog.tt</DependentUpon>
     </Content>
+  </ItemGroup>
+
+
+  <ItemGroup>
+    <EmbeddedResource Remove="src\Experiments\**" />
   </ItemGroup>
   
 <!--  <ItemGroup>-->

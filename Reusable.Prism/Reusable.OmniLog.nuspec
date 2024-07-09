@@ -17,7 +17,7 @@
       <dependency id="System.Data.DataSetExtensions" version="4.5.0" />
       <dependency id="Reusable.Core" version="21.1.0" />
       <dependency id="Reusable.Fluorite" version="21.1.0" />
-      <dependency id="Reusable.Wiretap.Abstractions" version="21.1.0" />
+      <dependency id="Reusable.Wiretap.Core" version="21.1.0" />
       <dependency id="Reusable.Utilities.JsonNet" version="21.1.0" />
     </dependencies>
   </metadata>

@@ -1,13 +1,12 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
-using JetBrains.Annotations;
 
 namespace Reusable;
 
-[PublicAPI]
-public class AsyncScope<T> : IDisposable
+public class AsyncScope<T> : IDisposable, IEnumerable<AsyncScope<T>>
 {
     private static readonly AsyncLocal<AsyncScope<T>> State = new();
 
@@ -22,12 +21,12 @@ public class AsyncScope<T> : IDisposable
     /// <summary>
     /// Enumerates scopes. Deepest first.
     /// </summary>
-    public static IEnumerable<T> Enumerate() => Current?.Enumerate().Select(s => s.Value) ?? Enumerable.Empty<T>();
+    public static IEnumerable<T> Enumerate() => Current?.Select(s => s.Value) ?? [];
 
     /// <summary>
     /// Gets a value indicating whether there are any states on the stack.
     /// </summary>
-    public static bool Exists => State.Value is { };
+    public static bool Exists => State.Value is not null;
 
     public static AsyncScope<T> Push(T value)
     {
@@ -39,11 +38,17 @@ public class AsyncScope<T> : IDisposable
 
     public void Dispose()
     {
-        //(State.Value!.Value as IDisposable)?.Dispose();
         State.Value = State.Value!.Parent;
     }
 
     public static implicit operator T(AsyncScope<T> scope) => scope.Value;
+
+    public IEnumerator<AsyncScope<T>> GetEnumerator()
+    {
+        for (var scope = Parent; scope is not null; scope = scope.Parent) yield return scope;
+    }
+
+    IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 }
 
 public static class AsyncScope

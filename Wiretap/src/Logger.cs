@@ -1,26 +1,34 @@
 using System;
-using Reusable.Wiretap.Abstractions;
-using Reusable.Wiretap.Services;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace Reusable.Wiretap;
 
-public class Logger : ILogger
-{
-    public required Type Owner { get; init; }
+public record LogProperty(string Name, object? Value);
 
-    public required LogAction Log { get; init; }
+public interface ILogger
+{
+    void Log(IEnumerable<LogProperty> properties);
 }
 
-public class Logger<T> : ILogger<T>
+public class Logger(IEnumerable<ILogger> loggers) : ILogger
 {
-    public Logger(LoggerFactory factory)
+    public virtual void Log(IEnumerable<LogProperty> properties)
     {
-        Inner = factory.CreateLogger<T>();
+        properties = properties.ToList();
+        foreach (var logger in loggers)
+        {
+            logger.Log(properties);
+        }
     }
+}
 
-    private ILogger Inner { get; }
+public interface ILogger<T> : ILogger { }
 
-    Type ILogger.Owner => Inner.Owner;
-
-    LogAction ILogger.Log => Inner.Log;
+public class Logger<T>(IEnumerable<ILogger> loggers) : Logger(loggers), ILogger<T>
+{
+    public override void Log(IEnumerable<LogProperty> properties)
+    {
+        base.Log(properties.Append(new LogProperty(nameof(Type), typeof(T))));
+    }
 }

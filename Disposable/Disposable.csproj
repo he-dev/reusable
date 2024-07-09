@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFramework>net7.0</TargetFramework>
+        <TargetFramework>net8.0</TargetFramework>
         <Configurations>Debug;Release</Configurations>
         <Platforms>AnyCPU</Platforms>
         <Nullable>enable</Nullable>
@@ -19,15 +19,15 @@
         <DefineConstants>TRACE;RELEASE</DefineConstants>
     </PropertyGroup>
 
-    <ItemGroup>
-        <PackageReference Include="JetBrains.Annotations" Version="2022.3.1" PrivateAssets="All" />
-    </ItemGroup>
-
     <PropertyGroup>
         <PackageId>Reusable.Disposable</PackageId>
         <Version>33.0.2</Version>
         <Authors>he-dev</Authors>
         <PackageLicenseExpression>MIT</PackageLicenseExpression>
     </PropertyGroup>
+
+    <ItemGroup>
+      <Folder Include="src\" />
+    </ItemGroup>
 
 </Project>

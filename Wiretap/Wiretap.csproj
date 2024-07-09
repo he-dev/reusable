@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net7.0</TargetFramework>
+    <TargetFramework>net8.0</TargetFramework>
     <Configurations>Debug;Release</Configurations>
     <Platforms>AnyCPU</Platforms>
     <LangVersion>latest</LangVersion>
@@ -20,19 +20,39 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="JetBrains.Annotations" Version="2022.3.1" PrivateAssets="All" />
+    <PackageReference Include="JetBrains.Annotations" Version="2023.3.0" PrivateAssets="All" />
 <!--    <PackageReference Include="Microsoft.Extensions.Caching.Abstractions" Version="7.0.0" />-->
 <!--    <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="7.0.0" />-->
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Extensions\Extensions.csproj" />
-    <ProjectReference Include="..\SoftString\SoftString.csproj" />
-    <ProjectReference Include="..\StringInterpolation\StringInterpolation.csproj" />
-    <ProjectReference Include="..\Disposable\Disposable.csproj" />
-    <ProjectReference Include="..\AsyncScope\AsyncScope.csproj" />
+    <Compile Include="..\Core\src\Extensions\DictionaryExtensions.cs">
+      <Link>src\Reusable\Extensions\DictionaryExtensions.cs</Link>
+    </Compile>
+    <Compile Include="..\Core\src\Extensions\DelegateExtensions.cs">
+      <Link>src\Reusable\Extensions\DelegateExtensions.cs</Link>
+    </Compile>
+    <Compile Include="..\Core\src\Extensions\StringExtensions.cs">
+      <Link>src\Reusable\Extensions\StringExtensions.cs</Link>
+    </Compile>
+    <Compile Include="..\Core\src\Extensions\StringBuilderExtensions.cs">
+      <Link>src\Reusable\Extensions\StringBuilderExtensions.cs</Link>
+    </Compile>
+    <Compile Include="..\Core\src\Disposable.cs">
+      <Link>src\Reusable\Disposable.cs</Link>
+    </Compile>
+    <Compile Include="..\Core\src\StringComparerLite.cs">
+      <Link>src\Reusable\StringComparerLite.cs</Link>
+    </Compile>
+    <Compile Include="..\Core\src\AsyncScope.cs">
+      <Link>src\Reusable\AsyncScope.cs</Link>
+    </Compile>
+    <Compile Remove="src\Filters\Loggers\LogToDebug.cs" />
+    <Compile Remove="src\Filters\Loggers\LogToConsole.cs" />
+    <Compile Remove="src\Loggers\LogToConsole.cs" />
+    <Compile Remove="src\Loggers\LogToDebug.cs" />
+    <Compile Remove="src\SerializeSnapshot.cs" />
   </ItemGroup>
-
 
   <PropertyGroup>
     <PackageId>Reusable.Wiretap</PackageId>

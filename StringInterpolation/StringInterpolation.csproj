@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFramework>net7.0</TargetFramework>
+        <TargetFramework>net8.0</TargetFramework>
         <Configurations>Debug;Release</Configurations>
         <Platforms>AnyCPU</Platforms>
         <Nullable>enable</Nullable>
@@ -20,12 +20,7 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="JetBrains.Annotations" Version="2022.3.1" PrivateAssets="All" />
-    </ItemGroup>
-    
-    <ItemGroup>
-        <ProjectReference Include="..\SoftString\SoftString.csproj" />
-        <ProjectReference Include="..\Digraph\Digraph.csproj" />
+        <PackageReference Include="JetBrains.Annotations" Version="2023.3.0" PrivateAssets="All" />
     </ItemGroup>
 
 </Project>

@@ -16,7 +16,7 @@
       <dependency id="JetBrains.Annotations" version="2021.3.0" />
       <dependency id="NLog" version="4.7.12" />
       <dependency id="Reusable.Core" version="21.1.0" />
-      <dependency id="Reusable.Wiretap.Abstractions" version="21.1.0" />
+      <dependency id="Reusable.Wiretap.Core" version="21.1.0" />
     </dependencies>
   </metadata>
   <files>
