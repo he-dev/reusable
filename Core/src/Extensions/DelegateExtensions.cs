@@ -4,7 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 
-namespace Reusable.Extensions;
+namespace Reusable.Wiretap.Reusable;
 
 [PublicAPI]
 public static class DelegateExtensions

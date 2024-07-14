@@ -1,26 +1,33 @@
 ﻿using System;
-using System.Linq;
 using Reusable.Wiretap;
-using Reusable.Wiretap.Modules.Loggers;
-using NLog;
+using Reusable.Wiretap.Loggers;
 
 namespace Reusable;
 
-public static partial class Examples
+public class Examples
 {
     public static void LogExample()
     {
-        NativeJsonSerializer.Register();
-        var logger = new Wiretap.Logger(new[] { new NLogAdapter() });
+        NLogJsonAdapter.Register();
+        var telemetry = new Telemetry<Examples>(new Wiretap.Loggers.NLog())
+        {
+            Properties =
+            {
+                new EnvironmentProperty.Provider { "OneDrive" }
+            }
+        };
 
+        LogNestedProcedures(telemetry);
+
+        return;
         // Opening outer-scope.
-        using (var outer = logger.LogBegin(tags: new[] { "foo-tag" }))
+        using (var outer = telemetry.LogBegin(tags: new[] { "foo-tag" }))
         {
             outer.LogInfo("this_is_an_info");
             outer.LogSnapshot(new { m = "m" });
 
             // Opening inner-scope.
-            using (var inner = logger.LogBegin("inner", data: new { fileName = "note.txt" }))
+            using (var inner = telemetry.LogBegin("inner", data: new { fileName = "note.txt" }))
             {
                 // Logging an entire object in a single line.
                 // var customer = new Person
@@ -48,5 +55,11 @@ public static partial class Examples
             //logger.Scope().Exceptions.Push(new DivideByZeroException());
             outer.LogInfo(tags: new[] { "Bye bye scopes!" });
         }
+    }
+
+    public static void LogNestedProcedures(Telemetry telemetry)
+    {
+        using var p1 = telemetry.LogBegin(data: new { foo = "foo", bar = "bar" }, tags: new[] { "foo" });
+        using var p2 = telemetry.LogBegin(data: new { bar = "baz", baz = "baz" }, tags: new[] { "bar" });
     }
 }

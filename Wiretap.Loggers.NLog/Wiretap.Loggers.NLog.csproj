@@ -2,12 +2,12 @@
 
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
-    <RootNamespace>Reusable.Wiretap.Modules.Loggers</RootNamespace>
+    <RootNamespace>Reusable.Wiretap.Loggers</RootNamespace>
     <Configurations>Debug;Release</Configurations>
     <Platforms>AnyCPU</Platforms>
     <Nullable>enable</Nullable>
     <LangVersion>latest</LangVersion>
-    <AssemblyName>Reusable.Wiretap.Modules.Loggers.NLog</AssemblyName>
+    <AssemblyName>Reusable.Wiretap.Loggers.NLog</AssemblyName>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">

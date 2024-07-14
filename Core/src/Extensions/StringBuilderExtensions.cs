@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Text;
 
-namespace Reusable.Extensions;
+namespace Reusable.Wiretap.Reusable;
 
 public static class StringBuilderExtensions
 {

@@ -5,34 +5,34 @@ namespace Reusable.Wiretap;
 
 public static class ProcedureTraces
 {
-    public static IProcedure LogInfo
+    public static Procedure LogInfo
     (
-        this IProcedure procedure,
+        this Procedure procedure,
         string? message = default,
         object? data = default,
-        IEnumerable<object>? tags = default
+        IEnumerable<string>? tags = default
     )
     {
         return Trace.GetNameByCaller(name => procedure.Log(new Trace(name, message, data, tags)));
     }
 
-    public static IProcedure LogMetric
+    public static Procedure LogMetric
     (
-        this IProcedure procedure,
+        this Procedure procedure,
         object data,
         string? message = default,
-        IEnumerable<object>? tags = default
+        IEnumerable<string>? tags = default
     )
     {
         return Trace.GetNameByCaller(name => procedure.Log(new Trace(name, message, data, tags), inProgress: false));
     }
 
-    public static IProcedure LogSnapshot
+    public static Procedure LogSnapshot
     (
-        this IProcedure procedure,
+        this Procedure procedure,
         object data,
         string? message = default,
-        IEnumerable<object>? tags = default
+        IEnumerable<string>? tags = default
     )
     {
         return Trace.GetNameByCaller(name => procedure.Log(new Trace(name, message, data, tags, Severity.Low)));
@@ -41,12 +41,12 @@ public static class ProcedureTraces
     /// <summary>
     /// Everything went fine.
     /// </summary>
-    public static IProcedure LogEnd
+    public static Procedure LogEnd
     (
-        this IProcedure procedure,
+        this Procedure procedure,
         string? message = default,
         object? data = default,
-        IEnumerable<object>? tags = default
+        IEnumerable<string>? tags = default
     )
     {
         return Trace.GetNameByCaller(name => procedure.Log(new Trace(name, message, data, tags), inProgress: false));
@@ -55,12 +55,12 @@ public static class ProcedureTraces
     /// <summary>
     /// Something went wrong.
     /// </summary>
-    public static IProcedure LogError
+    public static Procedure LogError
     (
-        this IProcedure procedure,
+        this Procedure procedure,
         string? message = default,
         object? data = default,
-        IEnumerable<object>? tags = default,
+        IEnumerable<string>? tags = default,
         Exception? exception = default
     )
     {

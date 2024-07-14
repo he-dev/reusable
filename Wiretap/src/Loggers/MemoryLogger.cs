@@ -6,15 +6,15 @@ using JetBrains.Annotations;
 namespace Reusable.Wiretap.Loggers;
 
 [PublicAPI]
-public class MemoryLogger(int capacity = 1_000_000) : ILogger, IEnumerable<IDictionary<string, LogProperty>>
+public class MemoryLogger(int capacity = 1_000_000) : ILogger, IEnumerable<IDictionary<string, object>>
 {
-    private Queue<IDictionary<string, LogProperty>> Entries { get; } = new();
+    private Queue<IDictionary<string, object>> Entries { get; } = new();
 
-    public void Log(IEnumerable<LogProperty> properties)
+    public void Log(IEnumerable<KeyValuePair<string, object>> properties)
     {
         lock (Entries)
         {
-            Entries.Enqueue(properties.ToDictionary(x => x.Name, new StringComparerLite()));
+            Entries.Enqueue(properties.ToDictionary(x => x.Key, x => x.Value, new StringComparerLite()));
             if (capacity > 0 && Entries.Count > capacity)
             {
                 Entries.Dequeue();
@@ -22,7 +22,7 @@ public class MemoryLogger(int capacity = 1_000_000) : ILogger, IEnumerable<IDict
         }
     }
 
-    public IEnumerator<IDictionary<string, LogProperty>> GetEnumerator() => Entries.GetEnumerator();
+    public IEnumerator<IDictionary<string, object>> GetEnumerator() => Entries.GetEnumerator();
 
     [MustDisposeResource]
     IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable)Entries).GetEnumerator();

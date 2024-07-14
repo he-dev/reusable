@@ -1,9 +1,9 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <package>
   <metadata>
-    <id>Reusable.Wiretap.Modules.Loggers.NLog</id>
+    <id>Reusable.Wiretap.Loggers.NLog</id>
     <version>21.1.0</version>
-    <title>Reusable.Wiretap.Modules.Loggers.NLog</title>
+    <title>Reusable.Wiretap.Loggers.NLog</title>
     <authors>He-Dev</authors>
     <owners>He-Dev</owners>
     <license type="expression">MIT</license>
@@ -20,9 +20,9 @@
     </dependencies>
   </metadata>
   <files>
-    <file src="bin\Release\net47\Reusable.Wiretap.Modules.Loggers.NLog.dll" target="lib\net47" />
-    <file src="bin\Release\net47\Reusable.Wiretap.Modules.Loggers.NLog.pdb" target="lib\net47" />
-    <file src="bin\Release\netcoreapp2.2\Reusable.Wiretap.Modules.Loggers.NLog.dll" target="lib\netcoreapp2.2" />
-    <file src="bin\Release\netcoreapp2.2\Reusable.Wiretap.Modules.Loggers.NLog.pdb" target="lib\netcoreapp2.2" />
+    <file src="bin\Release\net47\Reusable.Wiretap.Loggers.NLog.dll" target="lib\net47" />
+    <file src="bin\Release\net47\Reusable.Wiretap.Loggers.NLog.pdb" target="lib\net47" />
+    <file src="bin\Release\netcoreapp2.2\Reusable.Wiretap.Loggers.NLog.dll" target="lib\netcoreapp2.2" />
+    <file src="bin\Release\netcoreapp2.2\Reusable.Wiretap.Loggers.NLog.pdb" target="lib\netcoreapp2.2" />
   </files>
 </package>

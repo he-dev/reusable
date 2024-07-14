@@ -1,11 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
-using JetBrains.Annotations;
 
-namespace Reusable.Extensions;
+namespace Reusable.Wiretap.Reusable;
 
 public static class DictionaryExtensions
 {

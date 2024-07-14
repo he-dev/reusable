@@ -7,7 +7,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using JetBrains.Annotations;
 
-namespace Reusable.Extensions;
+namespace Reusable.Wiretap.Reusable;
 
 public static class StringExtensions
 {

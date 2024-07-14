@@ -5,7 +5,7 @@ VisualStudioVersion = 16.0.29102.190
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Wiretap", "Wiretap\Wiretap.csproj", "{6C0AB70F-1BCB-488C-B905-6681A3BF152F}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Wiretap.Channels.NLog", "Wiretap.Modules.Loggers.NLog\Wiretap.Modules.Loggers.NLog.csproj", "{2E315F60-6572-4E5E-866D-475D6A990CD5}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Wiretap.Loggers.NLog", "Wiretap.Loggers.NLog\Wiretap.Loggers.NLog.csproj", "{2E315F60-6572-4E5E-866D-475D6A990CD5}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Reusable.Utilities.JsonNet", "Reusable.Utilities.JsonNet\Reusable.Utilities.JsonNet.csproj", "{4112D46D-2496-40D4-A0D0-33C190A11C7B}"
 EndProject
